@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+    <div class="container">
+      <a class="navbar-brand" href="#">Barber Faster</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link active" href="index.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="#servicios">Servicios</a></li>
+          <li class="nav-item"><a class="nav-link" href="#testimonios">Testimonios</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- Sidebar -->
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-md-3 col-lg-2 d-md-block sidebar text-center p-3">
+        <div class="profile-img mb-3">
+          <img src="img/cat2.jpg" alt="Foto de perfil" class="img-fluid rounded-circle shadow">
+          <h4>Bienvenido</h4>
+        </div>
+        <div class="nav flex-column mt-4">
+          <button class="tab-btn active" data-target="negocio">Tu negocio</button>
+          <button class="tab-btn" data-target="finanzas">Finanzas</button>
+          <button class="tab-btn" data-target="agenda">Agenda</button>
+          <button class="tab-btn" data-target="soporte">Soporte</button>
+        </div>
+        <div class="logout-btn">
+          <a href="#" class="btn btn-danger w-100 mt-4">Cerrar sesión</a>
+        </div>
+      </nav>
+
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+        <!-- Tu negocio -->
+        <section id="negocio" class="active text-center">
+          <h2>Bienvenido al Dashboard</h2>
+          <h5><strong>Usa las pestañas de la izquierda para navegar entre las diferentes secciones.</strong></h5>
+          <p>Ahora mismo te encuentras visualizando Tu Negocio</p>
+
+          <h1>Tu negocio</h1>
+          <img src="img/logo.png" alt="Imagen del negocio">
+          <h1>Ubicación</h1>
+
+          <div class="d-flex justify-content-center mt-4">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.9484805128214!2d-74.08174938573507!3d4.609710043523263!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f99a17b8b7b09%3A0x9f2f07bdf7a2baf2!2sBogot%C3%A1%2C%20Colombia!5e0!3m2!1ses!2sco!4v1698285742047!5m2!1ses!2sco"
+              allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+        </section>
+
+        <!-- Finanzas -->
+        <section id="finanzas">
+          <h2>Resumen general del sistema</h2>
+          <div class="d-flex justify-content-end mb-3">
+            <button id="toggleButton" class="btn btn-outline-primary">Ver datos semanales</button>
+          </div>
+          <div class="row g-4">
+            <div class="col-md-4">
+              <div class="card text-bg-primary">
+                <div class="card-body">
+                  <h5 class="card-title">Visitas:</h5>
+                  <p class="card-text fs-4" id="usuarios">120</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card text-bg-success">
+                <div class="card-body">
+                  <h5 class="card-title">Ganancias:</h5>
+                  <p class="card-text fs-4" id="ventas">$130.000</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card text-bg-warning">
+                <div class="card-body">
+                  <h5 class="card-title">Alertas:</h5>
+                  <p class="card-text fs-4" id="alertas">3 nuevas</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card mt-5">
+            <div class="card-body">
+              <h5 class="card-title">Usuarios nuevos por día</h5>
+              <canvas id="graficoUsuarios" height="100"></canvas>
+            </div>
+          </div>
+          <div class="mt-3 text-center">
+            <button id="exportButton" class="btn btn-outline-success">Exportar Datos</button>
+          </div>
+        </section>
+
+        <!-- Agenda -->
+        <section id="agenda">
+          <h2>Gestión de agenda</h2>
+          <p>En desarrollo.</p>
+        </section>
+
+        <!-- Soporte -->
+        <section id="soporte">
+          <h2>Soporte</h2>
+          <p>En proceso.</p>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const tabButtons = document.querySelectorAll(".tab-btn");
+      const sections = document.querySelectorAll("main section");
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          tabButtons.forEach(b => b.classList.remove("active"));
+          sections.forEach(s => s.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById(btn.dataset.target).classList.add("active");
+        });
+      });
+
+      const ctx = document.getElementById('graficoUsuarios');
+      if (ctx) {
+        const graficoUsuarios = new Chart(ctx.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+            datasets: [{
+              label: 'Usuarios nuevos (diarios)',
+              data: [18, 27, 14, 21, 16, 13, 11],
+              backgroundColor: '#ffd700',
+              borderColor: '#c0a000',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+
+        const toggleButton = document.getElementById("toggleButton");
+        let mostrandoSemanal = false;
+        toggleButton.addEventListener("click", () => {
+          mostrandoSemanal = !mostrandoSemanal;
+          if (mostrandoSemanal) {
+            document.getElementById("usuarios").textContent = "915";
+            document.getElementById("ventas").textContent = "$870.300";
+            document.getElementById("alertas").textContent = "12 nuevas";
+            toggleButton.textContent = "Ver datos diarios";
+            graficoUsuarios.data.datasets[0].data = [120, 135, 110, 140, 130, 140, 140];
+            graficoUsuarios.data.datasets[0].label = "Usuarios nuevos (semanales)";
+          } else {
+            document.getElementById("usuarios").textContent = "120";
+            document.getElementById("ventas").textContent = "$130.000";
+            document.getElementById("alertas").textContent = "3 nuevas";
+            toggleButton.textContent = "Ver datos semanales";
+            graficoUsuarios.data.datasets[0].data = [18, 27, 14, 21, 16, 13, 11];
+            graficoUsuarios.data.datasets[0].label = "Usuarios nuevos (diarios)";
+          }
+          graficoUsuarios.update();
+        });
+
+        document.getElementById("exportButton").addEventListener("click", () => {
+          const usuarios = document.getElementById("usuarios").textContent;
+          const ventas = document.getElementById("ventas").textContent;
+          const alertas = document.getElementById("alertas").textContent;
+          const rows = [
+            ["Métrica", "Valor"],
+            ["Usuarios", usuarios],
+            ["Ventas", ventas],
+            ["Alertas", alertas]
+          ];
+          const csv = "\uFEFF" + rows.map(e => e.join(",")).join("\n");
+          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "estadisticas.csv";
+          link.click();
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

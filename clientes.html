@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - Barber Faster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/clientes.css">
+</head>
+
+<body>
+    <!-- Navbar. Hay que hacerlo funcional -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Barber Faster</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <!-- Añadirle funcionalidad -->
+                <form class="d-flex me-3" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Buscar estilos..." aria-label="Buscar">
+                    <button class="btn custom-btn" type="submit">Buscar</button>
+                </form>
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="container my-5">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h1 class="section-title">Barberias disponibles en tu zona</h1>
+            <p class="lead" style="color: #d3d3d3;">Encuentra la inspiración para tu próximo corte. Haz clic en
+                cualquier imagen para ver más detalles.</p>
+        </div>
+
+        <!-- Tarjetas para barberias -->
+        <!-- Añadir a futuro un hover que muestre la información básica de la barbería. Ubicación, descripción y horarios principalmente-->
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+                <div class="style-card text-center">
+                    <a href="barberia_springfield.html" target="_blank">
+                        <img src="img/bfspringfield.png" class="card-img-top" alt="Barberia 'Springfield'">
+                    </a>
+                    <h5>Barbería springfield</h5>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+                <div class="style-card text-center">
+                    <a href="barberia_mebarbershopmore.html" target="_blank">
+                        <img src="img/bfmebarbershopmore.png" class="card-img-top" alt="Barberia 'MeBarberShop MORE'">
+                    </a>
+                    <h5>Barberia MeBarberShop MORE</h5>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+                <div class="style-card text-center">
+                    <a href="barberia_lasvegasbarbershop.html" target="_blank">
+                        <img src="img/bflasvegasbarbershop.png" class="card-img-top" alt="Barbería 'Las Vegas Barbershop'">
+                    </a>
+                    <h5>Barbería Las Vegas Barbershop</h5>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+                <div class="style-card text-center">
+                    <a href="barberia_theurbanblade.html" target="_blank">
+                        <img src="img/bftheurbanblade.png" class="card-img-top" alt="Barbería 'The Urban Blade'">
+                    </a>
+                    <h5>Barbería The Urban Blade</h5>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+                <div class="style-card text-center">
+                    <a href="#" target="_blank">
+                        <img src="img/cat.jpg" class="card-img-top" alt="Extra">
+                    </a>
+                    <h5>Tarjeta extra 1</h5>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+                <div class="style-card text-center">
+                    <a href="#" target="_blank">
+                        <img src="img/cat2.jpg" class="card-img-top" alt="Extra">
+                    </a>
+                    <h5>Tarjeta extra 2</h5>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+                <div class="style-card text-center">
+                    <a href="#" target="_blank">
+                        <img src="img/cat3.jpg" class="card-img-top" alt="Extra">
+                    </a>
+                    <h5>Tarjeta extra 3</h5>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+                <div class="style-card text-center">
+                    <a href="#" target="_blank">
+                        <img src="img/cat4.jpg" class="card-img-top" alt="Extra">
+                    </a>
+                    <h5>Tarjeta extra 4</h5>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Ayuda -->
+    <section class="help-section">
+        <div class="container text-center">
+            <h3 class="mb-4" data-aos="fade-up">¿Necesitas ayuda?</h3>
+            <p class="lead" data-aos="fade-up" data-aos-delay="100" style="color: #d3d3d3;">
+                Encuentra las barberías más cercanas y elige la que mejor se adapte a tu estilo. <br>
+                Haz clic sobre el logo o el nombre de la barbería para conocer sus servicios, horarios y barberos disponibles. <br>
+                Agenda tu cita en segundos y disfruta de una experiencia moderna, rápida y sin esperas con BarberFaster. </p>
+        </div>
+    </section>
+
+    <footer class="custom-footer text-center py-3">
+        <p class="mb-0">© 2025 Barber Faster | Todos los derechos reservados</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
+</body>
+
+</html>

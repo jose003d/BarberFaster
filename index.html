@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barber Faster</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+  <!-- Navbar. Espaciado necesario -->
+  <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Barber Faster</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <form class="d-flex me-3" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Buscar barberías..."
+                        aria-label="Buscar">
+                    <button class="btn custom-btn" type="submit">Buscar</button>
+                </form>
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+  <!-- Bienvenida. Imagenes con mayor calidad -->
+  <section class="welcome-section container my-5 py-4">
+    <div class="text-center mb-4" data-aos="fade-up">
+      <h2 class="section-title">Bienvenido a Barberfaster</h2>
+    </div>
+    <div class="row align-items-center" data-aos="fade-up">
+      <div class="col-md-6 mb-4 mb-md-0">
+        <div class="img-container-black-bg">
+          <img src="img/bflogo.png" class="img-fluid rounded shadow" alt="Bienvenido a Barberfaster">
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h3 class="welcome-subtitle">¿Que es BarberFaster?</h3>
+        <p class="welcome-text">BarberFaster lleva tu barbería al siguiente nivel. Agenda, organiza y cobra más rápido desde una sola plataforma. Simplifica tu trabajo y ofrece a tus clientes una experiencia moderna y profesional.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Segunda sección. Quizas mejorar claridad de texto -->
+  <section class="info-section container my-5 py-4">
+    <div class="text-center mb-4" data-aos="fade-up">
+      <h2 class="section-title">Elige cómo quieres vivir la experiencia BarberFaster</h2>
+    </div>
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8">
+        <p class="info-text mb-4" data-aos="fade-up">Creemos que un buen corte de pelo no solo mejora tu apariencia, sino que también eleva tu confianza. Por eso, cada servicio que ofrecemos está diseñado para proporcionar resultados excepcionales que duren.</p>
+        <p class="info-text" data-aos="fade-up" data-aos-delay="100">Utilizamos solo productos de alta calidad y herramientas profesionales para asegurar que cada detalle sea perfecto. Desde un corte clásico hasta los estilos más modernos, estamos aquí para hacer realidad tu visión.</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="200">
+        <a href="clientes.html" class="img-link">
+          <div class="img-container-black-bg">
+            <img src="img/bfclientes.png" class="img-fluid rounded shadow mb-3" alt="Clientes">
+          </div>
+        </a>
+        <h4 class="text-center">Clientes</h4>
+      </div>
+      <div class="col-md-6" data-aos="fade-up" data-aos-delay="300">
+        <a href="barberos.html" class="img-link">
+          <div class="img-container-black-bg">
+            <img src="img/bfbarberos.png" class="img-fluid rounded shadow mb-3" alt="Barberos">
+          </div>
+        </a>
+        <h4 class="text-center">Barberos</h4>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tarjetas con destacados -->
+  <section id="servicios" class="container my-5">
+    <div class="text-center mb-4" data-aos="fade-up">
+      <h2>Servicios destacados</h2>
+      <p>Lo mejor para tu imagen y confianza</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="card service-card h-100 shadow-sm">
+          <img src="img/cat.jpg" class="card-img-top" alt="Corte de cabello">
+          <div class="card-body">
+            <h5 class="card-title">Corte clásico</h5>
+            <p class="card-text">Estilo moderno o tradicional. Precio desde $15.000</p>
+            <a href="#" class="btn custom-btn">Ver más</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="card service-card h-100 shadow-sm">
+          <img src="img/cat2.jpg" class="card-img-top" alt="Barba">
+          <div class="card-body">
+            <h5 class="card-title">Perfilado de barba</h5>
+            <p class="card-text">Afeitado y diseño de barba. Precio desde $12.000</p>
+            <a href="#" class="btn custom-btn">Ver más</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="card service-card h-100 shadow-sm">
+          <img src="img/cat3.jpg" class="card-img-top" alt="Tratamientos">
+          <div class="card-body">
+            <h5 class="card-title">Tratamientos capilares</h5>
+            <p class="card-text">Cuida tu cabello con productos premium. Desde $20.000</p>
+            <a href="#" class="btn custom-btn">Ver más</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comentarios sobre la página. -->
+  <section id="testimonios" class="py-5">
+    <div class="container">
+      <div class="text-center mb-4" data-aos="fade-up">
+        <h2>Lo que opinan nuestros clientes</h2>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-4" data-aos="zoom-in">
+          <div class="testimonial">
+            <p>"Excelente servicio, siempre salgo satisfecho con mi corte."</p>
+            <strong>- Juan Pérez ⭐⭐⭐⭐⭐</strong>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="zoom-in" data-aos-delay="150">
+          <div class="testimonial">
+            <p>"El ambiente es genial y el personal muy profesional."</p>
+            <strong>- Andrés Gómez ⭐⭐⭐⭐⭐</strong>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="zoom-in" data-aos-delay="300">
+          <div class="testimonial">
+            <p>"Los mejores precios y la mejor calidad. 100% recomendado."</p>
+            <strong>- Carlos López ⭐⭐⭐⭐⭐</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Estilos destacados del mes? Puede borrarse -->
+  <section class="container my-5">
+    <div class="text-center mb-4" data-aos="fade-up">
+      <h2>Nuestros trabajos</h2>
+      <p>Algunos de los estilos que hemos creado</p>
+    </div>
+    <div class="row g-3 gallery">
+      <div class="col-6 col-md-3" data-aos="fade-up"><img src="img/cat.jpg" class="w-100" alt="Galería 1"></div>
+      <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="100"><img src="img/cat2.jpg" class="w-100" alt="Galería 2"></div>
+      <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="200"><img src="img/cat3.jpg" class="w-100" alt="Galería 3"></div>
+      <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="300"><img src="img/cat4.jpg" class="w-100" alt="Galería 4"></div>
+    </div>
+  </section>
+
+  <footer class="custom-footer text-center py-3">
+    <p class="mb-0">© 2025 Barber Faster | Todos los derechos reservados</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init();
+  </script>
+</body>
+
+</html>
