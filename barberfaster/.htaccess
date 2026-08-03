@@ -1,0 +1,18 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /erpbarber/barberfaster/
+
+  # Serve the built app entry point for the root URL
+  RewriteRule ^$ dist/index.html [L]
+  RewriteRule ^index\.html$ dist/index.html [L]
+
+  # Serve built assets from dist/assets
+  RewriteRule ^assets/(.*)$ dist/assets/$1 [L]
+  RewriteRule ^favicon\.svg$ dist/favicon.svg [L]
+  RewriteRule ^manifest\.json$ dist/manifest.json [L]
+
+  # Fallback for SPA deep links
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . dist/index.html [L]
+</IfModule>
