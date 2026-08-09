@@ -9,6 +9,10 @@ import {
   parseTimeToDate,
 } from "./agendaUtils";
 
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+
 const BASE_URL = "/erpbarber/barberfaster/backend";
 const initialForm = { dni: "", nombre: "", apellido: "", telefono: "", correo: "", observaciones: "", cliente_id: null };
 
@@ -27,6 +31,10 @@ function Agenda() {
   const [buscandoCliente, setBuscandoCliente] = useState(false);
   const [clienteExistente, setClienteExistente] = useState(null);
   const [form, setForm] = useState(initialForm);
+  const [metodoVal, setMetodoVal] = useState('sms');
+  const [codigoEnv, setCodigoEnv] = useState('');
+  const [validationSent, setValidationSent] = useState(false);
+  const [validated, setValidated] = useState(false);
 
   useEffect(() => {
     fetch(`${BASE_URL}/agenda/listar_barberos.php`)
@@ -203,6 +211,10 @@ function Agenda() {
     setModalOpen(false);
     setEventoSel(null);
     setSlotSeleccionado(null);
+    setValidationSent(false);
+    setCodigoEnv('');
+    setValidated(false);
+    setMetodoVal('sms');
   };
 
   const handleChange = (e) => {
@@ -273,10 +285,16 @@ function Agenda() {
         id_barbero: barberoSel?.id_barbero || null,
       };
 
+      const payloadWithCode = {
+        ...payload,
+        validation_code: codigoEnv,
+        metodo_validacion: metodoVal,
+      };
+
       const res = await fetch(`${BASE_URL}/agenda/agendar_cita.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payloadWithCode),
       });
       const data = await res.json();
       if (data.success) {
@@ -298,6 +316,52 @@ function Agenda() {
       setEnviando(false);
       setTimeout(() => setMensaje(null), 4000);
     }
+  };
+
+  const sendValidationCode = async () => {
+    if (!form.dni) {
+      setMensaje({ tipo: 'error', texto: 'Introduce DNI primero' });
+      return;
+    }
+    setValidationSent(true);
+    try {
+      const res = await fetch(`${BASE_URL}/agenda/enviar_codigo.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dni: form.dni, metodo: metodoVal, telefono: form.telefono, correo: form.correo })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMensaje({ tipo: 'success', texto: 'Código enviado. Revisa tu ' + (metodoVal === 'sms' ? 'teléfono' : 'correo') });
+        // En modo debug el endpoint devuelve debug_code
+        if (data.debug_code) setCodigoEnv(data.debug_code);
+      } else {
+        setMensaje({ tipo: 'error', texto: data.error || 'No se pudo enviar el código' });
+      }
+    } catch (e) {
+      setMensaje({ tipo: 'error', texto: 'Error de conexión' });
+    }
+    setTimeout(() => setMensaje(null), 4000);
+  };
+
+  const verifyValidationCode = async () => {
+    if (!form.dni || !codigoEnv) {
+      setMensaje({ tipo: 'error', texto: 'Falta DNI o código' });
+      return;
+    }
+    try {
+      const res = await fetch(`${BASE_URL}/agenda/verificar_codigo.php?dni=${encodeURIComponent(form.dni)}&codigo=${encodeURIComponent(codigoEnv)}`);
+      const data = await res.json();
+      if (data.success) {
+        setValidated(true);
+        setMensaje({ tipo: 'success', texto: 'Código verificado. Ahora confirma la cita.' });
+      } else {
+        setMensaje({ tipo: 'error', texto: data.error || 'Código inválido' });
+      }
+    } catch {
+      setMensaje({ tipo: 'error', texto: 'Error de conexión' });
+    }
+    setTimeout(() => setMensaje(null), 4000);
   };
 
   const horarios = diaSeleccionado ? generateSlotsForDay(diaSeleccionado) : [];
@@ -343,68 +407,18 @@ function Agenda() {
             <span className="leyenda-item disponible">✅ Disponible</span>
             <span className="leyenda-item ocupado">❌ Ocupado</span>
           </div>
-
-          <div className="date-picker-row">
-            <label className="date-picker-label" htmlFor="fecha-seleccionada">Calendario</label>
-            <input
-              id="fecha-seleccionada"
-              type="date"
-              value={diaSeleccionado}
-              min={diasDisponibles[0] || ""}
-              max={diasDisponibles[diasDisponibles.length - 1] || ""}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value && diasDisponibles.includes(value)) {
-                  setDiaSeleccionado(value);
-                }
-              }}
+          <div className="calendar-container">
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin]}
+              initialView="timeGridWeek"
+              headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
+              events={eventos}
+              eventClick={(info) => handleEventClick(info.event)}
+              nowIndicator={true}
+              allDaySlot={false}
+              slotMinTime="06:00:00"
+              slotMaxTime="22:00:00"
             />
-          </div>
-
-          <div className="selected-day-heading">
-            <h3>{fechaSeleccionadaLabel}</h3>
-            <p>Mira las horas disponibles para trabajar ese día y selecciona un horario.</p>
-            {horarioBarbero?.intervalo_minutos && (
-              <p className="schedule-interval">
-                Intervalo entre citas: {horarioBarbero.intervalo_minutos} minutos
-              </p>
-            )}
-          </div>
-
-          <div className="hours-grid">
-            {diaSeleccionado ? (
-              horarios.length > 0 ? (
-                horarios.map((slot) => {
-                  const disponible = Boolean(slot.disponible);
-                  const seleccionado = slotSeleccionado === slot.id;
-                  const durationMinutes = Math.round((slot.end.getTime() - slot.start.getTime()) / 60000);
-                  return (
-                    <button
-                      key={slot.id}
-                      type="button"
-                      className={`slot-card ${disponible ? "disponible" : "ocupado"} ${seleccionado ? "selected" : ""}`}
-                      onClick={() => disponible && handleEventClick(slot)}
-                      disabled={!disponible}
-                    >
-                      <div className="slot-header">
-                        <span className={`slot-badge ${disponible ? "disponible" : "ocupado"}`}>
-                          {disponible ? "Disponible" : "Ocupado"}
-                        </span>
-                        <span className="slot-hour">{formatTimeLabel(slot.start)}</span>
-                      </div>
-                      <div className="slot-date">{formatDateLabel(slot.start)}</div>
-                      <div className="slot-range">{formatRangeLabel(slot.start, slot.end)}</div>
-                      <div className="slot-duration">Duración: {durationMinutes} min</div>
-                      <div className="slot-action">{disponible ? "Seleccionar horario" : "No disponible"}</div>
-                    </button>
-                  );
-                })
-              ) : (
-                <p className="agenda-empty">No hay horarios disponibles para este día.</p>
-              )
-            ) : (
-              <p className="agenda-empty">Selecciona un día para ver las horas de trabajo.</p>
-            )}
           </div>
         </div>
       )}
@@ -451,6 +465,28 @@ function Agenda() {
                 <label>Observaciones (opcional)</label>
                 <textarea name="observaciones" value={form.observaciones} onChange={handleChange} rows={3} />
               </div>
+
+              <div className="form-group">
+                <label>Método de validación</label>
+                <select value={metodoVal} onChange={(e) => setMetodoVal(e.target.value)}>
+                  <option value="sms">SMS</option>
+                  <option value="email">Correo</option>
+                </select>
+                <div style={{ marginTop: 8 }}>
+                  <button type="button" className="btn-secondary" onClick={sendValidationCode} disabled={validationSent}>Enviar código</button>
+                </div>
+              </div>
+
+              {validationSent && (
+                <div className="form-group">
+                  <label>Código de validación</label>
+                  <input type="text" value={codigoEnv} onChange={(e) => setCodigoEnv(e.target.value)} />
+                  <div style={{ marginTop: 8 }}>
+                    <button type="button" className="btn" onClick={verifyValidationCode} disabled={validated}>Verificar código</button>
+                    {validated && <span style={{ marginLeft: 8, color: 'green' }}>Verificado</span>}
+                  </div>
+                </div>
+              )}
 
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={closeModal} disabled={enviando}>

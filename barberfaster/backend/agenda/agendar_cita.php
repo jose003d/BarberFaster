@@ -15,6 +15,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 header("Content-Type: application/json");
 require_once "../config/database.php";
 
+// Asegurar columnas nuevas en eventos (no falla si ya existen)
+try {
+    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS intervalo INT DEFAULT 30");
+    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS servicio VARCHAR(100) NULL");
+    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS estado VARCHAR(50) DEFAULT 'DISPONIBLE'");
+    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS observaciones TEXT NULL");
+    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS metodo_validacion VARCHAR(20) NULL");
+    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS estado_validacion VARCHAR(20) DEFAULT 'PENDIENTE'");
+} catch (Exception $e) {
+    // ignore
+}
+
 try {
     // ==========================
     // BLOQUE 2: Recepción y validación de datos
@@ -89,7 +101,7 @@ try {
     }
 
     // ==========================
-    // BLOQUE 4: Verificación de disponibilidad del evento
+    // BLOQUE 4: Verificación de disponibilidad del evento y validación de código
     // ==========================
     $evento = null;
     if ($id_evento) {
@@ -119,27 +131,58 @@ try {
             exit;
         }
 
-        $insertStmt = $pdo->prepare("INSERT INTO eventos (titulo, start_datetime, end_datetime, disponible, tipo, color, id_barbero, id_barberia, clientes_dni) VALUES ('OCUPADO', :start, :end, 0, 'OCUPADO', '#dc2626', :id_barbero, :id_barberia, :dni)");
+        $insertStmt = $pdo->prepare("INSERT INTO eventos (titulo, start_datetime, end_datetime, disponible, tipo, color, id_barbero, id_barberia, clientes_dni, estado, observaciones, metodo_validacion, estado_validacion) VALUES ('OCUPADO', :start, :end, 0, 'OCUPADO', '#dc2626', :id_barbero, :id_barberia, :dni, 'OCUPADO', :obs, :metodo, 'VERIFICADO')");
         $insertStmt->execute([
             ':start'      => $start,
             ':end'        => $end,
             ':id_barbero' => $id_barbero,
             ':id_barberia'=> $barberoData['id_barberia'],
             ':dni'        => $dni,
+            ':obs'        => $observaciones,
+            ':metodo'     => $data['metodo_validacion'] ?? null,
         ]);
         $id_evento = $pdo->lastInsertId();
         $evento = ['id_evento' => $id_evento, 'id_barbero' => $id_barbero, 'id_barberia' => $barberoData['id_barberia'], 'disponible' => 0];
         $nuevoEvento = true;
     }
 
+    // Validar que el slot esté disponible
     if (!$evento || (!$nuevoEvento && isset($evento['disponible']) && !$evento['disponible'])) {
         echo json_encode(["success" => false, "error" => "Este horario ya no está disponible"]);
         exit;
     }
 
+    // Verificar código de validación (si viene en payload)
+    $codigo = $data['validation_code'] ?? null;
+    if (!$codigo) {
+        echo json_encode(["success" => false, "error" => "validation_required"]);
+        exit;
+    }
+
+    try {
+        $valStmt = $pdo->prepare("CREATE TABLE IF NOT EXISTS validaciones (id INT AUTO_INCREMENT PRIMARY KEY, dni VARCHAR(50), codigo VARCHAR(20), metodo VARCHAR(20), estado VARCHAR(20) DEFAULT 'PENDIENTE', creado_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, valido_hasta DATETIME)");
+        $valStmt->execute();
+    } catch (Exception $e) {
+        // ignore
+    }
+
+    $checkVal = $pdo->prepare("SELECT id, estado, valido_hasta FROM validaciones WHERE dni = :dni AND codigo = :codigo ORDER BY creado_at DESC LIMIT 1");
+    $checkVal->execute([':dni' => $dni, ':codigo' => $codigo]);
+    $val = $checkVal->fetch(PDO::FETCH_ASSOC);
+    if (!$val) {
+        echo json_encode(["success" => false, "error" => "Código de validación inválido"]);
+        exit;
+    }
+    if (isset($val['valido_hasta']) && $val['valido_hasta'] < date('Y-m-d H:i:s')) {
+        echo json_encode(["success" => false, "error" => "Código expirado"]);
+        exit;
+    }
+    // Marcar validación
+    $pdo->prepare("UPDATE validaciones SET estado = 'VERIFICADO' WHERE id = :id")->execute([':id' => $val['id']]);
+
     if (!$nuevoEvento) {
-        $pdo->prepare("UPDATE eventos SET disponible = 0, tipo = 'OCUPADO', color = '#dc2626', clientes_dni = :dni WHERE id_evento = :id")
-            ->execute([':dni' => $dni, ':id' => $id_evento]);
+        $pdo->prepare("UPDATE eventos SET disponible = 0, tipo = 'OCUPADO', color = '#dc2626', clientes_dni = :dni, estado = 'OCUPADO', observaciones = :obs, metodo_validacion = :metodo, estado_validacion = 'VERIFICADO' WHERE id_evento = :id")
+            ->execute([':dni' => $dni, ':id' => $id_evento, ':obs' => $observaciones, ':metodo' => $data['metodo_validacion'] ?? null]);
     }
 
     $pdo->prepare("INSERT INTO citas (id_evento, estado, observaciones, fecha_creacion, clientes_dni, Barberos_id_barbero) VALUES (:id_evento, 'PENDIENTE', :obs, NOW(), :dni, :id_barbero)")

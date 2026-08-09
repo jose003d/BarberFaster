@@ -3,7 +3,15 @@ import { editarUsuario } from "../services/api";
 
 // Constantes globales del componente
 const BASE_URL = "/erpbarber/barberfaster/backend";
-const PUBLIC_URL = "http://localhost/erpbarber/barberfaster/public";
+const PUBLIC_URL = "http://localhost/erpbarber/barberfaster/backend/public";
+
+const getPhotoUrl = (photo) => {
+  if (!photo) return "";
+  if (/^https?:\/\//i.test(photo)) return photo;
+  if (photo.startsWith("/")) return photo;
+  return `${PUBLIC_URL}/${photo}`;
+};
+
 const diasSemana = [
   { value: 1, label: "Lunes" },
   { value: 2, label: "Martes" },
@@ -54,7 +62,7 @@ function Profile() {
     });
 
     if (parsed.foto) {
-      setPhotoPreview(`${PUBLIC_URL}/${parsed.foto}`);
+      setPhotoPreview(getPhotoUrl(parsed.foto));
     }
 
     if (!parsed.id_usuario) return;
@@ -200,7 +208,7 @@ function Profile() {
       const updatedUser = { ...user, foto: data.foto };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
-      setPhotoPreview(`${PUBLIC_URL}/${data.foto}`);
+      setPhotoPreview(getPhotoUrl(data.foto));
       setMessage("Foto de perfil actualizada correctamente.");
     } catch {
       setMessage("Error al subir la foto.");
