@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barberos - Barber Faster</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/barberos.css">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Barber Faster</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <form class="d-flex me-3" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Buscar herramientas..." aria-label="Buscar">
+                    <button class="btn custom-btn" type="submit">Buscar</button>
+                </form>
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Bienvenida -->
+    <section class="welcome-section welcome-section-sub" data-aos="fade-up">
+        <div class="welcome-overlay">
+            <div class="container welcome-content text-center">
+                <i class="bi bi-shop welcome-icon" aria-hidden="true"></i>
+                <h1 class="welcome-title">Portal de Barberos</h1>
+                <p class="welcome-text">Gestiona tu barbería y haz crecer tu negocio con BarberFaster</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contenido principal -->
+    <main class="container my-5">
+
+        <!-- Herramientas para profesionales -->
+        <section class="tools-section">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h2 class="section-title">Herramientas para Profesionales</h2>
+                <p class="section-subtitle">BarberFaster te proporciona todas las herramientas que necesitas para gestionar tu barbería de manera eficiente</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                    <div class="tool-card">
+                        <div class="tool-icon-circle">
+                            <i class="bi bi-people" aria-hidden="true"></i>
+                        </div>
+                        <h5 class="tool-title">Gestión de Clientes</h5>
+                        <p class="tool-text">Base de datos completa con historial de servicios</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                    <div class="tool-card">
+                        <div class="tool-icon-circle">
+                            <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+                        </div>
+                        <h5 class="tool-title">Aumenta Ventas</h5>
+                        <p class="tool-text">Sistema de reservas online que atrae más clientes</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                    <div class="tool-card">
+                        <div class="tool-icon-circle">
+                            <i class="bi bi-cash-coin" aria-hidden="true"></i>
+                        </div>
+                        <h5 class="tool-title">Cobros Rápidos</h5>
+                        <p class="tool-text">Sistema de pagos integrado y eficiente</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
+                    <div class="tool-card">
+                        <div class="tool-icon-circle">
+                            <i class="bi bi-bar-chart-line" aria-hidden="true"></i>
+                        </div>
+                        <h5 class="tool-title">Reportes Detallados</h5>
+                        <p class="tool-text">Analiza tu negocio con estadísticas en tiempo real</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comentarios de barberos registrados -->
+        <div class="testimonials-wrap" data-aos="fade-up">
+            <div class="text-center mb-4">
+                <h2 class="section-title">Lo que dicen los barberos</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6" data-aos="zoom-in">
+                    <div class="testimonial-card">
+                        <p class="testimonial-quote">"BarberFaster transformó completamente mi negocio. Ahora tengo un 40% más de clientes y cero tiempo perdido en administración."</p>
+                        <a href="barberia_elite.html" class="testimonial-author">Miguel Rodríguez, Barbería Elite</a>
+                    </div>
+                </div>
+                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="150">
+                    <div class="testimonial-card">
+                        <p class="testimonial-quote">"La mejor inversión que he hecho. Mis clientes aman poder reservar online y yo tengo mi agenda siempre organizada."</p>
+                        <a href="barberia_cutstyle.html" class="testimonial-author">Fernando Silva, Cut &amp; Style</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="custom-footer text-center py-3">
+        <p class="mb-0">© 2025 Barber Faster | Todos los derechos reservados</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
+</body>
+
+</html>

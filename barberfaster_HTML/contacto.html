@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contáctanos - Barber Faster</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/contacto.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">Barber Faster</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <form class="d-flex me-3" role="search">
+            <input class="form-control me-2" type="search" placeholder="Busca una barbería" aria-label="Buscar">
+            <button class="btn custom-btn" type="submit">Buscar</button>
+          </form>
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+            <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
+            <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
+            <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="contact-hero" data-aos="fade-up">
+        <div class="container">
+            <h1>Contáctanos</h1>
+            <p>Estamos aquí para ayudarte</p>
+        </div>
+    </section>
+
+    <main class="container my-5">
+
+        <!-- Información de contacto -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="contact-info-card">
+                    <div class="contact-icon-circle">
+                        <i class="bi bi-telephone" aria-hidden="true"></i>
+                    </div>
+                    <h5 class="contact-info-title">Teléfono</h5>
+                    <p class="contact-info-text">+57 300 123 4567<br>Lun - Sáb: 9:00 - 20:00</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="contact-info-card">
+                    <div class="contact-icon-circle">
+                        <i class="bi bi-envelope" aria-hidden="true"></i>
+                    </div>
+                    <h5 class="contact-info-title">Email</h5>
+                    <p class="contact-info-text">info@barberfaster.com<br>soporte@barberfaster.com</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="contact-info-card">
+                    <div class="contact-icon-circle">
+                        <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                    </div>
+                    <h5 class="contact-info-title">Ubicación</h5>
+                    <p class="contact-info-text">Calle 123 #45-67<br>Bogotá, Colombia</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="contact-info-card">
+                    <div class="contact-icon-circle">
+                        <i class="bi bi-clock" aria-hidden="true"></i>
+                    </div>
+                    <h5 class="contact-info-title">Horario</h5>
+                    <p class="contact-info-text">Lunes - Sábado<br>9:00 AM - 8:00 PM</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario -->
+        <div class="contact-form-wrap" data-aos="fade-up">
+            <h2 class="contact-form-title">Envíanos un Mensaje</h2>
+            <form>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="contactNombre" class="contact-label">Nombre</label>
+                        <input type="text" class="form-control contact-input" id="contactNombre" placeholder="Tu nombre">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="contactEmail" class="contact-label">Email</label>
+                        <input type="email" class="form-control contact-input" id="contactEmail" placeholder="tu@email.com">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="contactTelefono" class="contact-label">Teléfono</label>
+                    <input type="tel" class="form-control contact-input" id="contactTelefono" placeholder="300 123 4567">
+                </div>
+                <div class="mb-3">
+                    <label for="contactAsunto" class="contact-label">Asunto</label>
+                    <select class="form-select contact-input" id="contactAsunto">
+                        <option>Información general</option>
+                        <option>Soporte técnico</option>
+                        <option>Quiero registrar mi barbería</option>
+                        <option>Otro</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="contactMensaje" class="contact-label">Mensaje</label>
+                    <textarea class="form-control contact-input" id="contactMensaje" rows="4" placeholder="Escribe tu mensaje aquí..."></textarea>
+                </div>
+                <button type="submit" class="btn custom-btn contact-submit-btn">Enviar Mensaje</button>
+            </form>
+        </div>
+
+    </main>
+
+    <footer class="custom-footer text-center py-3">
+        <p class="mb-0">© 2025 Barber Faster | Todos los derechos reservados</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
+</body>
+
+</html>

@@ -78,6 +78,23 @@ p {
   width: 100%;
 }
 
+.custom-navbar .form-control {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-blanco);
+}
+
+.custom-navbar .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.custom-navbar .form-control:focus {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--color-naranja);
+  box-shadow: 0 0 0 0.25rem rgba(255, 122, 26, 0.25);
+  color: var(--color-blanco);
+}
+
 /* Botones */
 .custom-btn {
   background: var(--gradiente-naranja);
@@ -92,83 +109,6 @@ p {
 .custom-btn:hover {
   background: var(--color-naranja-hover);
   color: var(--color-blanco);
-}
-
-/* Bootstrap buttons usados en WelcomeSection */
-.btn-dark {
-  background-color: var(--color-naranja);
-  border-color: var(--color-naranja);
-  color: var(--color-principal);
-  font-weight: 600;
-}
-
-.btn-dark:hover {
-  background-color: var(--color-naranja-hover);
-  border-color: var(--color-naranja-hover);
-  color: var(--color-blanco);
-}
-
-.btn-outline-dark {
-  background-color: transparent;
-  border: 2px solid var(--color-naranja);
-  color: var(--color-naranja);
-  font-weight: 600;
-}
-
-.btn-outline-dark:hover {
-  background-color: var(--color-naranja);
-  border-color: var(--color-naranja);
-  color: var(--color-principal);
-}
-
-/* Tarjetas */
-.service-card {
-  border: none;
-  border-radius: var(--borde-redondeado);
-  transition: transform var(--transicion-rapida), box-shadow var(--transicion-rapida);
-  background-color: var(--color-secundario);
-  border: 1px solid var(--color-terciario);
-}
-
-.service-card .card-title {
-  color: var(--color-naranja);
-}
-
-.service-card .card-text {
-  color: var(--color-gris-claro);
-}
-
-.service-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--sombra-media);
-  border-color: var(--color-naranja);
-}
-
-/* Testimonios */
-.testimonial {
-  background: var(--color-secundario);
-  border-radius: var(--borde-redondeado-medio);
-  padding: 1.5rem;
-  box-shadow: var(--sombra-suave);
-  border: 1px solid var(--color-terciario);
-}
-
-.testimonial p {
-  color: var(--color-gris-claro);
-}
-
-.testimonial strong {
-  color: var(--color-naranja);
-}
-
-/* Galería */
-.gallery img {
-  border-radius: var(--borde-redondeado-suave);
-  transition: transform var(--transicion-rapida);
-}
-
-.gallery img:hover {
-  transform: scale(1.05);
 }
 
 /* Footer */
@@ -205,26 +145,51 @@ p {
   background: var(--gradiente-naranja);
 }
 
+.section-subtitle {
+  color: var(--color-gris-medio);
+  font-size: 1.05rem;
+}
+
+/* Hero */
 .welcome-section {
-  padding: 3rem 0;
+  position: relative;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-top: 6px solid var(--color-naranja);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.75)), url('../img/barberos.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.welcome-section-sub {
+  min-height: 45vh;
+}
+
+.welcome-overlay {
+  width: 100%;
+}
+
+.welcome-content {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 4rem 1rem;
 }
 
 .welcome-icon {
-  font-size: 3rem;
-  color: var(--color-naranja);
+  font-size: 2.5rem;
+  color: var(--color-blanco);
   margin-bottom: 1rem;
   display: inline-block;
 }
 
 .welcome-title {
-  color: var(--color-naranja);
+  color: var(--color-blanco);
   font-weight: 700;
-  margin-bottom: 1.25rem;
-}
-
-.welcome-subtitle {
-  color: var(--color-naranja);
-  font-weight: 600;
+  font-size: 2.75rem;
   margin-bottom: 1rem;
 }
 
@@ -232,73 +197,101 @@ p {
   font-size: 1.1rem;
   line-height: 1.6;
   color: var(--color-gris-claro);
-}
-
-.info-section {
-  background-color: var(--color-secundario);
-  border-radius: var(--borde-redondeado);
-  padding: 3rem 2rem;
-  border: 1px solid var(--color-terciario);
-}
-
-.info-text {
-  font-size: 1.1rem;
-  line-height: 1.7;
-  text-align: center;
-  color: var(--color-gris-claro);
-}
-
-/* Contenedor de imágenes */
-.img-container-black-bg {
-  background-color: #000000;
-  padding: 1rem;
-  border-radius: var(--borde-redondeado);
-  box-shadow: var(--sombra-suave);
-  transition: transform var(--transicion-rapida), box-shadow var(--transicion-rapida);
-  height: 500px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  cursor: pointer;
-  border: 1px solid var(--color-terciario);
-}
-
-.img-container-black-bg:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--sombra-fuerte);
-  border-color: var(--color-naranja);
-}
-
-.img-container-black-bg img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Enlaces sin subrayado */
-.img-link {
-  text-decoration: none;
-  color: inherit;
-  display: block;
+  margin-bottom: 0;
 }
 
 @media (max-width: 768px) {
-  .hero h1 {
+  .welcome-title {
     font-size: 2rem;
-  }
-
-  .welcome-subtitle {
-    font-size: 1.3rem;
-    margin-top: 1.5rem;
   }
 
   .welcome-text {
     font-size: 1rem;
   }
+}
 
-  .info-text {
-    font-size: 1rem;
-  }
+/* Herramientas para profesionales */
+.tools-section {
+  padding: 1rem 0 2rem;
+}
+
+.tool-card {
+  background-color: var(--color-secundario);
+  border: 1px solid var(--color-terciario);
+  border-radius: var(--borde-redondeado);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  height: 100%;
+  transition: transform var(--transicion-rapida), box-shadow var(--transicion-rapida);
+}
+
+.tool-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--sombra-media);
+  border-color: var(--color-naranja);
+}
+
+.tool-icon-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(255, 122, 26, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.5rem;
+  color: var(--color-naranja);
+}
+
+.tool-title {
+  color: var(--color-blanco);
+  font-weight: 600;
+  font-size: 1.1rem;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.tool-text {
+  color: var(--color-gris-claro);
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+
+/* Testimonios de barberos */
+.testimonials-wrap {
+  background-color: var(--color-secundario);
+  border: 1px solid var(--color-terciario);
+  border-radius: var(--borde-redondeado);
+  padding: 3rem 2rem;
+  margin-top: 1rem;
+}
+
+.testimonial-card {
+  background-color: var(--color-principal);
+  border: 1px solid var(--color-terciario);
+  border-radius: var(--borde-redondeado-medio);
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.testimonial-quote {
+  font-style: italic;
+  line-height: 1.7;
+  color: var(--color-gris-claro);
+  margin-bottom: 1rem;
+}
+
+.testimonial-author {
+  color: var(--color-naranja);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.testimonial-author:hover {
+  color: var(--color-naranja-claro);
+  text-decoration: underline;
 }
