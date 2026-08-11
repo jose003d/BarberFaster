@@ -20,7 +20,7 @@ try {
     // BLOQUE 3: Consulta de eventos futuros del barbero
     // ==========================
     $sql = "
-        SELECT id_evento, titulo, start_datetime, end_datetime, disponible, tipo, color
+        SELECT id_evento, titulo, start_datetime, end_datetime, disponible, tipo, color, intervalo, servicio, estado, observaciones, metodo_validacion, estado_validacion
         FROM eventos
         WHERE id_barbero = :id_barbero
         AND start_datetime >= NOW()
@@ -43,6 +43,12 @@ try {
             'extendedProps' => [
                 'disponible' => (bool)$e['disponible'],
                 'tipo'       => $e['tipo'],
+                'intervalo'  => isset($e['intervalo']) ? (int)$e['intervalo'] : null,
+                'servicio'   => $e['servicio'] ?? null,
+                'estado'     => $e['estado'] ?? null,
+                'observaciones' => $e['observaciones'] ?? null,
+                'metodo_validacion' => $e['metodo_validacion'] ?? null,
+                'estado_validacion' => $e['estado_validacion'] ?? null,
             ]
         ];
     }, $eventos);

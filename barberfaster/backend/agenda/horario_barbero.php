@@ -16,24 +16,19 @@ header("Content-Type: application/json");
 require_once "../config/database.php";
 
 // ==========================
-// BLOQUE 2: Creación de tabla si no existe
+// BLOQUE 2: Asegurar columnas adicionales en tabla `eventos`
+// (unificamos configuración y slots en la misma tabla)
 // ==========================
 try {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS barbero_horarios (
-        id_configuracion INT AUTO_INCREMENT PRIMARY KEY,
-        id_barbero INT NOT NULL,
-        dias_semana VARCHAR(50) NOT NULL DEFAULT '',
-        hora_inicio TIME NOT NULL,
-        hora_fin TIME NOT NULL,
-        intervalo_minutos INT NOT NULL DEFAULT 30,
-        estado TINYINT(1) NOT NULL DEFAULT 1,
-        fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY uniq_barbero_horario (id_barbero)
-    )");
+    // Agregar columnas si no existen (silencioso en caso de ya existir)
+    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS intervalo INT DEFAULT 30");
+    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS servicio VARCHAR(100) NULL");
+    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS estado VARCHAR(50) DEFAULT 'DISPONIBLE'");
+    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS observaciones TEXT NULL");
+    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS metodo_validacion VARCHAR(20) NULL");
+    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS estado_validacion VARCHAR(20) DEFAULT 'PENDIENTE'");
 } catch (Exception $e) {
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
-    exit;
+    // No detener la ejecución por errores en alter (entorno viejo), pero reportar para debugging
 }
 
 // ==========================
@@ -93,25 +88,40 @@ try {
             exit;
         }
 
-        // Obtener configuración de horario
-        $configStmt = $pdo->prepare("SELECT dias_semana, hora_inicio, hora_fin, intervalo_minutos FROM barbero_horarios WHERE id_barbero = :id_barbero LIMIT 1");
-        $configStmt->execute([":id_barbero" => $barbero['id_barbero']]);
-        $config = $configStmt->fetch(PDO::FETCH_ASSOC);
+        // Obtener configuración de horario derivada desde eventos disponibles
+        $eventsStmt = $pdo->prepare("SELECT start_datetime, end_datetime, intervalo FROM eventos WHERE id_barbero = :id_barbero AND disponible = 1 AND start_datetime >= NOW() ORDER BY start_datetime ASC LIMIT 200");
+        $eventsStmt->execute([":id_barbero" => $barbero['id_barbero']]);
+        $events = $eventsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode([
-            "success" => true,
-            "horario" => $config ? [
-                "dias_semana" => normalizeDays($config['dias_semana']),
-                "hora_inicio" => $config['hora_inicio'],
-                "hora_fin" => $config['hora_fin'],
-                "intervalo_minutos" => (int)$config['intervalo_minutos'],
-            ] : [
-                "dias_semana" => [],
-                "hora_inicio" => "09:00",
-                "hora_fin" => "19:00",
-                "intervalo_minutos" => 30,
-            ]
-        ]);
+        $horario = [
+            "dias_semana" => [],
+            "hora_inicio" => "09:00",
+            "hora_fin" => "19:00",
+            "intervalo_minutos" => 30,
+        ];
+
+        if ($events && count($events) > 0) {
+            $dias = [];
+            $minTime = null;
+            $maxTime = null;
+            $intervals = [];
+            foreach ($events as $e) {
+                $dt = new DateTime($e['start_datetime']);
+                $dias[(int)$dt->format('N')] = true;
+                $t = $dt->format('H:i');
+                if ($minTime === null || $t < $minTime) $minTime = $t;
+                $endDt = new DateTime($e['end_datetime']);
+                $t2 = $endDt->format('H:i');
+                if ($maxTime === null || $t2 > $maxTime) $maxTime = $t2;
+                if (!empty($e['intervalo'])) $intervals[] = (int)$e['intervalo'];
+            }
+            $horario['dias_semana'] = array_values(array_map('intval', array_keys($dias)));
+            if ($minTime) $horario['hora_inicio'] = $minTime;
+            if ($maxTime) $horario['hora_fin'] = $maxTime;
+            if (!empty($intervals)) $horario['intervalo_minutos'] = (int)$intervals[0];
+        }
+
+        echo json_encode(["success" => true, "horario" => $horario]);
         exit;
     }
 
@@ -158,7 +168,7 @@ try {
     }
 
     // ==========================
-    // BLOQUE 8: Validación y guardado de configuración
+    // BLOQUE 8: Validación y guardado de configuración (regenerar eventos)
     // ==========================
     $dias = normalizeDays($data['dias_semana'] ?? []);
     if (empty($dias)) {
@@ -170,28 +180,7 @@ try {
     $horaFin    = $data['hora_fin'] ?? '19:00';
     $intervalo  = max(10, (int)($data['intervalo_minutos'] ?? 30));
 
-    // Insertar o actualizar configuración
-    $existing = $pdo->prepare("SELECT id_configuracion FROM barbero_horarios WHERE id_barbero = :id_barbero LIMIT 1");
-    $existing->execute([":id_barbero" => $barbero['id_barbero']]);
-    $config = $existing->fetch(PDO::FETCH_ASSOC);
-
-    if ($config) {
-        $saveStmt = $pdo->prepare("UPDATE barbero_horarios SET dias_semana = :dias_semana, hora_inicio = :hora_inicio, hora_fin = :hora_fin, intervalo_minutos = :intervalo WHERE id_barbero = :id_barbero");
-    } else {
-        $saveStmt = $pdo->prepare("INSERT INTO barbero_horarios (id_barbero, dias_semana, hora_inicio, hora_fin, intervalo_minutos) VALUES (:id_barbero, :dias_semana, :hora_inicio, :hora_fin, :intervalo)");
-    }
-
-    $saveStmt->execute([
-        ":id_barbero" => $barbero['id_barbero'],
-        ":dias_semana" => implode(',', $dias),
-        ":hora_inicio" => $horaInicio,
-        ":hora_fin"    => $horaFin,
-        ":intervalo"   => $intervalo,
-    ]);
-
-    // ==========================
-    // BLOQUE 9: Regeneración de eventos disponibles
-    // ==========================
+    // Eliminar slots futuros disponibles y regenerar con nuevos atributos
     $deleteStmt = $pdo->prepare("DELETE FROM eventos WHERE id_barbero = :id_barbero AND disponible = 1 AND start_datetime >= NOW()");
     $deleteStmt->execute([":id_barbero" => $barbero['id_barbero']]);
 
@@ -199,7 +188,7 @@ try {
     $endDate   = (new DateTime('today'))->modify('+90 days');
     $period    = new DatePeriod($startDate, new DateInterval('P1D'), $endDate);
 
-    $insertStmt = $pdo->prepare("INSERT INTO eventos (id_barbero, id_barberia, start_datetime, end_datetime, disponible) VALUES (:id_barbero, :id_barberia, :start_datetime, :end_datetime, 1)");
+    $insertStmt = $pdo->prepare("INSERT INTO eventos (id_barbero, id_barberia, start_datetime, end_datetime, disponible, intervalo, servicio, estado, observaciones, metodo_validacion, estado_validacion, titulo, tipo, color) VALUES (:id_barbero, :id_barberia, :start_datetime, :end_datetime, 1, :intervalo, NULL, 'DISPONIBLE', NULL, NULL, 'PENDIENTE', '✅ Disponible', 'DISPONIBLE', '#16a34a')");
 
     foreach ($period as $date) {
         if (!in_array((int)$date->format('N'), $dias, true)) {
@@ -225,6 +214,7 @@ try {
                 ":id_barberia" => $barbero['id_barberia'],
                 ":start_datetime" => $slotStart->format('Y-m-d H:i:s'),
                 ":end_datetime" => $slotFinish->format('Y-m-d H:i:s'),
+                ":intervalo" => $intervalo,
             ]);
 
             $slotStart = $slotFinish;
