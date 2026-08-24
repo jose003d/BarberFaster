@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barbería - Barber Faster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/barberia_unica.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <style>
+        /* ── Sugerencias del buscador (igual que clientes) ── */
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #222;
+            border: 1px solid #333;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 260px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-suggestions.active {
+            display: block;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            color: #d3d3d3;
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: background 0.15s ease;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.highlighted {
+            background: #2a2a2a;
+            color: #f0a500;
+        }
+
+        .suggestion-item img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .suggestion-item .sug-name {
+            font-weight: 600;
+        }
+
+        .suggestion-item .sug-ubicacion {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        /* ── Info cards (ubicación y horarios) ── */
+        .info-cards-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        @media (max-width: 576px) {
+            .info-cards-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 24px;
+            transition: border-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .info-card:hover {
+            border-color: #f0a500;
+            transform: translateY(-4px);
+        }
+
+        .info-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(240, 165, 0, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            color: #f0a500;
+            font-size: 1.3rem;
+        }
+
+        .info-card h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .info-card p {
+            margin: 0;
+            color: #b0b0b0;
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        /* ── Scrollbar sugerencias ── */
+        .search-suggestions::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .search-suggestions::-webkit-scrollbar-track {
+            background: #222;
+        }
+
+        .search-suggestions::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Barber Faster</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <form class="d-flex me-3 position-relative" id="searchForm" role="search" autocomplete="off">
+                    <input class="form-control me-2" type="search" id="searchInput" placeholder="Buscar barberías..."
+                        aria-label="Buscar" autocomplete="off">
+                    <button class="btn custom-btn" type="submit">Buscar</button>
+                    <div class="search-suggestions" id="searchSuggestions"></div>
+                </form>
+                <ul class="navbar-nav align-items-lg-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                    <li class="nav-item ms-lg-2" id="authNavItem"></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main id="barberiaMain">
+        <section class="barberia-header container">
+            <div class="text-center mb-4" data-aos="fade-up">
+                <h1 id="barberiaNombre" class="section-title"></h1>
+            </div>
+            <div class="row align-items-center" data-aos="fade-up">
+                <div class="col-md-4 mb-4 mb-md-0 text-center">
+                    <img id="barberiaLogo" class="barberia-logo" src="" alt="Logo">
+                </div>
+                <div class="col-md-8">
+                    <h2 id="barberiaNombreSecundario"></h2>
+                    <p id="barberiaDescripcion" class="barberia-description"></p>
+
+                    <!-- Tarjetas de ubicación y horarios -->
+                    <div class="info-cards-row" id="infoCards">
+                        <div class="info-card" data-aos="fade-up" data-aos-delay="100">
+                            <div class="info-card-icon">
+                                <i class="bi bi-geo-alt-fill"></i>
+                            </div>
+                            <h4>Ubicación</h4>
+                            <p id="barberiaUbicacion"></p>
+                        </div>
+                        <div class="info-card" data-aos="fade-up" data-aos-delay="200">
+                            <div class="info-card-icon">
+                                <i class="bi bi-clock-fill"></i>
+                            </div>
+                            <h4>Horarios de atención</h4>
+                            <p id="barberiaHorarios"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lista de servicios -->
+        <section class="container my-5">
+            <div class="text-center mb-4" data-aos="fade-up">
+                <h2 class="section-title">Nuestros servicios</h2>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <ul id="serviciosList" class="servicios-list" data-aos="fade-up" data-aos-delay="100"></ul>
+                    <p style="color: #b0b0b0;">Conoce a nuestros profesionales: cada uno con su propio estilo y
+                        especialidad, listos para asesorarte y ayudarte a lucir tu mejor versión. Selecciona un
+                        barbero para agendar tu cita.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Equipo de barberos -->
+        <section class="container my-5">
+            <div class="text-center mb-4" data-aos="fade-up">
+                <h2 class="section-title">Nuestro equipo</h2>
+            </div>
+            <div id="barberosList" class="barberos-list"></div>
+        </section>
+
+        <!-- Mapa de Google -->
+        <section class="map-container container">
+            <div class="text-center mb-4" data-aos="fade-up">
+                <h2 class="section-title">Encuéntranos</h2>
+            </div>
+            <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="100">
+                <div class="col-lg-10">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.732718615586!2d-74.07908568419394!3d4.598081796582477!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9bfd2da6cb23%3A0x239d635520a33914!2sBogot%C3%A1%2C%20Cundinamarca!5e0!3m2!1ses!2sco!4v1678886400000!5m2!1ses!2sco"
+                        class="map-iframe" allowfullscreen="" loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="custom-footer text-center py-3">
+        <p class="mb-0">© 2025 Barber Faster | Todos los derechos reservados</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="data/barberias.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            /* ── Cargar datos de la barbería ── */
+            const params = new URLSearchParams(window.location.search);
+            const slug = params.get('barberia');
+            const barberia = barberias.find(function (b) { return b.slug === slug; });
+
+            if (!barberia) {
+                document.getElementById('barberiaMain').innerHTML =
+                    '<div class="container text-center my-5">' +
+                    '<h1 class="section-title">Barbería no encontrada</h1>' +
+                    '<p style="color:#888;">Verificá el enlace e intentá de nuevo.</p>' +
+                    '<a href="clientes.html" class="btn custom-btn mt-3">Volver al portal</a>' +
+                    '</div>';
+                return;
+            }
+
+            document.title = barberia.nombre + ' - Barber Faster';
+            document.getElementById('barberiaNombre').textContent = barberia.nombre;
+            document.getElementById('barberiaLogo').src = barberia.logo;
+            document.getElementById('barberiaLogo').alt = barberia.nombre;
+            document.getElementById('barberiaNombreSecundario').textContent = barberia.nombreSecundario;
+            document.getElementById('barberiaDescripcion').textContent = barberia.descripcion;
+            document.getElementById('barberiaUbicacion').textContent = barberia.ubicacion;
+            document.getElementById('barberiaHorarios').textContent = barberia.horarios;
+
+            /* Servicios */
+            var serviciosList = document.getElementById('serviciosList');
+            barberia.servicios.forEach(function (servicio) {
+                var li = document.createElement('li');
+                li.textContent = servicio;
+                serviciosList.appendChild(li);
+            });
+
+            /* Barberos */
+            var barberosList = document.getElementById('barberosList');
+            barberia.barberos.forEach(function (barbero, index) {
+                var card = document.createElement('div');
+                card.className = 'barbero-card';
+                card.setAttribute('data-aos', 'fade-up');
+                card.setAttribute('data-aos-delay', String((index + 1) * 100));
+                card.innerHTML =
+                    '<div class="barbero-info">' +
+                    '<h3 class="barbero-nombre">' + barbero.nombre + '</h3>' +
+                    '<p class="barbero-comentario" style="color:#888;font-size:0.88rem;margin-bottom:12px;">"' + barbero.comentario + '"</p>' +
+                    '<div class="barbero-actions">' +
+                    '<button type="button" class="btn custom-btn">Agendar cita</button>' +
+                    '<a href="' + barbero.enlace + '" class="btn btn-outline-naranja">Ver información</a>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="barbero-img-wrap">' +
+                    '<img src="' + barbero.imagen + '" alt="' + barbero.nombre + '" class="barbero-img">' +
+                    '</div>';
+                barberosList.appendChild(card);
+            });
+
+            /* Inicializar AOS */
+            AOS.init();
+
+            /* ── Buscador funcional ── */
+            var searchInput = document.getElementById('searchInput');
+            var searchForm = document.getElementById('searchForm');
+            var suggestionsBox = document.getElementById('searchSuggestions');
+            var highlightIndex = -1;
+
+            searchInput.addEventListener('input', function () {
+                var term = this.value.trim().toLowerCase();
+                highlightIndex = -1;
+
+                if (term.length === 0) {
+                    suggestionsBox.classList.remove('active');
+                    suggestionsBox.innerHTML = '';
+                    return;
+                }
+
+                var filtradas = barberias.filter(function (b) {
+                    return b.nombre.toLowerCase().includes(term) ||
+                        b.nombreSecundario.toLowerCase().includes(term) ||
+                        b.ubicacion.toLowerCase().includes(term);
+                });
+
+                if (filtradas.length > 0) {
+                    suggestionsBox.innerHTML = '';
+                    filtradas.forEach(function (b) {
+                        var item = document.createElement('a');
+                        item.className = 'suggestion-item';
+                        item.href = 'barberia.html?barberia=' + b.slug;
+                        item.innerHTML =
+                            '<img src="' + b.logo + '" alt="' + b.nombre + '">' +
+                            '<div>' +
+                            '<div class="sug-name">' + b.nombre + '</div>' +
+                            '<div class="sug-ubicacion">' + b.ubicacion + '</div>' +
+                            '</div>';
+                        suggestionsBox.appendChild(item);
+                    });
+                    suggestionsBox.classList.add('active');
+                } else {
+                    suggestionsBox.classList.remove('active');
+                }
+            });
+
+            /* Navegación con teclado */
+            searchInput.addEventListener('keydown', function (e) {
+                var items = suggestionsBox.querySelectorAll('.suggestion-item');
+                if (!suggestionsBox.classList.contains('active') || items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    highlightIndex = Math.min(highlightIndex + 1, items.length - 1);
+                    updateHighlight(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    highlightIndex = Math.max(highlightIndex - 1, 0);
+                    updateHighlight(items);
+                } else if (e.key === 'Enter' && highlightIndex >= 0) {
+                    e.preventDefault();
+                    items[highlightIndex].click();
+                } else if (e.key === 'Escape') {
+                    suggestionsBox.classList.remove('active');
+                    searchInput.blur();
+                }
+            });
+
+            function updateHighlight(items) {
+                items.forEach(function (item, i) {
+                    item.classList.toggle('highlighted', i === highlightIndex);
+                });
+            }
+
+            /* Submit: redirigir a la primera coincidencia */
+            searchForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var term = searchInput.value.trim().toLowerCase();
+                if (!term) return;
+
+                var coincidencia = barberias.find(function (b) {
+                    return b.nombre.toLowerCase().includes(term) || b.slug === term;
+                });
+
+                if (coincidencia) {
+                    window.location.href = 'barberia.html?barberia=' + coincidencia.slug;
+                }
+                suggestionsBox.classList.remove('active');
+            });
+
+            /* Cerrar sugerencias al hacer clic fuera */
+            document.addEventListener('click', function (e) {
+                if (!searchForm.contains(e.target)) {
+                    suggestionsBox.classList.remove('active');
+                }
+            });
+        });
+    </script>
+    <script src="js/auth.js"></script>
+</body>
+
+</html>

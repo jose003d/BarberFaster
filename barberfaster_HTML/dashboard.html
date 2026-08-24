@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Barbería - Barber Faster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #222;
+            border: 1px solid #333;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 260px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        .search-suggestions.active { display: block; }
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            color: #d3d3d3;
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: background 0.15s ease;
+            cursor: pointer;
+        }
+        .suggestion-item:hover,
+        .suggestion-item.highlighted { background: #2a2a2a; color: #f0a500; }
+        .suggestion-item img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .suggestion-item .sug-name { font-weight: 600; }
+        .suggestion-item .sug-ubicacion { font-size: 0.75rem; color: #888; }
+        .search-suggestions::-webkit-scrollbar { width: 6px; }
+        .search-suggestions::-webkit-scrollbar-track { background: #222; }
+        .search-suggestions::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Barber Faster</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <form class="d-flex me-3 position-relative" id="searchForm" role="search" autocomplete="off">
+                    <input class="form-control me-2" type="search" id="searchInput" placeholder="Buscar barberías..."
+                        aria-label="Buscar" autocomplete="off">
+                    <button class="btn custom-btn" type="submit">Buscar</button>
+                    <div class="search-suggestions" id="searchSuggestions"></div>
+                </form>
+                <ul class="navbar-nav align-items-lg-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                    <li class="nav-item ms-lg-2" id="authNavItem"></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dash-wrapper">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <aside class="dash-sidebar col-md-3 col-lg-2" id="dashSidebar">
+                <div class="dash-profile">
+                    <div class="dash-avatar" id="dashAvatar">B</div>
+                    <h4 id="dashUserName">Barbero</h4>
+                    <p class="dash-barberia-name" id="dashBarberiaName">Mi barbería</p>
+                </div>
+                <nav class="dash-tabs">
+                    <button class="dash-tab active" data-target="negocio">
+                        <i class="bi bi-building"></i> Tu negocio
+                    </button>
+                    <button class="dash-tab" data-target="finanzas">
+                        <i class="bi bi-graph-up-arrow"></i> Finanzas
+                    </button>
+                    <button class="dash-tab" data-target="agenda">
+                        <i class="bi bi-calendar3"></i> Agenda
+                    </button>
+                    <button class="dash-tab" data-target="soporte">
+                        <i class="bi bi-headset"></i> Soporte
+                    </button>
+                </nav>
+                <div class="dash-sidebar-footer">
+                    <button class="dash-logout-btn" id="dashLogout">
+                        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Contenido principal -->
+            <main class="col-md-9 col-lg-10 dash-main">
+
+                <!-- Tu negocio -->
+                <section id="negocio" class="dash-section active">
+                    <h2 class="dash-section-title" data-aos="fade-up">Bienvenido al Dashboard</h2>
+                    <p class="dash-section-sub" data-aos="fade-up" data-aos-delay="50">Usa las pestañas de la izquierda para navegar entre las secciones.</p>
+
+                    <h3 class="dash-subtitle mt-4" data-aos="fade-up">Tu negocio</h3>
+                    <div class="dash-biz-info" data-aos="fade-up" data-aos-delay="100">
+                        <div class="dash-biz-logo">
+                            <i class="bi bi-scissors"></i>
+                        </div>
+                        <div>
+                            <h4 id="dashBizName">Nombre de la barbería</h4>
+                            <p id="dashBizDir">Dirección de la barbería</p>
+                        </div>
+                    </div>
+
+                    <h3 class="dash-subtitle mt-4" data-aos="fade-up">Ubicación</h3>
+                    <div class="dash-map-wrap" data-aos="fade-up" data-aos-delay="150">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.9484805128214!2d-74.08174938573507!3d4.609710043523263!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f99a17b8b7b09%3A0x9f2f07bdf7a2baf2!2sBogot%C3%A1%2C%20Colombia!5e0!3m2!1ses!2sco!4v1698285742047!5m2!1ses!2sco"
+                            allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </section>
+
+                <!-- Finanzas -->
+                <section id="finanzas" class="dash-section">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" data-aos="fade-up">
+                        <h2 class="dash-section-title mb-0">Resumen general</h2>
+                        <button id="toggleButton" class="btn dash-toggle-btn">
+                            <i class="bi bi-calendar-week me-1"></i> Ver datos semanales
+                        </button>
+                    </div>
+
+                    <div class="row g-3 mb-4" data-aos="fade-up" data-aos-delay="100">
+                        <div class="col-md-4">
+                            <div class="dash-stat-card dash-stat-card--visitas">
+                                <div class="dash-stat-icon"><i class="bi bi-people-fill"></i></div>
+                                <div>
+                                    <span class="dash-stat-label">Visitas</span>
+                                    <span class="dash-stat-value" id="statVisitas">120</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="dash-stat-card dash-stat-card--ganancias">
+                                <div class="dash-stat-icon"><i class="bi bi-cash-stack"></i></div>
+                                <div>
+                                    <span class="dash-stat-label">Ganancias</span>
+                                    <span class="dash-stat-value" id="statGanancias">$130.000</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="dash-stat-card dash-stat-card--alertas">
+                                <div class="dash-stat-icon"><i class="bi bi-bell-fill"></i></div>
+                                <div>
+                                    <span class="dash-stat-label">Alertas</span>
+                                    <span class="dash-stat-value" id="statAlertas">3 nuevas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dash-chart-card" data-aos="fade-up" data-aos-delay="200">
+                        <h5 class="dash-chart-title">Usuarios nuevos por día</h5>
+                        <canvas id="graficoUsuarios" height="100"></canvas>
+                    </div>
+
+                    <div class="text-center mt-3" data-aos="fade-up" data-aos-delay="250">
+                        <button id="exportButton" class="btn dash-export-btn">
+                            <i class="bi bi-download me-1"></i> Exportar Datos
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Agenda -->
+                <section id="agenda" class="dash-section">
+                    <h2 class="dash-section-title" data-aos="fade-up">Gestión de agenda</h2>
+                    <div class="dash-placeholder" data-aos="fade-up" data-aos-delay="100">
+                        <i class="bi bi-calendar3"></i>
+                        <p>Esta sección está en desarrollo.</p>
+                    </div>
+                </section>
+
+                <!-- Soporte -->
+                <section id="soporte" class="dash-section">
+                    <h2 class="dash-section-title" data-aos="fade-up">Soporte</h2>
+                    <div class="dash-placeholder" data-aos="fade-up" data-aos-delay="100">
+                        <i class="bi bi-headset"></i>
+                        <p>Esta sección está en proceso.</p>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="data/barberias.js"></script>
+    <script src="data/usuarios.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            /* ── Verificar sesión barbero ── */
+            var user = null;
+            try { user = JSON.parse(localStorage.getItem('bf_user')); } catch (e) { }
+            if (!user || user.tipo !== 'barbero') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            /* ── Datos del sidebar ── */
+            var initial = user.nombreCompleto ? user.nombreCompleto.charAt(0).toUpperCase() : 'B';
+            document.getElementById('dashAvatar').textContent = initial;
+            document.getElementById('dashUserName').textContent = user.nombreCompleto.split(' ')[0];
+            document.getElementById('dashBarberiaName').textContent = user.barberia || 'Mi barbería';
+            document.getElementById('dashBizName').textContent = user.barberia || 'Nombre de la barbería';
+
+            /* ── Tabs ── */
+            var tabs = document.querySelectorAll('.dash-tab');
+            var sections = document.querySelectorAll('.dash-section');
+
+            tabs.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    tabs.forEach(function (b) { b.classList.remove('active'); });
+                    sections.forEach(function (s) { s.classList.remove('active'); });
+                    btn.classList.add('active');
+                    document.getElementById(btn.getAttribute('data-target')).classList.add('active');
+                });
+            });
+
+            /* ── Cerrar sesión ── */
+            document.getElementById('dashLogout').addEventListener('click', function () {
+                localStorage.removeItem('bf_user');
+                window.location.href = 'index.html';
+            });
+
+            /* ── Gráfico ── */
+            var ctx = document.getElementById('graficoUsuarios');
+            if (ctx) {
+                var chart = new Chart(ctx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                        datasets: [{
+                            label: 'Usuarios nuevos (diarios)',
+                            data: [18, 27, 14, 21, 16, 13, 11],
+                            backgroundColor: 'rgba(255, 122, 26, 0.7)',
+                            borderColor: '#ff7a1a',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { labels: { color: '#d3d3d3', font: { family: 'Montserrat' } } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#9a9a9a' }, grid: { color: '#262626' } },
+                            y: { beginAtZero: true, ticks: { color: '#9a9a9a' }, grid: { color: '#262626' } }
+                        }
+                    }
+                });
+
+                var toggleButton = document.getElementById('toggleButton');
+                var mostrandoSemanal = false;
+
+                toggleButton.addEventListener('click', function () {
+                    mostrandoSemanal = !mostrandoSemanal;
+                    if (mostrandoSemanal) {
+                        document.getElementById('statVisitas').textContent = '915';
+                        document.getElementById('statGanancias').textContent = '$870.300';
+                        document.getElementById('statAlertas').textContent = '12 nuevas';
+                        toggleButton.innerHTML = '<i class="bi bi-calendar3 me-1"></i> Ver datos diarios';
+                        chart.data.datasets[0].data = [120, 135, 110, 140, 130, 140, 140];
+                        chart.data.datasets[0].label = 'Usuarios nuevos (semanales)';
+                    } else {
+                        document.getElementById('statVisitas').textContent = '120';
+                        document.getElementById('statGanancias').textContent = '$130.000';
+                        document.getElementById('statAlertas').textContent = '3 nuevas';
+                        toggleButton.innerHTML = '<i class="bi bi-calendar-week me-1"></i> Ver datos semanales';
+                        chart.data.datasets[0].data = [18, 27, 14, 21, 16, 13, 11];
+                        chart.data.datasets[0].label = 'Usuarios nuevos (diarios)';
+                    }
+                    chart.update();
+                });
+
+                document.getElementById('exportButton').addEventListener('click', function () {
+                    var usuarios = document.getElementById('statVisitas').textContent;
+                    var ventas = document.getElementById('statGanancias').textContent;
+                    var alertas = document.getElementById('statAlertas').textContent;
+                    var rows = [['Métrica', 'Valor'], ['Usuarios', usuarios], ['Ventas', ventas], ['Alertas', alertas]];
+                    var csv = '\uFEFF' + rows.map(function (e) { return e.join(','); }).join('\n');
+                    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    var url = URL.createObjectURL(blob);
+                    var link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'estadisticas.csv';
+                    link.click();
+                });
+            }
+
+            /* ── Buscador (misma lógica) ── */
+            var searchInput = document.getElementById('searchInput');
+            var searchForm = document.getElementById('searchForm');
+            var suggestionsBox = document.getElementById('searchSuggestions');
+            var hlIdx = -1;
+
+            if (searchInput && searchForm && suggestionsBox) {
+                searchInput.addEventListener('input', function () {
+                    var term = this.value.trim().toLowerCase();
+                    hlIdx = -1;
+                    if (!term) { suggestionsBox.classList.remove('active'); suggestionsBox.innerHTML = ''; return; }
+                    var f = barberias.filter(function (b) {
+                        return b.nombre.toLowerCase().includes(term) || b.nombreSecundario.toLowerCase().includes(term) || b.ubicacion.toLowerCase().includes(term);
+                    });
+                    if (f.length) {
+                        suggestionsBox.innerHTML = '';
+                        f.forEach(function (b) {
+                            var it = document.createElement('a');
+                            it.className = 'suggestion-item';
+                            it.href = 'barberia.html?barberia=' + b.slug;
+                            it.innerHTML = '<img src="' + b.logo + '" alt="' + b.nombre + '"><div><div class="sug-name">' + b.nombre + '</div><div class="sug-ubicacion">' + b.ubicacion + '</div></div>';
+                            suggestionsBox.appendChild(it);
+                        });
+                        suggestionsBox.classList.add('active');
+                    } else { suggestionsBox.classList.remove('active'); }
+                });
+                searchInput.addEventListener('keydown', function (e) {
+                    var items = suggestionsBox.querySelectorAll('.suggestion-item');
+                    if (!suggestionsBox.classList.contains('active') || !items.length) return;
+                    if (e.key === 'ArrowDown') { e.preventDefault(); hlIdx = Math.min(hlIdx + 1, items.length - 1); uHL(items); }
+                    else if (e.key === 'ArrowUp') { e.preventDefault(); hlIdx = Math.max(hlIdx - 1, 0); uHL(items); }
+                    else if (e.key === 'Enter' && hlIdx >= 0) { e.preventDefault(); items[hlIdx].click(); }
+                    else if (e.key === 'Escape') { suggestionsBox.classList.remove('active'); searchInput.blur(); }
+                });
+                function uHL(items) { items.forEach(function (it, i) { it.classList.toggle('highlighted', i === hlIdx); }); }
+                searchForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    var term = searchInput.value.trim().toLowerCase();
+                    if (!term) return;
+                    var c = barberias.find(function (b) { return b.nombre.toLowerCase().includes(term) || b.slug === term; });
+                    if (c) window.location.href = 'barberia.html?barberia=' + c.slug;
+                    suggestionsBox.classList.remove('active');
+                });
+                document.addEventListener('click', function (e) { if (!searchForm.contains(e.target)) suggestionsBox.classList.remove('active'); });
+            }
+
+            AOS.init();
+        });
+    </script>
+</body>
+
+</html>

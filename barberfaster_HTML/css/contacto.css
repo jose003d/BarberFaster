@@ -11,7 +11,11 @@
   --color-gris-medio: #9a9a9a;
   --color-blanco: #ffffff;
 
-  --gradiente-naranja: linear-gradient(to right, var(--color-naranja), var(--color-naranja-claro));
+  --gradiente-naranja: linear-gradient(
+    to right,
+    var(--color-naranja),
+    var(--color-naranja-claro)
+  );
   --gradiente-oscuro: linear-gradient(to right, #141414, #1f1f1f);
 
   --sombra-suave: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -27,12 +31,19 @@
 }
 
 body {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
   background-color: var(--color-principal);
   color: var(--color-blanco);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--color-naranja);
 }
 
@@ -48,7 +59,7 @@ p {
 
 .navbar-brand {
   font-weight: 600;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   color: var(--color-naranja);
   transition: color var(--transicion-rapida);
 }
@@ -60,11 +71,12 @@ p {
 .nav-link {
   color: var(--color-blanco) !important;
   position: relative;
-  margin-left: 1rem;
+  margin-left: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .nav-link::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 0;
   height: 2px;
@@ -155,7 +167,9 @@ p {
   padding: 2rem 1.5rem;
   text-align: center;
   height: 100%;
-  transition: transform var(--transicion-rapida), box-shadow var(--transicion-rapida);
+  transition:
+    transform var(--transicion-rapida),
+    box-shadow var(--transicion-rapida);
 }
 
 .contact-info-card:hover {

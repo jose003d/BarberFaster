@@ -10,10 +10,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="css/clientes.css">
+    <link rel="stylesheet" href="css/auth.css">
 </head>
 
 <body>
-    <!-- Navbar. Hay que hacerlo funcional -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
         <div class="container">
             <a class="navbar-brand" href="index.html">Barber Faster</a>
@@ -21,22 +22,24 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <!-- Añadirle funcionalidad -->
-                <form class="d-flex me-3" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Buscar estilos..." aria-label="Buscar">
+                <form class="d-flex me-3 position-relative" id="searchForm" role="search" autocomplete="off">
+                    <input class="form-control me-2" type="search" id="searchInput" placeholder="Buscar barberías..."
+                        aria-label="Buscar" autocomplete="off">
                     <button class="btn custom-btn" type="submit">Buscar</button>
+                    <div class="search-suggestions" id="searchSuggestions"></div>
                 </form>
-                <ul class="navbar-nav">
+                <ul class="navbar-nav align-items-lg-center">
                     <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="clientes.html">Clientes</a></li>
                     <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
                     <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                    <li class="nav-item ms-lg-2" id="authNavItem"></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Esta es la bienvenida. Es casi lo mismo de index -->
+    <!-- Bienvenida -->
     <section class="welcome-section welcome-section-sub" data-aos="fade-up">
         <div class="welcome-overlay">
             <div class="container welcome-content text-center">
@@ -50,81 +53,20 @@
     <!-- Contenido principal -->
     <main class="container my-5">
         <div class="text-center mb-5" data-aos="fade-up">
-            <h1 class="section-title">Barberias disponibles en tu zona</h1>
-            <p class="lead" style="color: #d3d3d3;">Encuentra la inspiración para tu próximo corte. Haz clic en
-                cualquier imagen para ver más detalles.</p>
+            <h1 class="section-title">Barberías disponibles en tu zona</h1>
+            <p class="lead" style="color: #d3d3d3;">Pasa el cursor sobre cualquier barbería para ver su ubicación,
+                horarios y descripción. Haz clic para ver todos los detalles.</p>
         </div>
 
-        <!-- Tarjetas para barberias -->
-        <!-- Añadir a futuro un hover que muestre la información básica de la barbería. Ubicación, descripción y horarios principalmente-->
+        <!-- Tarjetas generadas dinámicamente -->
         <div class="clientes-cards-wrap" data-aos="fade-up">
-            <div class="row g-4">
-                <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="style-card text-center">
-                        <a href="barberia_springfield.html" target="_blank">
-                            <img src="img/bfspringfield.png" class="card-img-top" alt="Barberia 'Springfield'">
-                        </a>
-                        <h5>Barbería springfield</h5>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="style-card text-center">
-                        <a href="barberia_mebarbershopmore.html" target="_blank">
-                            <img src="img/bfmebarbershopmore.png" class="card-img-top"
-                                alt="Barberia 'MeBarberShop MORE'">
-                        </a>
-                        <h5>Barberia MeBarberShop MORE</h5>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="style-card text-center">
-                        <a href="barberia_lasvegasbarbershop.html" target="_blank">
-                            <img src="img/bflasvegasbarbershop.png" class="card-img-top"
-                                alt="Barbería 'Las Vegas Barbershop'">
-                        </a>
-                        <h5>Barbería Las Vegas Barbershop</h5>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="style-card text-center">
-                        <a href="barberia_theurbanblade.html" target="_blank">
-                            <img src="img/bftheurbanblade.png" class="card-img-top" alt="Barbería 'The Urban Blade'">
-                        </a>
-                        <h5>Barbería The Urban Blade</h5>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="style-card text-center">
-                        <a href="#" target="_blank">
-                            <img src="img/cat.jpg" class="card-img-top" alt="Extra">
-                        </a>
-                        <h5>Tarjeta extra 1</h5>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="style-card text-center">
-                        <a href="#" target="_blank">
-                            <img src="img/cat2.jpg" class="card-img-top" alt="Extra">
-                        </a>
-                        <h5>Tarjeta extra 2</h5>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="style-card text-center">
-                        <a href="#" target="_blank">
-                            <img src="img/cat3.jpg" class="card-img-top" alt="Extra">
-                        </a>
-                        <h5>Tarjeta extra 3</h5>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="style-card text-center">
-                        <a href="#" target="_blank">
-                            <img src="img/cat4.jpg" class="card-img-top" alt="Extra">
-                        </a>
-                        <h5>Tarjeta extra 4</h5>
-                    </div>
-                </div>
+            <div class="row g-4" id="barberiasGrid"></div>
+
+            <!-- Sin resultados -->
+            <div class="no-results" id="noResults">
+                <i class="bi bi-search"></i>
+                <h4>No se encontraron barberías</h4>
+                <p>Intenta con otro término de búsqueda</p>
             </div>
         </div>
     </main>
@@ -165,9 +107,8 @@
             <h3 class="mb-4 section-title" data-aos="fade-up">¿Necesitas ayuda?</h3>
             <p data-aos="fade-up" data-aos-delay="100" style="color: #d3d3d3;">
                 Encuentra las barberías más cercanas y elige la que mejor se adapte a tu estilo. <br>
-                Haz clic sobre el logo o el nombre de la barbería para conocer sus servicios, horarios y barberos
-                disponibles. <br>
-                Agenda tu cita en segundos y disfruta de una experiencia moderna, rápida y sin esperas con BarberFaster.
+                Pasa el cursor sobre cualquier barbería para ver su ubicación y horarios de atención. <br>
+                Haz clic para conocer sus servicios, barberos disponibles y agendar tu cita en segundos.
             </p>
         </div>
     </section>
@@ -178,9 +119,158 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="data/barberias.js"></script>
     <script>
-        AOS.init();
+        document.addEventListener('DOMContentLoaded', function () {
+
+            /* ── Referencias DOM ── */
+            const grid = document.getElementById('barberiasGrid');
+            const noResults = document.getElementById('noResults');
+            const searchInput = document.getElementById('searchInput');
+            const searchForm = document.getElementById('searchForm');
+            const suggestionsBox = document.getElementById('searchSuggestions');
+            let highlightIndex = -1;
+
+            /* ── Renderizar tarjetas de barberías ── */
+            function renderBarberias(lista) {
+                grid.innerHTML = '';
+
+                if (lista.length === 0) {
+                    noResults.style.display = 'block';
+                    return;
+                }
+
+                noResults.style.display = 'none';
+
+                lista.forEach(function (barberia, index) {
+                    const col = document.createElement('div');
+                    col.className = 'col-lg-3 col-md-6 barberia-col';
+                    col.setAttribute('data-aos', 'zoom-in');
+                    col.setAttribute('data-aos-delay', String((index % 4) * 100 + 100));
+                    col.innerHTML =
+                        '<div class="style-card">' +
+                        '<a href="barberia.html?barberia=' + barberia.slug + '">' +
+                        '<img src="' + barberia.logo + '" alt="' + barberia.nombre + '">' +
+                        '</a>' +
+                        '<div class="card-label"><h5>' + barberia.nombre + '</h5></div>' +
+                        '<div class="card-info-overlay">' +
+                        '<div class="info-ubicacion"><i class="bi bi-geo-alt-fill"></i> ' + barberia.ubicacion + '</div>' +
+                        '<div class="info-horarios"><i class="bi bi-clock"></i> ' + barberia.horarios + '</div>' +
+                        '<p class="info-descripcion">' + barberia.descripcion + '</p>' +
+                        '<a href="barberia.html?barberia=' + barberia.slug + '" class="btn-ver-mas">Ver detalles</a>' +
+                        '</div>' +
+                        '</div>';
+                    grid.appendChild(col);
+                });
+
+                /* Refrescar AOS para los nuevos elementos */
+                AOS.refresh();
+            }
+
+            /* Carga inicial */
+            renderBarberias(barberias);
+
+            /* ── Buscador: filtrado en tiempo real ── */
+            searchInput.addEventListener('input', function () {
+                const term = this.value.trim().toLowerCase();
+                highlightIndex = -1;
+
+                if (term.length === 0) {
+                    renderBarberias(barberias);
+                    suggestionsBox.classList.remove('active');
+                    suggestionsBox.innerHTML = '';
+                    return;
+                }
+
+                /* Filtrar barberías que coincidan */
+                const filtradas = barberias.filter(function (b) {
+                    return b.nombre.toLowerCase().includes(term) ||
+                        b.nombreSecundario.toLowerCase().includes(term) ||
+                        b.ubicacion.toLowerCase().includes(term) ||
+                        b.descripcion.toLowerCase().includes(term);
+                });
+
+                renderBarberias(filtradas);
+
+                /* Mostrar sugerencias desplegables */
+                if (filtradas.length > 0 && filtradas.length <= 4) {
+                    suggestionsBox.innerHTML = '';
+                    filtradas.forEach(function (b, i) {
+                        const item = document.createElement('a');
+                        item.className = 'suggestion-item';
+                        item.href = 'barberia.html?barberia=' + b.slug;
+                        item.innerHTML =
+                            '<img src="' + b.logo + '" alt="' + b.nombre + '">' +
+                            '<div>' +
+                            '<div class="sug-name">' + b.nombre + '</div>' +
+                            '<div class="sug-ubicacion">' + b.ubicacion + '</div>' +
+                            '</div>';
+                        suggestionsBox.appendChild(item);
+                    });
+                    suggestionsBox.classList.add('active');
+                } else {
+                    suggestionsBox.classList.remove('active');
+                }
+            });
+
+            /* ── Navegación con teclado en sugerencias ── */
+            searchInput.addEventListener('keydown', function (e) {
+                const items = suggestionsBox.querySelectorAll('.suggestion-item');
+                if (!suggestionsBox.classList.contains('active') || items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    highlightIndex = Math.min(highlightIndex + 1, items.length - 1);
+                    updateHighlight(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    highlightIndex = Math.max(highlightIndex - 1, 0);
+                    updateHighlight(items);
+                } else if (e.key === 'Enter' && highlightIndex >= 0) {
+                    e.preventDefault();
+                    items[highlightIndex].click();
+                } else if (e.key === 'Escape') {
+                    suggestionsBox.classList.remove('active');
+                    searchInput.blur();
+                }
+            });
+
+            function updateHighlight(items) {
+                items.forEach(function (item, i) {
+                    item.classList.toggle('highlighted', i === highlightIndex);
+                });
+            }
+
+            /* ── Submit del formulario: ir a la primera coincidencia ── */
+            searchForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const term = searchInput.value.trim().toLowerCase();
+                if (!term) return;
+
+                const coincidencia = barberias.find(function (b) {
+                    return b.nombre.toLowerCase().includes(term) ||
+                        b.slug === term;
+                });
+
+                if (coincidencia) {
+                    window.location.href = 'barberia.html?barberia=' + coincidencia.slug;
+                }
+
+                suggestionsBox.classList.remove('active');
+            });
+
+            /* ── Cerrar sugerencias al hacer clic fuera ── */
+            document.addEventListener('click', function (e) {
+                if (!searchForm.contains(e.target)) {
+                    suggestionsBox.classList.remove('active');
+                }
+            });
+
+            /* Inicializar AOS */
+            AOS.init();
+        });
     </script>
+    <script src="js/auth.js"></script>
 </body>
 
 </html>

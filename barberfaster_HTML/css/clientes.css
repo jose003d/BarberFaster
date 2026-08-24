@@ -11,7 +11,11 @@
   --color-gris-medio: #9a9a9a;
   --color-blanco: #ffffff;
 
-  --gradiente-naranja: linear-gradient(to right, var(--color-naranja), var(--color-naranja-claro));
+  --gradiente-naranja: linear-gradient(
+    to right,
+    var(--color-naranja),
+    var(--color-naranja-claro)
+  );
   --gradiente-oscuro: linear-gradient(to right, #141414, #1f1f1f);
 
   --sombra-suave: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -27,12 +31,19 @@
 }
 
 body {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
   background-color: var(--color-principal);
   color: var(--color-blanco);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--color-naranja);
 }
 
@@ -48,7 +59,7 @@ p {
 
 .navbar-brand {
   font-weight: 600;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   color: var(--color-naranja);
   transition: color var(--transicion-rapida);
 }
@@ -60,11 +71,12 @@ p {
 .nav-link {
   color: var(--color-blanco) !important;
   position: relative;
-  margin-left: 1rem;
+  margin-left: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .nav-link::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 0;
   height: 2px;
@@ -113,7 +125,6 @@ p {
 }
 
 /* Seccion de beneficios para clientes */
-
 .benefits-section {
   padding: 1rem 0 2rem;
 }
@@ -142,19 +153,21 @@ p {
   font-size: 0.95rem;
 }
 
-/* Tarjetas — base fusionada directamente, sin @extend (no válido en CSS puro) */
-.service-card,
-.style-card {
+/* Tarjetas de servicios */
+.service-card {
   border: none;
   border-radius: var(--borde-redondeado);
-  transition: transform var(--transicion-rapida), box-shadow var(--transicion-rapida);
-  background-color: var(--color-principal);
+  transition:
+    transform var(--transicion-rapida),
+    box-shadow var(--transicion-rapida);
+  background-color: var(--color-secundario);
+  border: 1px solid var(--color-terciario);
 }
 
-.service-card:hover,
-.style-card:hover {
+.service-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--sombra-media);
+  border-color: var(--color-naranja);
 }
 
 .service-card .card-title {
@@ -165,16 +178,35 @@ p {
   color: var(--color-gris-claro);
 }
 
+/* Tarjetas de barberías */
 .style-card {
-  padding: 1rem;
-  border: 1px solid var(--color-terciario);
-  height: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #1a1a1a;
+  transition:
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.35s ease;
 }
 
 .style-card:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--sombra-fuerte);
-  border-color: var(--color-naranja);
+  transform: translateY(-10px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+.style-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+  transition:
+    transform 0.5s ease,
+    filter 0.4s ease;
+}
+
+.style-card:hover img {
+  transform: scale(1.08);
+  filter: brightness(0.4);
 }
 
 .style-card h5 {
@@ -191,16 +223,98 @@ p {
   word-wrap: break-word;
 }
 
-.style-card img {
-  border-radius: var(--borde-redondeado-suave);
-  transition: transform var(--transicion-rapida);
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
+.style-card .card-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 14px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  transition: opacity 0.3s ease;
+  z-index: 2;
 }
 
-.style-card:hover img {
-  transform: scale(1.05);
+.style-card .card-label h5 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.style-card:hover .card-label {
+  opacity: 0;
+}
+
+/* Overlay con información */
+.card-info-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(0, 0, 0, 0.92) 40%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px 16px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+  z-index: 3;
+}
+
+.style-card:hover .card-info-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card-info-overlay .info-ubicacion {
+  font-size: 0.78rem;
+  color: #f0a500;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.card-info-overlay .info-horarios {
+  font-size: 0.72rem;
+  color: #b0b0b0;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  line-height: 1.3;
+}
+
+.card-info-overlay .info-descripcion {
+  font-size: 0.75rem;
+  color: #d3d3d3;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-info-overlay .btn-ver-mas {
+  align-self: flex-start;
+  font-size: 0.8rem;
+  padding: 6px 16px;
+  border-radius: 6px;
+  background: #f0a500;
+  color: #000;
+  border: none;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.card-info-overlay .btn-ver-mas:hover {
+  background: #ffb833;
+  color: #000;
 }
 
 /* Contenedor gris que agrupa las tarjetas de barberías */
@@ -243,7 +357,7 @@ p {
 }
 
 .section-title::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 50%;
   height: 3px;
@@ -261,7 +375,9 @@ p {
   justify-content: center;
   padding: 0;
   border-top: 6px solid var(--color-naranja);
-  background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.75)), url('../img/bfclientes.png');
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.75)),
+    url("../img/bfclientes.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -310,4 +426,104 @@ p {
   .welcome-text {
     font-size: 1rem;
   }
+}
+
+/* Estado "sin resultados" */
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+  display: none;
+}
+
+.no-results i {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  display: block;
+  color: #555;
+}
+
+/* Sugerencias del buscador */
+.search-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #222;
+  border: 1px solid #333;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+}
+
+.search-suggestions.active {
+  display: block;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  color: #d3d3d3;
+  text-decoration: none;
+  font-size: 0.88rem;
+  transition: background 0.15s ease;
+  cursor: pointer;
+}
+
+.suggestion-item:hover,
+.suggestion-item.highlighted {
+  background: #2a2a2a;
+  color: #f0a500;
+}
+
+.suggestion-item img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.suggestion-item .sug-name {
+  font-weight: 600;
+}
+
+.suggestion-item .sug-ubicacion {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+/* Scrollbar sugerencias */
+.search-suggestions::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-suggestions::-webkit-scrollbar-track {
+  background: #222;
+}
+
+.search-suggestions::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+/* Transición suave al filtrar */
+.barberia-col {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.barberia-col.hidden {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
 }

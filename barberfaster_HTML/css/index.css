@@ -32,6 +32,8 @@
 
 body {
   font-family: "Montserrat", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
   background-color: var(--color-principal);
   color: var(--color-blanco);
 }
@@ -57,7 +59,7 @@ p {
 
 .navbar-brand {
   font-weight: 600;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   color: var(--color-naranja);
   transition: color var(--transicion-rapida);
 }
@@ -69,7 +71,8 @@ p {
 .nav-link {
   color: var(--color-blanco) !important;
   position: relative;
-  margin-left: 1rem;
+  margin-left: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .nav-link::after {

@@ -10,6 +10,74 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="css/barberos.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <style>
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #222;
+            border: 1px solid #333;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 260px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-suggestions.active {
+            display: block;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            color: #d3d3d3;
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: background 0.15s ease;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.highlighted {
+            background: #2a2a2a;
+            color: #f0a500;
+        }
+
+        .suggestion-item img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .suggestion-item .sug-name {
+            font-weight: 600;
+        }
+
+        .suggestion-item .sug-ubicacion {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .search-suggestions::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .search-suggestions::-webkit-scrollbar-track {
+            background: #222;
+        }
+
+        .search-suggestions::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
+    </style>
 </head>
 
 <body>
@@ -21,15 +89,18 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <form class="d-flex me-3" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Buscar herramientas..." aria-label="Buscar">
+                <form class="d-flex me-3 position-relative" id="searchForm" role="search" autocomplete="off">
+                    <input class="form-control me-2" type="search" id="searchInput" placeholder="Buscar barberías..."
+                        aria-label="Buscar" autocomplete="off">
                     <button class="btn custom-btn" type="submit">Buscar</button>
+                    <div class="search-suggestions" id="searchSuggestions"></div>
                 </form>
-                <ul class="navbar-nav">
+                <ul class="navbar-nav align-items-lg-center">
                     <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="barberos.html">Barberos</a></li>
                     <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                    <li class="nav-item ms-lg-2" id="authNavItem"></li>
                 </ul>
             </div>
         </div>
@@ -53,7 +124,8 @@
         <section class="tools-section">
             <div class="text-center mb-5" data-aos="fade-up">
                 <h2 class="section-title">Herramientas para Profesionales</h2>
-                <p class="section-subtitle">BarberFaster te proporciona todas las herramientas que necesitas para gestionar tu barbería de manera eficiente</p>
+                <p class="section-subtitle">BarberFaster te proporciona todas las herramientas que necesitas para
+                    gestionar tu barbería de manera eficiente</p>
             </div>
             <div class="row g-4">
                 <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
@@ -95,6 +167,103 @@
             </div>
         </section>
 
+
+        <!-- Botón para registrar barbería -->
+        <section class="text-center my-5" data-aos="fade-up">
+            <button type="button" class="btn custom-btn btn-lg" data-bs-toggle="modal"
+                data-bs-target="#regBarberoModal">
+                <i class="bi bi-plus-circle me-2"></i>Registrar mi barbería
+            </button>
+        </section>
+
+        <!-- Modal de registro de barbería -->
+        <div class="modal fade" id="regBarberoModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content reg-barbero-modal">
+                    <div class="modal-header reg-barbero-header">
+                        <h5 class="modal-title">Registrar Barbería</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="regBarberoError" class="login-error" style="display:none;"></div>
+                        <div id="regBarberoSuccess" class="login-success" style="display:none;"></div>
+                        <form id="regBarberoForm" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="rbNombre" class="login-label">Nombre de la Barbería</label>
+                                    <div class="login-input-wrap">
+                                        <i class="bi bi-shop login-input-icon"></i>
+                                        <input type="text" class="form-control login-input login-input--with-icon"
+                                            id="rbNombre" placeholder="Ej: Barbería Central" required>
+                                    </div>
+                                    <span class="login-field-error" id="rbNombreError"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="rbRut" class="login-label">RUT</label>
+                                    <div class="login-input-wrap">
+                                        <i class="bi bi-upc-scan login-input-icon"></i>
+                                        <input type="text" class="form-control login-input login-input--with-icon"
+                                            id="rbRut" placeholder="Solo números" required inputmode="numeric">
+                                    </div>
+                                    <span class="login-field-error" id="rbRutError"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="rbUsuario" class="login-label">Nombre de Usuario</label>
+                                    <div class="login-input-wrap">
+                                        <i class="bi bi-at login-input-icon"></i>
+                                        <input type="text" class="form-control login-input login-input--with-icon"
+                                            id="rbUsuario" placeholder="Para iniciar sesión" required>
+                                    </div>
+                                    <span class="login-field-error" id="rbUsuarioError"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="rbDireccion" class="login-label">Dirección</label>
+                                    <div class="login-input-wrap">
+                                        <i class="bi bi-geo-alt login-input-icon"></i>
+                                        <input type="text" class="form-control login-input login-input--with-icon"
+                                            id="rbDireccion" placeholder="Calle # - Ciudad" required>
+                                    </div>
+                                    <span class="login-field-error" id="rbDireccionError"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="rbDocumento" class="login-label">Documento Representante Legal</label>
+                                    <div class="login-input-wrap">
+                                        <i class="bi bi-file-earmark-text login-input-icon"></i>
+                                        <input type="text" class="form-control login-input login-input--with-icon"
+                                            id="rbDocumento" placeholder="Solo números" required inputmode="numeric">
+                                    </div>
+                                    <span class="login-field-error" id="rbDocumentoError"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="rbContacto" class="login-label">Número de Contacto</label>
+                                    <div class="login-input-wrap">
+                                        <i class="bi bi-telephone login-input-icon"></i>
+                                        <input type="text" class="form-control login-input login-input--with-icon"
+                                            id="rbContacto" placeholder="Solo números" required inputmode="numeric">
+                                    </div>
+                                    <span class="login-field-error" id="rbContactoError"></span>
+                                </div>
+                                <div class="col-12">
+                                    <label for="rbTelefono" class="login-label">Teléfono de la Barbería</label>
+                                    <div class="login-input-wrap">
+                                        <i class="bi bi-phone login-input-icon"></i>
+                                        <input type="text" class="form-control login-input login-input--with-icon"
+                                            id="rbTelefono" placeholder="Solo números" required inputmode="numeric">
+                                    </div>
+                                    <span class="login-field-error" id="rbTelefonoError"></span>
+                                </div>
+                            </div>
+                            <div class="login-buttons mt-4">
+                                <button type="submit" class="btn login-btn-primary">Registrar</button>
+                                <button type="button" class="btn login-btn-cancel"
+                                    data-bs-dismiss="modal">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Comentarios de barberos registrados -->
         <div class="testimonials-wrap" data-aos="fade-up">
             <div class="text-center mb-4">
@@ -103,19 +272,20 @@
             <div class="row g-4">
                 <div class="col-md-6" data-aos="zoom-in">
                     <div class="testimonial-card">
-                        <p class="testimonial-quote">"BarberFaster transformó completamente mi negocio. Ahora tengo un 40% más de clientes y cero tiempo perdido en administración."</p>
+                        <p class="testimonial-quote">"BarberFaster transformó completamente mi negocio. Ahora tengo un
+                            40% más de clientes y cero tiempo perdido en administración."</p>
                         <a href="barberia_elite.html" class="testimonial-author">Miguel Rodríguez, Barbería Elite</a>
                     </div>
                 </div>
                 <div class="col-md-6" data-aos="zoom-in" data-aos-delay="150">
                     <div class="testimonial-card">
-                        <p class="testimonial-quote">"La mejor inversión que he hecho. Mis clientes aman poder reservar online y yo tengo mi agenda siempre organizada."</p>
+                        <p class="testimonial-quote">"La mejor inversión que he hecho. Mis clientes aman poder reservar
+                            online y yo tengo mi agenda siempre organizada."</p>
                         <a href="barberia_cutstyle.html" class="testimonial-author">Fernando Silva, Cut &amp; Style</a>
                     </div>
                 </div>
             </div>
         </div>
-
     </main>
 
     <footer class="custom-footer text-center py-3">
@@ -124,9 +294,183 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="data/barberias.js"></script>
     <script>
         AOS.init();
+
+        /* ── Buscador funcional ── */
+        (function () {
+            var searchInput = document.getElementById('searchInput');
+            var searchForm = document.getElementById('searchForm');
+            var suggestionsBox = document.getElementById('searchSuggestions');
+            var highlightIndex = -1;
+
+            searchInput.addEventListener('input', function () {
+                var term = this.value.trim().toLowerCase();
+                highlightIndex = -1;
+
+                if (term.length === 0) {
+                    suggestionsBox.classList.remove('active');
+                    suggestionsBox.innerHTML = '';
+                    return;
+                }
+
+                var filtradas = barberias.filter(function (b) {
+                    return b.nombre.toLowerCase().includes(term) ||
+                        b.nombreSecundario.toLowerCase().includes(term) ||
+                        b.ubicacion.toLowerCase().includes(term);
+                });
+
+                if (filtradas.length > 0) {
+                    suggestionsBox.innerHTML = '';
+                    filtradas.forEach(function (b) {
+                        var item = document.createElement('a');
+                        item.className = 'suggestion-item';
+                        item.href = 'barberia.html?barberia=' + b.slug;
+                        item.innerHTML =
+                            '<img src="' + b.logo + '" alt="' + b.nombre + '">' +
+                            '<div>' +
+                            '<div class="sug-name">' + b.nombre + '</div>' +
+                            '<div class="sug-ubicacion">' + b.ubicacion + '</div>' +
+                            '</div>';
+                        suggestionsBox.appendChild(item);
+                    });
+                    suggestionsBox.classList.add('active');
+                } else {
+                    suggestionsBox.classList.remove('active');
+                }
+            });
+
+            searchInput.addEventListener('keydown', function (e) {
+                var items = suggestionsBox.querySelectorAll('.suggestion-item');
+                if (!suggestionsBox.classList.contains('active') || items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    highlightIndex = Math.min(highlightIndex + 1, items.length - 1);
+                    updateHighlight(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    highlightIndex = Math.max(highlightIndex - 1, 0);
+                    updateHighlight(items);
+                } else if (e.key === 'Enter' && highlightIndex >= 0) {
+                    e.preventDefault();
+                    items[highlightIndex].click();
+                } else if (e.key === 'Escape') {
+                    suggestionsBox.classList.remove('active');
+                    searchInput.blur();
+                }
+            });
+
+            function updateHighlight(items) {
+                items.forEach(function (item, i) {
+                    item.classList.toggle('highlighted', i === highlightIndex);
+                });
+            }
+
+            searchForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var term = searchInput.value.trim().toLowerCase();
+                if (!term) return;
+
+                var coincidencia = barberias.find(function (b) {
+                    return b.nombre.toLowerCase().includes(term) || b.slug === term;
+                });
+
+                if (coincidencia) {
+                    window.location.href = 'barberia.html?barberia=' + coincidencia.slug;
+                }
+                suggestionsBox.classList.remove('active');
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!searchForm.contains(e.target)) {
+                    suggestionsBox.classList.remove('active');
+                }
+            });
+        })();
     </script>
+    <script>
+        /* ── Solo números en campos del modal ── */
+        ['rbRut', 'rbDocumento', 'rbContacto', 'rbTelefono'].forEach(function (id) {
+            document.getElementById(id).addEventListener('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        });
+
+        /* ── Validación del modal ── */
+        function vRb(inputId, errorId, rules) {
+            var input = document.getElementById(inputId);
+            var errSpan = document.getElementById(errorId);
+            var val = input.value.trim();
+            var msg = '';
+            if (rules.required && !val) msg = 'Este campo es obligatorio';
+            else if (rules.min && val.length > 0 && val.length < rules.min) msg = 'Mínimo ' + rules.min + ' caracteres';
+            if (msg) {
+                input.classList.add('login-input--error');
+                errSpan.textContent = msg;
+                errSpan.style.display = 'block';
+                return false;
+            }
+            input.classList.remove('login-input--error');
+            errSpan.style.display = 'none';
+            return true;
+        }
+
+        /* Limpiar errores al escribir */
+        ['rbNombre', 'rbRut', 'rbUsuario', 'rbDireccion', 'rbDocumento', 'rbContacto', 'rbTelefono'].forEach(function (id) {
+            document.getElementById(id).addEventListener('input', function () {
+                this.classList.remove('login-input--error');
+                document.getElementById(id + 'Error').style.display = 'none';
+            });
+        });
+
+        /* Submit */
+        document.getElementById('regBarberoForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            document.getElementById('regBarberoError').style.display = 'none';
+            document.getElementById('regBarberoSuccess').style.display = 'none';
+
+            var fields = [
+                vRb('rbNombre', 'rbNombreError', { required: true, min: 3 }),
+                vRb('rbRut', 'rbRutError', { required: true, min: 5 }),
+                vRb('rbUsuario', 'rbUsuarioError', { required: true, min: 3 }),
+                vRb('rbDireccion', 'rbDireccionError', { required: true, min: 5 }),
+                vRb('rbDocumento', 'rbDocumentoError', { required: true, min: 5 }),
+                vRb('rbContacto', 'rbContactoError', { required: true, min: 7 }),
+                vRb('rbTelefono', 'rbTelefonoError', { required: true, min: 7 })
+            ];
+            if (fields.some(function (f) { return !f; })) return;
+
+            var usuario = document.getElementById('rbUsuario').value.trim();
+            if (usuarios.find(function (u) { return u.usuario === usuario; })) {
+                document.getElementById('rbUsuario').classList.add('login-input--error');
+                document.getElementById('rbUsuarioError').textContent = 'Ese nombre de usuario ya está en uso.';
+                document.getElementById('rbUsuarioError').style.display = 'block';
+                return;
+            }
+
+            /* Registrar */
+            usuarios.push({
+                id: usuarios.length + 1,
+                usuario: usuario,
+                nombreCompleto: document.getElementById('rbNombre').value.trim(),
+                email: '',
+                tipo: 'barbero',
+                barberia: document.getElementById('rbNombre').value.trim(),
+                password: '1234'
+            });
+
+            document.getElementById('regBarberoSuccess').textContent = '¡Barbería registrada! Tu contraseña por defecto es: 1234. Cámbiala en tu perfil.';
+            document.getElementById('regBarberoSuccess').style.display = 'block';
+            document.getElementById('regBarberoForm').reset();
+
+            setTimeout(function () {
+                bootstrap.Modal.getInstance(document.getElementById('regBarberoModal')).hide();
+            }, 2500);
+        });
+    </script>
+    <script src="js/auth.js"></script>
 </body>
 
 </html>

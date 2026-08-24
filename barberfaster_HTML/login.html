@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión - Barber Faster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Barber Faster</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-lg-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                    <li class="nav-item ms-lg-2" id="authNavItem"></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="login-wrapper">
+        <!-- Lado izquierdo: Formularios -->
+        <div class="login-form-side">
+            <div class="login-form-container">
+
+                <div class="login-brand text-center mb-4">
+                    <a href="index.html" class="login-brand-link">
+                        <i class="bi bi-scissors login-brand-icon"></i>
+                        <span>Barber Faster</span>
+                    </a>
+                </div>
+
+                <!-- ═══ FORMULARIO DE INICIO DE SESIÓN ═══ -->
+                <div id="loginFormWrap">
+                    <h2 class="login-title">Iniciar sesión</h2>
+
+                    <div id="loginError" class="login-error" style="display:none;"></div>
+
+                    <form id="loginForm" novalidate>
+                        <div class="mb-3">
+                            <label for="loginTipo" class="login-label">Tipo de usuario</label>
+                            <div class="login-select-wrap">
+                                <select class="form-select login-input" id="loginTipo">
+                                    <option value="barbero">Barbero</option>
+                                    <option value="cliente">Cliente</option>
+                                </select>
+                                <i class="bi bi-chevron-down login-select-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="loginUsuario" class="login-label">Usuario</label>
+                            <div class="login-input-wrap">
+                                <i class="bi bi-person login-input-icon"></i>
+                                <input type="text" class="form-control login-input login-input--with-icon" id="loginUsuario"
+                                    placeholder="Ingresa tu usuario" required>
+                            </div>
+                            <span class="login-field-error" id="loginUsuarioError"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="loginPassword" class="login-label">Contraseña</label>
+                            <div class="login-input-wrap">
+                                <i class="bi bi-lock login-input-icon"></i>
+                                <input type="password" class="form-control login-input login-input--with-icon" id="loginPassword"
+                                    placeholder="Ingresa tu contraseña" required>
+                                <button type="button" class="login-toggle-pass" data-target="loginPassword" aria-label="Mostrar contraseña">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <span class="login-field-error" id="loginPasswordError"></span>
+                        </div>
+
+                        <div class="mb-3 login-collapsible login-collapsible--open" id="loginBarberiaField">
+                            <label for="loginBarberia" class="login-label">Nombre de la barbería</label>
+                            <div class="login-input-wrap">
+                                <i class="bi bi-shop login-input-icon"></i>
+                                <input type="text" class="form-control login-input login-input--with-icon" id="loginBarberia"
+                                    placeholder="Nombre de tu barbería">
+                            </div>
+                        </div>
+
+                        <div class="login-buttons">
+                            <button type="submit" class="btn login-btn-primary">Ingresar</button>
+                            <a href="index.html" class="btn login-btn-cancel">Cancelar</a>
+                        </div>
+                    </form>
+
+                    <div class="login-links">
+                        <a href="#" class="login-forgot">¿Olvidaste tu contraseña?</a>
+                        <a href="#" id="goToRegister">¿Primera vez? <strong>Regístrate aquí</strong></a>
+                    </div>
+                </div>
+
+                <!-- ═══ FORMULARIO DE REGISTRO (solo clientes) ═══ -->
+                <div id="registerFormWrap" class="login-form-hidden">
+                    <h2 class="login-title">Registrarse</h2>
+
+                    <div id="registerError" class="login-error" style="display:none;"></div>
+                    <div id="registerSuccess" class="login-success" style="display:none;"></div>
+
+                    <form id="registerForm" novalidate>
+                        <div class="mb-3">
+                            <label for="regNombre" class="login-label">Nombre completo</label>
+                            <div class="login-input-wrap">
+                                <i class="bi bi-person-fill login-input-icon"></i>
+                                <input type="text" class="form-control login-input login-input--with-icon" id="regNombre"
+                                    placeholder="Tu nombre completo" required>
+                            </div>
+                            <span class="login-field-error" id="regNombreError"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="regEmail" class="login-label">Correo electrónico</label>
+                            <div class="login-input-wrap">
+                                <i class="bi bi-envelope login-input-icon"></i>
+                                <input type="email" class="form-control login-input login-input--with-icon" id="regEmail"
+                                    placeholder="tu@correo.com" required>
+                            </div>
+                            <span class="login-field-error" id="regEmailError"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="regUsuario" class="login-label">Usuario</label>
+                            <div class="login-input-wrap">
+                                <i class="bi bi-at login-input-icon"></i>
+                                <input type="text" class="form-control login-input login-input--with-icon" id="regUsuario"
+                                    placeholder="Elige un nombre de usuario" required>
+                            </div>
+                            <span class="login-field-error" id="regUsuarioError"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="regPassword" class="login-label">Contraseña</label>
+                            <div class="login-input-wrap">
+                                <i class="bi bi-lock login-input-icon"></i>
+                                <input type="password" class="form-control login-input login-input--with-icon" id="regPassword"
+                                    placeholder="Crea tu contraseña" required>
+                                <button type="button" class="login-toggle-pass" data-target="regPassword" aria-label="Mostrar contraseña">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <span class="login-field-error" id="regPasswordError"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="regPasswordConfirm" class="login-label">Confirmar contraseña</label>
+                            <div class="login-input-wrap">
+                                <i class="bi bi-lock-fill login-input-icon"></i>
+                                <input type="password" class="form-control login-input login-input--with-icon" id="regPasswordConfirm"
+                                    placeholder="Repite tu contraseña" required>
+                                <button type="button" class="login-toggle-pass" data-target="regPasswordConfirm" aria-label="Mostrar contraseña">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <span class="login-field-error" id="regPasswordConfirmError"></span>
+                        </div>
+
+                        <div class="login-buttons">
+                            <button type="submit" class="btn login-btn-primary">Registrarse</button>
+                            <a href="index.html" class="btn login-btn-cancel">Cancelar</a>
+                        </div>
+                    </form>
+
+                    <div class="login-links">
+                        <a href="#" id="goToLogin">¿Ya tienes cuenta? <strong>Inicia sesión</strong></a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Lado derecho: Bienvenida -->
+        <div class="login-welcome-side">
+            <div class="login-welcome-content">
+                <div class="login-welcome-image">
+                    <img src="img/bflogo.png" alt="Barber Faster">
+                </div>
+                <h1 class="login-welcome-title">Bienvenido a Barber Faster</h1>
+                <p class="login-welcome-text">Tu barbería digital: agenda, gestiona y crece con la plataforma diseñada para profesionales del estilo.</p>
+                <ul class="login-welcome-features">
+                    <li><i class="bi bi-check-circle-fill"></i><span>Agenda citas en segundos</span></li>
+                    <li><i class="bi bi-check-circle-fill"></i><span>Gestiona tu barbería desde cualquier lugar</span></li>
+                    <li><i class="bi bi-check-circle-fill"></i><span>Recibe notificaciones en tiempo real</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="data/usuarios.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            try {
+                if (localStorage.getItem('bf_user')) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+            } catch (e) { }
+
+            /* ── Referencias ── */
+            var loginWrap = document.getElementById('loginFormWrap');
+            var registerWrap = document.getElementById('registerFormWrap');
+            var loginError = document.getElementById('loginError');
+            var registerError = document.getElementById('registerError');
+            var registerSuccess = document.getElementById('registerSuccess');
+            var loginTipo = document.getElementById('loginTipo');
+            var loginBarberiaField = document.getElementById('loginBarberiaField');
+            var loginBarberiaInput = document.getElementById('loginBarberia');
+
+            /* ── Validación de campo ── */
+            function vField(inputId, errorId, rules) {
+                var input = document.getElementById(inputId);
+                var errSpan = document.getElementById(errorId);
+                var val = input.value.trim();
+                var msg = '';
+
+                if (rules.required && !val) {
+                    msg = 'Este campo es obligatorio';
+                } else if (rules.min && val.length > 0 && val.length < rules.min) {
+                    msg = 'Mínimo ' + rules.min + ' caracteres';
+                } else if (rules.email && val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                    msg = 'Correo electrónico no válido';
+                }
+
+                if (msg) {
+                    input.classList.add('login-input--error');
+                    errSpan.textContent = msg;
+                    errSpan.style.display = 'block';
+                    return false;
+                } else {
+                    input.classList.remove('login-input--error');
+                    errSpan.style.display = 'none';
+                    return true;
+                }
+            }
+
+            function clearFieldError(inputId, errorId) {
+                document.getElementById(inputId).classList.remove('login-input--error');
+                document.getElementById(errorId).style.display = 'none';
+            }
+
+            /* Validación en tiempo real del login */
+            document.getElementById('loginUsuario').addEventListener('input', function () {
+                clearFieldError('loginUsuario', 'loginUsuarioError');
+            });
+            document.getElementById('loginPassword').addEventListener('input', function () {
+                clearFieldError('loginPassword', 'loginPasswordError');
+            });
+
+            /* Validación en tiempo real del registro */
+            ['regNombre', 'regEmail', 'regUsuario', 'regPassword', 'regPasswordConfirm'].forEach(function (id) {
+                document.getElementById(id).addEventListener('input', function () {
+                    clearFieldError(id, id + 'Error');
+                });
+            });
+
+            /* ── Cambio entre formularios ── */
+            function showRegister() {
+                loginWrap.classList.add('login-form-hidden');
+                loginWrap.classList.remove('login-form-visible');
+                registerWrap.classList.remove('login-form-hidden');
+                registerWrap.classList.add('login-form-visible');
+                document.title = 'Registrarse - Barber Faster';
+                loginError.style.display = 'none';
+            }
+
+            function showLogin() {
+                registerWrap.classList.add('login-form-hidden');
+                registerWrap.classList.remove('login-form-visible');
+                loginWrap.classList.remove('login-form-hidden');
+                loginWrap.classList.add('login-form-visible');
+                document.title = 'Iniciar sesión - Barber Faster';
+                registerError.style.display = 'none';
+                registerSuccess.style.display = 'none';
+            }
+
+            document.getElementById('goToRegister').addEventListener('click', function (e) { e.preventDefault(); showRegister(); });
+            document.getElementById('goToLogin').addEventListener('click', function (e) { e.preventDefault(); showLogin(); });
+
+            /* ── Campo barbería colapsable (solo login) ── */
+            function toggleBarberiaField() {
+                if (loginTipo.value === 'barbero') {
+                    loginBarberiaField.classList.add('login-collapsible--open');
+                    loginBarberiaField.classList.remove('login-collapsible--closed');
+                    loginBarberiaInput.setAttribute('required', '');
+                } else {
+                    loginBarberiaField.classList.remove('login-collapsible--open');
+                    loginBarberiaField.classList.add('login-collapsible--closed');
+                    loginBarberiaInput.removeAttribute('required');
+                }
+            }
+
+            toggleBarberiaField();
+            loginTipo.addEventListener('change', toggleBarberiaField);
+
+            /* ── Mostrar/ocultar contraseña ── */
+            document.querySelectorAll('.login-toggle-pass').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var input = document.getElementById(this.getAttribute('data-target'));
+                    var icon = this.querySelector('i');
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('bi-eye');
+                        icon.classList.add('bi-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
+                    }
+                });
+            });
+
+            /* ── LOGIN ── */
+            document.getElementById('loginForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                loginError.style.display = 'none';
+
+                var v1 = vField('loginUsuario', 'loginUsuarioError', { required: true, min: 3 });
+                var v2 = vField('loginPassword', 'loginPasswordError', { required: true, min: 4 });
+                if (!v1 || !v2) return;
+
+                var usuario = document.getElementById('loginUsuario').value.trim();
+                var password = document.getElementById('loginPassword').value;
+                var tipo = loginTipo.value;
+
+                var found = usuarios.find(function (u) {
+                    return u.usuario === usuario && u.password === password && u.tipo === tipo;
+                });
+
+                if (!found) {
+                    loginError.textContent = 'Usuario, contraseña o tipo de usuario incorrectos.';
+                    loginError.style.display = 'block';
+                    return;
+                }
+
+                var sessionUser = { id: found.id, usuario: found.usuario, nombreCompleto: found.nombreCompleto, email: found.email, tipo: found.tipo };
+                if (found.barberia) sessionUser.barberia = found.barberia;
+                localStorage.setItem('bf_user', JSON.stringify(sessionUser));
+                window.location.href = 'index.html';
+            });
+
+            /* ── REGISTRO (solo clientes) ── */
+            document.getElementById('registerForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                registerError.style.display = 'none';
+                registerSuccess.style.display = 'none';
+
+                var v1 = vField('regNombre', 'regNombreError', { required: true, min: 3 });
+                var v2 = vField('regEmail', 'regEmailError', { required: true, email: true });
+                var v3 = vField('regUsuario', 'regUsuarioError', { required: true, min: 3 });
+                var v4 = vField('regPassword', 'regPasswordError', { required: true, min: 4 });
+                var v5 = vField('regPasswordConfirm', 'regPasswordConfirmError', { required: true, min: 4 });
+                if (!v1 || !v2 || !v3 || !v4 || !v5) return;
+
+                var nombre = document.getElementById('regNombre').value.trim();
+                var email = document.getElementById('regEmail').value.trim();
+                var usuario = document.getElementById('regUsuario').value.trim();
+                var password = document.getElementById('regPassword').value;
+                var confirmPass = document.getElementById('regPasswordConfirm').value;
+
+                if (password !== confirmPass) {
+                    vField('regPasswordConfirm', 'regPasswordConfirmError', { required: true, min: 4 });
+                    document.getElementById('regPasswordConfirmError').textContent = 'Las contraseñas no coinciden.';
+                    document.getElementById('regPasswordConfirmError').style.display = 'block';
+                    return;
+                }
+
+                if (usuarios.find(function (u) { return u.usuario === usuario; })) {
+                    document.getElementById('regUsuario').classList.add('login-input--error');
+                    document.getElementById('regUsuarioError').textContent = 'Ese nombre de usuario ya está en uso.';
+                    document.getElementById('regUsuarioError').style.display = 'block';
+                    return;
+                }
+
+                usuarios.push({
+                    id: usuarios.length + 1,
+                    usuario: usuario,
+                    nombreCompleto: nombre,
+                    email: email,
+                    tipo: 'cliente',
+                    password: password
+                });
+
+                registerSuccess.textContent = '¡Registro exitoso! Ahora puedes iniciar sesión.';
+                registerSuccess.style.display = 'block';
+                document.getElementById('loginUsuario').value = usuario;
+                document.getElementById('loginPassword').value = '';
+                setTimeout(showLogin, 1500);
+            });
+
+            /* ── Olvidé contraseña ── */
+            document.querySelector('.login-forgot').addEventListener('click', function (e) { e.preventDefault(); });
+        });
+    </script>
+</body>
+
+</html>

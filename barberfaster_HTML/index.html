@@ -10,39 +10,111 @@
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <style>
+    .search-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #222;
+      border: 1px solid #333;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      max-height: 260px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+
+    .search-suggestions.active {
+      display: block;
+    }
+
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      color: #d3d3d3;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: background 0.15s ease;
+      cursor: pointer;
+    }
+
+    .suggestion-item:hover,
+    .suggestion-item.highlighted {
+      background: #2a2a2a;
+      color: #f0a500;
+    }
+
+    .suggestion-item img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .suggestion-item .sug-name {
+      font-weight: 600;
+    }
+
+    .suggestion-item .sug-ubicacion {
+      font-size: 0.75rem;
+      color: #888;
+    }
+
+    .search-suggestions::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .search-suggestions::-webkit-scrollbar-track {
+      background: #222;
+    }
+
+    .search-suggestions::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 3px;
+    }
+  </style>
 </head>
 
 <body>
-  <!-- Navbar. Espaciado necesario -->
+  <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">Barber Faster</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <form class="d-flex me-3" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Buscar barberías..."
-                        aria-label="Buscar">
-                    <button class="btn custom-btn" type="submit">Buscar</button>
-                </form>
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Barber Faster</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <form class="d-flex me-3 position-relative" id="searchForm" role="search" autocomplete="off">
+          <input class="form-control me-2" type="search" id="searchInput" placeholder="Buscar barberías..."
+            aria-label="Buscar" autocomplete="off">
+          <button class="btn custom-btn" type="submit">Buscar</button>
+          <div class="search-suggestions" id="searchSuggestions"></div>
+        </form>
+        <ul class="navbar-nav align-items-lg-center">
+          <li class="nav-item"><a class="nav-link active" href="index.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
+          <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
+          <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+          <li class="nav-item ms-lg-2" id="authNavItem"></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-  <!-- Bienvenida. Imagenes con mayor calidad -->
+  <!-- Bienvenida -->
   <section class="welcome-section" data-aos="fade-up">
     <div class="welcome-overlay">
       <div class="container welcome-content text-center">
         <i class="bi bi-scissors welcome-icon" aria-hidden="true"></i>
         <h1 class="welcome-title">Estilo Clásico, Servicio Moderno</h1>
-        <p class="welcome-text">BarberFaster lleva tu barbería al siguiente nivel. Agenda, organiza y cobra más rápido desde una sola plataforma. Simplifica tu trabajo y ofrece a tus clientes una experiencia moderna y profesional.</p>
+        <p class="welcome-text">BarberFaster lleva tu barbería al siguiente nivel. Agenda, organiza y cobra más rápido
+          desde una sola plataforma. Simplifica tu trabajo y ofrece a tus clientes una experiencia moderna y
+          profesional.</p>
         <div class="welcome-buttons d-flex gap-3 justify-content-center flex-wrap mt-4">
           <a href="clientes.html" class="btn custom-btn btn-lg">Reservar cita</a>
           <a href="#servicios" class="btn btn-welcome-link btn-lg">Ver servicios</a>
@@ -51,8 +123,7 @@
     </div>
   </section>
 
-  <!-- Segunda sección. Mejorar el texto (Nosotros no realizamos el servicio 
-   así que el segundo parrafo no debería estar) y ajustar elementos -->
+  <!-- Segunda sección -->
   <section class="container info-intro my-5 py-4">
     <div class="text-center mb-4" data-aos="fade-up">
       <h2 class="section-title">Elige cómo quieres vivir la experiencia BarberFaster</h2>
@@ -60,8 +131,12 @@
     <div class="row justify-content-center mb-5">
       <div class="col-lg-8">
         <div data-aos="fade-up">
-          <p class="info-text mb-3">Creemos que un buen corte de pelo no solo mejora tu apariencia, sino que también eleva tu confianza. Por eso, cada servicio que ofrecemos está diseñado para proporcionar resultados excepcionales que duren.</p>
-          <p class="info-text mb-0">Utilizamos solo productos de alta calidad y herramientas profesionales para asegurar que cada detalle sea perfecto. Desde un corte clásico hasta los estilos más modernos, estamos aquí para hacer realidad tu visión.</p>
+          <p class="info-text mb-3">Creemos que un buen corte de pelo no solo mejora tu apariencia, sino que también
+            eleva tu confianza. Por eso, cada servicio que ofrecemos está diseñado para proporcionar resultados
+            excepcionales que duren.</p>
+          <p class="info-text mb-0">Utilizamos solo productos de alta calidad y herramientas profesionales para asegurar
+            que cada detalle sea perfecto. Desde un corte clásico hasta los estilos más modernos, estamos aquí para
+            hacer realidad tu visión.</p>
         </div>
       </div>
     </div>
@@ -125,7 +200,7 @@
     </div>
   </section>
 
-  <!-- Comentarios sobre la página. -->
+  <!-- Comentarios sobre la página -->
   <section id="testimonios" class="py-5">
     <div class="container">
       <div class="text-center mb-4" data-aos="fade-up">
@@ -154,17 +229,109 @@
     </div>
   </section>
 
-  <!-- Estilos destacados del mes fue borrado. Puede reemplazarse por algo que sí sea más útil -->
-
   <footer class="custom-footer text-center py-3">
     <p class="mb-0">© 2025 Barber Faster | Todos los derechos reservados</p>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="data/barberias.js"></script>
   <script>
     AOS.init();
+
+    /* ── Buscador funcional ── */
+    (function () {
+      var searchInput = document.getElementById('searchInput');
+      var searchForm = document.getElementById('searchForm');
+      var suggestionsBox = document.getElementById('searchSuggestions');
+      var highlightIndex = -1;
+
+      searchInput.addEventListener('input', function () {
+        var term = this.value.trim().toLowerCase();
+        highlightIndex = -1;
+
+        if (term.length === 0) {
+          suggestionsBox.classList.remove('active');
+          suggestionsBox.innerHTML = '';
+          return;
+        }
+
+        var filtradas = barberias.filter(function (b) {
+          return b.nombre.toLowerCase().includes(term) ||
+            b.nombreSecundario.toLowerCase().includes(term) ||
+            b.ubicacion.toLowerCase().includes(term);
+        });
+
+        if (filtradas.length > 0) {
+          suggestionsBox.innerHTML = '';
+          filtradas.forEach(function (b) {
+            var item = document.createElement('a');
+            item.className = 'suggestion-item';
+            item.href = 'barberia.html?barberia=' + b.slug;
+            item.innerHTML =
+              '<img src="' + b.logo + '" alt="' + b.nombre + '">' +
+              '<div>' +
+              '<div class="sug-name">' + b.nombre + '</div>' +
+              '<div class="sug-ubicacion">' + b.ubicacion + '</div>' +
+              '</div>';
+            suggestionsBox.appendChild(item);
+          });
+          suggestionsBox.classList.add('active');
+        } else {
+          suggestionsBox.classList.remove('active');
+        }
+      });
+
+      searchInput.addEventListener('keydown', function (e) {
+        var items = suggestionsBox.querySelectorAll('.suggestion-item');
+        if (!suggestionsBox.classList.contains('active') || items.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          highlightIndex = Math.min(highlightIndex + 1, items.length - 1);
+          updateHighlight(items);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          highlightIndex = Math.max(highlightIndex - 1, 0);
+          updateHighlight(items);
+        } else if (e.key === 'Enter' && highlightIndex >= 0) {
+          e.preventDefault();
+          items[highlightIndex].click();
+        } else if (e.key === 'Escape') {
+          suggestionsBox.classList.remove('active');
+          searchInput.blur();
+        }
+      });
+
+      function updateHighlight(items) {
+        items.forEach(function (item, i) {
+          item.classList.toggle('highlighted', i === highlightIndex);
+        });
+      }
+
+      searchForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var term = searchInput.value.trim().toLowerCase();
+        if (!term) return;
+
+        var coincidencia = barberias.find(function (b) {
+          return b.nombre.toLowerCase().includes(term) || b.slug === term;
+        });
+
+        if (coincidencia) {
+          window.location.href = 'barberia.html?barberia=' + coincidencia.slug;
+        }
+        suggestionsBox.classList.remove('active');
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!searchForm.contains(e.target)) {
+          suggestionsBox.classList.remove('active');
+        }
+      });
+    })();
   </script>
+  <script src="js/auth.js"></script>
 </body>
 
 </html>
