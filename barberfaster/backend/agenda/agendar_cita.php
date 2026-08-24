@@ -65,14 +65,8 @@ try {
     // BLOQUE 3: Creación o actualización de cliente
     // ==========================
     $cliente = null;
-    if ($id_cliente) {
-        $stmt = $pdo->prepare("SELECT id_cliente, dni FROM clientes WHERE id_cliente = :id_cliente LIMIT 1");
-        $stmt->execute([':id_cliente' => $id_cliente]);
-        $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    if (!$cliente && $dni) {
-        $stmt = $pdo->prepare("SELECT id_cliente, dni FROM clientes WHERE dni = :dni LIMIT 1");
+    if ($dni) {
+        $stmt = $pdo->prepare("SELECT dni FROM clientes WHERE dni = :dni LIMIT 1");
         $stmt->execute([':dni' => $dni]);
         $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -86,18 +80,15 @@ try {
             ':telefono' => $telefono,
             ':correo'   => $correo,
         ]);
-        $cliente_id = $pdo->lastInsertId();
     } else {
-        $updateCliente = $pdo->prepare("UPDATE clientes SET dni = :dni, nombre = :nombre, apellido = :apellido, telefono = :telefono, correo = :correo WHERE id_cliente = :id_cliente");
+        $updateCliente = $pdo->prepare("UPDATE clientes SET nombre = :nombre, apellido = :apellido, telefono = :telefono, correo = :correo WHERE dni = :dni");
         $updateCliente->execute([
             ':dni'        => $dni,
             ':nombre'     => $nombre,
             ':apellido'   => $apellido,
             ':telefono'   => $telefono,
             ':correo'     => $correo,
-            ':id_cliente' => $cliente['id_cliente'],
         ]);
-        $cliente_id = $cliente['id_cliente'];
     }
 
     // ==========================
@@ -152,78 +143,34 @@ try {
         exit;
     }
 
-    // Verificar código de validación (si viene en payload)
+    // Verificar código de validación solo si se envió uno
     $codigo = $data['validation_code'] ?? null;
-    if (!$codigo) {
-        echo json_encode(["success" => false, "error" => "validation_required"]);
-        exit;
-    }
+    if ($codigo) {
+        try {
+            $valStmt = $pdo->prepare("CREATE TABLE IF NOT EXISTS validaciones (id INT AUTO_INCREMENT PRIMARY KEY, dni VARCHAR(50), codigo VARCHAR(20), metodo VARCHAR(20), estado VARCHAR(20) DEFAULT 'PENDIENTE', creado_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, valido_hasta DATETIME)");
+            $valStmt->execute();
+        } catch (Exception $e) {
+            // ignore
+        }
 
-    try {
-        $valStmt = $pdo->prepare("CREATE TABLE IF NOT EXISTS validaciones (id INT AUTO_INCREMENT PRIMARY KEY, dni VARCHAR(50), codigo VARCHAR(20), metodo VARCHAR(20), estado VARCHAR(20) DEFAULT 'PENDIENTE', creado_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, valido_hasta DATETIME)");
-        $valStmt->execute();
-    } catch (Exception $e) {
-        // ignore
+        $checkVal = $pdo->prepare("SELECT id, estado, valido_hasta FROM validaciones WHERE dni = :dni AND codigo = :codigo ORDER BY creado_at DESC LIMIT 1");
+        $checkVal->execute([':dni' => $dni, ':codigo' => $codigo]);
+        $val = $checkVal->fetch(PDO::FETCH_ASSOC);
+        if (!$val) {
+            echo json_encode(["success" => false, "error" => "Código de validación inválido"]);
+            exit;
+        }
+        if (isset($val['valido_hasta']) && $val['valido_hasta'] < date('Y-m-d H:i:s')) {
+            echo json_encode(["success" => false, "error" => "Código expirado"]);
+            exit;
+        }
+        // Marcar validación
+        $pdo->prepare("UPDATE validaciones SET estado = 'VERIFICADO' WHERE id = :id")->execute([':id' => $val['id']]);
     }
-
-    $checkVal = $pdo->prepare("SELECT id, estado, valido_hasta FROM validaciones WHERE dni = :dni AND codigo = :codigo ORDER BY creado_at DESC LIMIT 1");
-    $checkVal->execute([':dni' => $dni, ':codigo' => $codigo]);
-    $val = $checkVal->fetch(PDO::FETCH_ASSOC);
-    if (!$val) {
-        echo json_encode(["success" => false, "error" => "Código de validación inválido"]);
-        exit;
-    }
-    if (isset($val['valido_hasta']) && $val['valido_hasta'] < date('Y-m-d H:i:s')) {
-        echo json_encode(["success" => false, "error" => "Código expirado"]);
-        exit;
-    }
-    // Marcar validación
-    $pdo->prepare("UPDATE validaciones SET estado = 'VERIFICADO' WHERE id = :id")->execute([':id' => $val['id']]);
 
     if (!$nuevoEvento) {
         $pdo->prepare("UPDATE eventos SET disponible = 0, tipo = 'OCUPADO', color = '#dc2626', clientes_dni = :dni, estado = 'OCUPADO', observaciones = :obs, metodo_validacion = :metodo, estado_validacion = 'VERIFICADO' WHERE id_evento = :id")
             ->execute([':dni' => $dni, ':id' => $id_evento, ':obs' => $observaciones, ':metodo' => $data['metodo_validacion'] ?? null]);
-    }
-
-    $pdo->prepare("INSERT INTO citas (id_evento, estado, observaciones, fecha_creacion, clientes_dni, Barberos_id_barbero) VALUES (:id_evento, 'PENDIENTE', :obs, NOW(), :dni, :id_barbero)")
-        ->execute([
-            ':id_evento'  => $id_evento,
-            ':obs'        => $observaciones,
-            ':dni'        => $dni,
-            ':id_barbero' => $evento['id_barbero'],
-        ]);
-
-    // ==========================
-    // BLOQUE 4: Creación o actualización de cliente
-    // ==========================
-    $stmt = $pdo->prepare("SELECT dni FROM clientes WHERE dni = :dni");
-    $stmt->execute([':dni' => $dni]);
-
-    if (!$stmt->fetch()) {
-        // Insertar nuevo cliente
-        $pdo->prepare("
-            INSERT INTO clientes (dni, nombre, apellido, telefono, correo) 
-            VALUES (:dni, :nombre, :apellido, :telefono, :correo)
-        ")->execute([
-            ':dni' => $dni, 
-            ':nombre' => $nombre, 
-            ':apellido' => $apellido, 
-            ':telefono' => $telefono, 
-            ':correo' => $correo
-        ]);
-    } else {
-        // Actualizar datos de cliente existente
-        $pdo->prepare("
-            UPDATE clientes 
-            SET nombre = :nombre, apellido = :apellido, telefono = :telefono, correo = :correo 
-            WHERE dni = :dni
-        ")->execute([
-            ':dni' => $dni, 
-            ':nombre' => $nombre, 
-            ':apellido' => $apellido, 
-            ':telefono' => $telefono, 
-            ':correo' => $correo
-        ]);
     }
 
     // ==========================

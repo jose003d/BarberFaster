@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./Agenda.css";
 import {
   formatDateLabel,
@@ -12,11 +12,14 @@ import {
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const BASE_URL = "/erpbarber/barberfaster/backend";
 const initialForm = { dni: "", nombre: "", apellido: "", telefono: "", correo: "", observaciones: "", cliente_id: null };
 
 function Agenda() {
+  const calendarRef = useRef(null);
   const [barberos, setBarberos] = useState([]);
   const [barberoSel, setBarberoSel] = useState(null);
   const [eventos, setEventos] = useState([]);
@@ -35,6 +38,7 @@ function Agenda() {
   const [codigoEnv, setCodigoEnv] = useState('');
   const [validationSent, setValidationSent] = useState(false);
   const [validated, setValidated] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     fetch(`${BASE_URL}/agenda/listar_barberos.php`)
@@ -369,6 +373,14 @@ function Agenda() {
     ? formatDateLabel(`${diaSeleccionado}T12:00:00`)
     : "Selecciona un día";
 
+  const handleDateChange = (date) => {
+    if (!date) return;
+    setSelectedDate(date);
+    if (calendarRef.current) {
+      calendarRef.current.getApi().gotoDate(date);
+    }
+  };
+
   return (
     <div className="agenda-page">
       <div className="agenda-header">
@@ -399,26 +411,53 @@ function Agenda() {
         ))}
       </div>
 
-      {/* Calendario */}
+      {/* Calendario y agenda */}
       {barberoSel && (
-        <div className="calendario-wrapper">
-          <h2>Agenda de {barberoSel.nombre} {barberoSel.apellido}</h2>
-          <div className="leyenda">
-            <span className="leyenda-item disponible">✅ Disponible</span>
-            <span className="leyenda-item ocupado">❌ Ocupado</span>
+        <div className="agenda-layout">
+          <div className="agenda-calendar-panel">
+            <div className="agenda-panel-header">
+              <h2>Calendario</h2>
+            </div>
+
+            <div className="date-picker-wrapper">
+              <label>Selecciona una fecha:</label>
+              <DatePicker
+                selected={selectedDate}
+                onChange={handleDateChange}
+                inline
+                minDate={new Date()}
+                calendarClassName="agenda-calendar-picker"
+                wrapperClassName="react-datepicker-wrapper-custom"
+              />
+            </div>
+
+            <div className="leyenda">
+              <span className="leyenda-item disponible">✅ Disponible</span>
+              <span className="leyenda-item ocupado">❌ Ocupado</span>
+            </div>
           </div>
-          <div className="calendar-container">
-            <FullCalendar
-              plugins={[dayGridPlugin, timeGridPlugin]}
-              initialView="timeGridWeek"
-              headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
-              events={eventos}
-              eventClick={(info) => handleEventClick(info.event)}
-              nowIndicator={true}
-              allDaySlot={false}
-              slotMinTime="06:00:00"
-              slotMaxTime="22:00:00"
-            />
+
+          <div className="agenda-schedule-panel">
+            <div className="agenda-panel-header">
+              <h2>Agenda de {barberoSel.nombre} {barberoSel.apellido}</h2>
+              <span className="agenda-date-label">{fechaSeleccionadaLabel}</span>
+            </div>
+
+            <div className="calendar-container">
+              <FullCalendar
+                ref={calendarRef}
+                plugins={[dayGridPlugin, timeGridPlugin]}
+                initialView="timeGridWeek"
+                headerToolbar={false}
+                events={eventos}
+                eventClick={(info) => handleEventClick(info.event)}
+                nowIndicator={true}
+                allDaySlot={false}
+                slotMinTime="06:00:00"
+                slotMaxTime="22:00:00"
+                height="760px"
+              />
+            </div>
           </div>
         </div>
       )}
@@ -493,7 +532,7 @@ function Agenda() {
                   Cancelar
                 </button>
                 <button type="submit" className="btn" disabled={enviando}>
-                  {enviando ? "Agendando..." : "Confirmar Cita"}
+                  {enviando ? "Confirmando..." : "Confirmar Cita"}
                 </button>
               </div>
             </form>
