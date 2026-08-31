@@ -32,13 +32,17 @@ try {
     // BLOQUE 4: Consulta de cliente por DNI
     // ==========================
     $stmt = $pdo->prepare("
-        SELECT id_cliente, dni, nombre, apellido, telefono, correo 
+        SELECT dni, nombre, apellido, telefono, correo, estado 
         FROM clientes 
         WHERE dni = :dni 
         LIMIT 1
     ");
-    $stmt->execute([":dni" => (int)$dni]);
+    $stmt->execute([":dni" => (string)$dni]);
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($cliente) {
+        $cliente['id_cliente'] = (string) $cliente['dni'];
+    }
 
     // ==========================
     // BLOQUE 5: Respuesta en formato JSON

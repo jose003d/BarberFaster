@@ -16,6 +16,12 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const BASE_URL = "/erpbarber/barberfaster/backend";
+const defaultHorario = {
+  dias_semana: [1, 2, 3, 4, 5, 6, 7],
+  hora_inicio: "09:00",
+  hora_fin: "19:00",
+  intervalo_minutos: 30,
+};
 const initialForm = { dni: "", nombre: "", apellido: "", telefono: "", correo: "", observaciones: "", cliente_id: null };
 
 function Agenda() {
@@ -45,10 +51,16 @@ function Agenda() {
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setBarberos(data);
+          const barberosActivos = data.filter((barbero) => {
+            if (barbero.rol) return String(barbero.rol).toLowerCase() === "barbero";
+            return true;
+          });
+
+          setBarberos(barberosActivos);
+
           const storedUser = JSON.parse(localStorage.getItem("user") || "null");
-          const matchingBarbero = data.find((barbero) => Number(barbero.id_usuario) === Number(storedUser?.id_usuario));
-          const defaultBarbero = matchingBarbero || data[0] || null;
+          const matchingBarbero = barberosActivos.find((barbero) => Number(barbero.id_usuario) === Number(storedUser?.id_usuario));
+          const defaultBarbero = matchingBarbero || barberosActivos[0] || null;
           setBarberoSel(defaultBarbero);
         } else {
           setBarberos([]);
@@ -90,8 +102,11 @@ function Agenda() {
     const cargarHorario = barberoSel.id_usuario
       ? fetch(`${BASE_URL}/agenda/horario_barbero.php?id_usuario=${barberoSel.id_usuario}`)
           .then((r) => r.json())
-          .then((data) => (data.success ? data.horario : null))
-      : Promise.resolve(null);
+          .then((data) => {
+            if (data && data.success && data.horario) return data.horario;
+            return defaultHorario;
+          })
+      : Promise.resolve(defaultHorario);
 
     Promise.all([cargarEventos, cargarHorario])
       .then(([eventosList, horario]) => {
@@ -145,14 +160,15 @@ function Agenda() {
     if (!key) return [];
 
     const dateStr = key;
-    const diasSemana = horarioBarbero?.dias_semana || [];
+    const diasSemana = horarioBarbero?.dias_semana?.length ? horarioBarbero.dias_semana : defaultHorario.dias_semana;
     if (!isWorkingDay(dateStr, diasSemana)) {
       return [];
     }
 
-    const interval = horarioBarbero?.intervalo_minutos ? Number(horarioBarbero.intervalo_minutos) : null;
-    const horaInicio = horarioBarbero?.hora_inicio;
-    const horaFin = horarioBarbero?.hora_fin;
+    const horarioActual = horarioBarbero || defaultHorario;
+    const interval = horarioActual.intervalo_minutos ? Number(horarioActual.intervalo_minutos) : 30;
+    const horaInicio = horarioActual.hora_inicio || "09:00";
+    const horaFin = horarioActual.hora_fin || "19:00";
 
     if (!interval || !horaInicio || !horaFin) {
       return [];
