@@ -94,7 +94,7 @@ try {
         $events = $eventsStmt->fetchAll(PDO::FETCH_ASSOC);
 
         $horario = [
-            "dias_semana" => [],
+            "dias_semana" => [1, 2, 3, 4, 5, 6, 7],
             "hora_inicio" => "09:00",
             "hora_fin" => "19:00",
             "intervalo_minutos" => 30,

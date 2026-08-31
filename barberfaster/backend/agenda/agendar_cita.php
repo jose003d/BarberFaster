@@ -34,7 +34,7 @@ try {
     $data = json_decode(file_get_contents("php://input"), true);
 
     $id_evento     = $data['id_evento']     ?? null;
-    $dni           = $data['dni']           ?? null;
+    $dni           = isset($data['dni']) ? trim((string)$data['dni']) : null;
     $nombre        = $data['nombre']        ?? '';
     $apellido      = $data['apellido']      ?? '';
     $telefono      = $data['telefono']      ?? '';
