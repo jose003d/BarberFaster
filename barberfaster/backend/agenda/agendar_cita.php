@@ -92,22 +92,27 @@ try {
     }
 
     // ==========================
-    // BLOQUE 4: Verificación de disponibilidad del evento y validación de código
+    // BLOQUE 4: Verificación de disponibilidad del horario y validación de código
     // ==========================
-    $evento = null;
-    if ($id_evento) {
-        $stmt = $pdo->prepare("SELECT * FROM eventos WHERE id_evento = :id AND disponible = 1");
-        $stmt->execute([':id' => $id_evento]);
-        $evento = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($start && $end && $id_barbero) {
+        $ocupadoStmt = $pdo->prepare("SELECT id_evento FROM eventos WHERE id_barbero = :id_barbero AND disponible = 0 AND start_datetime < :end AND end_datetime > :start LIMIT 1");
+        $ocupadoStmt->execute([
+            ':id_barbero' => $id_barbero,
+            ':start' => $start,
+            ':end' => $end,
+        ]);
+
+        $eventoOcupado = $ocupadoStmt->fetch(PDO::FETCH_ASSOC);
+        if ($eventoOcupado) {
+            echo json_encode(["success" => false, "error" => "Este horario ya no está disponible"]);
+            exit;
+        }
     }
 
-    if (!$evento && $start && $end && $id_barbero) {
-        $stmt = $pdo->prepare("SELECT * FROM eventos WHERE id_barbero = :id_barbero AND start_datetime = :start AND end_datetime = :end AND disponible = 1 LIMIT 1");
-        $stmt->execute([
-            ':id_barbero' => $id_barbero,
-            ':start'      => $start,
-            ':end'        => $end,
-        ]);
+    $evento = null;
+    if ($id_evento) {
+        $stmt = $pdo->prepare("SELECT * FROM eventos WHERE id_evento = :id LIMIT 1");
+        $stmt->execute([':id' => $id_evento]);
         $evento = $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -138,7 +143,7 @@ try {
     }
 
     // Validar que el slot esté disponible
-    if (!$evento || (!$nuevoEvento && isset($evento['disponible']) && !$evento['disponible'])) {
+    if (!$evento) {
         echo json_encode(["success" => false, "error" => "Este horario ya no está disponible"]);
         exit;
     }

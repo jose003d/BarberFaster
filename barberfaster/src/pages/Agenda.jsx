@@ -16,12 +16,6 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const BASE_URL = "/erpbarber/barberfaster/backend";
-const defaultHorario = {
-  dias_semana: [1, 2, 3, 4, 5, 6, 7],
-  hora_inicio: "09:00",
-  hora_fin: "19:00",
-  intervalo_minutos: 30,
-};
 const initialForm = { dni: "", nombre: "", apellido: "", telefono: "", correo: "", observaciones: "", cliente_id: null };
 
 function Agenda() {
@@ -102,11 +96,8 @@ function Agenda() {
     const cargarHorario = barberoSel.id_usuario
       ? fetch(`${BASE_URL}/agenda/horario_barbero.php?id_usuario=${barberoSel.id_usuario}`)
           .then((r) => r.json())
-          .then((data) => {
-            if (data && data.success && data.horario) return data.horario;
-            return defaultHorario;
-          })
-      : Promise.resolve(defaultHorario);
+          .then((data) => (data.success ? data.horario : null))
+      : Promise.resolve(null);
 
     Promise.all([cargarEventos, cargarHorario])
       .then(([eventosList, horario]) => {
@@ -160,15 +151,14 @@ function Agenda() {
     if (!key) return [];
 
     const dateStr = key;
-    const diasSemana = horarioBarbero?.dias_semana?.length ? horarioBarbero.dias_semana : defaultHorario.dias_semana;
+    const diasSemana = horarioBarbero?.dias_semana || [];
     if (!isWorkingDay(dateStr, diasSemana)) {
       return [];
     }
 
-    const horarioActual = horarioBarbero || defaultHorario;
-    const interval = horarioActual.intervalo_minutos ? Number(horarioActual.intervalo_minutos) : 30;
-    const horaInicio = horarioActual.hora_inicio || "09:00";
-    const horaFin = horarioActual.hora_fin || "19:00";
+    const interval = horarioBarbero?.intervalo_minutos ? Number(horarioBarbero.intervalo_minutos) : null;
+    const horaInicio = horarioBarbero?.hora_inicio;
+    const horaFin = horarioBarbero?.hora_fin;
 
     if (!interval || !horaInicio || !horaFin) {
       return [];
@@ -384,6 +374,26 @@ function Agenda() {
     setTimeout(() => setMensaje(null), 4000);
   };
 
+  const buildCalendarEvents = () => {
+    if (!horarioBarbero || diasDisponibles.length === 0) return eventos;
+
+    const virtuales = diasDisponibles.flatMap((dia) =>
+      generateSlotsForDay(dia)
+        .filter((slot) => slot.disponible)
+        .map((slot) => ({
+          id: slot.id,
+          title: "✅ Disponible",
+          start: slot.start,
+          end: slot.end,
+          color: "#16a34a",
+          extendedProps: { disponible: true },
+        }))
+    );
+
+    return [...virtuales, ...eventos];
+  };
+
+  const calendarEvents = buildCalendarEvents();
   const horarios = diaSeleccionado ? generateSlotsForDay(diaSeleccionado) : [];
   const fechaSeleccionadaLabel = diaSeleccionado
     ? formatDateLabel(`${diaSeleccionado}T12:00:00`)
@@ -465,7 +475,7 @@ function Agenda() {
                 plugins={[dayGridPlugin, timeGridPlugin]}
                 initialView="timeGridWeek"
                 headerToolbar={false}
-                events={eventos}
+                events={calendarEvents}
                 eventClick={(info) => handleEventClick(info.event)}
                 nowIndicator={true}
                 allDaySlot={false}
