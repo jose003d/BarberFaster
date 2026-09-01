@@ -64,6 +64,11 @@ function Sidebar() {
           <span className="nav-label">Clientes</span>
         </NavLink>
 
+        <NavLink to="/barberos" className={linkClass}>
+          <FontAwesomeIcon icon={faUsers} className="nav-icon" />
+          <span className="nav-label">Barberos</span>
+        </NavLink>
+
         <NavLink to="/agenda" className={linkClass}>
           <FontAwesomeIcon icon={faCalendarDays} className="nav-icon" />
           <span className="nav-label">Agenda</span>
