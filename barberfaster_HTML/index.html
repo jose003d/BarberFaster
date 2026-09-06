@@ -5,12 +5,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Barber Faster</title>
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23111'/><path d='M30 20 h40 v60 h-40 z' fill='%23fff'/><path d='M35 25 l30 20 v10 l-30 -20 z' fill='%23e63946'/><path d='M35 55 l30 20 v10 l-30 -20 z' fill='%231d3557'/></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/auth.css">
+  <!-- Css para Suggestions. Generado con IA -->
   <style>
     .search-suggestions {
       position: absolute;
@@ -81,7 +84,7 @@
 </head>
 
 <body>
-  <!-- Navbar -->
+  <!-- Navbar. Empleado de Bootstrap -->
   <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
     <div class="container">
       <a class="navbar-brand" href="index.html">Barber Faster</a>
@@ -100,6 +103,7 @@
           <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
           <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
           <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+          <!-- Inicio de sesión / Acciones de perfil -->
           <li class="nav-item ms-lg-2" id="authNavItem"></li>
         </ul>
       </div>
@@ -123,7 +127,7 @@
     </div>
   </section>
 
-  <!-- Segunda sección -->
+  <!-- Segunda sección. Portales -->
   <section class="container info-intro my-5 py-4">
     <div class="text-center mb-4" data-aos="fade-up">
       <h2 class="section-title">Elige cómo quieres vivir la experiencia BarberFaster</h2>
@@ -237,9 +241,9 @@
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script src="data/barberias.js"></script>
   <script>
-    AOS.init();
+    AOS.init(); // Inicializar AOS
 
-    /* ── Buscador funcional ── */
+    // Sección para la funcionalidad del buscador
     (function () {
       var searchInput = document.getElementById('searchInput');
       var searchForm = document.getElementById('searchForm');
@@ -282,6 +286,7 @@
         }
       });
 
+      // Navegación con teclado en el buscador
       searchInput.addEventListener('keydown', function (e) {
         var items = suggestionsBox.querySelectorAll('.suggestion-item');
         if (!suggestionsBox.classList.contains('active') || items.length === 0) return;
@@ -309,6 +314,7 @@
         });
       }
 
+      // Al presionar Enter se redirige a la primera coincidencia/sugerencia mostrada en el buscador
       searchForm.addEventListener('submit', function (e) {
         e.preventDefault();
         var term = searchInput.value.trim().toLowerCase();
@@ -324,6 +330,7 @@
         suggestionsBox.classList.remove('active');
       });
 
+      // Si se hace clic fuera del buscador se cierran las sugerencias
       document.addEventListener('click', function (e) {
         if (!searchForm.contains(e.target)) {
           suggestionsBox.classList.remove('active');
@@ -331,7 +338,7 @@
       });
     })();
   </script>
-  <script src="js/auth.js"></script>
+  <script src="js/auth.js"></script> <!-- Gestión de la sesión -->
 </body>
 
 </html>

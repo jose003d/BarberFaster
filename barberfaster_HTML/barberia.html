@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barbería - Barber Faster</title>
+    <title>Barbería</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23111'/><path d='M30 20 h40 v60 h-40 z' fill='%23fff'/><path d='M35 25 l30 20 v10 l-30 -20 z' fill='%23e63946'/><path d='M35 55 l30 20 v10 l-30 -20 z' fill='%231d3557'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -12,8 +14,8 @@
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/barberia_unica.css">
     <link rel="stylesheet" href="css/auth.css">
+    <!-- Css para el Navbar, Suggestions e Infocards. Generado con IA -->
     <style>
-        /* ── Sugerencias del buscador (igual que clientes) ── */
         .search-suggestions {
             position: absolute;
             top: 100%;
@@ -67,7 +69,6 @@
             color: #888;
         }
 
-        /* ── Info cards (ubicación y horarios) ── */
         .info-cards-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -121,7 +122,6 @@
             line-height: 1.5;
         }
 
-        /* ── Scrollbar sugerencias ── */
         .search-suggestions::-webkit-scrollbar {
             width: 6px;
         }
@@ -138,7 +138,7 @@
 </head>
 
 <body>
-    <!-- Navbar -->
+    <!-- Navbar. Empleado de Bootstrap -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
         <div class="container">
             <a class="navbar-brand" href="index.html">Barber Faster</a>
@@ -157,13 +157,14 @@
                     <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
                     <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
                     <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                    <!-- Inicio de sesión / Acciones de perfil -->
                     <li class="nav-item ms-lg-2" id="authNavItem"></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Contenido principal -->
+    <!-- Contenido principal. Todos los datos provienen de barberias.js -->
     <main id="barberiaMain">
         <section class="barberia-header container">
             <div class="text-center mb-4" data-aos="fade-up">
@@ -198,7 +199,7 @@
             </div>
         </section>
 
-        <!-- Lista de servicios -->
+        <!-- Lista de servicios. Los datos provienen del mismo archivo -->
         <section class="container my-5">
             <div class="text-center mb-4" data-aos="fade-up">
                 <h2 class="section-title">Nuestros servicios</h2>
@@ -213,7 +214,8 @@
             </div>
         </section>
 
-        <!-- Equipo de barberos -->
+        <!-- Equipo de barberos. Se requiere redimensionar para dispositivos móviles.
+        Ver Información y Agendar Cita serán implementados cuando se integre la BD -->
         <section class="container my-5">
             <div class="text-center mb-4" data-aos="fade-up">
                 <h2 class="section-title">Nuestro equipo</h2>
@@ -221,7 +223,7 @@
             <div id="barberosList" class="barberos-list"></div>
         </section>
 
-        <!-- Mapa de Google -->
+        <!-- Mapa de Google con la ubicación de la barbería -->
         <section class="map-container container">
             <div class="text-center mb-4" data-aos="fade-up">
                 <h2 class="section-title">Encuéntranos</h2>
@@ -238,31 +240,34 @@
         </section>
     </main>
 
+    <!-- Footer -->
     <footer class="custom-footer text-center py-3">
-        <p class="mb-0">© 2025 Barber Faster | Todos los derechos reservados</p>
+        <p class="mb-0">© 2026 Barber Faster | Todos los derechos reservados</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="data/barberias.js"></script>
+    <!-- Bootstrap -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script> <!-- AOS -->
+    <script src="data/barberias.js"></script> <!-- Archivo con los datos de las barberías. Simula la DB por ahora -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            /* ── Cargar datos de la barbería ── */
+            // Cargar datos de la barbería
             const params = new URLSearchParams(window.location.search);
-            const slug = params.get('barberia');
+            const slug = params.get('barberia'); // Slug. Permite reciclar 1 página para todas las barberías
             const barberia = barberias.find(function (b) { return b.slug === slug; });
 
             if (!barberia) {
                 document.getElementById('barberiaMain').innerHTML =
                     '<div class="container text-center my-5">' +
                     '<h1 class="section-title">Barbería no encontrada</h1>' +
-                    '<p style="color:#888;">Verificá el enlace e intentá de nuevo.</p>' +
+                    '<p style="color:#888;">Verifica el enlace e intenta de nuevo.</p>' +
                     '<a href="clientes.html" class="btn custom-btn mt-3">Volver al portal</a>' +
                     '</div>';
                 return;
             }
 
+            // Reemplazar los espacios vacios de texto con la información de la barbería
             document.title = barberia.nombre + ' - Barber Faster';
             document.getElementById('barberiaNombre').textContent = barberia.nombre;
             document.getElementById('barberiaLogo').src = barberia.logo;
@@ -272,7 +277,7 @@
             document.getElementById('barberiaUbicacion').textContent = barberia.ubicacion;
             document.getElementById('barberiaHorarios').textContent = barberia.horarios;
 
-            /* Servicios */
+            // Añadir servicios. Se añade los servicios en forma de lista mediante un ciclo forEach
             var serviciosList = document.getElementById('serviciosList');
             barberia.servicios.forEach(function (servicio) {
                 var li = document.createElement('li');
@@ -280,13 +285,14 @@
                 serviciosList.appendChild(li);
             });
 
-            /* Barberos */
+            // Añadir lista de barberos. Mismo ciclo
             var barberosList = document.getElementById('barberosList');
             barberia.barberos.forEach(function (barbero, index) {
                 var card = document.createElement('div');
                 card.className = 'barbero-card';
                 card.setAttribute('data-aos', 'fade-up');
-                card.setAttribute('data-aos-delay', String((index + 1) * 100));
+                card.setAttribute('data-aos-delay', String((index + 1) * 100)); // Delay de AOS
+                // Se crea una tarjeta por cada barbero registrado en la barbería.
                 card.innerHTML =
                     '<div class="barbero-info">' +
                     '<h3 class="barbero-nombre">' + barbero.nombre + '</h3>' +
@@ -302,10 +308,10 @@
                 barberosList.appendChild(card);
             });
 
-            /* Inicializar AOS */
+            // Inicializar AOS
             AOS.init();
 
-            /* ── Buscador funcional ── */
+            // Sección para la funcionalidad del buscador
             var searchInput = document.getElementById('searchInput');
             var searchForm = document.getElementById('searchForm');
             var suggestionsBox = document.getElementById('searchSuggestions');
@@ -347,7 +353,7 @@
                 }
             });
 
-            /* Navegación con teclado */
+            // Navegación con teclado en el buscador
             searchInput.addEventListener('keydown', function (e) {
                 var items = suggestionsBox.querySelectorAll('.suggestion-item');
                 if (!suggestionsBox.classList.contains('active') || items.length === 0) return;
@@ -375,7 +381,7 @@
                 });
             }
 
-            /* Submit: redirigir a la primera coincidencia */
+            // Al presionar Enter se redirige a la primera coincidencia/sugerencia mostrada en el buscador
             searchForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 var term = searchInput.value.trim().toLowerCase();
@@ -391,7 +397,7 @@
                 suggestionsBox.classList.remove('active');
             });
 
-            /* Cerrar sugerencias al hacer clic fuera */
+            // Si se hace clic fuera del buscador se cierran las sugerencias
             document.addEventListener('click', function (e) {
                 if (!searchForm.contains(e.target)) {
                     suggestionsBox.classList.remove('active');
@@ -399,7 +405,7 @@
             });
         });
     </script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js"></script> <!-- Gestión de la sesión -->
 </body>
 
 </html>

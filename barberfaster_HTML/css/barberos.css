@@ -316,33 +316,33 @@ p {
 /* Modal de registro de barbería        */
 /* ══════════════════════════════════════ */
 .reg-barbero-modal {
-    background: #1c1c1c;
-    border: 1px solid #262626;
-    border-radius: 12px;
-    color: #fff;
+  background: #1c1c1c;
+  border: 1px solid #262626;
+  border-radius: 12px;
+  color: #fff;
 }
 
 .reg-barbero-header {
-    background: #262626;
-    border-bottom: 1px solid #333;
-    border-radius: 12px 12px 0 0;
-    padding: 1.1rem 1.5rem;
+  background: #262626;
+  border-bottom: 1px solid #333;
+  border-radius: 12px 12px 0 0;
+  padding: 1.1rem 1.5rem;
 }
 
 .reg-barbero-header .modal-title {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #ff7a1a;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #ff7a1a;
 }
 
 .reg-barbero-modal .modal-body {
-    padding: 1.75rem 1.5rem;
+  padding: 1.75rem 1.5rem;
 }
 
 .reg-barbero-modal .login-field-error {
-    padding-left: 0;
+  padding-left: 0;
 }
 
 .reg-barbero-modal .login-input-wrap {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }

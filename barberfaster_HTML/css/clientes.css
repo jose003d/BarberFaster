@@ -155,7 +155,6 @@ p {
 
 /* Tarjetas de servicios */
 .service-card {
-  border: none;
   border-radius: var(--borde-redondeado);
   transition:
     transform var(--transicion-rapida),

@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clientes - Barber Faster</title>
+    <title>Clientes</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23111'/><path d='M30 20 h40 v60 h-40 z' fill='%23fff'/><path d='M35 25 l30 20 v10 l-30 -20 z' fill='%23e63946'/><path d='M35 55 l30 20 v10 l-30 -20 z' fill='%231d3557'/></svg>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,7 +16,7 @@
 </head>
 
 <body>
-    <!-- Navbar -->
+    <!-- Navbar. Empleado de Bootstrap -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
         <div class="container">
             <a class="navbar-brand" href="index.html">Barber Faster</a>
@@ -33,13 +35,14 @@
                     <li class="nav-item"><a class="nav-link active" href="clientes.html">Clientes</a></li>
                     <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
                     <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                    <!-- Inicio de sesión / Acciones de perfil -->
                     <li class="nav-item ms-lg-2" id="authNavItem"></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Bienvenida -->
+    <!-- Sección de bienvenida -->
     <section class="welcome-section welcome-section-sub" data-aos="fade-up">
         <div class="welcome-overlay">
             <div class="container welcome-content text-center">
@@ -58,11 +61,11 @@
                 horarios y descripción. Haz clic para ver todos los detalles.</p>
         </div>
 
-        <!-- Tarjetas generadas dinámicamente -->
+        <!-- Sección con las tarjetas de las barberías. -->
         <div class="clientes-cards-wrap" data-aos="fade-up">
             <div class="row g-4" id="barberiasGrid"></div>
 
-            <!-- Sin resultados -->
+            <!-- En caso de no haber resultados -->
             <div class="no-results" id="noResults">
                 <i class="bi bi-search"></i>
                 <h4>No se encontraron barberías</h4>
@@ -71,7 +74,7 @@
         </div>
     </main>
 
-    <!-- Beneficios para clientes -->
+    <!-- Sección de beneficios para clientes -->
     <section class="benefits-section container my-5">
         <div class="text-center mb-5" data-aos="fade-up">
             <h2 class="section-title">Beneficios para Clientes</h2>
@@ -101,7 +104,8 @@
         </div>
     </section>
 
-    <!-- Ayuda -->
+    <!-- Sección de ayuda. Originalmente planeado como introducción al portal, 
+    se movió para optimizar el diseño UI/UX de la plataforma. -->
     <section class="help-section">
         <div class="container text-center">
             <h3 class="mb-4 section-title" data-aos="fade-up">¿Necesitas ayuda?</h3>
@@ -113,17 +117,19 @@
         </div>
     </section>
 
+    <!-- Footer -->
     <footer class="custom-footer text-center py-3">
-        <p class="mb-0">© 2025 Barber Faster | Todos los derechos reservados</p>
+        <p class="mb-0">© 2026 Barber Faster | Todos los derechos reservados</p>
     </footer>
 
+    <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="data/barberias.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script> <!-- AOS -->
+    <script src="data/barberias.js"></script> <!-- Archivo con los datos de las barberías. Simula la DB por ahora -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            /* ── Referencias DOM ── */
+            // Constantes con las referencias DOM
             const grid = document.getElementById('barberiasGrid');
             const noResults = document.getElementById('noResults');
             const searchInput = document.getElementById('searchInput');
@@ -131,7 +137,7 @@
             const suggestionsBox = document.getElementById('searchSuggestions');
             let highlightIndex = -1;
 
-            /* ── Renderizar tarjetas de barberías ── */
+            // Sección de renderizado de las tarjetas de las barberías
             function renderBarberias(lista) {
                 grid.innerHTML = '';
 
@@ -142,11 +148,12 @@
 
                 noResults.style.display = 'none';
 
+                // Se crea una tarjeta por cada barbería registrada. Se emplea un ciclo forEach.
                 lista.forEach(function (barberia, index) {
                     const col = document.createElement('div');
                     col.className = 'col-lg-3 col-md-6 barberia-col';
                     col.setAttribute('data-aos', 'zoom-in');
-                    col.setAttribute('data-aos-delay', String((index % 4) * 100 + 100));
+                    col.setAttribute('data-aos-delay', String((index % 4) * 100 + 100)); // Delay de AOS
                     col.innerHTML =
                         '<div class="style-card">' +
                         '<a href="barberia.html?barberia=' + barberia.slug + '">' +
@@ -163,14 +170,14 @@
                     grid.appendChild(col);
                 });
 
-                /* Refrescar AOS para los nuevos elementos */
+                // Se debe refrescar AOS para los nuevos elementos
                 AOS.refresh();
             }
 
-            /* Carga inicial */
+            // Carga inicial de las barberías
             renderBarberias(barberias);
 
-            /* ── Buscador: filtrado en tiempo real ── */
+            // Sección para la funcionalidad del buscador
             searchInput.addEventListener('input', function () {
                 const term = this.value.trim().toLowerCase();
                 highlightIndex = -1;
@@ -182,7 +189,7 @@
                     return;
                 }
 
-                /* Filtrar barberías que coincidan */
+                // Se filtra la lista con las barberías que coincidan con lo escrito en el buscador
                 const filtradas = barberias.filter(function (b) {
                     return b.nombre.toLowerCase().includes(term) ||
                         b.nombreSecundario.toLowerCase().includes(term) ||
@@ -192,7 +199,8 @@
 
                 renderBarberias(filtradas);
 
-                /* Mostrar sugerencias desplegables */
+                // Desplegable con las coincidencias.
+                // ¿Podría añadirse algo para sugerencias? Como los ads
                 if (filtradas.length > 0 && filtradas.length <= 4) {
                     suggestionsBox.innerHTML = '';
                     filtradas.forEach(function (b, i) {
@@ -213,7 +221,7 @@
                 }
             });
 
-            /* ── Navegación con teclado en sugerencias ── */
+            // Navegación con teclado en el buscador
             searchInput.addEventListener('keydown', function (e) {
                 const items = suggestionsBox.querySelectorAll('.suggestion-item');
                 if (!suggestionsBox.classList.contains('active') || items.length === 0) return;
@@ -241,7 +249,7 @@
                 });
             }
 
-            /* ── Submit del formulario: ir a la primera coincidencia ── */
+            // Al presionar Enter se redirige a la primera coincidencia/sugerencia mostrada en el buscador
             searchForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 const term = searchInput.value.trim().toLowerCase();
@@ -259,18 +267,18 @@
                 suggestionsBox.classList.remove('active');
             });
 
-            /* ── Cerrar sugerencias al hacer clic fuera ── */
+            // Si se hace clic fuera del buscador se cierran las sugerencias
             document.addEventListener('click', function (e) {
                 if (!searchForm.contains(e.target)) {
                     suggestionsBox.classList.remove('active');
                 }
             });
 
-            /* Inicializar AOS */
+            // Inicializar AOS
             AOS.init();
         });
     </script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js"></script> <!-- Gestión de la sesión -->
 </body>
 
 </html>

@@ -4,13 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barberos - Barber Faster</title>
+    <title>Barberos</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23111'/><path d='M30 20 h40 v60 h-40 z' fill='%23fff'/><path d='M35 25 l30 20 v10 l-30 -20 z' fill='%23e63946'/><path d='M35 55 l30 20 v10 l-30 -20 z' fill='%231d3557'/></svg>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="css/barberos.css">
     <link rel="stylesheet" href="css/auth.css">
+    <!-- Css para el Navbar y Suggestions. Generado con IA -->
     <style>
         .search-suggestions {
             position: absolute;
@@ -81,7 +84,7 @@
 </head>
 
 <body>
-    <!-- Navbar -->
+    <!-- Navbar. Empleado de Bootstrap-->
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
         <div class="container">
             <a class="navbar-brand" href="index.html">Barber Faster</a>
@@ -100,13 +103,14 @@
                     <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
                     <li class="nav-item"><a class="nav-link active" href="barberos.html">Barberos</a></li>
                     <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                    <!-- Inicio de sesión / Acciones de perfil -->
                     <li class="nav-item ms-lg-2" id="authNavItem"></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Bienvenida -->
+    <!-- Sección de bienvenida al portal -->
     <section class="welcome-section welcome-section-sub" data-aos="fade-up">
         <div class="welcome-overlay">
             <div class="container welcome-content text-center">
@@ -117,10 +121,10 @@
         </div>
     </section>
 
-    <!-- Contenido principal -->
+    <!-- Contenido principal de la página -->
     <main class="container my-5">
 
-        <!-- Herramientas para profesionales -->
+        <!-- Sección de "Herramientas para profesionales". -->
         <section class="tools-section">
             <div class="text-center mb-5" data-aos="fade-up">
                 <h2 class="section-title">Herramientas para Profesionales</h2>
@@ -168,7 +172,8 @@
         </section>
 
 
-        <!-- Botón para registrar barbería -->
+        <!-- Botón para registrar barbería. Al hacer clic se abre una ventana modal con el
+         formulario de registro de barberías -->
         <section class="text-center my-5" data-aos="fade-up">
             <button type="button" class="btn custom-btn btn-lg" data-bs-toggle="modal"
                 data-bs-target="#regBarberoModal">
@@ -176,7 +181,7 @@
             </button>
         </section>
 
-        <!-- Modal de registro de barbería -->
+        <!-- Ventana modal del formulario de registro de barbería -->
         <div class="modal fade" id="regBarberoModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content reg-barbero-modal">
@@ -195,7 +200,7 @@
                                     <div class="login-input-wrap">
                                         <i class="bi bi-shop login-input-icon"></i>
                                         <input type="text" class="form-control login-input login-input--with-icon"
-                                            id="rbNombre" placeholder="Ej: Barbería Central" required>
+                                            id="rbNombre" placeholder="Ingresa el nombre de tu negocio" required>
                                     </div>
                                     <span class="login-field-error" id="rbNombreError"></span>
                                 </div>
@@ -213,7 +218,7 @@
                                     <div class="login-input-wrap">
                                         <i class="bi bi-at login-input-icon"></i>
                                         <input type="text" class="form-control login-input login-input--with-icon"
-                                            id="rbUsuario" placeholder="Para iniciar sesión" required>
+                                            id="rbUsuario" placeholder="Requerido para iniciar sesión" required>
                                     </div>
                                     <span class="login-field-error" id="rbUsuarioError"></span>
                                 </div>
@@ -222,7 +227,7 @@
                                     <div class="login-input-wrap">
                                         <i class="bi bi-geo-alt login-input-icon"></i>
                                         <input type="text" class="form-control login-input login-input--with-icon"
-                                            id="rbDireccion" placeholder="Calle # - Ciudad" required>
+                                            id="rbDireccion" placeholder="Ingresa la dirección de tu barbería" required>
                                     </div>
                                     <span class="login-field-error" id="rbDireccionError"></span>
                                 </div>
@@ -249,7 +254,9 @@
                                     <div class="login-input-wrap">
                                         <i class="bi bi-phone login-input-icon"></i>
                                         <input type="text" class="form-control login-input login-input--with-icon"
-                                            id="rbTelefono" placeholder="Solo números" required inputmode="numeric">
+                                            id="rbTelefono"
+                                            placeholder="Solo números. Puede ser el mismo número de contacto" required
+                                            inputmode="numeric">
                                     </div>
                                     <span class="login-field-error" id="rbTelefonoError"></span>
                                 </div>
@@ -264,7 +271,8 @@
                 </div>
             </div>
         </div>
-        <!-- Comentarios de barberos registrados -->
+
+        <!-- Sección con comentarios de barberos registrados -->
         <div class="testimonials-wrap" data-aos="fade-up">
             <div class="text-center mb-4">
                 <h2 class="section-title">Lo que dicen los barberos</h2>
@@ -288,17 +296,20 @@
         </div>
     </main>
 
+    <!-- Footer -->
     <footer class="custom-footer text-center py-3">
-        <p class="mb-0">© 2025 Barber Faster | Todos los derechos reservados</p>
+        <p class="mb-0">© 2026 Barber Faster | Todos los derechos reservados</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="data/barberias.js"></script>
+    <!-- Bootstrap -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script> <!-- AOS -->
+    <script src="data/barberias.js"></script> <!-- Archivo con los datos de las barberías. Simula la DB por ahora -->
     <script>
+        // Inicializar AOS
         AOS.init();
 
-        /* ── Buscador funcional ── */
+        // Sección para la funcionalidad del buscador
         (function () {
             var searchInput = document.getElementById('searchInput');
             var searchForm = document.getElementById('searchForm');
@@ -341,6 +352,7 @@
                 }
             });
 
+            // Navegación con teclado en el buscador
             searchInput.addEventListener('keydown', function (e) {
                 var items = suggestionsBox.querySelectorAll('.suggestion-item');
                 if (!suggestionsBox.classList.contains('active') || items.length === 0) return;
@@ -368,6 +380,7 @@
                 });
             }
 
+            // Al presionar Enter se redirige a la primera coincidencia/sugerencia mostrada en el buscador
             searchForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 var term = searchInput.value.trim().toLowerCase();
@@ -383,22 +396,23 @@
                 suggestionsBox.classList.remove('active');
             });
 
+            // Si se hace clic fuera del buscador se cierran las sugerencias
             document.addEventListener('click', function (e) {
                 if (!searchForm.contains(e.target)) {
                     suggestionsBox.classList.remove('active');
                 }
             });
         })();
-    </script>
-    <script>
-        /* ── Solo números en campos del modal ── */
+
+        // Sección para el formulario en la ventana modal.
+        // Máscara para los campos que requieren números
         ['rbRut', 'rbDocumento', 'rbContacto', 'rbTelefono'].forEach(function (id) {
             document.getElementById(id).addEventListener('input', function () {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
         });
 
-        /* ── Validación del modal ── */
+        // Validación del modal. Se verifica que los inputs obligatorios tengan la longitud mínima requerida antes de procesar la solicitud
         function vRb(inputId, errorId, rules) {
             var input = document.getElementById(inputId);
             var errSpan = document.getElementById(errorId);
@@ -417,7 +431,7 @@
             return true;
         }
 
-        /* Limpiar errores al escribir */
+        // Se remueven automáticamente los mensajes de advertencia y bordes rojos apenas el usuario vuelva a escribir.
         ['rbNombre', 'rbRut', 'rbUsuario', 'rbDireccion', 'rbDocumento', 'rbContacto', 'rbTelefono'].forEach(function (id) {
             document.getElementById(id).addEventListener('input', function () {
                 this.classList.remove('login-input--error');
@@ -425,12 +439,13 @@
             });
         });
 
-        /* Submit */
+        // Verificaciones durante el submit
         document.getElementById('regBarberoForm').addEventListener('submit', function (e) {
             e.preventDefault();
             document.getElementById('regBarberoError').style.display = 'none';
             document.getElementById('regBarberoSuccess').style.display = 'none';
 
+            // Reglas de los campos del formulario en la ventana modal.
             var fields = [
                 vRb('rbNombre', 'rbNombreError', { required: true, min: 3 }),
                 vRb('rbRut', 'rbRutError', { required: true, min: 5 }),
@@ -442,6 +457,7 @@
             ];
             if (fields.some(function (f) { return !f; })) return;
 
+            // En caso de que se ingrese un usuario que ya se encuentra dentro de la DB se muestra el error.
             var usuario = document.getElementById('rbUsuario').value.trim();
             if (usuarios.find(function (u) { return u.usuario === usuario; })) {
                 document.getElementById('rbUsuario').classList.add('login-input--error');
@@ -450,7 +466,7 @@
                 return;
             }
 
-            /* Registrar */
+            // Proceso de registro. Simula la DB. Debe removerse con la integración de la DB.
             usuarios.push({
                 id: usuarios.length + 1,
                 usuario: usuario,
@@ -461,16 +477,17 @@
                 password: '1234'
             });
 
-            document.getElementById('regBarberoSuccess').textContent = '¡Barbería registrada! Tu contraseña por defecto es: 1234. Cámbiala en tu perfil.';
+            document.getElementById('regBarberoSuccess').textContent = '¡Barbería registrada!';
             document.getElementById('regBarberoSuccess').style.display = 'block';
             document.getElementById('regBarberoForm').reset();
 
+            // Pasados 4 segundos se cierra el modal automáticamente. Esto sucede si el registro es exitoso.
             setTimeout(function () {
                 bootstrap.Modal.getInstance(document.getElementById('regBarberoModal')).hide();
-            }, 2500);
+            }, 4000);
         });
     </script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js"></script> <!-- Gestión de la sesión -->
 </body>
 
 </html>

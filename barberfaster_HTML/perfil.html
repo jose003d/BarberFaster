@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi perfil - Barber Faster</title>
+    <title>Mi perfil</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23111'/><path d='M30 20 h40 v60 h-40 z' fill='%23fff'/><path d='M35 25 l30 20 v10 l-30 -20 z' fill='%23e63946'/><path d='M35 55 l30 20 v10 l-30 -20 z' fill='%231d3557'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -15,7 +17,7 @@
 </head>
 
 <body>
-    <!-- Navbar -->
+    <!-- Navbar. Empleado de Bootstrap -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
         <div class="container">
             <a class="navbar-brand" href="index.html">Barber Faster</a>
@@ -34,19 +36,21 @@
                     <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
                     <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
                     <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                    <!-- Inicio de sesión / Acciones de perfil -->
                     <li class="nav-item ms-lg-2" id="authNavItem"></li>
                 </ul>
             </div>
         </div>
     </nav>
 
+    <!-- Contenido principal de la página -->
     <main class="container my-5">
-        <!-- Encabezado -->
+        <!-- Encabezado de la página -->
         <div class="text-center mb-5" data-aos="fade-up">
             <h1 class="section-title">Mi Perfil</h1>
         </div>
 
-        <!-- Información del usuario -->
+        <!-- Sección con la información del usuario -->
         <section class="perfil-info-section" data-aos="fade-up">
             <div class="perfil-card">
                 <div class="perfil-avatar">
@@ -84,7 +88,7 @@
             </div>
         </section>
 
-        <!-- Citas del usuario -->
+        <!-- Sección con las citas del usuario. Por defecto se asume que no tiene citas agendadas -->
         <section class="perfil-citas-section" id="citasSection">
             <div class="text-center mb-4" data-aos="fade-up">
                 <h2 class="section-title">Mis Citas</h2>
@@ -96,7 +100,7 @@
             </div>
         </section>
 
-        <!-- Mensaje para barberos -->
+        <!-- En caso de ser un barbero se emplea este mensaje -->
         <section class="perfil-barbero-msg" id="barberoMsg" style="display:none;" data-aos="fade-up">
             <div class="perfil-card" style="text-align:center; padding:1.25rem 1.5rem; margin-bottom:1.5rem;">
                 <p style="margin:0; color:var(--color-gris-medio); font-size:0.85rem;">
@@ -108,7 +112,7 @@
         </section>
     </main>
 
-    <!-- Modal de pago -->
+    <!-- Modal de pago para las citas -->
     <div class="modal fade" id="pagoModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content perfil-modal">
@@ -125,7 +129,7 @@
         </div>
     </div>
 
-    <!-- Modal de confirmación de cancelación -->
+    <!-- Modal de confirmación de cancelación para las citas -->
     <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content perfil-modal">
@@ -144,18 +148,23 @@
     </div>
 
     <footer class="custom-footer text-center py-3">
-        <p class="mb-0">© 2025 Barber Faster | Todos los derechos reservados</p>
+        <p class="mb-0">© 2026 Barber Faster | Todos los derechos reservados</p>
     </footer>
 
+    <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Archivo con los datos de las barberías. Simula la DB por ahora -->
     <script src="data/barberias.js"></script>
+    <!-- Archivo con los datos de los usuarios. Simula la DB por ahora -->
     <script src="data/usuarios.js"></script>
+    <!-- Gestión de la sesión -->
     <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            /* ── Verificar sesión ── */
+            // Se verifica una sesión válida. Si no lo es se redirige a login.
             var user = null;
             try { user = JSON.parse(localStorage.getItem('bf_user')); } catch (e) { }
             if (!user) {
@@ -163,7 +172,7 @@
                 return;
             }
 
-            /* ── Datos del usuario ── */
+            // Se implementan los datos del usuario en el perfil.
             document.getElementById('perfilNombre').textContent = user.nombreCompleto;
             document.getElementById('perfilTipo').textContent = user.tipo === 'cliente' ? 'Cliente' : 'Barbero';
             document.getElementById('perfilUsuario').textContent = user.usuario;
@@ -171,7 +180,7 @@
             // Mostrar citas
             renderCitas();
 
-            /* ── Editar nombre de usuario ── */
+            // Sección para editar el nombre de usuario
             var usernameWrap = document.getElementById('usernameWrap');
             var usernameEdit = document.getElementById('usernameEdit');
             var usernameInput = document.getElementById('usernameInput');
@@ -212,13 +221,14 @@
                 if (e.key === 'Escape') cancelBtn.click();
             });
 
-            /* ── Renderizar citas ── */
+            // Función para cargar las citas.
             function renderCitas() {
                 var grid = document.getElementById('citasGrid');
                 var noCitas = document.getElementById('noCitas');
                 var todasCitas = getCitas();
                 var misCitas = todasCitas.filter(function (c) { return c.usuarioId === user.id; });
 
+                // Si no hay elementos dentro del vector no se carga nada
                 if (misCitas.length === 0) {
                     noCitas.style.display = 'block';
                     grid.innerHTML = '';
@@ -234,6 +244,7 @@
                     col.className = 'col-lg-6';
                     col.setAttribute('data-aos', 'fade-up');
 
+                    // Estado de la cita.
                     var statusLabel = '';
                     var statusClass = '';
                     switch (cita.estado) {
@@ -255,6 +266,7 @@
                             break;
                     }
 
+                    // Datos de la cita. Acciones.
                     var serviciosHtml = '';
                     cita.servicios.forEach(function (s) {
                         serviciosHtml +=
@@ -264,6 +276,7 @@
                             '</div>';
                     });
 
+                    // Si ha sido aprobada se paga. Si no ha sido aprobada aún se desactiva el botón.
                     var actionsHtml = '';
                     if (cita.estado === 'aprobada') {
                         actionsHtml =
@@ -304,7 +317,7 @@
                     grid.appendChild(col);
                 });
 
-                /* Eventos de las tarjetas */
+                // Eventos de las tarjetas.
                 grid.querySelectorAll('.cita-btn-pagar').forEach(function (btn) {
                     btn.addEventListener('click', function () {
                         var citaId = parseInt(this.getAttribute('data-cita-id'));
@@ -320,10 +333,11 @@
                     });
                 });
 
-                AOS.refresh();
+                AOS.refresh(); // En caso de que remuevan/añadan citas.
             }
 
-            /* ── Modal de pago ── */
+            // Modal de Pago. Se obtienen los datos de pago desde la database.
+            // cuando se deje de simular de manera local se recorta la sección.
             function openPagoModal(citaId) {
                 var todasCitas = getCitas();
                 var cita = todasCitas.find(function (c) { return c.id === citaId; });
@@ -346,7 +360,7 @@
                     '</div>' +
                     '<p class="pago-note">Realiza el pago por cualquiera de los métodos anteriores y tu cita quedará confirmada.</p>';
 
-                /* Marcar como pagada al cerrar el modal */
+                // Se asume por ahora que, si se cierra el modal, entonces se ha pagado.
                 var modalEl = document.getElementById('pagoModal');
                 modalEl.addEventListener('hidden.bs.modal', function handler() {
                     var citas = getCitas();
@@ -363,7 +377,7 @@
                 modal.show();
             }
 
-            /* ── Cancelar cita ── */
+            // Cancelar cita
             var pendingCancelId = null;
 
             document.getElementById('confirmCancelBtn').addEventListener('click', function () {
@@ -380,7 +394,7 @@
                 if (modal) modal.hide();
             });
 
-            /* ── Buscador (misma lógica del resto de páginas) ── */
+            // Sección para la funcionalidad del buscador
             var searchInput = document.getElementById('searchInput');
             var searchForm = document.getElementById('searchForm');
             var suggestionsBox = document.getElementById('searchSuggestions');
@@ -418,6 +432,7 @@
                     }
                 });
 
+                // Navegación con teclado en el buscador
                 searchInput.addEventListener('keydown', function (e) {
                     var items = suggestionsBox.querySelectorAll('.suggestion-item');
                     if (!suggestionsBox.classList.contains('active') || items.length === 0) return;
@@ -431,6 +446,7 @@
                     items.forEach(function (item, i) { item.classList.toggle('highlighted', i === highlightIndex); });
                 }
 
+                // Al presionar Enter se redirige a la primera coincidencia/sugerencia mostrada en el buscador
                 searchForm.addEventListener('submit', function (e) {
                     e.preventDefault();
                     var term = searchInput.value.trim().toLowerCase();
@@ -440,12 +456,13 @@
                     suggestionsBox.classList.remove('active');
                 });
 
+                // Si se hace clic fuera del buscador se cierran las sugerencias
                 document.addEventListener('click', function (e) {
                     if (!searchForm.contains(e.target)) suggestionsBox.classList.remove('active');
                 });
             }
 
-            /* ── Estilos inline para sugerencias (necesarios porque perfil no carga clientes.css) ── */
+            // Estilos inline para sugerencias (Igual al <style></style> de las otras páginas).
             var sugStyle = document.createElement('style');
             sugStyle.textContent =
                 '.search-suggestions{position:absolute;top:100%;left:0;right:0;background:#222;border:1px solid #333;border-top:none;border-radius:0 0 8px 8px;max-height:260px;overflow-y:auto;z-index:1000;display:none}' +
@@ -460,7 +477,7 @@
                 '.search-suggestions::-webkit-scrollbar-thumb{background:#444;border-radius:3px}';
             document.head.appendChild(sugStyle);
 
-            AOS.init();
+            AOS.init(); // Inicializar AOS
         });
     </script>
 </body>

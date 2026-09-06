@@ -180,7 +180,6 @@ p {
 
 /* Tarjetas */
 .service-card {
-  border: none;
   border-radius: var(--borde-redondeado);
   transition:
     transform var(--transicion-rapida),

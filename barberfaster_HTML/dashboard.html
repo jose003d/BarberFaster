@@ -4,14 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Barbería - Barber Faster</title>
+    <title>Mi Barbería</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23111'/><path d='M30 20 h40 v60 h-40 z' fill='%23fff'/><path d='M35 25 l30 20 v10 l-30 -20 z' fill='%23e63946'/><path d='M35 55 l30 20 v10 l-30 -20 z' fill='%231d3557'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/auth.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <!-- Css para las Suggestions. Generado con IA -->
     <style>
         .search-suggestions {
             position: absolute;
@@ -27,7 +29,11 @@
             z-index: 1000;
             display: none;
         }
-        .search-suggestions.active { display: block; }
+
+        .search-suggestions.active {
+            display: block;
+        }
+
         .suggestion-item {
             display: flex;
             align-items: center;
@@ -39,19 +45,46 @@
             transition: background 0.15s ease;
             cursor: pointer;
         }
+
         .suggestion-item:hover,
-        .suggestion-item.highlighted { background: #2a2a2a; color: #f0a500; }
-        .suggestion-item img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
-        .suggestion-item .sug-name { font-weight: 600; }
-        .suggestion-item .sug-ubicacion { font-size: 0.75rem; color: #888; }
-        .search-suggestions::-webkit-scrollbar { width: 6px; }
-        .search-suggestions::-webkit-scrollbar-track { background: #222; }
-        .search-suggestions::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+        .suggestion-item.highlighted {
+            background: #2a2a2a;
+            color: #f0a500;
+        }
+
+        .suggestion-item img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .suggestion-item .sug-name {
+            font-weight: 600;
+        }
+
+        .suggestion-item .sug-ubicacion {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .search-suggestions::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .search-suggestions::-webkit-scrollbar-track {
+            background: #222;
+        }
+
+        .search-suggestions::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
     </style>
 </head>
 
 <body>
-    <!-- Navbar -->
+    <!-- Navbar. Empleado de Bootstrap. -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
         <div class="container">
             <a class="navbar-brand" href="index.html">Barber Faster</a>
@@ -70,15 +103,17 @@
                     <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
                     <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
                     <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                    <!-- Inicio de sesión / Acciones de perfil -->
                     <li class="nav-item ms-lg-2" id="authNavItem"></li>
                 </ul>
             </div>
         </div>
     </nav>
 
+
     <div class="dash-wrapper">
         <div class="row g-0">
-            <!-- Sidebar -->
+            <!-- Sidebar con la lista de módulos disponibles. -->
             <aside class="dash-sidebar col-md-3 col-lg-2" id="dashSidebar">
                 <div class="dash-profile">
                     <div class="dash-avatar" id="dashAvatar">B</div>
@@ -106,47 +141,124 @@
                 </div>
             </aside>
 
-            <!-- Contenido principal -->
+            <!-- Contenido principal del dashboard. -->
             <main class="col-md-9 col-lg-10 dash-main">
 
-                <!-- Tu negocio -->
+                <!-- Módulo "Tu Negocio". -->
                 <section id="negocio" class="dash-section active">
-                    <h2 class="dash-section-title" data-aos="fade-up">Bienvenido al Dashboard</h2>
-                    <p class="dash-section-sub" data-aos="fade-up" data-aos-delay="50">Usa las pestañas de la izquierda para navegar entre las secciones.</p>
+                    <h2 class="dash-section-title">Tu negocio</h2>
+                    <p class="dash-section-sub">Gestiona la información de tu barbería.</p>
 
-                    <h3 class="dash-subtitle mt-4" data-aos="fade-up">Tu negocio</h3>
-                    <div class="dash-biz-info" data-aos="fade-up" data-aos-delay="100">
-                        <div class="dash-biz-logo">
-                            <i class="bi bi-scissors"></i>
-                        </div>
-                        <div>
-                            <h4 id="dashBizName">Nombre de la barbería</h4>
-                            <p id="dashBizDir">Dirección de la barbería</p>
+                    <!-- Nombre del negocio -->
+                    <div class="dash-card">
+                        <div class="dash-biz-info">
+                            <div class="dash-biz-logo">
+                                <i class="bi bi-scissors"></i>
+                            </div>
+                            <div style="flex:1;min-width:0;">
+                                <div class="dash-biz-name-wrap" id="bizNameWrap">
+                                    <h4 id="dashBizName">Nombre de la barbería</h4>
+                                    <!-- Se otorga la función de editar el nombre de la barbería. Linea 102 de dashboard.js -->
+                                    <button class="dash-edit-name-btn" id="editBizNameBtn" type="button"
+                                        title="Editar nombre">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </div>
+                                <div class="dash-biz-name-edit" id="bizNameEdit" style="display:none;">
+                                    <input type="text" class="dash-input" id="bizNameInput">
+                                    <button class="dash-btn" id="saveBizNameBtn" type="button" title="Guardar">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+                                    <button class="dash-cancel-edit-btn" id="cancelBizNameBtn" type="button"
+                                        title="Cancelar">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </div>
+                                <!-- Campo con la dirección establecida de la barbería. 
+                                La función de editarla es más adelante -->
+                                <p id="dashBizAddress" style="color:#9a9a9a;font-size:0.88rem;margin:0;"></p>
+                            </div>
                         </div>
                     </div>
 
-                    <h3 class="dash-subtitle mt-4" data-aos="fade-up">Ubicación</h3>
-                    <div class="dash-map-wrap" data-aos="fade-up" data-aos-delay="150">
-                        <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.9484805128214!2d-74.08174938573507!3d4.609710043523263!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f99a17b8b7b09%3A0x9f2f07bdf7a2baf2!2sBogot%C3%A1%2C%20Colombia!5e0!3m2!1ses!2sco!4v1698285742047!5m2!1ses!2sco"
-                            allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                        </iframe>
+                    <!-- Portafolio del negocio. Se añaden mediante appendChild.
+                    La funcionalidad se encuentra en dashboard.js linea 350 -->
+                    <h3 class="dash-subtitle">Portafolio</h3>
+                    <div class="dash-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="dash-card-title" style="margin:0;">
+                                    <i class="bi bi-images"></i> Imágenes
+                                </span>
+                                <!-- En este menú se elige el barbero cuyo portafolio deseamos ver.
+                                En dashboard.js linea 158 se ejecuta la función renderBarberSelectors -->
+                                <select class="dash-select" id="barberSelect"
+                                    style="width:auto;min-width:180px;"></select>
+                            </div>
+                            <button class="dash-btn" id="addPortfolioImg">
+                                <i class="bi bi-plus-lg"></i> Agregar
+                            </button>
+                            <input type="file" id="portfolioImgInput" accept="image/*" style="display:none;">
+                        </div>
+                        <div class="dash-portfolio-grid" id="portfolioGrid"></div>
+                        <!-- Si no se han añadido imagenes al portafolio aún se muestra un mensaje -->
+                        <p id="portfolioEmpty"
+                            style="color:#666;font-size:0.88rem;margin:0;text-align:center;padding:2rem 0;">
+                            No hay imágenes en el portafolio aún.
+                        </p>
+                    </div>
+
+                    <!-- Equipo de barberos. Se pueden invitar barberos mediante su correo electrónico.
+                    Por ahora se considera que aceptan de manera immediata.
+                    Es posible añadir un random con una chance de 20% para mostrar la notificación de rechazo. -->
+                    <h3 class="dash-subtitle">Equipo de barberos</h3>
+                    <div class="dash-card">
+                        <p style="color:#9a9a9a;font-size:0.88rem;margin-bottom:1rem;">
+                            Invita barberos a tu equipo ingresando su correo electrónico.
+                        </p>
+                        <div class="dash-row-inline mb-3">
+                            <!-- dashboard.js linea 419 -->
+                            <input type="email" class="dash-input" id="inviteEmail" placeholder="correo@ejemplo.com">
+                            <button class="dash-btn" id="inviteBtn">
+                                <i class="bi bi-send"></i> Invitar
+                            </button>
+                        </div>
+                        <div id="inviteList"></div>
+                    </div>
+
+                    <!-- Ubicación de la barbería. Se puede editar desde el mismo módulo.  -->
+                    <h3 class="dash-subtitle">Ubicación</h3>
+                    <div class="dash-card">
+                        <div class="dash-row-inline mb-3">
+                            <!-- dashboard.js linea 446. Se inserta la dirección ingresada por el barbero
+                            dentro de Google Maps para así actualizarlo. -->
+                            <input type="text" class="dash-input" id="bizAddressInput">
+                            <button class="dash-btn" id="bizAddressBtn">
+                                <i class="bi bi-geo-alt"></i> Buscar
+                            </button>
+                        </div>
+                        <div class="dash-map-wrap">
+                            <iframe id="bizMap" allowfullscreen="" loading="lazy"></iframe>
+                        </div>
                     </div>
                 </section>
 
-                <!-- Finanzas -->
+                <!-- Módulo "Finanzas". Directamente el mismo que creé el año pasado
+                con el uso de Chart.js. En dashboard.js se ubica en linea 489 -->
                 <section id="finanzas" class="dash-section">
-                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" data-aos="fade-up">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                         <h2 class="dash-section-title mb-0">Resumen general</h2>
                         <button id="toggleButton" class="btn dash-toggle-btn">
                             <i class="bi bi-calendar-week me-1"></i> Ver datos semanales
                         </button>
                     </div>
 
-                    <div class="row g-3 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="row g-3 mb-4">
                         <div class="col-md-4">
                             <div class="dash-stat-card dash-stat-card--visitas">
-                                <div class="dash-stat-icon"><i class="bi bi-people-fill"></i></div>
+                                <div class="dash-stat-icon">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
                                 <div>
                                     <span class="dash-stat-label">Visitas</span>
                                     <span class="dash-stat-value" id="statVisitas">120</span>
@@ -155,7 +267,9 @@
                         </div>
                         <div class="col-md-4">
                             <div class="dash-stat-card dash-stat-card--ganancias">
-                                <div class="dash-stat-icon"><i class="bi bi-cash-stack"></i></div>
+                                <div class="dash-stat-icon">
+                                    <i class="bi bi-cash-stack"></i>
+                                </div>
                                 <div>
                                     <span class="dash-stat-label">Ganancias</span>
                                     <span class="dash-stat-value" id="statGanancias">$130.000</span>
@@ -164,7 +278,9 @@
                         </div>
                         <div class="col-md-4">
                             <div class="dash-stat-card dash-stat-card--alertas">
-                                <div class="dash-stat-icon"><i class="bi bi-bell-fill"></i></div>
+                                <div class="dash-stat-icon">
+                                    <i class="bi bi-bell-fill"></i>
+                                </div>
                                 <div>
                                     <span class="dash-stat-label">Alertas</span>
                                     <span class="dash-stat-value" id="statAlertas">3 nuevas</span>
@@ -173,33 +289,101 @@
                         </div>
                     </div>
 
-                    <div class="dash-chart-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="dash-chart-card">
                         <h5 class="dash-chart-title">Usuarios nuevos por día</h5>
                         <canvas id="graficoUsuarios" height="100"></canvas>
                     </div>
 
-                    <div class="text-center mt-3" data-aos="fade-up" data-aos-delay="250">
+                    <div class="text-center mt-3">
                         <button id="exportButton" class="btn dash-export-btn">
                             <i class="bi bi-download me-1"></i> Exportar Datos
                         </button>
                     </div>
                 </section>
 
-                <!-- Agenda -->
+                <!-- Módulo "Agenda". Debe implementarse el trabajo realizado con el ERP para que sea funcional -->
                 <section id="agenda" class="dash-section">
-                    <h2 class="dash-section-title" data-aos="fade-up">Gestión de agenda</h2>
-                    <div class="dash-placeholder" data-aos="fade-up" data-aos-delay="100">
+                    <h2 class="dash-section-title">Gestión de agenda</h2>
+                    <div class="dash-placeholder">
                         <i class="bi bi-calendar3"></i>
                         <p>Esta sección está en desarrollo.</p>
                     </div>
                 </section>
 
-                <!-- Soporte -->
+                <!-- Módulo "Soporte". Es casi igual a la página de contacto.html. -->
                 <section id="soporte" class="dash-section">
-                    <h2 class="dash-section-title" data-aos="fade-up">Soporte</h2>
-                    <div class="dash-placeholder" data-aos="fade-up" data-aos-delay="100">
-                        <i class="bi bi-headset"></i>
-                        <p>Esta sección está en proceso.</p>
+                    <h2 class="dash-section-title">Soporte</h2>
+                    <p class="dash-section-sub">¿Necesitas ayuda? Contáctanos.</p>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6 col-lg-3">
+                            <div class="dash-contact-card">
+                                <i class="bi bi-telephone"></i>
+                                <h5>Teléfono</h5>
+                                <p>+57 300 123 4567<br>Lun - Sáb: 9:00 - 20:00</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="dash-contact-card">
+                                <i class="bi bi-envelope"></i>
+                                <h5>Email</h5>
+                                <p>info@barberfaster.com<br>soporte@barberfaster.com</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="dash-contact-card">
+                                <i class="bi bi-geo-alt"></i>
+                                <h5>Ubicación</h5>
+                                <p>Calle 123 #45-67<br>Bogotá, Colombia</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="dash-contact-card">
+                                <i class="bi bi-clock"></i>
+                                <h5>Horario</h5>
+                                <p>Lunes - Sábado<br>9:00 - 20:00</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dash-card">
+                        <h5 class="dash-card-title">
+                            <i class="bi bi-chat-dots"></i> Envíanos un mensaje
+                        </h5>
+                        <form id="soporteForm" novalidate>
+                            <div class="dash-soporte-grid mb-3">
+                                <div>
+                                    <label for="soporteNombre" class="dash-label">Nombre</label>
+                                    <input type="text" class="dash-input" id="soporteNombre" placeholder="Tu nombre">
+                                </div>
+                                <div>
+                                    <label for="soporteEmail" class="dash-label">Email</label>
+                                    <input type="email" class="dash-input" id="soporteEmail"
+                                        placeholder="tu@correo.com">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="soporteTelefono" class="dash-label">Teléfono</label>
+                                <input type="tel" class="dash-input" id="soporteTelefono" placeholder="300 123 4567">
+                            </div>
+                            <div class="mb-3">
+                                <label for="soporteAsunto" class="dash-label">Asunto</label>
+                                <select class="dash-select" id="soporteAsunto">
+                                    <option>Información general</option>
+                                    <option>Soporte técnico</option>
+                                    <option>Problema con mi barbería</option>
+                                    <option>Otro</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="soporteMensaje" class="dash-label">Mensaje</label>
+                                <textarea class="dash-textarea" id="soporteMensaje" rows="4"
+                                    placeholder="Escribe tu mensaje aquí..."></textarea>
+                            </div>
+                            <button type="submit" class="dash-btn dash-soporte-submit">
+                                Enviar Mensaje
+                            </button>
+                        </form>
                     </div>
                 </section>
 
@@ -207,164 +391,63 @@
         </div>
     </div>
 
+    <!-- Modal de agregar servicio. Corresponde al portafolio en el módulo de "Tu Negocio". -->
+    <div class="modal fade" id="addServModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content"
+                style="background:#1c1c1c;border:1px solid #262626;border-radius:12px;color:#fff;">
+                <div class="modal-header" style="border-bottom:1px solid #262626;padding:1rem 1.25rem;">
+                    <h5 class="modal-title" style="color:#ff7a1a;font-size:1.05rem;margin:0;">Agregar servicio</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body pt-2 pb-3">
+                    <div class="mb-3">
+                        <label for="newServNombre" class="dash-label">Servicio</label>
+                        <input type="text" class="dash-input" id="newServNombre" placeholder="Ej: Corte clásico">
+                    </div>
+                    <div class="mb-4">
+                        <label for="newServPrecio" class="dash-label">Precio</label>
+                        <input type="number" class="dash-input" id="newServPrecio" placeholder="Ej: 15000" min="0"
+                            step="1000">
+                    </div>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="dash-cancel-edit-btn" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="dash-btn" id="confirmAddServBtn">Agregar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación de soporte. Es empleado en el módulo de "Soporte" -->
+    <div class="modal fade" id="soporteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content"
+                style="background:#1c1c1c;border:1px solid #262626;border-radius:12px;color:#fff;">
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-check-circle-fill" style="font-size:2.5rem;color:#22c55e;"></i>
+                    <h5 class="mt-3" style="color:#fff;">Mensaje enviado</h5>
+                    <p style="color:#9a9a9a;margin-bottom:1.25rem;">
+                        Hemos recibido tu mensaje. Te responderemos a la brevedad posible.
+                    </p>
+                    <button type="button" class="dash-btn" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Datos de las barberías registradas -->
     <script src="data/barberias.js"></script>
+    <!-- Datos de los usuarios registrados -->
     <script src="data/usuarios.js"></script>
-    <script src="js/auth.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-
-            /* ── Verificar sesión barbero ── */
-            var user = null;
-            try { user = JSON.parse(localStorage.getItem('bf_user')); } catch (e) { }
-            if (!user || user.tipo !== 'barbero') {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            /* ── Datos del sidebar ── */
-            var initial = user.nombreCompleto ? user.nombreCompleto.charAt(0).toUpperCase() : 'B';
-            document.getElementById('dashAvatar').textContent = initial;
-            document.getElementById('dashUserName').textContent = user.nombreCompleto.split(' ')[0];
-            document.getElementById('dashBarberiaName').textContent = user.barberia || 'Mi barbería';
-            document.getElementById('dashBizName').textContent = user.barberia || 'Nombre de la barbería';
-
-            /* ── Tabs ── */
-            var tabs = document.querySelectorAll('.dash-tab');
-            var sections = document.querySelectorAll('.dash-section');
-
-            tabs.forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    tabs.forEach(function (b) { b.classList.remove('active'); });
-                    sections.forEach(function (s) { s.classList.remove('active'); });
-                    btn.classList.add('active');
-                    document.getElementById(btn.getAttribute('data-target')).classList.add('active');
-                });
-            });
-
-            /* ── Cerrar sesión ── */
-            document.getElementById('dashLogout').addEventListener('click', function () {
-                localStorage.removeItem('bf_user');
-                window.location.href = 'index.html';
-            });
-
-            /* ── Gráfico ── */
-            var ctx = document.getElementById('graficoUsuarios');
-            if (ctx) {
-                var chart = new Chart(ctx.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-                        datasets: [{
-                            label: 'Usuarios nuevos (diarios)',
-                            data: [18, 27, 14, 21, 16, 13, 11],
-                            backgroundColor: 'rgba(255, 122, 26, 0.7)',
-                            borderColor: '#ff7a1a',
-                            borderWidth: 1,
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { labels: { color: '#d3d3d3', font: { family: 'Montserrat' } } }
-                        },
-                        scales: {
-                            x: { ticks: { color: '#9a9a9a' }, grid: { color: '#262626' } },
-                            y: { beginAtZero: true, ticks: { color: '#9a9a9a' }, grid: { color: '#262626' } }
-                        }
-                    }
-                });
-
-                var toggleButton = document.getElementById('toggleButton');
-                var mostrandoSemanal = false;
-
-                toggleButton.addEventListener('click', function () {
-                    mostrandoSemanal = !mostrandoSemanal;
-                    if (mostrandoSemanal) {
-                        document.getElementById('statVisitas').textContent = '915';
-                        document.getElementById('statGanancias').textContent = '$870.300';
-                        document.getElementById('statAlertas').textContent = '12 nuevas';
-                        toggleButton.innerHTML = '<i class="bi bi-calendar3 me-1"></i> Ver datos diarios';
-                        chart.data.datasets[0].data = [120, 135, 110, 140, 130, 140, 140];
-                        chart.data.datasets[0].label = 'Usuarios nuevos (semanales)';
-                    } else {
-                        document.getElementById('statVisitas').textContent = '120';
-                        document.getElementById('statGanancias').textContent = '$130.000';
-                        document.getElementById('statAlertas').textContent = '3 nuevas';
-                        toggleButton.innerHTML = '<i class="bi bi-calendar-week me-1"></i> Ver datos semanales';
-                        chart.data.datasets[0].data = [18, 27, 14, 21, 16, 13, 11];
-                        chart.data.datasets[0].label = 'Usuarios nuevos (diarios)';
-                    }
-                    chart.update();
-                });
-
-                document.getElementById('exportButton').addEventListener('click', function () {
-                    var usuarios = document.getElementById('statVisitas').textContent;
-                    var ventas = document.getElementById('statGanancias').textContent;
-                    var alertas = document.getElementById('statAlertas').textContent;
-                    var rows = [['Métrica', 'Valor'], ['Usuarios', usuarios], ['Ventas', ventas], ['Alertas', alertas]];
-                    var csv = '\uFEFF' + rows.map(function (e) { return e.join(','); }).join('\n');
-                    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                    var url = URL.createObjectURL(blob);
-                    var link = document.createElement('a');
-                    link.href = url;
-                    link.download = 'estadisticas.csv';
-                    link.click();
-                });
-            }
-
-            /* ── Buscador (misma lógica) ── */
-            var searchInput = document.getElementById('searchInput');
-            var searchForm = document.getElementById('searchForm');
-            var suggestionsBox = document.getElementById('searchSuggestions');
-            var hlIdx = -1;
-
-            if (searchInput && searchForm && suggestionsBox) {
-                searchInput.addEventListener('input', function () {
-                    var term = this.value.trim().toLowerCase();
-                    hlIdx = -1;
-                    if (!term) { suggestionsBox.classList.remove('active'); suggestionsBox.innerHTML = ''; return; }
-                    var f = barberias.filter(function (b) {
-                        return b.nombre.toLowerCase().includes(term) || b.nombreSecundario.toLowerCase().includes(term) || b.ubicacion.toLowerCase().includes(term);
-                    });
-                    if (f.length) {
-                        suggestionsBox.innerHTML = '';
-                        f.forEach(function (b) {
-                            var it = document.createElement('a');
-                            it.className = 'suggestion-item';
-                            it.href = 'barberia.html?barberia=' + b.slug;
-                            it.innerHTML = '<img src="' + b.logo + '" alt="' + b.nombre + '"><div><div class="sug-name">' + b.nombre + '</div><div class="sug-ubicacion">' + b.ubicacion + '</div></div>';
-                            suggestionsBox.appendChild(it);
-                        });
-                        suggestionsBox.classList.add('active');
-                    } else { suggestionsBox.classList.remove('active'); }
-                });
-                searchInput.addEventListener('keydown', function (e) {
-                    var items = suggestionsBox.querySelectorAll('.suggestion-item');
-                    if (!suggestionsBox.classList.contains('active') || !items.length) return;
-                    if (e.key === 'ArrowDown') { e.preventDefault(); hlIdx = Math.min(hlIdx + 1, items.length - 1); uHL(items); }
-                    else if (e.key === 'ArrowUp') { e.preventDefault(); hlIdx = Math.max(hlIdx - 1, 0); uHL(items); }
-                    else if (e.key === 'Enter' && hlIdx >= 0) { e.preventDefault(); items[hlIdx].click(); }
-                    else if (e.key === 'Escape') { suggestionsBox.classList.remove('active'); searchInput.blur(); }
-                });
-                function uHL(items) { items.forEach(function (it, i) { it.classList.toggle('highlighted', i === hlIdx); }); }
-                searchForm.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    var term = searchInput.value.trim().toLowerCase();
-                    if (!term) return;
-                    var c = barberias.find(function (b) { return b.nombre.toLowerCase().includes(term) || b.slug === term; });
-                    if (c) window.location.href = 'barberia.html?barberia=' + c.slug;
-                    suggestionsBox.classList.remove('active');
-                });
-                document.addEventListener('click', function (e) { if (!searchForm.contains(e.target)) suggestionsBox.classList.remove('active'); });
-            }
-
-            AOS.init();
-        });
-    </script>
+    <script src="js/auth.js"></script> <!-- Gestión de la sesión -->
+    <!-- Funcionalidad del dashboard -->
+    <script src="js/dashboard.js"></script>
 </body>
 
 </html>
