@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar sesión - Barber Faster</title>
+    <title>Iniciar sesión</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23111'/><path d='M30 20 h40 v60 h-40 z' fill='%23fff'/><path d='M35 25 l30 20 v10 l-30 -20 z' fill='%23e63946'/><path d='M35 55 l30 20 v10 l-30 -20 z' fill='%231d3557'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -13,7 +15,7 @@
 </head>
 
 <body>
-    <!-- Navbar -->
+    <!-- Navbar. Empleado de Bootstrap -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
         <div class="container">
             <a class="navbar-brand" href="index.html">Barber Faster</a>
@@ -26,6 +28,7 @@
                     <li class="nav-item"><a class="nav-link" href="clientes.html">Clientes</a></li>
                     <li class="nav-item"><a class="nav-link" href="barberos.html">Barberos</a></li>
                     <li class="nav-item"><a class="nav-link" href="contacto.html">Contáctanos</a></li>
+                    <!-- Inicio de sesión / Acciones de perfil -->
                     <li class="nav-item ms-lg-2" id="authNavItem"></li>
                 </ul>
             </div>
@@ -44,7 +47,7 @@
                     </a>
                 </div>
 
-                <!-- ═══ FORMULARIO DE INICIO DE SESIÓN ═══ -->
+                <!-- Formulario de Inicio de Sesión -->
                 <div id="loginFormWrap">
                     <h2 class="login-title">Iniciar sesión</h2>
 
@@ -66,8 +69,8 @@
                             <label for="loginUsuario" class="login-label">Usuario</label>
                             <div class="login-input-wrap">
                                 <i class="bi bi-person login-input-icon"></i>
-                                <input type="text" class="form-control login-input login-input--with-icon" id="loginUsuario"
-                                    placeholder="Ingresa tu usuario" required>
+                                <input type="text" class="form-control login-input login-input--with-icon"
+                                    id="loginUsuario" placeholder="Ingresa tu usuario" required>
                             </div>
                             <span class="login-field-error" id="loginUsuarioError"></span>
                         </div>
@@ -76,9 +79,10 @@
                             <label for="loginPassword" class="login-label">Contraseña</label>
                             <div class="login-input-wrap">
                                 <i class="bi bi-lock login-input-icon"></i>
-                                <input type="password" class="form-control login-input login-input--with-icon" id="loginPassword"
-                                    placeholder="Ingresa tu contraseña" required>
-                                <button type="button" class="login-toggle-pass" data-target="loginPassword" aria-label="Mostrar contraseña">
+                                <input type="password" class="form-control login-input login-input--with-icon"
+                                    id="loginPassword" placeholder="Ingresa tu contraseña" required>
+                                <button type="button" class="login-toggle-pass" data-target="loginPassword"
+                                    aria-label="Mostrar contraseña">
                                     <i class="bi bi-eye"></i>
                                 </button>
                             </div>
@@ -89,8 +93,8 @@
                             <label for="loginBarberia" class="login-label">Nombre de la barbería</label>
                             <div class="login-input-wrap">
                                 <i class="bi bi-shop login-input-icon"></i>
-                                <input type="text" class="form-control login-input login-input--with-icon" id="loginBarberia"
-                                    placeholder="Nombre de tu barbería">
+                                <input type="text" class="form-control login-input login-input--with-icon"
+                                    id="loginBarberia" placeholder="Nombre de tu barbería">
                             </div>
                         </div>
 
@@ -106,7 +110,7 @@
                     </div>
                 </div>
 
-                <!-- ═══ FORMULARIO DE REGISTRO (solo clientes) ═══ -->
+                <!-- Formulario de Registro -->
                 <div id="registerFormWrap" class="login-form-hidden">
                     <h2 class="login-title">Registrarse</h2>
 
@@ -118,8 +122,8 @@
                             <label for="regNombre" class="login-label">Nombre completo</label>
                             <div class="login-input-wrap">
                                 <i class="bi bi-person-fill login-input-icon"></i>
-                                <input type="text" class="form-control login-input login-input--with-icon" id="regNombre"
-                                    placeholder="Tu nombre completo" required>
+                                <input type="text" class="form-control login-input login-input--with-icon"
+                                    id="regNombre" placeholder="Tu nombre completo" required>
                             </div>
                             <span class="login-field-error" id="regNombreError"></span>
                         </div>
@@ -128,8 +132,8 @@
                             <label for="regEmail" class="login-label">Correo electrónico</label>
                             <div class="login-input-wrap">
                                 <i class="bi bi-envelope login-input-icon"></i>
-                                <input type="email" class="form-control login-input login-input--with-icon" id="regEmail"
-                                    placeholder="tu@correo.com" required>
+                                <input type="email" class="form-control login-input login-input--with-icon"
+                                    id="regEmail" placeholder="tu@correo.com" required>
                             </div>
                             <span class="login-field-error" id="regEmailError"></span>
                         </div>
@@ -138,8 +142,8 @@
                             <label for="regUsuario" class="login-label">Usuario</label>
                             <div class="login-input-wrap">
                                 <i class="bi bi-at login-input-icon"></i>
-                                <input type="text" class="form-control login-input login-input--with-icon" id="regUsuario"
-                                    placeholder="Elige un nombre de usuario" required>
+                                <input type="text" class="form-control login-input login-input--with-icon"
+                                    id="regUsuario" placeholder="Elige un nombre de usuario" required>
                             </div>
                             <span class="login-field-error" id="regUsuarioError"></span>
                         </div>
@@ -148,9 +152,10 @@
                             <label for="regPassword" class="login-label">Contraseña</label>
                             <div class="login-input-wrap">
                                 <i class="bi bi-lock login-input-icon"></i>
-                                <input type="password" class="form-control login-input login-input--with-icon" id="regPassword"
-                                    placeholder="Crea tu contraseña" required>
-                                <button type="button" class="login-toggle-pass" data-target="regPassword" aria-label="Mostrar contraseña">
+                                <input type="password" class="form-control login-input login-input--with-icon"
+                                    id="regPassword" placeholder="Crea tu contraseña" required>
+                                <button type="button" class="login-toggle-pass" data-target="regPassword"
+                                    aria-label="Mostrar contraseña">
                                     <i class="bi bi-eye"></i>
                                 </button>
                             </div>
@@ -161,9 +166,10 @@
                             <label for="regPasswordConfirm" class="login-label">Confirmar contraseña</label>
                             <div class="login-input-wrap">
                                 <i class="bi bi-lock-fill login-input-icon"></i>
-                                <input type="password" class="form-control login-input login-input--with-icon" id="regPasswordConfirm"
-                                    placeholder="Repite tu contraseña" required>
-                                <button type="button" class="login-toggle-pass" data-target="regPasswordConfirm" aria-label="Mostrar contraseña">
+                                <input type="password" class="form-control login-input login-input--with-icon"
+                                    id="regPasswordConfirm" placeholder="Repite tu contraseña" required>
+                                <button type="button" class="login-toggle-pass" data-target="regPasswordConfirm"
+                                    aria-label="Mostrar contraseña">
                                     <i class="bi bi-eye"></i>
                                 </button>
                             </div>
@@ -184,26 +190,29 @@
             </div>
         </div>
 
-        <!-- Lado derecho: Bienvenida -->
+        <!-- Lado derecho: Texto de bienvenida -->
         <div class="login-welcome-side">
             <div class="login-welcome-content">
                 <div class="login-welcome-image">
                     <img src="img/bflogo.png" alt="Barber Faster">
                 </div>
                 <h1 class="login-welcome-title">Bienvenido a Barber Faster</h1>
-                <p class="login-welcome-text">Tu barbería digital: agenda, gestiona y crece con la plataforma diseñada para profesionales del estilo.</p>
+                <p class="login-welcome-text">Tu barbería digital: agenda, gestiona y crece con la plataforma diseñada
+                    para profesionales del estilo.</p>
                 <ul class="login-welcome-features">
                     <li><i class="bi bi-check-circle-fill"></i><span>Agenda citas en segundos</span></li>
-                    <li><i class="bi bi-check-circle-fill"></i><span>Gestiona tu barbería desde cualquier lugar</span></li>
+                    <li><i class="bi bi-check-circle-fill"></i><span>Gestiona tu barbería desde cualquier lugar</span>
+                    </li>
                     <li><i class="bi bi-check-circle-fill"></i><span>Recibe notificaciones en tiempo real</span></li>
                 </ul>
             </div>
         </div>
     </div>
 
+    <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="data/usuarios.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="data/usuarios.js"></script> <!-- Archivo con los datos de los usuarios registrados. Simula la DB por ahora -->
+    <script src="js/auth.js"></script> <!-- Gestión de la sesión -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
@@ -214,7 +223,7 @@
                 }
             } catch (e) { }
 
-            /* ── Referencias ── */
+            // Declaración de variables usadas como referencias
             var loginWrap = document.getElementById('loginFormWrap');
             var registerWrap = document.getElementById('registerFormWrap');
             var loginError = document.getElementById('loginError');
@@ -224,7 +233,7 @@
             var loginBarberiaField = document.getElementById('loginBarberiaField');
             var loginBarberiaInput = document.getElementById('loginBarberia');
 
-            /* ── Validación de campo ── */
+            // Validación de campos
             function vField(inputId, errorId, rules) {
                 var input = document.getElementById(inputId);
                 var errSpan = document.getElementById(errorId);
@@ -271,7 +280,7 @@
                 });
             });
 
-            /* ── Cambio entre formularios ── */
+            // Cambio entre formularios mediante clases "visible" y "hidden"
             function showRegister() {
                 loginWrap.classList.add('login-form-hidden');
                 loginWrap.classList.remove('login-form-visible');
@@ -294,7 +303,8 @@
             document.getElementById('goToRegister').addEventListener('click', function (e) { e.preventDefault(); showRegister(); });
             document.getElementById('goToLogin').addEventListener('click', function (e) { e.preventDefault(); showLogin(); });
 
-            /* ── Campo barbería colapsable (solo login) ── */
+            // El campo barbería solo aparecerá en el Login de Barbero.
+            // Para ocultarlo se cambian sus clases
             function toggleBarberiaField() {
                 if (loginTipo.value === 'barbero') {
                     loginBarberiaField.classList.add('login-collapsible--open');
@@ -310,7 +320,8 @@
             toggleBarberiaField();
             loginTipo.addEventListener('change', toggleBarberiaField);
 
-            /* ── Mostrar/ocultar contraseña ── */
+            // Para mostrar/ocultar contraseña se cambia el tipo de campo
+            // Y se intercambia el icono.
             document.querySelectorAll('.login-toggle-pass').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     var input = document.getElementById(this.getAttribute('data-target'));
@@ -327,7 +338,8 @@
                 });
             });
 
-            /* ── LOGIN ── */
+            // Si los datos de Login son correctos/coinciden con datos en usuarios.js
+            // Se guarda la sesión de manera local y redirige a index.html
             document.getElementById('loginForm').addEventListener('submit', function (e) {
                 e.preventDefault();
                 loginError.style.display = 'none';
@@ -356,7 +368,7 @@
                 window.location.href = 'index.html';
             });
 
-            /* ── REGISTRO (solo clientes) ── */
+            // Si todos los campos tienen datos correctos entonces se crea el usuario en el "sistema"
             document.getElementById('registerForm').addEventListener('submit', function (e) {
                 e.preventDefault();
                 registerError.style.display = 'none';
@@ -375,6 +387,7 @@
                 var password = document.getElementById('regPassword').value;
                 var confirmPass = document.getElementById('regPasswordConfirm').value;
 
+                // Validaciones con sus mensajes de error
                 if (password !== confirmPass) {
                     vField('regPasswordConfirm', 'regPasswordConfirmError', { required: true, min: 4 });
                     document.getElementById('regPasswordConfirmError').textContent = 'Las contraseñas no coinciden.';
@@ -389,6 +402,7 @@
                     return;
                 }
 
+                // Creación del usuario
                 usuarios.push({
                     id: usuarios.length + 1,
                     usuario: usuario,
@@ -398,15 +412,13 @@
                     password: password
                 });
 
+                // Mensajes de suceso
                 registerSuccess.textContent = '¡Registro exitoso! Ahora puedes iniciar sesión.';
                 registerSuccess.style.display = 'block';
                 document.getElementById('loginUsuario').value = usuario;
                 document.getElementById('loginPassword').value = '';
                 setTimeout(showLogin, 1500);
             });
-
-            /* ── Olvidé contraseña ── */
-            document.querySelector('.login-forgot').addEventListener('click', function (e) { e.preventDefault(); });
         });
     </script>
 </body>
