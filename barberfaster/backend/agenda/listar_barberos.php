@@ -45,9 +45,7 @@ try {
         JOIN Usuarios u ON b.id_usuario = u.id_usuario
         JOIN barberias bar ON b.id_barberia = bar.id_barberia
         WHERE u.estado = 1
-          AND u.rol = 'barbero'
-          AND LOWER(TRIM(u.nombre)) = 'kleiser'
-          AND LOWER(TRIM(u.apellido)) = 'regino'
+                    AND u.rol = 'barbero'
         ORDER BY b.id_barbero ASC
     ";
 

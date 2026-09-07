@@ -8,6 +8,7 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Agenda from "./pages/Agenda";
 import Barberos from "./pages/Barberos";
+import Servicios from "./pages/Servicios";
 
 function ProtectedRoute({ children }) {
   const isAuthenticated = localStorage.getItem("erpbarber_auth") === "true";
@@ -31,6 +32,7 @@ function App() {
         <Route path="/barberos" element={<ProtectedRoute><DashboardLayout><Barberos /></DashboardLayout></ProtectedRoute>} />
         <Route path="/perfil" element={<ProtectedRoute><DashboardLayout><Profile /></DashboardLayout></ProtectedRoute>} />
         <Route path="/agenda" element={<ProtectedRoute><DashboardLayout><Agenda /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/servicios" element={<ProtectedRoute><DashboardLayout><Servicios /></DashboardLayout></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

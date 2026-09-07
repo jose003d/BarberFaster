@@ -125,6 +125,75 @@ export async function crearBarbero(barbero) {
 }
 
 // ==========================
+// Servicios
+// ==========================
+export async function obtenerServicios() {
+  const response = await fetch(`${BASE_URL}/servicios/listars.php`);
+  const data = await handleResponse(response);
+  return extractListData(data, "servicios");
+}
+
+export async function crearServicio(servicio) {
+  const response = await fetch(`${BASE_URL}/servicios/crears.php`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(servicio),
+  });
+  return handleResponse(response);
+}
+
+export async function desactivarServicio(idServicio) {
+  const response = await fetch(`${BASE_URL}/servicios/desactivars.php`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id_servicio: idServicio }),
+  });
+  return handleResponse(response);
+}
+
+// ==========================
+// Pagos, reseñas y cita-servicios
+// ==========================
+export async function obtenerCitasPendientesPago() {
+  const response = await fetch(`${BASE_URL}/citas/pendientes_pago.php`);
+  const data = await handleResponse(response);
+  return extractListData(data, "citas");
+}
+
+export async function crearPago(pago) {
+  const response = await fetch(`${BASE_URL}/pagos/crearp.php`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(pago),
+  });
+  return handleResponse(response);
+}
+
+export async function crearResena(resena) {
+  const response = await fetch(`${BASE_URL}/resenas/crearr.php`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(resena),
+  });
+  return handleResponse(response);
+}
+
+export async function asociarServiciosACita(idCita, serviciosIds) {
+  const response = await fetch(`${BASE_URL}/servicios_has_citas/asociar.php`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id_cita: idCita, servicios_ids: serviciosIds }),
+  });
+  return handleResponse(response);
+}
+
+export async function obtenerServiciosDeCita(idCita) {
+  const response = await fetch(`${BASE_URL}/servicios_has_citas/listar.php?id_cita=${encodeURIComponent(idCita)}`);
+  const data = await handleResponse(response);
+  return extractListData(data, "servicios");
+}
+
+// ==========================
 // Clientes
 // ==========================
 export async function obtenerClientes() {

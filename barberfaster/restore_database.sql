@@ -125,3 +125,60 @@ ALTER TABLE `clientes`
 ALTER TABLE `barberias`
   ADD COLUMN IF NOT EXISTS `fotos` VARCHAR(255) DEFAULT NULL,
   ADD COLUMN IF NOT EXISTS `estado` TINYINT(1) DEFAULT 1;
+
+CREATE TABLE IF NOT EXISTS `barbero_horarios` (
+  `id_barbero` INT NOT NULL,
+  `id_barberia` INT NOT NULL,
+  `dias_semana` VARCHAR(30) NOT NULL,
+  `hora_inicio` TIME NOT NULL,
+  `hora_fin` TIME NOT NULL,
+  `intervalo_minutos` INT NOT NULL DEFAULT 30,
+  PRIMARY KEY (`id_barbero`),
+  CONSTRAINT `fk_barbero_horario_barbero` FOREIGN KEY (`id_barbero`) REFERENCES `barberos` (`id_barbero`) ON DELETE CASCADE,
+  CONSTRAINT `fk_barbero_horario_barberia` FOREIGN KEY (`id_barberia`) REFERENCES `barberias` (`id_barberia`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `servicios` (
+  `id_servicio` INT NOT NULL AUTO_INCREMENT,
+  `id_barberia` INT NOT NULL,
+  `nombre` VARCHAR(150) NOT NULL,
+  `precio` DECIMAL(10,2) NOT NULL,
+  `duracion_minutos` INT NOT NULL DEFAULT 30,
+  `activo` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id_servicio`),
+  KEY `idx_servicios_barberia` (`id_barberia`),
+  CONSTRAINT `fk_servicios_barberia` FOREIGN KEY (`id_barberia`) REFERENCES `barberias` (`id_barberia`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `pagos` (
+  `id_pago` INT NOT NULL AUTO_INCREMENT,
+  `id_cita` INT NOT NULL,
+  `monto` DECIMAL(10,2) NOT NULL,
+  `metodo` VARCHAR(30) NOT NULL,
+  `estado` VARCHAR(30) NOT NULL DEFAULT 'PAGADO',
+  `fecha_pago` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_pago`),
+  UNIQUE KEY `uq_pagos_cita` (`id_cita`),
+  CONSTRAINT `fk_pagos_cita` FOREIGN KEY (`id_cita`) REFERENCES `citas` (`id_cita`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `resenas` (
+  `id_resena` INT NOT NULL AUTO_INCREMENT,
+  `id_cita` INT NOT NULL,
+  `clientes_dni` VARCHAR(50) NOT NULL,
+  `calificacion` TINYINT NOT NULL,
+  `comentario` TEXT DEFAULT NULL,
+  `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_resena`),
+  UNIQUE KEY `uq_resenas_cita` (`id_cita`),
+  CONSTRAINT `fk_resenas_cita` FOREIGN KEY (`id_cita`) REFERENCES `citas` (`id_cita`) ON DELETE CASCADE,
+  CONSTRAINT `fk_resenas_cliente` FOREIGN KEY (`clientes_dni`) REFERENCES `clientes` (`dni`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `servicios_has_citas` (
+  `Servicios_id_servicio` INT NOT NULL,
+  `Citas_id_cita` INT NOT NULL,
+  PRIMARY KEY (`Servicios_id_servicio`, `Citas_id_cita`),
+  CONSTRAINT `fk_shc_servicio` FOREIGN KEY (`Servicios_id_servicio`) REFERENCES `servicios` (`id_servicio`) ON DELETE CASCADE,
+  CONSTRAINT `fk_shc_cita` FOREIGN KEY (`Citas_id_cita`) REFERENCES `citas` (`id_cita`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

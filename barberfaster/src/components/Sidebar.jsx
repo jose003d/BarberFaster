@@ -6,6 +6,7 @@ import {
   faUserGroup,
   faUser,
   faCalendarDays,
+  faListCheck,
   faRightFromBracket
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -72,6 +73,11 @@ function Sidebar() {
         <NavLink to="/agenda" className={linkClass}>
           <FontAwesomeIcon icon={faCalendarDays} className="nav-icon" />
           <span className="nav-label">Agenda</span>
+        </NavLink>
+
+        <NavLink to="/servicios" className={linkClass}>
+          <FontAwesomeIcon icon={faListCheck} className="nav-icon" />
+          <span className="nav-label">Servicios</span>
         </NavLink>
 
         <NavLink to="/perfil" className={linkClass}>
