@@ -165,6 +165,33 @@
   overflow: hidden;
 }
 
+.calendar-container .fc-scrollgrid {
+  table-layout: fixed;
+}
+
+.calendar-container .fc-col-header-cell {
+  min-width: 88px;
+  padding: 8px 4px;
+  text-align: center;
+}
+
+.calendar-container .fc-col-header-cell-cushion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #374151;
+  line-height: 1.2;
+}
+
+.calendar-container .fc-timegrid-col {
+  min-width: 88px;
+}
+
 .date-picker-row {
   display: flex;
   align-items: center;
@@ -430,10 +457,16 @@
   background: #f9fafb;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .date-picker-wrapper label {
   display: block;
+  width: 100%;
   font-weight: 600;
   color: #374151;
   margin-bottom: 12px;
@@ -443,6 +476,12 @@
 .react-datepicker-wrapper-custom {
   width: 100%;
   max-width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.react-datepicker-wrapper-custom > div {
+  width: 100%;
   display: flex;
   justify-content: center;
 }
@@ -465,6 +504,9 @@
   border-radius: 12px;
   padding: 16px;
   font-family: inherit;
+  width: min(100%, 360px);
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .react-datepicker__header {

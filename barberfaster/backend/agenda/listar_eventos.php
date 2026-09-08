@@ -23,6 +23,7 @@ try {
         SELECT id_evento, titulo, start_datetime, end_datetime, disponible, tipo, color, intervalo, servicio, estado, observaciones, metodo_validacion, estado_validacion
         FROM eventos
         WHERE id_barbero = :id_barbero
+        AND disponible = 0
         AND start_datetime >= NOW()
         ORDER BY start_datetime ASC
     ";
