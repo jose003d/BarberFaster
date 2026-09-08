@@ -22,6 +22,7 @@ async function handleResponse(response) {
   return data;
 }
 
+// Normaliza endpoints que devuelven un arreglo directo o una propiedad de lista.
 function extractListData(data, key) {
   if (Array.isArray(data)) return data;
   if (data && Array.isArray(data[key])) return data[key];
@@ -98,28 +99,30 @@ export async function crearUsuario(formData) {
   return handleResponse(response);
 }
 
-export async function loginUsuario(credentials) {
-  const response = await fetch(`${BASE_URL}/usuarios/login.php`, {
+// ==========================
+// Barberos
+// ==========================
+// Catálogo de servicios administrado desde el perfil del barbero.
+export async function obtenerServicios() {
+  const response = await fetch(`${BASE_URL}/servicios/listars.php`);
+  const data = await handleResponse(response);
+  return extractListData(data, "servicios");
+}
+
+export async function crearServicio(servicio) {
+  const response = await fetch(`${BASE_URL}/servicios/crears.php`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(credentials),
+    body: JSON.stringify(servicio),
   });
   return handleResponse(response);
 }
 
-export async function obtenerUsuario(id) {
-  const response = await fetch(`${BASE_URL}/usuarios/getusuario.php?id=${encodeURIComponent(id)}`);
-  return handleResponse(response);
-}
-
-// ==========================
-// Barberos
-// ==========================
-export async function crearBarbero(barbero) {
-  const response = await fetch(`${BASE_URL}/barberos/crearb.php`, {
+export async function desactivarServicio(idServicio) {
+  const response = await fetch(`${BASE_URL}/servicios/desactivars.php`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(barbero),
+    body: JSON.stringify({ id_servicio: idServicio }),
   });
   return handleResponse(response);
 }

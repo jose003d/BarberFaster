@@ -12,7 +12,7 @@ try {
     // BLOQUE 2: Creación de conexión PDO
     // ==========================
     $pdo = new PDO(
-        "mysql:host=$host;port=3306;dbname=$db;charset=utf8", 
+        "mysql:host=$host;port=3306;dbname=$db;charset=utf8mb4",
         $user, 
         $pass
     );

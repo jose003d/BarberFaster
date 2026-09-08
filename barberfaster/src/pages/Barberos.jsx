@@ -13,6 +13,9 @@ function Barberos() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
   const [confirmModal, setConfirmModal] = useState({ open: false, item: null });
+  const [usuariosDisponibles, setUsuariosDisponibles] = useState([]);
+  const [barberiasDisponibles, setBarberiasDisponibles] = useState([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
   const [formData, setFormData] = useState({
     id_usuario: "",
     id_barberia: "",
@@ -23,6 +26,7 @@ function Barberos() {
     cargarBarberos();
   }, []);
 
+  // La tabla se refresca desde el backend para mostrar nombres y relaciones reales.
   const cargarBarberos = async () => {
     try {
       const response = await fetch(`${BASE_URL}/barberos/leerb.php`);
@@ -45,10 +49,34 @@ function Barberos() {
     setFormData({ id_usuario: "", id_barberia: "", especialidad: "" });
   };
 
-  const handleAgregar = () => {
+  // El alta carga usuarios barberos y barberías activas antes de abrir el formulario.
+  const handleAgregar = async () => {
     setBarberoSeleccionado(null);
     resetForm();
     setIsModalOpen(true);
+    setLoadingOptions(true);
+    try {
+      const [usuariosResponse, barberiasResponse] = await Promise.all([
+        fetch(`${BASE_URL}/usuarios/listar_barberos_asignables.php`),
+        fetch(`${BASE_URL}/barberias/listar_activas.php`),
+      ]);
+      const [usuarios, barberias] = await Promise.all([
+        usuariosResponse.json(),
+        barberiasResponse.json(),
+      ]);
+      if (!usuariosResponse.ok || !Array.isArray(usuarios)) {
+        throw new Error(usuarios?.error || "No se pudieron cargar los barberos disponibles.");
+      }
+      if (!barberiasResponse.ok || !Array.isArray(barberias)) {
+        throw new Error(barberias?.error || "No se pudieron cargar las barberías activas.");
+      }
+      setUsuariosDisponibles(usuarios);
+      setBarberiasDisponibles(barberias);
+    } catch (error) {
+      setFetchError(error.message || "No se pudieron cargar las opciones del formulario.");
+    } finally {
+      setLoadingOptions(false);
+    }
   };
 
   const handleEditar = (barbero) => {
@@ -77,7 +105,7 @@ function Barberos() {
 
       const url = barberoSeleccionado
         ? `${BASE_URL}/barberos/actualizarb.php`
-        : `${BASE_URL}/barberos/crearb.php`;
+        : `${BASE_URL}/barberos/asignar.php`;
 
       const response = await fetch(url, {
         method: "POST",
@@ -105,13 +133,7 @@ function Barberos() {
         );
         setSuccessMessage("Barbero actualizado con éxito.");
       } else {
-        const nuevo = {
-          ...payload,
-          id_barbero: data.id_barbero,
-          usuario: `Usuario ${payload.id_usuario}`,
-          barberia: `Barbería ${payload.id_barberia}`,
-        };
-        setBarberos((prev) => [nuevo, ...prev]);
+        await cargarBarberos();
         setSuccessMessage("Barbero registrado con éxito.");
       }
 
@@ -194,25 +216,19 @@ function Barberos() {
             <form onSubmit={guardarBarbero} style={{ marginTop: 20 }}>
               <div className="form-grid">
                 <div className="form-group">
-                  <label>ID Usuario</label>
-                  <input
-                    type="number"
-                    value={formData.id_usuario}
-                    onChange={(e) => setFormData({ ...formData, id_usuario: e.target.value })}
-                    placeholder="Ej: 5"
-                    required
-                  />
+                  <label htmlFor="barbero-usuario">Usuario barbero</label>
+                  <select id="barbero-usuario" value={formData.id_usuario} onChange={(e) => setFormData({ ...formData, id_usuario: e.target.value })} required disabled={loadingOptions}>
+                    <option value="">{loadingOptions ? "Cargando usuarios..." : "Selecciona un barbero"}</option>
+                    {usuariosDisponibles.map((usuario) => <option key={usuario.id_usuario} value={usuario.id_usuario}>{usuario.nombre} {usuario.apellido || ""} - {usuario.email}</option>)}
+                  </select>
                 </div>
 
                 <div className="form-group">
-                  <label>ID Barbería</label>
-                  <input
-                    type="number"
-                    value={formData.id_barberia}
-                    onChange={(e) => setFormData({ ...formData, id_barberia: e.target.value })}
-                    placeholder="Ej: 1"
-                    required
-                  />
+                  <label htmlFor="barbero-barberia">Barbería</label>
+                  <select id="barbero-barberia" value={formData.id_barberia} onChange={(e) => setFormData({ ...formData, id_barberia: e.target.value })} required disabled={loadingOptions}>
+                    <option value="">{loadingOptions ? "Cargando barberías..." : "Selecciona una barbería"}</option>
+                    {barberiasDisponibles.map((barberia) => <option key={barberia.id_barberia} value={barberia.id_barberia}>{barberia.nombre}{barberia.ciudad ? ` - ${barberia.ciudad}` : ""}</option>)}
+                  </select>
                 </div>
 
                 <div className="form-group" style={{ gridColumn: "1 / -1" }}>

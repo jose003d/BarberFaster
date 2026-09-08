@@ -452,6 +452,32 @@ function Agenda() {
                 onChange={handleDateChange}
                 inline
                 minDate={new Date()}
+                // Cabecera propia para mantener flechas y mes dentro de la franja dorada.
+                renderCustomHeader={({ date, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled }) => (
+                  <div className="agenda-datepicker-header">
+                    <button
+                      type="button"
+                      className="agenda-datepicker-nav"
+                      onClick={decreaseMonth}
+                      disabled={prevMonthButtonDisabled}
+                      aria-label="Mes anterior"
+                    >
+                      &lt;
+                    </button>
+                    <span className="agenda-datepicker-title">
+                      {date.toLocaleDateString("es-CO", { month: "long", year: "numeric" })}
+                    </span>
+                    <button
+                      type="button"
+                      className="agenda-datepicker-nav"
+                      onClick={increaseMonth}
+                      disabled={nextMonthButtonDisabled}
+                      aria-label="Mes siguiente"
+                    >
+                      &gt;
+                    </button>
+                  </div>
+                )}
                 calendarClassName="agenda-calendar-picker"
                 wrapperClassName="react-datepicker-wrapper-custom"
               />

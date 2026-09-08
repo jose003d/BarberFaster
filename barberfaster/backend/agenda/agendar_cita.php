@@ -190,20 +190,26 @@ try {
     // ==========================
     // BLOQUE 6: Creación de la cita
     // ==========================
-    $pdo->prepare("
+    $insertCita = $pdo->prepare("
         INSERT INTO citas (id_evento, estado, observaciones, fecha_creacion, clientes_dni, Barberos_id_barbero)
         VALUES (:id_evento, 'PENDIENTE', :obs, NOW(), :dni, :id_barbero)
-    ")->execute([
+    ");
+    $insertCita->execute([
         ':id_evento'  => $id_evento,
         ':obs'        => $observaciones,
         ':dni'        => $dni,
         ':id_barbero' => $evento['id_barbero']
     ]);
+    $id_cita = (int) $pdo->lastInsertId();
 
     // ==========================
     // BLOQUE 7: Respuesta final
     // ==========================
-    echo json_encode(["success" => true, "message" => "¡Cita agendada con éxito!"]);
+    echo json_encode([
+        "success" => true,
+        "message" => "¡Cita agendada con éxito!",
+        "id_cita" => $id_cita,
+    ]);
 
 } catch (Exception $e) {
     // Manejo de errores
