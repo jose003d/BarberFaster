@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { crearBarberia, editarBarberia } from "../services/api";
 
+const normalizarFormData = (barberia) => ({
+  nombre: barberia?.nombre ?? "",
+  direccion: barberia?.direccion ?? "",
+  ciudad: barberia?.ciudad ?? "",
+  telefono: barberia?.telefono ?? "",
+  estado: barberia?.estado ?? 1,
+});
+
 function BarberiaModal({ isOpen, onClose, onSuccess, barberiaSeleccionada }) {
   // ==========================
   // Estados del formulario
   // ==========================
-  const [formData, setFormData] = useState({
-    nombre: "",
-    direccion: "",
-    ciudad: "",
-    telefono: "",
-    estado: 1,
-  });
+  const [formData, setFormData] = useState(() => normalizarFormData());
   const [fotoFile, setFotoFile] = useState(null); // archivo de imagen
   const [error, setError] = useState(null);       // mensajes de error
   const [enviando, setEnviando] = useState(false);// estado de envío
@@ -24,22 +26,10 @@ function BarberiaModal({ isOpen, onClose, onSuccess, barberiaSeleccionada }) {
   useEffect(() => {
     if (barberiaSeleccionada) {
       // Cargar datos existentes en el formulario
-      setFormData({
-        nombre: barberiaSeleccionada.nombre || "",
-        direccion: barberiaSeleccionada.direccion || "",
-        ciudad: barberiaSeleccionada.ciudad || "",
-        telefono: barberiaSeleccionada.telefono || "",
-        estado: barberiaSeleccionada.estado ?? 1,
-      });
+      setFormData(normalizarFormData(barberiaSeleccionada));
     } else {
       // Resetear formulario si es creación
-      setFormData({
-        nombre: "",
-        direccion: "",
-        ciudad: "",
-        telefono: "",
-        estado: 1,
-      });
+      setFormData(normalizarFormData());
     }
     setFotoFile(null);
     setError(null);
@@ -87,9 +77,13 @@ function BarberiaModal({ isOpen, onClose, onSuccess, barberiaSeleccionada }) {
 
       if (esEdicion) {
         // Caso edición: enviar datos simples
-        data = await editarBarberia(formData);
+        const datosActualizados = {
+          ...formData,
+          id_barberia: barberiaSeleccionada.id_barberia,
+        };
+        data = await editarBarberia(datosActualizados);
         if (data.success) {
-          onSuccess(formData, true); // notificar éxito
+          onSuccess(datosActualizados, true); // notificar éxito
           onClose();                 // cerrar modal
         } else {
           setError(data.error || "Error al actualizar la barbería.");
@@ -111,7 +105,7 @@ function BarberiaModal({ isOpen, onClose, onSuccess, barberiaSeleccionada }) {
         }
       }
     } catch (err) {
-      setError("No hay conexión con el servidor backend.");
+      setError(err?.message || "No hay conexión con el servidor backend.");
     } finally {
       setEnviando(false);
     }
@@ -152,23 +146,23 @@ function BarberiaModal({ isOpen, onClose, onSuccess, barberiaSeleccionada }) {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Nombre</label>
-            <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} required />
+            <input type="text" name="nombre" value={formData.nombre ?? ""} onChange={handleChange} required />
           </div>
           <div className="form-group">
             <label>Dirección</label>
-            <input type="text" name="direccion" value={formData.direccion} onChange={handleChange} required />
+            <input type="text" name="direccion" value={formData.direccion ?? ""} onChange={handleChange} required />
           </div>
           <div className="form-group">
             <label>Ciudad</label>
-            <input type="text" name="ciudad" value={formData.ciudad} onChange={handleChange} required />
+            <input type="text" name="ciudad" value={formData.ciudad ?? ""} onChange={handleChange} required />
           </div>
           <div className="form-group">
             <label>Teléfono</label>
-            <input type="text" name="telefono" value={formData.telefono} onChange={handleChange} />
+            <input type="text" name="telefono" value={formData.telefono ?? ""} onChange={handleChange} />
           </div>
           <div className="form-group">
             <label>Estado</label>
-            <select name="estado" value={formData.estado} onChange={handleChange}>
+            <select name="estado" value={formData.estado ?? 1} onChange={handleChange}>
               <option value={1}>Activa</option>
               <option value={0}>Inactiva</option>
             </select>

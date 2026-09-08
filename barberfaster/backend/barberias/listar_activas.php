@@ -5,16 +5,13 @@ require_once "../config/database.php";
 
 try {
     $stmt = $pdo->query(
-        "SELECT dni, nombre, apellido, telefono, correo, estado
-         FROM clientes
-         ORDER BY dni DESC"
+        "SELECT id_barberia, nombre, ciudad, direccion
+         FROM barberias
+         WHERE estado = 1
+         ORDER BY nombre"
     );
-
     echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode([
-        "success" => false,
-        "error" => $e->getMessage(),
-    ]);
+    echo json_encode(["success" => false, "error" => $e->getMessage()]);
 }

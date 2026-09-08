@@ -36,7 +36,7 @@ try {
     $stmt = $pdo->prepare($sql);
 
     $stmt->execute([
-        ':dni'      => !empty($data['dni'])      ? intval($data['dni']) : null,
+        ':dni'      => !empty($data['dni'])      ? trim((string) $data['dni']) : null,
         ':nombre'   => !empty($data['nombre'])   ? $data['nombre']      : null,
         ':apellido' => !empty($data['apellido']) ? $data['apellido']    : null,
         ':telefono' => !empty($data['telefono']) ? $data['telefono']    : null,

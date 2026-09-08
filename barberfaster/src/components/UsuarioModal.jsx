@@ -14,7 +14,6 @@ function UsuarioModal({ isOpen, onClose, onSuccess, usuarioSeleccionado }) {
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
-    password: "",
     telefono: "",
     documento: generarDocumentoTemporal(),
     rol: "barbero",
@@ -26,19 +25,26 @@ function UsuarioModal({ isOpen, onClose, onSuccess, usuarioSeleccionado }) {
 
   const esEdicion = !!usuarioSeleccionado; // true si estamos editando
 
+  // La UI no solicita contraseñas; el backend asigna el hash demo internamente.
+
   // ==========================
   // useEffect: carga datos si hay usuario seleccionado
   // ==========================
   useEffect(() => {
     if (usuarioSeleccionado) {
-      // Cargar datos existentes en el formulario (sin contraseña)
-      setFormData({ ...usuarioSeleccionado, password: "" });
+      setFormData({
+        nombre: usuarioSeleccionado.nombre || "",
+        email: usuarioSeleccionado.email || "",
+        telefono: usuarioSeleccionado.telefono || "",
+        documento: usuarioSeleccionado.documento || generarDocumentoTemporal(),
+        rol: usuarioSeleccionado.rol || "barbero",
+        apellido: usuarioSeleccionado.apellido || "",
+      });
     } else {
       // Resetear formulario si es creación
       setFormData({
         nombre: "",
         email: "",
-        password: "",
         telefono: "",
         documento: generarDocumentoTemporal(),
         rol: "barbero",
@@ -149,7 +155,6 @@ function UsuarioModal({ isOpen, onClose, onSuccess, usuarioSeleccionado }) {
           setFormData({
             nombre: "",
             email: "",
-            password: "",
             telefono: "",
             documento: generarDocumentoTemporal(),
             rol: formData.rol,
@@ -215,13 +220,6 @@ function UsuarioModal({ isOpen, onClose, onSuccess, usuarioSeleccionado }) {
             <label>Correo Electrónico</label>
             <input type="email" name="email" value={formData.email} onChange={handleChange} required />
           </div>
-
-          {!esEdicion && (
-            <div className="form-group">
-              <label>Contraseña Temporal</label>
-              <input type="password" name="password" value={formData.password} onChange={handleChange} required />
-            </div>
-          )}
 
           <div className="form-group">
             <label>Teléfono</label>

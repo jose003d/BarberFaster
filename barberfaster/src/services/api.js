@@ -22,6 +22,7 @@ async function handleResponse(response) {
   return data;
 }
 
+// Normaliza endpoints que devuelven un arreglo directo o una propiedad de lista.
 function extractListData(data, key) {
   if (Array.isArray(data)) return data;
   if (data && Array.isArray(data[key])) return data[key];
@@ -98,35 +99,10 @@ export async function crearUsuario(formData) {
   return handleResponse(response);
 }
 
-export async function loginUsuario(credentials) {
-  const response = await fetch(`${BASE_URL}/usuarios/login.php`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(credentials),
-  });
-  return handleResponse(response);
-}
-
-export async function obtenerUsuario(id) {
-  const response = await fetch(`${BASE_URL}/usuarios/getusuario.php?id=${encodeURIComponent(id)}`);
-  return handleResponse(response);
-}
-
 // ==========================
 // Barberos
 // ==========================
-export async function crearBarbero(barbero) {
-  const response = await fetch(`${BASE_URL}/barberos/crearb.php`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(barbero),
-  });
-  return handleResponse(response);
-}
-
-// ==========================
-// Servicios
-// ==========================
+// Catálogo de servicios administrado desde el perfil del barbero.
 export async function obtenerServicios() {
   const response = await fetch(`${BASE_URL}/servicios/listars.php`);
   const data = await handleResponse(response);
@@ -149,48 +125,6 @@ export async function desactivarServicio(idServicio) {
     body: JSON.stringify({ id_servicio: idServicio }),
   });
   return handleResponse(response);
-}
-
-// ==========================
-// Pagos, reseñas y cita-servicios
-// ==========================
-export async function obtenerCitasPendientesPago() {
-  const response = await fetch(`${BASE_URL}/citas/pendientes_pago.php`);
-  const data = await handleResponse(response);
-  return extractListData(data, "citas");
-}
-
-export async function crearPago(pago) {
-  const response = await fetch(`${BASE_URL}/pagos/crearp.php`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(pago),
-  });
-  return handleResponse(response);
-}
-
-export async function crearResena(resena) {
-  const response = await fetch(`${BASE_URL}/resenas/crearr.php`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(resena),
-  });
-  return handleResponse(response);
-}
-
-export async function asociarServiciosACita(idCita, serviciosIds) {
-  const response = await fetch(`${BASE_URL}/servicios_has_citas/asociar.php`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id_cita: idCita, servicios_ids: serviciosIds }),
-  });
-  return handleResponse(response);
-}
-
-export async function obtenerServiciosDeCita(idCita) {
-  const response = await fetch(`${BASE_URL}/servicios_has_citas/listar.php?id_cita=${encodeURIComponent(idCita)}`);
-  const data = await handleResponse(response);
-  return extractListData(data, "servicios");
 }
 
 // ==========================

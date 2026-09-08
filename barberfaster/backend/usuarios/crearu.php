@@ -18,13 +18,14 @@ if (!$data) {
 }
 
 try {
+    // Registro demo: la contraseña no llega desde la UI y se genera internamente.
     $sql = "INSERT INTO Usuarios (nombre, apellido, email, password_hash, telefono, documento, rol) 
             VALUES (:nombre, :apellido, :email, :password_hash, :telefono, :documento, :rol)";
     
     $stmt = $pdo->prepare($sql);
     
-    $password = !empty($data['password']) ? $data['password'] : null;
-    $passwordHash = $password ? password_hash($password, PASSWORD_DEFAULT) : null;
+    // La demo no solicita contrasena; se conserva un hash interno para el esquema actual.
+    $passwordHash = password_hash("demo123", PASSWORD_DEFAULT);
     $stmt->execute([
         ':nombre'        => !empty($data['nombre']) ? $data['nombre'] : null,
         ':apellido'      => !empty($data['apellido']) ? $data['apellido'] : null,

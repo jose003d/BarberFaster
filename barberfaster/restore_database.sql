@@ -51,6 +51,17 @@ CREATE TABLE IF NOT EXISTS `clientes` (
   PRIMARY KEY (`dni`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+INSERT IGNORE INTO `clientes` (`dni`, `nombre`, `apellido`, `correo`, `telefono`, `estado`)
+SELECT
+  COALESCE(NULLIF(TRIM(`documento`), ''), CONCAT('TEMP_', `id_usuario`)),
+  `nombre`,
+  COALESCE(`apellido`, ''),
+  `email`,
+  `telefono`,
+  `estado`
+FROM `Usuarios`
+WHERE `rol` = 'cliente';
+
 CREATE TABLE IF NOT EXISTS `eventos` (
   `id_evento` INT NOT NULL AUTO_INCREMENT,
   `titulo` VARCHAR(200) DEFAULT NULL,
@@ -84,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `citas` (
   `estado` VARCHAR(50) DEFAULT 'PENDIENTE',
   `observaciones` TEXT DEFAULT NULL,
   `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `clientes_dni` VARCHAR(50) DEFAULT NULL,
+  `clientes_dni` VARCHAR(50) NOT NULL,
   `Barberos_id_barbero` INT DEFAULT NULL,
   PRIMARY KEY (`id_cita`),
   KEY `idx_citas_evento` (`id_evento`),
