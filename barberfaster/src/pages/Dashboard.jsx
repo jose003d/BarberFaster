@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Barberos from "./Barberos";
 
-const BASE_URL = "http://localhost/erpbarber/barberfaster/backend";
+const BASE_URL = "/erpbarber/barberfaster/backend";
 const STORAGE_KEY = "barberia_demo_admin";
 const emptyMetrics = { total_citas: 0, clientes_unicos: 0, total_ingresos: 0, total_barberos: 0, servicios_activos: 0, calificacion_promedio: 0 };
 
@@ -102,7 +102,7 @@ function Dashboard() {
         <div className="auth-card">
           <div className="auth-brand"><div className="auth-badge">BF</div><div><h1>BarberFaster</h1><p>Selecciona la barbería del panel</p></div></div>
           <form className="auth-form" onSubmit={ingresar}>
-            <div className="field-group"><label htmlFor="barberia-admin">Barbería</label><select id="barberia-admin" value={selectedId} onChange={(event) => setSelectedId(event.target.value)} disabled={loadingBarberias || !barberias.length} required><option value="">{loadingBarberias ? "Cargando barberías..." : "Selecciona una barbería"}</option>{barberias.map((item) => <option key={item.id_barberia} value={item.id_barberia}>{item.nombre}{item.ciudad ? ` - ${item.ciudad}` : ""}</option>)}</select></div>
+            <div className="field-group"><label htmlFor="barberia-admin">Barbería</label><select id="barberia-admin" value={selectedId} onChange={(event) => setSelectedId(event.target.value)} disabled={loadingBarberias || !barberias.length} required><option value="">{loadingBarberias ? "Cargando barberías..." : "Selecciona una barbería"}</option>{barberias.map((item) => <option key={item.id_barberia} value={item.id_barberia}>{item.nombre}{item.ciudad || item.direccion ? ` - ${item.ciudad || item.direccion}` : ""}</option>)}</select></div>
             {error && <p className="status error">{error}</p>}
             <button className="btn auth-btn" type="submit" disabled={loadingBarberias || !barberias.length}>Ingresar al Panel</button>
           </form>
@@ -114,7 +114,7 @@ function Dashboard() {
   // Panel principal: métricas y gestión de asignaciones.
   return (
     <div className="dashboard-page">
-      <div className="heading-row"><div><h2>Dashboard</h2><p className="page-description">Panel de {barberia.nombre}{barberia.ciudad ? ` · ${barberia.ciudad}` : ""}</p></div><button className="btn-secondary" type="button" onClick={cambiarBarberia}>Cambiar de Barbería</button></div>
+      <div className="heading-row"><div><h2>Dashboard</h2><p className="page-description">Panel de {barberia.nombre}{barberia.ciudad || barberia.direccion ? ` · ${barberia.ciudad || barberia.direccion}` : ""}</p></div><button className="btn-secondary" type="button" onClick={cambiarBarberia}>Cambiar de Barbería</button></div>
       {error && <p className="status error">{error}</p>}
       <div className="tabs" role="tablist"><button type="button" className={section === "metricas" ? "btn" : "btn-secondary"} onClick={() => { setSection("metricas"); setError(""); }}>Métricas</button><button type="button" className={section === "asignaciones" ? "btn" : "btn-secondary"} onClick={() => { setSection("asignaciones"); setError(""); }}>Asignaciones</button></div>
       {section === "metricas" ? <MetricsView metrics={metrics} loading={loadingMetrics} onExport={exportarCsv} /> : <Barberos />}

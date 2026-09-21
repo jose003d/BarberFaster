@@ -1,588 +1,113 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./Agenda.css";
-import {
-  formatDateLabel,
-  formatRangeLabel,
-  formatTimeLabel,
-  getDateKey,
-  isWorkingDay,
-  parseTimeToDate,
-} from "./agendaUtils";
-
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 
 const BASE_URL = "/erpbarber/barberfaster/backend";
-const defaultHorario = {
-  dias_semana: [1, 2, 3, 4, 5, 6, 7],
-  hora_inicio: "09:00",
-  hora_fin: "19:00",
-  intervalo_minutos: 30,
+const emptyClient = { dni_cliente: "", nombre: "", apellido: "", telefono: "", correo: "", observaciones: "" };
+
+const dateKey = (date) => {
+  const value = new Date(date);
+  const pad = (part) => String(part).padStart(2, "0");
+  return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`;
 };
-const initialForm = { dni: "", nombre: "", apellido: "", telefono: "", correo: "", observaciones: "", cliente_id: null };
+
+const toSqlDatetime = (date) => {
+  const pad = (part) => String(part).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
+};
+
+const formatDate = (value) => new Date(`${value}T12:00:00`).toLocaleDateString("es-CO", { dateStyle: "full" });
+const formatTime = (value) => new Date(value.replace(" ", "T")).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
 
 function Agenda() {
-  const calendarRef = useRef(null);
   const [barberos, setBarberos] = useState([]);
-  const [barberoSel, setBarberoSel] = useState(null);
+  const [barbero, setBarbero] = useState(null);
+  const [servicios, setServicios] = useState([]);
   const [eventos, setEventos] = useState([]);
-  const [horarioBarbero, setHorarioBarbero] = useState(null);
-  const [diasDisponibles, setDiasDisponibles] = useState([]);
-  const [diaSeleccionado, setDiaSeleccionado] = useState("");
-  const [eventoSel, setEventoSel] = useState(null);
-  const [slotSeleccionado, setSlotSeleccionado] = useState(null);
+  const [fecha, setFecha] = useState(dateKey(new Date()));
+  const [horaInicio, setHoraInicio] = useState("09:00");
+  const [idServicio, setIdServicio] = useState("");
+  const [cliente, setCliente] = useState(emptyClient);
   const [modalOpen, setModalOpen] = useState(false);
-  const [enviando, setEnviando] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [mensaje, setMensaje] = useState(null);
-  const [buscandoCliente, setBuscandoCliente] = useState(false);
-  const [clienteExistente, setClienteExistente] = useState(null);
-  const [form, setForm] = useState(initialForm);
-  const [metodoVal, setMetodoVal] = useState('sms');
-  const [codigoEnv, setCodigoEnv] = useState('');
-  const [validationSent, setValidationSent] = useState(false);
-  const [validated, setValidated] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     fetch(`${BASE_URL}/agenda/listar_barberos.php`)
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          const barberosActivos = data.filter((barbero) => {
-            if (barbero.rol) return String(barbero.rol).toLowerCase() === "barbero";
-            return true;
-          });
-
-          setBarberos(barberosActivos);
-
-          const storedUser = JSON.parse(localStorage.getItem("user") || "null");
-          const matchingBarbero = barberosActivos.find((barbero) => Number(barbero.id_usuario) === Number(storedUser?.id_usuario));
-          const defaultBarbero = matchingBarbero || barberosActivos[0] || null;
-          setBarberoSel(defaultBarbero);
-        } else {
-          setBarberos([]);
-          setMensaje({ tipo: "error", texto: "No se encontró la lista de barberos." });
-        }
+        setBarberos(Array.isArray(data) ? data : []);
+        setBarbero((current) => current || (Array.isArray(data) ? data[0] : null));
       })
-      .catch(() => {
-        setBarberos([]);
-        setMensaje({ tipo: "error", texto: "No se pudo cargar la lista de barberos." });
-      });
+      .catch(() => setMensaje({ tipo: "error", texto: "No se pudieron cargar los barberos." }));
   }, []);
 
-  const resetAgendaState = () => {
-    setEventos([]);
-    setHorarioBarbero(null);
-    setDiasDisponibles([]);
-    setDiaSeleccionado("");
-    setEventoSel(null);
-    setSlotSeleccionado(null);
-  };
-
   useEffect(() => {
-    if (!barberoSel) {
-      resetAgendaState();
+    if (!barbero) return;
+    fetch(`${BASE_URL}/servicios/listars.php`)
+      .then((response) => response.json())
+      .then((data) => setServicios((data.servicios || []).filter((service) => Number(service.id_barberia) === Number(barbero.id_barberia) && Number(service.activo) === 1)))
+      .catch(() => setMensaje({ tipo: "error", texto: "No se pudieron cargar los servicios." }));
+  }, [barbero]);
+
+  const cargarEventosDelDia = () => {
+    if (!barbero || !fecha) return;
+    setLoading(true);
+    fetch(`${BASE_URL}/agenda/listar_eventos.php?id_barbero=${barbero.id_barbero}&fecha=${fecha}`)
+      .then((response) => response.json())
+      .then((data) => setEventos(Array.isArray(data) ? data : []))
+      .catch(() => setMensaje({ tipo: "error", texto: "No se pudieron cargar los eventos del día." }))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { cargarEventosDelDia(); }, [barbero, fecha]);
+
+  const serviciosActivos = useMemo(() => servicios.filter((service) => Number(service.duracion_estimada || service.duracion_minutos) > 0), [servicios]);
+  const servicioSeleccionado = serviciosActivos.find((service) => String(service.id_servicio) === String(idServicio));
+  const eventosOcupados = eventos.filter((event) => event.extendedProps?.estado_disponibilidad !== "DISPONIBLE");
+
+  const endDatetime = () => {
+    if (!fecha || !horaInicio || !servicioSeleccionado) return null;
+    const start = new Date(`${fecha}T${horaInicio}:00`);
+    const duration = Number(servicioSeleccionado.duracion_estimada || servicioSeleccionado.duracion_minutos);
+    return new Date(start.getTime() + duration * 60000);
+  };
+
+  const updateClient = (event) => setCliente((current) => ({ ...current, [event.target.name]: event.target.value }));
+
+  const submit = async (event) => {
+    event.preventDefault();
+    const end = endDatetime();
+    if (!barbero || !servicioSeleccionado || !end) {
+      setMensaje({ tipo: "error", texto: "Selecciona barbero, fecha, hora y servicio." });
       return;
     }
-
-    resetAgendaState();
-
-    const cargarEventos = fetch(`${BASE_URL}/agenda/listar_eventos.php?id_barbero=${barberoSel.id_barbero}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (!Array.isArray(data)) {
-          throw new Error("No se encontraron eventos para el barbero seleccionado.");
-        }
-        return data;
-      });
-
-    const cargarHorario = barberoSel.id_usuario
-      ? fetch(`${BASE_URL}/agenda/horario_barbero.php?id_usuario=${barberoSel.id_usuario}`)
-          .then((r) => r.json())
-          .then((data) => {
-            if (data && data.success && data.horario) return data.horario;
-            return defaultHorario;
-          })
-      : Promise.resolve(defaultHorario);
-
-    Promise.all([cargarEventos, cargarHorario])
-      .then(([eventosList, horario]) => {
-        setEventos(eventosList);
-        setHorarioBarbero(horario);
-
-        let fechas = [...new Set(
-          eventosList
-            .filter((evento) => Boolean(evento.extendedProps?.disponible))
-            .map((evento) => getDateKey(evento.start))
-            .filter(Boolean)
-        )].sort();
-
-        const workingDates = [];
-        if (horario && Array.isArray(horario.dias_semana) && horario.dias_semana.length > 0) {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          for (let i = 0; i < 35; i += 1) {
-            const d = new Date(today);
-            d.setDate(today.getDate() + i);
-            const key = getDateKey(d);
-            if (isWorkingDay(key, horario.dias_semana)) {
-              workingDates.push(key);
-            }
-          }
-        }
-
-        if (fechas.length === 0) {
-          fechas = workingDates;
-        } else if (workingDates.length > 0) {
-          fechas = [...new Set([...fechas, ...workingDates])].sort();
-        }
-
-        setDiasDisponibles(fechas);
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const initialDate = fechas[0] || "";
-        setDiaSeleccionado((prev) => (fechas.includes(prev) ? prev : initialDate));
-      })
-      .catch(() => {
-        setEventos([]);
-        setHorarioBarbero(null);
-        setDiasDisponibles([]);
-        setDiaSeleccionado("");
-        setMensaje({ tipo: "error", texto: "No se pudieron cargar los eventos del barbero seleccionado." });
-      });
-  }, [barberoSel]);
-
-  const generateSlotsForDay = (key) => {
-    if (!key) return [];
-
-    const dateStr = key;
-    const diasSemana = horarioBarbero?.dias_semana?.length ? horarioBarbero.dias_semana : defaultHorario.dias_semana;
-    if (!isWorkingDay(dateStr, diasSemana)) {
-      return [];
-    }
-
-    const horarioActual = horarioBarbero || defaultHorario;
-    const interval = horarioActual.intervalo_minutos ? Number(horarioActual.intervalo_minutos) : 30;
-    const horaInicio = horarioActual.hora_inicio || "09:00";
-    const horaFin = horarioActual.hora_fin || "19:00";
-
-    if (!interval || !horaInicio || !horaFin) {
-      return [];
-    }
-
-    const startDate = parseTimeToDate(dateStr, horaInicio);
-    const endDate = parseTimeToDate(dateStr, horaFin);
-    if (!startDate || !endDate || endDate <= startDate) {
-      return [];
-    }
-
-    const slots = [];
+    setSaving(true);
     try {
-      let current = new Date(startDate);
-      while (current < endDate) {
-        const next = new Date(current.getTime() + interval * 60000);
-        if (next > endDate) break;
-
-        const matching = eventos.find((ev) => getDateKey(ev.start) === dateStr && new Date(ev.start).getTime() === current.getTime());
-        const disponible = matching ? Boolean(matching.extendedProps?.disponible) : true;
-        slots.push({
-          id: matching ? matching.id : `${dateStr}_${current.getTime()}`,
-          start: new Date(current),
-          end: new Date(next),
-          disponible,
-        });
-
-        current = next;
-      }
-    } catch (e) {
-      return [];
-    }
-
-    return slots;
+      const start = new Date(`${fecha}T${horaInicio}:00`);
+      const payload = { ...cliente, id_barbero: Number(barbero.id_barbero), id_servicio: Number(servicioSeleccionado.id_servicio), start_datetime: toSqlDatetime(start), end_datetime: toSqlDatetime(end) };
+      const response = await fetch(`${BASE_URL}/agenda/agendar_cita.php`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const data = await response.json();
+      if (!data.success) throw new Error(data.error || "No se pudo agendar la cita.");
+      setMensaje({ tipo: "success", texto: `Cita creada. Finaliza a las ${end.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}.` });
+      setCliente(emptyClient);
+      setModalOpen(false);
+      cargarEventosDelDia();
+    } catch (error) {
+      setMensaje({ tipo: "error", texto: error.message });
+    } finally { setSaving(false); }
   };
 
-  const handleEventClick = (info) => {
-    const disponible = info?.extendedProps?.disponible ?? info.disponible;
-    if (!disponible) return;
-
-    const evento = {
-      id: info.id,
-      start: info.start,
-      end: info.end,
-      extendedProps: {
-        disponible,
-      },
-    };
-
-    setEventoSel({
-      id: evento.id,
-      start: evento.start,
-      end: evento.end,
-    });
-    setSlotSeleccionado(evento.id);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
-    setEventoSel(null);
-    setSlotSeleccionado(null);
-    setValidationSent(false);
-    setCodigoEnv('');
-    setValidated(false);
-    setMetodoVal('sms');
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm(prev => {
-      if (name === 'dni') {
-        return { ...prev, [name]: value, cliente_id: null };
-      }
-      return { ...prev, [name]: value };
-    });
-  };
-
-  const handleDniBlur = async () => {
-    const dni = form.dni?.trim();
-    if (!dni) return;
-
-    setBuscandoCliente(true);
-    try {
-      const res = await fetch(`${BASE_URL}/clientes/buscar.php?dni=${encodeURIComponent(dni)}`);
-      const data = await res.json();
-
-      if (data.success && data.cliente) {
-        setClienteExistente(data.cliente);
-        setForm(prev => ({
-          ...prev,
-          cliente_id: data.cliente.id_cliente || prev.cliente_id,
-          dni: data.cliente.dni?.toString() || prev.dni,
-          nombre: data.cliente.nombre || prev.nombre,
-          apellido: data.cliente.apellido || prev.apellido,
-          telefono: data.cliente.telefono || prev.telefono,
-          correo: data.cliente.correo || prev.correo,
-        }));
-        setMensaje({ tipo: "success", texto: "Cliente encontrado. Se completaron tus datos automáticamente." });
-      } else {
-        setClienteExistente(null);
-        setMensaje({ tipo: "info", texto: "No se encontró un cliente registrado con ese documento. Completa los datos para crear uno nuevo." });
-      }
-    } catch {
-      setClienteExistente(null);
-      setMensaje({ tipo: "error", texto: "No se pudo buscar el cliente." });
-    } finally {
-      setBuscandoCliente(false);
-      setTimeout(() => setMensaje(null), 3000);
-    }
-  };
-
-  const formatSqlDatetime = (date) => {
-    if (!date) return null;
-    const pad = (value) => String(value).padStart(2, "0");
-    const year = date.getFullYear();
-    const month = pad(date.getMonth() + 1);
-    const day = pad(date.getDate());
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
-    const seconds = pad(date.getSeconds());
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setEnviando(true);
-    try {
-      const payload = {
-        ...form,
-        id_evento: eventoSel?.id || null,
-        start: formatSqlDatetime(eventoSel?.start),
-        end: formatSqlDatetime(eventoSel?.end),
-        id_barbero: barberoSel?.id_barbero || null,
-      };
-
-      const payloadWithCode = {
-        ...payload,
-        validation_code: codigoEnv,
-        metodo_validacion: metodoVal,
-      };
-
-      const res = await fetch(`${BASE_URL}/agenda/agendar_cita.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payloadWithCode),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setMensaje({ tipo: "success", texto: data.message });
-        closeModal();
-        setForm(initialForm);
-        setClienteExistente(null);
-        setEventos(prev => prev.map(ev =>
-          ev.id == eventoSel?.id
-            ? { ...ev, title: "❌ Ocupado", color: "#dc2626", extendedProps: { disponible: false } }
-            : ev
-        ));
-      } else {
-        setMensaje({ tipo: "error", texto: data.error });
-      }
-    } catch {
-      setMensaje({ tipo: "error", texto: "Error de conexión" });
-    } finally {
-      setEnviando(false);
-      setTimeout(() => setMensaje(null), 4000);
-    }
-  };
-
-  const sendValidationCode = async () => {
-    if (!form.dni) {
-      setMensaje({ tipo: 'error', texto: 'Introduce DNI primero' });
-      return;
-    }
-    setValidationSent(true);
-    try {
-      const res = await fetch(`${BASE_URL}/agenda/enviar_codigo.php`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dni: form.dni, metodo: metodoVal, telefono: form.telefono, correo: form.correo })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setMensaje({ tipo: 'success', texto: 'Código enviado. Revisa tu ' + (metodoVal === 'sms' ? 'teléfono' : 'correo') });
-        // En modo debug el endpoint devuelve debug_code
-        if (data.debug_code) setCodigoEnv(data.debug_code);
-      } else {
-        setMensaje({ tipo: 'error', texto: data.error || 'No se pudo enviar el código' });
-      }
-    } catch (e) {
-      setMensaje({ tipo: 'error', texto: 'Error de conexión' });
-    }
-    setTimeout(() => setMensaje(null), 4000);
-  };
-
-  const verifyValidationCode = async () => {
-    if (!form.dni || !codigoEnv) {
-      setMensaje({ tipo: 'error', texto: 'Falta DNI o código' });
-      return;
-    }
-    try {
-      const res = await fetch(`${BASE_URL}/agenda/verificar_codigo.php?dni=${encodeURIComponent(form.dni)}&codigo=${encodeURIComponent(codigoEnv)}`);
-      const data = await res.json();
-      if (data.success) {
-        setValidated(true);
-        setMensaje({ tipo: 'success', texto: 'Código verificado. Ahora confirma la cita.' });
-      } else {
-        setMensaje({ tipo: 'error', texto: data.error || 'Código inválido' });
-      }
-    } catch {
-      setMensaje({ tipo: 'error', texto: 'Error de conexión' });
-    }
-    setTimeout(() => setMensaje(null), 4000);
-  };
-
-  const horarios = diaSeleccionado ? generateSlotsForDay(diaSeleccionado) : [];
-  const fechaSeleccionadaLabel = diaSeleccionado
-    ? formatDateLabel(`${diaSeleccionado}T12:00:00`)
-    : "Selecciona un día";
-
-  const handleDateChange = (date) => {
-    if (!date) return;
-    setSelectedDate(date);
-    if (calendarRef.current) {
-      calendarRef.current.getApi().gotoDate(date);
-    }
-  };
-
-  return (
-    <div className="agenda-page">
-      <div className="agenda-header">
-        <h1>📅 Agenda BarberFaster</h1>
-        <p>Elige un barbero y selecciona un horario disponible para agendar tu cita</p>
-      </div>
-
-      {mensaje && (
-        <div className={`agenda-mensaje ${mensaje.tipo}`}>
-          {mensaje.texto}
-        </div>
-      )}
-
-      {/* Lista de barberos */}
-      <div className="barberos-grid">
-        {barberos.map(b => (
-          <div
-            key={b.id_barbero}
-            className={`barbero-card ${barberoSel?.id_barbero === b.id_barbero ? "selected" : ""}`}
-            onClick={() => setBarberoSel(b)}
-          >
-            <div className="barbero-avatar">✂️</div>
-            <div className="barbero-info">
-              <strong>{b.nombre} {b.apellido}</strong>
-              <span>{b.barberia}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Calendario y agenda */}
-      {barberoSel && (
-        <div className="agenda-layout">
-          <div className="agenda-calendar-panel">
-            <div className="agenda-panel-header">
-              <h2>Calendario</h2>
-            </div>
-
-            <div className="date-picker-wrapper">
-              <label>Selecciona una fecha:</label>
-              <DatePicker
-                selected={selectedDate}
-                onChange={handleDateChange}
-                inline
-                minDate={new Date()}
-                // Cabecera propia para mantener flechas y mes dentro de la franja dorada.
-                renderCustomHeader={({ date, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled }) => (
-                  <div className="agenda-datepicker-header">
-                    <button
-                      type="button"
-                      className="agenda-datepicker-nav"
-                      onClick={decreaseMonth}
-                      disabled={prevMonthButtonDisabled}
-                      aria-label="Mes anterior"
-                    >
-                      &lt;
-                    </button>
-                    <span className="agenda-datepicker-title">
-                      {date.toLocaleDateString("es-CO", { month: "long", year: "numeric" })}
-                    </span>
-                    <button
-                      type="button"
-                      className="agenda-datepicker-nav"
-                      onClick={increaseMonth}
-                      disabled={nextMonthButtonDisabled}
-                      aria-label="Mes siguiente"
-                    >
-                      &gt;
-                    </button>
-                  </div>
-                )}
-                calendarClassName="agenda-calendar-picker"
-                wrapperClassName="react-datepicker-wrapper-custom"
-              />
-            </div>
-
-            <div className="leyenda">
-              <span className="leyenda-item disponible">✅ Disponible</span>
-              <span className="leyenda-item ocupado">❌ Ocupado</span>
-            </div>
-          </div>
-
-          <div className="agenda-schedule-panel">
-            <div className="agenda-panel-header">
-              <h2>Agenda de {barberoSel.nombre} {barberoSel.apellido}</h2>
-              <span className="agenda-date-label">{fechaSeleccionadaLabel}</span>
-            </div>
-
-            <div className="calendar-container">
-              <FullCalendar
-                ref={calendarRef}
-                plugins={[dayGridPlugin, timeGridPlugin]}
-                initialView="timeGridWeek"
-                headerToolbar={false}
-                events={eventos}
-                eventClick={(info) => handleEventClick(info.event)}
-                nowIndicator={true}
-                allDaySlot={false}
-                slotMinTime="06:00:00"
-                slotMaxTime="22:00:00"
-                height="760px"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de agendamiento */}
-      {modalOpen && eventoSel && (
-        <div className="agenda-modal-backdrop">
-          <div className="agenda-modal">
-            <h3>Agendar Cita</h3>
-            <p className="agenda-horario">
-              🕐 {eventoSel.start?.toLocaleString("es-CO", { dateStyle: "full", timeStyle: "short" })}
-            </p>
-
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>DNI / Documento</label>
-                <input
-                  type="number"
-                  name="dni"
-                  value={form.dni}
-                  onChange={handleChange}
-                  onBlur={handleDniBlur}
-                  required
-                />
-                {buscandoCliente && <small>Buscando cliente...</small>}
-              </div>
-              <div className="form-group">
-                <label>Nombre</label>
-                <input type="text" name="nombre" value={form.nombre} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Apellido</label>
-                <input type="text" name="apellido" value={form.apellido} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Teléfono</label>
-                <input type="text" name="telefono" value={form.telefono} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Correo</label>
-                <input type="email" name="correo" value={form.correo} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Observaciones (opcional)</label>
-                <textarea name="observaciones" value={form.observaciones} onChange={handleChange} rows={3} />
-              </div>
-
-              <div className="form-group">
-                <label>Método de validación</label>
-                <select value={metodoVal} onChange={(e) => setMetodoVal(e.target.value)}>
-                  <option value="sms">SMS</option>
-                  <option value="email">Correo</option>
-                </select>
-                <div style={{ marginTop: 8 }}>
-                  <button type="button" className="btn-secondary" onClick={sendValidationCode} disabled={validationSent}>Enviar código</button>
-                </div>
-              </div>
-
-              {validationSent && (
-                <div className="form-group">
-                  <label>Código de validación</label>
-                  <input type="text" value={codigoEnv} onChange={(e) => setCodigoEnv(e.target.value)} />
-                  <div style={{ marginTop: 8 }}>
-                    <button type="button" className="btn" onClick={verifyValidationCode} disabled={validated}>Verificar código</button>
-                    {validated && <span style={{ marginLeft: 8, color: 'green' }}>Verificado</span>}
-                  </div>
-                </div>
-              )}
-
-              <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={closeModal} disabled={enviando}>
-                  Cancelar
-                </button>
-                <button type="submit" className="btn" disabled={enviando}>
-                  {enviando ? "Confirmando..." : "Confirmar Cita"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <div className="agenda-page">
+    <div className="agenda-header"><h1>Agenda</h1><p>Selecciona una fecha, hora de inicio y servicio. La hora final se calcula automáticamente.</p></div>
+    {mensaje && <div className={`agenda-mensaje ${mensaje.tipo}`}>{mensaje.texto}</div>}
+    <div className="barberos-grid">{barberos.map((item) => <button type="button" className={`barbero-card ${barbero?.id_barbero === item.id_barbero ? "selected" : ""}`} key={item.id_barbero} onClick={() => setBarbero(item)}><span className="barbero-avatar">✂</span><span className="barbero-info"><strong>{item.nombre}</strong><span>{item.barberia}</span></span></button>)}</div>
+    {barbero && <div className="agenda-layout">
+      <section className="agenda-calendar-panel"><div className="agenda-panel-header"><h2>Fecha y eventos ocupados</h2></div><label className="date-picker-label" htmlFor="agenda-fecha">Fecha</label><input id="agenda-fecha" type="date" min={dateKey(new Date())} value={fecha} onChange={(event) => setFecha(event.target.value)} />{loading ? <p>Cargando eventos...</p> : eventosOcupados.length === 0 ? <p className="agenda-empty">No hay eventos ocupados para este día.</p> : <div className="occupied-events">{eventosOcupados.map((event) => <div className="occupied-event" key={event.id}><strong>{formatTime(event.start)} - {formatTime(event.end)}</strong><span>{event.title || "Ocupado"}</span></div>)}</div>}</section>
+      <section className="agenda-schedule-panel"><div className="agenda-panel-header"><div><h2>Seleccionar horario</h2><span className="agenda-date-label">{formatDate(fecha)}</span></div></div><div className="schedule-selection"><label htmlFor="agenda-hora">Hora de inicio</label><input id="agenda-hora" type="time" value={horaInicio} onChange={(event) => setHoraInicio(event.target.value)} /><button type="button" className="btn" onClick={() => setModalOpen(true)}>Continuar con la cita</button><p>El servicio y los datos del cliente se solicitan al continuar.</p></div></section>
+    </div>}
+    {modalOpen && <div className="agenda-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setModalOpen(false); }}><div className="agenda-modal" role="dialog" aria-modal="true" aria-labelledby="agenda-modal-title"><div className="modal-heading"><div><h3 id="agenda-modal-title">Nueva cita</h3><p>{formatDate(fecha)} · {horaInicio}</p></div><button type="button" className="modal-close" onClick={() => setModalOpen(false)} aria-label="Cerrar">&times;</button></div><form className="appointment-form" onSubmit={submit}><label>Servicio<select value={idServicio} onChange={(event) => setIdServicio(event.target.value)} required><option value="">Selecciona un servicio</option>{serviciosActivos.map((service) => <option key={service.id_servicio} value={service.id_servicio}>{service.nombre} · {service.duracion_estimada || service.duracion_minutos} min</option>)}</select></label><div className="calculated-end"><span>Hora final</span><strong>{endDatetime() ? endDatetime().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }) : "Selecciona un servicio"}</strong></div><label>DNI del cliente<input name="dni_cliente" value={cliente.dni_cliente} onChange={updateClient} required /></label><label>Nombre<input name="nombre" value={cliente.nombre} onChange={updateClient} required /></label><label>Apellido<input name="apellido" value={cliente.apellido} onChange={updateClient} /></label><label>Teléfono<input name="telefono" value={cliente.telefono} onChange={updateClient} /></label><label>Correo<input type="email" name="correo" value={cliente.correo} onChange={updateClient} /></label><label>Observaciones<textarea name="observaciones" value={cliente.observaciones} onChange={updateClient} rows="3" /></label><div className="modal-actions"><button type="button" className="btn-secondary" onClick={() => setModalOpen(false)} disabled={saving}>Cancelar</button><button className="btn" type="submit" disabled={saving}>{saving ? "Agendando..." : "Agendar cita"}</button></div></form></div></div>}
+  </div>;
 }
 
 export default Agenda;

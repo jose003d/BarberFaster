@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const BASE_URL = "http://localhost/erpbarber/barberfaster/backend";
+const BASE_URL = "/erpbarber/barberfaster/backend";
 
 export default function LoginDemo({ onLogin }) {
   const [barberos, setBarberos] = useState([]);

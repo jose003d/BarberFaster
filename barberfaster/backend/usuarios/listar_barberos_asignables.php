@@ -7,9 +7,9 @@ try {
     // Solo usuarios activos con rol de barbero pueden aparecer en el select.
     $stmt = $pdo->query(
         "SELECT id_usuario, nombre, apellido, email
-         FROM Usuarios
-         WHERE LOWER(rol) = 'barbero' AND estado = 1
-         ORDER BY nombre, apellido"
+        FROM Usuarios
+        WHERE LOWER(rol) = 'barbero' AND estado = 1
+        ORDER BY nombre, apellido"
     );
     echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
 } catch (PDOException $e) {

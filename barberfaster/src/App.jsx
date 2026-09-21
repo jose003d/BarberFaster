@@ -8,6 +8,11 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Agenda from "./pages/Agenda";
 import Dashboard from "./pages/Dashboard";
+import SuperadminDashboard from "./pages/SuperadminDashboard";
+import SuperadminClientes from "./pages/SuperadminClientes";
+import AdminDashboard from "./pages/AdminDashboard";
+import BarberoWorkspace from "./pages/BarberoWorkspace";
+import ClienteDashboard from "./pages/ClienteDashboard";
 
 function ProtectedRoute({ children }) {
   const isAuthenticated = localStorage.getItem("erpbarber_auth") === "true";
@@ -27,6 +32,13 @@ function PublicRoute({ children }) {
   return isAuthenticated ? <Navigate to="/barberias" replace /> : children;
 }
 
+function RoleRoute({ role, children }) {
+  const isAuthenticated = localStorage.getItem("erpbarber_auth") === "true";
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  if (!isAuthenticated || !user || user.rol !== role) return <Navigate to="/login" replace />;
+  return children;
+}
+
 function App() {
   return (
     <BrowserRouter basename="/erpbarber/barberfaster">
@@ -40,6 +52,11 @@ function App() {
         <Route path="/clientes" element={<AdminRoute><DashboardLayout><Clientes /></DashboardLayout></AdminRoute>} />
         <Route path="/perfil" element={<DashboardLayout><Profile /></DashboardLayout>} />
         <Route path="/agenda" element={<AdminRoute><DashboardLayout><Agenda /></DashboardLayout></AdminRoute>} />
+        <Route path="/superadmin" element={<RoleRoute role="superadmin"><DashboardLayout><SuperadminDashboard /></DashboardLayout></RoleRoute>} />
+        <Route path="/superadmin/clientes" element={<RoleRoute role="superadmin"><DashboardLayout><SuperadminClientes /></DashboardLayout></RoleRoute>} />
+        <Route path="/admin" element={<RoleRoute role="admin"><DashboardLayout><AdminDashboard /></DashboardLayout></RoleRoute>} />
+        <Route path="/barbero" element={<RoleRoute role="barbero"><DashboardLayout><BarberoWorkspace /></DashboardLayout></RoleRoute>} />
+        <Route path="/cliente" element={<ClienteDashboard />} />
       </Routes>
     </BrowserRouter>
   );

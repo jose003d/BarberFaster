@@ -350,6 +350,85 @@
   background: #f9fafb;
 }
 
+.appointment-form {
+  display: grid;
+  gap: 14px;
+}
+
+.appointment-form label {
+  display: grid;
+  gap: 6px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.appointment-form input,
+.appointment-form select,
+.appointment-form textarea,
+.agenda-calendar-panel > input[type="date"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.calculated-end {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.occupied-events {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.occupied-event {
+  display: grid;
+  gap: 3px;
+  padding: 12px;
+  border-left: 4px solid #dc2626;
+  border-radius: 6px;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.schedule-selection {
+  display: grid;
+  gap: 14px;
+  padding: 24px;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.schedule-selection label {
+  color: #374151;
+  font-weight: 700;
+}
+
+.schedule-selection input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.schedule-selection p {
+  margin: 0;
+  color: #6b7280;
+  font-size: .9rem;
+}
+
 /* Modal */
 .agenda-modal-backdrop {
   position: fixed;
@@ -376,6 +455,28 @@
   margin: 0 0 8px;
   font-size: 1.4rem;
   color: #111827;
+}
+
+.modal-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.modal-heading p {
+  margin: 4px 0 0;
+  color: #6b7280;
+}
+
+.modal-close {
+  border: 0;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 1.8rem;
+  line-height: 1;
 }
 
 .agenda-horario {

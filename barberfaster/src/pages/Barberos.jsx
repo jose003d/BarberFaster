@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import ConfirmModal from "../components/ConfirmModal";
 
-const BASE_URL = "http://localhost/erpbarber/barberfaster/backend";
+const BASE_URL = "/erpbarber/barberfaster/backend";
 
 function Barberos() {
   const [barberos, setBarberos] = useState([]);

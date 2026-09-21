@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { crearServicio, desactivarServicio, editarUsuario, obtenerServicios } from "../services/api";
 
-const BASE_URL = "http://localhost/erpbarber/barberfaster/backend";
+const BASE_URL = "/erpbarber/barberfaster/backend";
 const PUBLIC_URL = `${BASE_URL}/public`;
 const days = [{ value: 1, label: "Lunes" }, { value: 2, label: "Martes" }, { value: 3, label: "Miércoles" }, { value: 4, label: "Jueves" }, { value: 5, label: "Viernes" }, { value: 6, label: "Sábado" }, { value: 7, label: "Domingo" }];
 const emptyService = { id_servicio: null, nombre: "", precio: "", duracion_minutos: 30 };

@@ -7,6 +7,7 @@ function Login() {
   // ==========================
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole]       = useState("superadmin");
   const [error, setError]       = useState("");
   const [loading, setLoading]   = useState(false);
 
@@ -36,16 +37,17 @@ function Login() {
         email: email.trim(),
         telefono: "",
         documento: "",
-        rol: "barbero",
+        rol: role,
         estado: 1,
       };
 
       // Guardar datos en localStorage
       localStorage.setItem("erpbarber_auth", "true");
       localStorage.setItem("user", JSON.stringify(demoUser));
+      localStorage.removeItem("barbero_demo_sesion");
 
-      // Redirigir al panel de barberías
-      navigate("/barberias", { replace: true });
+      const destination = demoUser.rol === "barbero" ? "/barbero" : demoUser.rol === "admin" ? "/dashboard" : "/superadmin";
+      navigate(destination, { replace: true });
     } finally {
       setLoading(false);
     }
@@ -90,12 +92,24 @@ function Login() {
             />
           </div>
 
+          <div className="field-group">
+            <label htmlFor="role">Perfil de acceso</label>
+            <select id="role" value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="superadmin">Superadmin SaaS</option>
+              <option value="admin">Administrador local</option>
+              <option value="barbero">Barbero</option>
+            </select>
+          </div>
+
           {/* Mensaje de error */}
           {error && <p className="status error">{error}</p>}
 
           {/* Botón de envío */}
           <button type="submit" className="btn auth-btn" disabled={loading}>
             {loading ? "Validando..." : "Entrar al sistema"}
+          </button>
+          <button type="button" className="btn-secondary auth-btn" onClick={() => navigate("/cliente")}>
+            Acceso cliente
           </button>
         </form>
       </div>

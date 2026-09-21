@@ -52,7 +52,7 @@ function Sidebar() {
       {/* Encabezado con logo y título */}
       <div className="sidebar-header">
         <img
-          src="http://localhost/erpbarber/barberfaster/backend/uploads/logo.png"
+          src="/erpbarber/barberfaster/backend/uploads/logo.png"
           alt="BarberFaster logo"
           className="sidebar-avatar"
         />
@@ -64,7 +64,8 @@ function Sidebar() {
         {!barberoActivo ? (
           <>
             <div className="nav-section-label">Administración</div>
-            <NavLink to="/dashboard" className={linkClass}><FontAwesomeIcon icon={faGaugeHigh} className="nav-icon" /><span className="nav-label">Dashboard</span></NavLink>
+            <NavLink to="/dashboard" className={linkClass}><FontAwesomeIcon icon={faGaugeHigh} className="nav-icon" /><span className="nav-label">Dashboard local</span></NavLink>
+            <NavLink to="/superadmin" className={linkClass}><FontAwesomeIcon icon={faScissors} className="nav-icon" /><span className="nav-label">Dashboard SuperAdmin</span></NavLink>
             <NavLink to="/barberias" className={linkClass}><FontAwesomeIcon icon={faScissors} className="nav-icon" /><span className="nav-label">Barberías</span></NavLink>
             <NavLink to="/usuarios" className={linkClass}><FontAwesomeIcon icon={faUsers} className="nav-icon" /><span className="nav-label">Personal</span></NavLink>
             <NavLink to="/clientes" className={linkClass}><FontAwesomeIcon icon={faUserGroup} className="nav-icon" /><span className="nav-label">Clientes</span></NavLink>
@@ -75,6 +76,7 @@ function Sidebar() {
         ) : (
           <>
             <div className="nav-section-label">Modo barbero</div>
+            <NavLink to="/barbero" className={linkClass}><FontAwesomeIcon icon={faGaugeHigh} className="nav-icon" /><span className="nav-label">Workspace</span></NavLink>
             <NavLink to="/perfil" className={linkClass}><FontAwesomeIcon icon={faUserTie} className="nav-icon" /><span className="nav-label">Mi Perfil</span></NavLink>
           </>
         )}

@@ -1,60 +1,35 @@
 <?php
-// ==========================
-// BLOQUE 1: Configuración de cabeceras y CORS
-// ==========================
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
-
-// Respuesta inmediata para preflight OPTIONS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { 
-    http_response_code(200); 
-    exit; 
-}
-
 header("Content-Type: application/json");
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 require_once "../config/database.php";
 
 try {
-    // ==========================
-    // BLOQUE 2: Recepción y validación de datos
-    // ==========================
-    $data = json_decode(file_get_contents("php://input"), true);
+    $data = json_decode(file_get_contents("php://input"), true) ?: [];
+    $idBarbero = (int) ($data['id_barbero'] ?? 0);
+    $start = trim((string) ($data['start_datetime'] ?? $data['start'] ?? ''));
+    $end = trim((string) ($data['end_datetime'] ?? $data['end'] ?? ''));
+    if (!$idBarbero || !$start || !$end) throw new InvalidArgumentException("id_barbero, start_datetime y end_datetime son obligatorios");
 
-    $id_barbero  = $data['id_barbero']  ?? null;
-    $id_barberia = $data['id_barberia'] ?? null;
-    $start       = $data['start']       ?? null;
-    $end         = $data['end']         ?? null;
+    $barbero = $pdo->prepare("SELECT id_barberia FROM barberos WHERE id_barbero = :id AND estado = 1");
+    $barbero->execute([':id' => $idBarbero]);
+    $idBarberia = $barbero->fetchColumn();
+    if (!$idBarberia) throw new InvalidArgumentException("Barbero no encontrado");
 
-    // Validación de campos obligatorios
-    if (!$id_barbero || !$id_barberia || !$start || !$end) {
-        echo json_encode(["success" => false, "error" => "Faltan datos"]);
-        exit;
-    }
+    $pdo->beginTransaction();
+    $conflict = $pdo->prepare("SELECT id_evento FROM eventos WHERE id_barbero = :barbero AND estado_disponibilidad <> 'BLOQUEADO' AND start_datetime < :end AND end_datetime > :start FOR UPDATE");
+    $conflict->execute([':barbero' => $idBarbero, ':start' => $start, ':end' => $end]);
+    if ($conflict->fetch()) throw new RuntimeException("El rango se solapa con otro evento");
 
-    // ==========================
-    // BLOQUE 3: Inserción del evento disponible
-    // ==========================
-    $stmt = $pdo->prepare("
-        INSERT INTO eventos (
-            titulo, start_datetime, end_datetime, disponible, tipo, color, id_barbero, id_barberia
-        ) VALUES (
-            'Disponible', :start, :end, 1, 'DISPONIBLE', '#16a34a', :id_barbero, :id_barberia
-        )
-    ");
-    $stmt->execute([
-        ':start'      => $start, 
-        ':end'        => $end, 
-        ':id_barbero' => $id_barbero, 
-        ':id_barberia'=> $id_barberia
-    ]);
-
-    // ==========================
-    // BLOQUE 4: Respuesta final
-    // ==========================
-    echo json_encode(["success" => true]);
-
-} catch (Exception $e) {
-    // Manejo de errores
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    $insert = $pdo->prepare("INSERT INTO eventos (id_barbero, id_barberia, start_datetime, end_datetime, estado_disponibilidad) VALUES (:barbero, :barberia, :start, :end, 'DISPONIBLE')");
+    $insert->execute([':barbero' => $idBarbero, ':barberia' => $idBarberia, ':start' => $start, ':end' => $end]);
+    $idEvento = (int) $pdo->lastInsertId();
+    $pdo->commit();
+    echo json_encode(['success' => true, 'id_evento' => $idEvento]);
+} catch (Throwable $e) {
+    if ($pdo->inTransaction()) $pdo->rollBack();
+    http_response_code($e instanceof InvalidArgumentException ? 400 : 409);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }

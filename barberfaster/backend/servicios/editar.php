@@ -1,30 +1,5 @@
 <?php
-header("Content-Type: application/json");
-require_once "../cors.php";
-require_once "../config/database.php";
-
-try {
-    $data = json_decode(file_get_contents("php://input"), true) ?: [];
-    $idServicio = (int) ($data['id_servicio'] ?? 0);
-    $nombre = trim((string) ($data['nombre'] ?? ''));
-    $precio = $data['precio'] ?? null;
-    $duracion = (int) ($data['duracion_minutos'] ?? 0);
-
-    if (!$idServicio || $nombre === '' || !is_numeric($precio) || $duracion < 1) {
-        echo json_encode(["success" => false, "error" => "Completa los datos del servicio"]);
-        exit;
-    }
-
-    $stmt = $pdo->prepare("UPDATE servicios SET nombre = :nombre, precio = :precio, duracion_minutos = :duracion WHERE id_servicio = :id_servicio");
-    $stmt->execute([
-        ':nombre' => $nombre,
-        ':precio' => (float) $precio,
-        ':duracion' => $duracion,
-        ':id_servicio' => $idServicio,
-    ]);
-
-    echo json_encode(["success" => true, "message" => "Servicio actualizado"]);
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
-}
+header("Access-Control-Allow-Origin: *"); header("Content-Type: application/json"); require_once "../config/database.php";
+$data = json_decode(file_get_contents("php://input"), true) ?: []; $id = (int) ($data['id_servicio'] ?? 0); $nombre = trim((string) ($data['nombre'] ?? '')); $duracion = (int) ($data['duracion_estimada'] ?? $data['duracion_minutos'] ?? 0); $precio = (float) ($data['precio'] ?? -1);
+if (!$id || !$nombre || $duracion < 1 || $precio < 0) { http_response_code(400); echo json_encode(['success' => false, 'error' => 'Completa los datos del servicio']); exit; }
+$stmt = $pdo->prepare("UPDATE servicios s INNER JOIN tarifas t ON t.id_servicio = s.id_servicio SET s.nombre = :nombre, s.duracion_estimada = :duracion, t.precio = :precio WHERE s.id_servicio = :id"); $stmt->execute([':nombre' => $nombre, ':duracion' => $duracion, ':precio' => $precio, ':id' => $id]); echo json_encode(['success' => true]);

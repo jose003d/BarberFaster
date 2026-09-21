@@ -1,7 +1,7 @@
 ﻿// ==========================
 // Configuración base
 // ==========================
-const BASE_URL = "http://localhost/erpbarber/barberfaster/backend";
+const BASE_URL = "/erpbarber/barberfaster/backend";
 
 // ==========================
 // Función genérica para manejar respuestas

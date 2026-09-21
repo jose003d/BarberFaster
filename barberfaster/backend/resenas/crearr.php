@@ -12,19 +12,23 @@ try {
         echo json_encode(["success" => false, "error" => "La cita y una calificación entre 1 y 5 son obligatorias"]);
         exit;
     }
-    $stmt = $pdo->prepare("SELECT clientes_dni FROM citas WHERE id_cita = :cita");
+    $stmt = $pdo->prepare("SELECT dni_cliente, estado FROM citas WHERE id_cita = :cita");
     $stmt->execute([':cita' => $idCita]);
     $cita = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$cita || !$cita['clientes_dni']) {
+    if (!$cita || !$cita['dni_cliente']) {
         echo json_encode(["success" => false, "error" => "Cita no encontrada"]);
         exit;
     }
-    if ($dniSolicitado !== '' && $dniSolicitado !== (string) $cita['clientes_dni']) {
+    if ($cita['estado'] !== 'COMPLETADA') {
+        echo json_encode(["success" => false, "error" => "Solo se pueden calificar citas completadas"]);
+        exit;
+    }
+    if ($dniSolicitado !== '' && $dniSolicitado !== (string) $cita['dni_cliente']) {
         echo json_encode(["success" => false, "error" => "El DNI no corresponde a la cita indicada"]);
         exit;
     }
-    $insert = $pdo->prepare("INSERT INTO resenas (id_cita, clientes_dni, calificacion, comentario) VALUES (:cita, :dni, :calificacion, :comentario)");
-    $insert->execute([':cita' => $idCita, ':dni' => $cita['clientes_dni'], ':calificacion' => $calificacion, ':comentario' => trim($data['comentario'] ?? '')]);
+    $insert = $pdo->prepare("INSERT INTO resenas (id_cita, dni_cliente, calificacion, comentario) VALUES (:cita, :dni, :calificacion, :comentario)");
+    $insert->execute([':cita' => $idCita, ':dni' => $cita['dni_cliente'], ':calificacion' => $calificacion, ':comentario' => trim($data['comentario'] ?? '')]);
     echo json_encode(["success" => true, "id_resena" => (int) $pdo->lastInsertId()]);
 } catch (Exception $e) {
     echo json_encode(["success" => false, "error" => $e->getMessage()]);

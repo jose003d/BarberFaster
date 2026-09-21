@@ -55,7 +55,7 @@ function UsuarioModal({ isOpen, onClose, onSuccess, usuarioSeleccionado }) {
 
     // Al abrir el modal, cargar barberías desde backend
     if (isOpen) {
-      fetch("http://localhost/erpbarber/barberfaster/backend/barberias/listarb.php")
+      fetch("/erpbarber/barberfaster/backend/barberias/listarb.php")
         .then((r) => r.json())
         .then((data) => {
           if (Array.isArray(data)) setBarberias(data);
@@ -98,7 +98,7 @@ function UsuarioModal({ isOpen, onClose, onSuccess, usuarioSeleccionado }) {
       } else {
         // Caso creación: enviar datos al backend
         const response = await fetch(
-          "http://localhost/erpbarber/barberfaster/backend/usuarios/crearu.php",
+          "/erpbarber/barberfaster/backend/usuarios/crearu.php",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -119,7 +119,7 @@ function UsuarioModal({ isOpen, onClose, onSuccess, usuarioSeleccionado }) {
           if (formData.rol === "barbero") {
             // Crear registro en tabla barberos
             try {
-              await fetch("http://localhost/erpbarber/barberfaster/backend/barberos/crearb.php", {
+              await fetch("/erpbarber/barberfaster/backend/barberos/crearb.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -134,7 +134,7 @@ function UsuarioModal({ isOpen, onClose, onSuccess, usuarioSeleccionado }) {
           } else {
             // Crear entrada en clientes (usa documento como dni)
             try {
-              await fetch("http://localhost/erpbarber/barberfaster/backend/clientes/crearc.php", {
+              await fetch("/erpbarber/barberfaster/backend/clientes/crearc.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

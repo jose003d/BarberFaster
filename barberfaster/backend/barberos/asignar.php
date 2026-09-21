@@ -8,16 +8,17 @@ try {
     $data = json_decode(file_get_contents("php://input"), true) ?: [];
     $idUsuario = (int) ($data['id_usuario'] ?? 0);
     $idBarberia = (int) ($data['id_barberia'] ?? 0);
-    $especialidad = trim((string) ($data['especialidad'] ?? ''));
+    $perfil = trim((string) ($data['perfil'] ?? ''));
 
     if (!$idUsuario || !$idBarberia) {
         echo json_encode(["success" => false, "error" => "Selecciona un usuario y una barbería"]);
         exit;
     }
 
-    $usuarioStmt = $pdo->prepare("SELECT id_usuario FROM Usuarios WHERE id_usuario = :id_usuario AND LOWER(rol) = 'barbero' AND estado = 1 LIMIT 1");
+    $usuarioStmt = $pdo->prepare("SELECT id_usuario, nombre, apellido FROM usuarios WHERE id_usuario = :id_usuario AND rol = 'barbero' AND estado = 1 LIMIT 1");
     $usuarioStmt->execute([':id_usuario' => $idUsuario]);
-    if (!$usuarioStmt->fetch()) {
+    $usuario = $usuarioStmt->fetch(PDO::FETCH_ASSOC);
+    if (!$usuario) {
         echo json_encode(["success" => false, "error" => "El usuario seleccionado no es un barbero activo"]);
         exit;
     }
@@ -36,11 +37,12 @@ try {
         exit;
     }
 
-    $stmt = $pdo->prepare("INSERT INTO barberos (id_usuario, id_barberia, especialidad) VALUES (:id_usuario, :id_barberia, :especialidad)");
+    $stmt = $pdo->prepare("INSERT INTO barberos (id_usuario, id_barberia, nombre, perfil) VALUES (:id_usuario, :id_barberia, :nombre, :perfil)");
     $stmt->execute([
         ':id_usuario' => $idUsuario,
         ':id_barberia' => $idBarberia,
-        ':especialidad' => $especialidad,
+        ':nombre' => trim($usuario['nombre'] . ' ' . ($usuario['apellido'] ?? '')),
+        ':perfil' => $perfil,
     ]);
 
     echo json_encode(["success" => true, "id_barbero" => (int) $pdo->lastInsertId()]);

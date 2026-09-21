@@ -5,8 +5,8 @@ require_once "../config/database.php";
 
 try {
     $sql = "SELECT b.id_barbero, b.id_usuario, b.id_barberia,
-                   u.nombre, u.apellido, u.email, u.telefono, u.documento, u.foto, u.estado,
-                   bar.nombre AS barberia
+                u.nombre, u.apellido, u.email, u.telefono, u.documento, u.foto, u.estado,
+                bar.nombre AS barberia
             FROM barberos b
             INNER JOIN Usuarios u ON u.id_usuario = b.id_usuario
             INNER JOIN barberias bar ON bar.id_barberia = b.id_barberia

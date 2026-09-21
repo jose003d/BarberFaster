@@ -187,7 +187,7 @@ function Barberias() {
                     <td>
                       {b.fotos ? (
                         <img
-                          src={`http://localhost/erpbarber/barberfaster/backend/uploads/${b.fotos}`}
+                          src={`/erpbarber/barberfaster/backend/uploads/${b.fotos}`}
                           alt={b.nombre}
                           style={{ width: "80px", height: "60px", objectFit: "cover", borderRadius: "4px" }}
                         />
