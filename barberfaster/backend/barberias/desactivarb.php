@@ -1,48 +1,34 @@
 <?php
-// ==========================
-// BLOQUE 1: Configuración de cabeceras y CORS
-// ==========================
+// backend/barberias/desactivarb.php
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json; charset=UTF-8");
 
-// Respuesta inmediata para preflight OPTIONS
+require_once '../config/database.php';
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
-    exit;
+    exit();
 }
 
-header("Content-Type: application/json");
-require_once "../config/database.php";
+$data = json_decode(file_get_contents("php://input"), true);
+
+$id_barberia = $data['id_barberia'] ?? null;
+$estado      = $data['estado'] ?? 'INACTIVA'; // ACTIVA o INACTIVA
+
+if (!$id_barberia) {
+    echo json_encode(["status" => "error", "mensaje" => "El ID de la barbería es obligatorio."]);
+    exit();
+}
 
 try {
-    // ==========================
-    // BLOQUE 2: Recepción y validación de datos
-    // ==========================
-    $data = json_decode(file_get_contents("php://input"), true);
+    $stmt = $pdo->prepare("UPDATE barberias SET estado = ? WHERE id_barberia = ?");
+    $stmt->execute([$estado, $id_barberia]);
 
-    if (empty($data['id_barberia'])) {
-        echo json_encode(["success" => false, "error" => "ID requerido"]);
-        exit;
-    }
-
-    // ==========================
-    // BLOQUE 3: Actualización del estado de la barbería
-    // ==========================
-    $sql = "UPDATE barberias 
-            SET estado = IF(estado = 1, 0, 1) 
-            WHERE id_barberia = :id_barberia";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([":id_barberia" => $data['id_barberia']]);
-
-    // ==========================
-    // BLOQUE 4: Respuesta en formato JSON
-    // ==========================
-    echo json_encode(["success" => true, "message" => "Estado actualizado"]);
-
+    echo json_encode([
+        "status" => "success",
+        "mensaje" => "Estado de la barbería actualizado a " . $estado
+    ]);
 } catch (Exception $e) {
-    // ==========================
-    // BLOQUE 5: Manejo de errores
-    // ==========================
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    echo json_encode(["status" => "error", "mensaje" => "Error al actualizar estado: " . $e->getMessage()]);
 }

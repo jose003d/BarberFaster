@@ -1,20 +1,31 @@
 ﻿<?php
-header("Content-Type: application/json");
-require_once "../cors.php";
-require_once "../config/database.php";
+// backend/usuarios/listaru.php
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+
+require_once '../config/database.php';
+
+$id_barberia = $_GET['id_barberia'] ?? null;
+
+if (!$id_barberia) {
+    echo json_encode(["status" => "error", "mensaje" => "El ID de la barbería es obligatorio."]);
+    exit();
+}
 
 try {
-    $sql = "SELECT id_usuario, nombre, email, telefono, rol, estado
-            FROM Usuarios
-            WHERE rol IS NULL OR LOWER(rol) <> 'cliente'
-            ORDER BY id_usuario DESC";
+    $stmt = $pdo->prepare("
+        SELECT id_barbero AS id_usuario, nombre, especialidad, estado 
+        FROM barberos 
+        WHERE id_barberia = ?
+        ORDER BY nombre ASC
+    ");
+    $stmt->execute([$id_barberia]);
+    $usuarios = $stmt->fetchAll();
 
-    $stmt = $pdo->query($sql);
-    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
-} catch (PDOException $e) {
-    http_response_code(500);
     echo json_encode([
-        "success" => false,
-        "error" => $e->getMessage(),
+        "status" => "success",
+        "datos" => $usuarios
     ]);
+} catch (Exception $e) {
+    echo json_encode(["status" => "error", "mensaje" => "Error al listar usuarios: " . $e->getMessage()]);
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { desactivarCliente, obtenerClientes } from "../services/api";
-import ClienteModal from "../components/ClienteModal";
+import { ClienteModal } from "../components/ClienteModal";
 import ConfirmModal from "../components/ConfirmModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faToggleOff, faToggleOn, faTrashCanArrowUp, faTrashCan } from "@fortawesome/free-solid-svg-icons";
@@ -25,9 +25,14 @@ function Clientes() {
 
   const cargar = async () => {
     try {
+      setLoading(true);
       const data = await obtenerClientes();
-      if (Array.isArray(data)) setClientes(data);
-      else setFetchError("Formato de datos inesperado.");
+      if (Array.isArray(data)) {
+        setClientes(data);
+        setFetchError(null);
+      } else {
+        setFetchError("Formato de datos inesperado.");
+      }
     } catch (err) {
       setFetchError("No hay conexión con el servidor backend.");
     } finally {
@@ -59,16 +64,9 @@ function Clientes() {
   // ==========================
   // Manejo de éxito en modal
   // ==========================
-  const handleModalSuccess = (clienteData, esEdicion) => {
-    if (esEdicion) {
-      setClientes((prev) =>
-        prev.map((c) => (c.dni === clienteData.dni ? clienteData : c))
-      );
-      setSuccessMessage("Cliente actualizado con éxito.");
-    } else {
-      setClientes((prev) => [clienteData, ...prev]);
-      setSuccessMessage("Cliente registrado con éxito.");
-    }
+  const handleModalSuccess = () => {
+    cargar();
+    setSuccessMessage("Operación realizada con éxito.");
     setTimeout(() => setSuccessMessage(null), 3000);
   };
 
@@ -83,13 +81,15 @@ function Clientes() {
 
     try {
       const response = await desactivarCliente(cliente.dni);
-      if (response.success) {
+      if (response && response.status !== "error") {
         setClientes((prev) =>
           prev.map((c) =>
-            c.dni === cliente.dni ? { ...c, estado: Number(c.estado) === 1 ? 0 : 1 } : c
+            c.dni === cliente.dni ? { ...c, estado: c.estado === "ACTIVO" ? "INACTIVO" : "ACTIVO" } : c
           )
         );
-        setSuccessMessage(`Cliente ${Number(cliente.estado) === 1 ? "movido a papelera" : "reactivado"} con éxito.`);
+        setSuccessMessage("Estado del cliente actualizado con éxito.");
+      } else {
+        setFetchError(response?.mensaje || "No se pudo cambiar el estado.");
       }
     } catch (err) {
       setFetchError(err?.message || "No se pudo cambiar el estado del cliente.");
@@ -106,20 +106,33 @@ function Clientes() {
   };
 
   // ==========================
-  // Filtrar clientes activos e inactivos
+  // Filtrar clientes activos e inactivos de forma segura
   // ==========================
-  const clientesActivos = clientes.filter((c) => Number(c.estado) !== 0);
-  const clientesPapelera = clientes.filter((c) => Number(c.estado) === 0);
+  const clientesActivos = Array.isArray(clientes) 
+    ? clientes.filter((c) => {
+        if (!c) return false;
+        const est = String(c.estado || "ACTIVO").trim().toUpperCase();
+        return est === "ACTIVO" || est === "1" || est === "0";
+      }) 
+    : [];
+
+  const clientesPapelera = Array.isArray(clientes) 
+    ? clientes.filter((c) => {
+        if (!c) return false;
+        const est = String(c.estado || "").trim().toUpperCase();
+        return est === "INACTIVO" || est === "INACTIVA";
+      }) 
+    : [];
 
   // ==========================
   // Renderizado principal
   // ==========================
   return (
-    <div className="page-section">
+    <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
       {/* Encabezado con acciones */}
-      <div className="heading-row">
+      <div className="heading-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <div>
-          <h2>Gestión de Clientes</h2>
+          <h2 style={{ margin: 0, fontSize: "1.6rem", color: "#222" }}>Gestión de Clientes</h2>
         </div>
         <div style={{ display: "flex", gap: "0.75rem" }}>
           <button className="btn-secondary" onClick={() => setMostrarPapelera((prev) => !prev)}>
@@ -133,26 +146,22 @@ function Clientes() {
       </div>
 
       {/* Mensajes de éxito */}
-      {successMessage && <p className="status success">{successMessage}</p>}
+      {successMessage && <p className="status success" style={{ marginBottom: "1rem" }}>{successMessage}</p>}
 
       {/* Modal de creación/edición */}
       <ClienteModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleModalSuccess}
-        clienteSeleccionado={clienteSeleccionado}
+        clienteEditar={clienteSeleccionado}
       />
 
       {/* Modal de confirmación */}
       <ConfirmModal
         isOpen={confirmModal.open}
-        title={confirmModal.item?.estado === 1 ? "Confirmar envío a papelera" : "Confirmar reactivación"}
-        message={
-          confirmModal.item?.estado === 1
-            ? `¿Estás seguro de enviar "${confirmModal.item?.nombre}" a la papelera?`
-            : `¿Estás seguro de reactivar "${confirmModal.item?.nombre}"?`
-        }
-        confirmText={confirmModal.item?.estado === 1 ? "Sí, enviar" : "Sí, reactivar"}
+        title="Confirmar cambio de estado"
+        message={`¿Estás seguro de modificar el estado de "${confirmModal.item?.nombre}"?`}
+        confirmText="Sí, continuar"
         cancelText="Cancelar"
         onConfirm={confirmDesactivar}
         onCancel={closeConfirmModal}
@@ -164,42 +173,51 @@ function Clientes() {
       ) : fetchError ? (
         <p className="status error">{fetchError}</p>
       ) : (
-        <div className="table-wrapper">
-          <table>
+        <div style={{ background: "#fff", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Teléfono</th>
-                <th>Correo</th>
-                <th>Acciones</th>
+              <tr style={{ background: "#1a1a1a", color: "#fff" }}>
+                <th style={{ padding: "12px 16px" }}>DNI</th>
+                <th style={{ padding: "12px 16px" }}>Nombre</th>
+                <th style={{ padding: "12px 16px" }}>Apellido</th>
+                <th style={{ padding: "12px 16px" }}>Teléfono</th>
+                <th style={{ padding: "12px 16px" }}>Correo</th>
+                <th style={{ padding: "12px 16px", width: "120px", textAlign: "center" }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {(!mostrarPapelera ? clientesActivos : clientesPapelera).length === 0 ? (
-                <tr><td colSpan="5">{mostrarPapelera ? "No hay clientes en la papelera." : "No hay clientes registrados."}</td></tr>
+                <tr>
+                  <td colSpan="6" style={{ padding: "20px", textAlign: "center", color: "#666" }}>
+                    {mostrarPapelera ? "No hay clientes en la papelera." : "No hay clientes registrados."}
+                  </td>
+                </tr>
               ) : (
-                (!mostrarPapelera ? clientesActivos : clientesPapelera).map((c, idx) => (
-                  <tr key={`${c.dni}-${idx}`}>
-                    <td>{c.nombre}</td>
-                    <td>{c.apellido || "-"}</td>
-                    <td>{c.telefono || "-"}</td>
-                    <td>{c.correo}</td>
-                    <td>
-                      <button className="btn-secondary" onClick={() => handleEditar(c)} title="Editar">
-                        <FontAwesomeIcon icon={faPenToSquare} />
-                      </button>
-                      <button
-                        className="btn-secondary"
-                        onClick={() => handleDesactivar(c)}
-                        title={mostrarPapelera ? "Reactivar" : "Mover a papelera"}
-                        style={{ marginLeft: "0.35rem" }}
-                      >
-                        <FontAwesomeIcon icon={mostrarPapelera ? faTrashCanArrowUp : Number(c.estado) === 1 ? faToggleOff : faToggleOn} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                (!mostrarPapelera ? clientesActivos : clientesPapelera).map((c, idx) => {
+                  const esInactivo = String(c.estado).trim().toUpperCase() === "INACTIVO";
+                  return (
+                    <tr key={`${c.dni || idx}`} style={{ borderBottom: "1px solid #eee" }}>
+                      <td style={{ padding: "12px 16px" }}>{c.dni || "-"}</td>
+                      <td style={{ padding: "12px 16px", fontWeight: "500" }}>{c.nombre}</td>
+                      <td style={{ padding: "12px 16px", color: "#555" }}>{c.apellido || "-"}</td>
+                      <td style={{ padding: "12px 16px", color: "#555" }}>{c.telefono || "-"}</td>
+                      <td style={{ padding: "12px 16px", color: "#555" }}>{c.correo || "-"}</td>
+                      <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                        <button className="btn-secondary" onClick={() => handleEditar(c)} title="Editar" style={{ padding: "6px 10px", marginRight: "5px" }}>
+                          <FontAwesomeIcon icon={faPenToSquare} />
+                        </button>
+                        <button
+                          className="btn-secondary"
+                          onClick={() => handleDesactivar(c)}
+                          title={mostrarPapelera ? "Reactivar" : "Mover a papelera"}
+                          style={{ padding: "6px 10px" }}
+                        >
+                          <FontAwesomeIcon icon={mostrarPapelera ? faTrashCanArrowUp : esInactivo ? faToggleOff : faToggleOn} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

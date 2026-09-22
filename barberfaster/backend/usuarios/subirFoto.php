@@ -1,58 +1,33 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
+// backend/usuarios/subirFoto.php
+header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
+header("Content-Type: application/json; charset=UTF-8");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
-    exit;
+    exit();
 }
 
-require_once "../config/database.php";
-
-if (!isset($_FILES['foto']) || !isset($_POST['id_usuario'])) {
-    echo json_encode(["success" => false, "error" => "Faltan datos"]);
-    exit;
+if (!isset($_FILES['foto']) || $_FILES['foto']['error'] !== UPLOAD_ERR_OK) {
+    echo json_encode(["status" => "error", "mensaje" => "No se recibió ninguna imagen válida."]);
+    exit();
 }
 
-$idUsuario = $_POST['id_usuario'];
-$file = $_FILES['foto'];
-
-if ($file['error'] !== UPLOAD_ERR_OK) {
-    echo json_encode(["success" => false, "error" => "Error al subir la imagen"]);
-    exit;
+$directorioSubida = '../uploads/';
+if (!file_exists($directorioSubida)) {
+    mkdir($directorioSubida, 0777, true);
 }
 
-$allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-if (!in_array($file['type'], $allowed, true)) {
-    echo json_encode(["success" => false, "error" => "Formato no permitido"]);
-    exit;
-}
+$nombreArchivo = time() . '_' . basename($_FILES['foto']['name']);
+$rutaDestino  = $directorioSubida . $nombreArchivo;
 
-$targetDir = dirname(__DIR__) . '/public/';
-if (!is_dir($targetDir)) {
-    mkdir($targetDir, 0777, true);
-}
-
-$extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-$filename = 'avatar_' . $idUsuario . '_' . time() . '.' . $extension;
-$targetPath = $targetDir . $filename;
-
-if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
-    echo json_encode(["success" => false, "error" => "No se pudo guardar la imagen"]);
-    exit;
-}
-
-try {
-    $sql = "UPDATE Usuarios SET foto = :foto WHERE id_usuario = :id_usuario";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        ':foto' => $filename,
-        ':id_usuario' => $idUsuario,
+if (move_uploaded_file($_FILES['foto']['tmp_name'], $rutaDestino)) {
+    echo json_encode([
+        "status" => "success",
+        "mensaje" => "Imagen subida correctamente.",
+        "url_foto" => "uploads/" . $nombreArchivo
     ]);
-
-    echo json_encode(["success" => true, "foto" => $filename]);
-} catch (Exception $e) {
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+} else {
+    echo json_encode(["status" => "error", "mensaje" => "Error al guardar la imagen en el servidor."]);
 }

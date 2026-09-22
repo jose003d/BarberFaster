@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import { desactivarBarberia, obtenerBarberias } from "../services/api";
-import BarberiaModal from "../components/BarberiaModal";
+// Línea 3 en src/pages/Barberias.jsx
+import { BarberiaModal } from "../components/BarberiaModal";
 import ConfirmModal from "../components/ConfirmModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faToggleOff, faToggleOn, faTrashCanArrowUp, faTrashCan } from "@fortawesome/free-solid-svg-icons";

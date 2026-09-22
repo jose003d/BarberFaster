@@ -1,140 +1,312 @@
-import { useEffect, useState } from "react";
-import Barberos from "./Barberos";
+import React, { useState, useEffect } from "react";
+import Barberos from "./Barberos"; // Importa tu componente de gestión de personal y servicios
 
-const BASE_URL = "/erpbarber/barberfaster/backend";
-const STORAGE_KEY = "barberia_demo_admin";
-const emptyMetrics = { total_citas: 0, clientes_unicos: 0, total_ingresos: 0, total_barberos: 0, servicios_activos: 0, calificacion_promedio: 0 };
+// Usar localhost para coincidir con el dominio de Vite (http://localhost:5173)
+const BASE_URL = "http://localhost/erpbarber/barberfaster/backend";
 
-function Dashboard() {
-  // Estado de la barbería seleccionada, pestaña activa y datos del reporte.
-  const [section, setSection] = useState("metricas");
-  const [barberia, setBarberia] = useState(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : null;
+export default function Dashboard() {
+  // Control de pestañas: 'metricas' | 'asignaciones' | 'perfil'
+  const [tabActiva, setTabActiva] = useState("perfil");
+
+  // Estado del Perfil de la Barbería
+  const [perfil, setPerfil] = useState({
+    descripcion: "",
+    direccion: "",
+    url_mapa: "",
+    hora_apertura: "08:00",
+    hora_cierre: "19:00",
   });
-  const [barberias, setBarberias] = useState([]);
-  const [selectedId, setSelectedId] = useState("");
-  const [metrics, setMetrics] = useState(emptyMetrics);
-  const [reportRows, setReportRows] = useState([]);
-  const [loadingBarberias, setLoadingBarberias] = useState(false);
-  const [loadingMetrics, setLoadingMetrics] = useState(false);
-  const [error, setError] = useState("");
 
-  // Carga la lista de locales únicamente cuando no existe una selección persistida.
-  useEffect(() => {
-    if (barberia) return;
-    setLoadingBarberias(true);
-    fetch(`${BASE_URL}/barberias/listar.php`)
-      .then((response) => response.json())
-      .then((data) => {
-        const list = Array.isArray(data) ? data : data.barberias;
-        if (!Array.isArray(list)) throw new Error(data.error || "No se pudieron cargar las barberías.");
-        setBarberias(list);
-        setSelectedId(list[0] ? String(list[0].id_barberia) : "");
-      })
-      .catch((requestError) => setError(requestError.message || "No se pudieron cargar las barberías."))
-      .finally(() => setLoadingBarberias(false));
-  }, [barberia]);
+  const [cargando, setCargando] = useState(true);
+  const [mensaje, setMensaje] = useState(null);
 
-  // Actualiza las métricas y el detalle exportable del local seleccionado.
-  useEffect(() => {
-    if (!barberia || section !== "metricas") return;
-    setLoadingMetrics(true);
-    fetch(`${BASE_URL}/dashboard/metricas.php?id_barberia=${encodeURIComponent(barberia.id_barberia)}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (!data.success) throw new Error(data.error || "No se pudieron cargar las métricas.");
-        setMetrics(data.metricas || emptyMetrics);
-        setReportRows(Array.isArray(data.reporte) ? data.reporte : []);
-      })
-      .catch((requestError) => setError(requestError.message || "No se pudieron cargar las métricas."))
-      .finally(() => setLoadingMetrics(false));
-  }, [barberia, section]);
-
-  const ingresar = (event) => {
-    event.preventDefault();
-    const selected = barberias.find((item) => String(item.id_barberia) === selectedId);
-    if (!selected) {
-      setError("Selecciona una barbería para ingresar.");
-      return;
+  const obtenerBarberiaActivaId = () => {
+    try {
+      const stored = localStorage.getItem("barberia_demo_admin");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return parsed.id_barberia || parsed.id || 1;
+      }
+    } catch (e) {
+      const raw = localStorage.getItem("barberia_demo_admin");
+      if (raw && !isNaN(raw)) return Number(raw);
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(selected));
-    setBarberia(selected);
-    setError("");
+    return 1;
   };
 
-  const cambiarBarberia = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    setBarberia(null);
-    setMetrics(emptyMetrics);
-    setReportRows([]);
-    setSection("metricas");
+  useEffect(() => {
+    cargarPerfilBarberia();
+  }, []);
+
+  const cargarPerfilBarberia = () => {
+    setCargando(true);
+    setMensaje(null);
+    const idBarberia = obtenerBarberiaActivaId();
+
+    fetch(`${BASE_URL}/barberias/perfil.php?id_barberia=${idBarberia}`)
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Error en la respuesta del servidor");
+        return res.json();
+      })
+      .then((data) => {
+        if (data.status === "success" && data.data) {
+          setPerfil({
+            descripcion: data.data.descripcion || "",
+            direccion: data.data.direccion || "",
+            url_mapa: data.data.url_mapa || "",
+            hora_apertura: data.data.hora_apertura ? data.data.hora_apertura.substring(0, 5) : "08:00",
+            hora_cierre: data.data.hora_cierre ? data.data.hora_cierre.substring(0, 5) : "19:00",
+          });
+        } else {
+          setMensaje({ tipo: "error", texto: data.mensaje || "Error al obtener perfil." });
+        }
+      })
+      .catch((err) => {
+        console.error("Detalle del error:", err);
+        setMensaje({ tipo: "error", texto: "No se pudo conectar con el servidor o la respuesta no es válida." });
+      })
+      .finally(() => setCargando(false));
   };
 
-  // Construye el CSV en el navegador sin dependencias externas.
-  const exportarCsv = () => {
-    const headers = ["ID cita", "Estado cita", "DNI cliente", "Cliente", "Inicio", "Fin", "Monto", "Estado pago"];
-    const rows = reportRows.map((row) => [row.id_cita, row.estado_cita, row.clientes_dni, row.cliente, row.start_datetime, row.end_datetime, row.monto, row.estado_pago]);
-    const csv = [
-      ["Reporte de métricas", barberia.nombre],
-      ["Total citas", metrics.total_citas],
-      ["Clientes únicos", metrics.clientes_unicos],
-      ["Ingresos pagados", metrics.total_ingresos],
-      ["Barberos", metrics.total_barberos],
-      ["Servicios activos", metrics.servicios_activos],
-      [],
-      headers,
-      ...rows,
-    ].map((row) => row.map((value) => `"${String(value ?? "").replaceAll('"', '""')}"`).join(",")).join("\r\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `reporte-${barberia.nombre.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+  const guardarPerfil = (e) => {
+    e.preventDefault();
+    setMensaje(null);
+
+    const payload = {
+      id_barberia: obtenerBarberiaActivaId(),
+      descripcion: perfil.descripcion,
+      direccion: perfil.direccion,
+      url_mapa: perfil.url_mapa,
+      hora_apertura: `${perfil.hora_apertura}:00`,
+      hora_cierre: `${perfil.hora_cierre}:00`,
+    };
+
+    fetch(`${BASE_URL}/barberias/perfil.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "success") {
+          setMensaje({ tipo: "success", texto: "¡Información del perfil y horarios guardados con éxito!" });
+          setTimeout(() => setMensaje(null), 3500);
+        } else {
+          setMensaje({ tipo: "error", texto: data.mensaje || "Error al actualizar la información." });
+        }
+      })
+      .catch((err) => {
+        console.error("Error al guardar:", err);
+        setMensaje({ tipo: "error", texto: "Error de conexión con el servidor." });
+      });
   };
 
-  // Selector inicial del local para el modo demo administrativo.
-  if (!barberia) {
-    return (
-      <div className="auth-shell">
-        <div className="auth-card">
-          <div className="auth-brand"><div className="auth-badge">BF</div><div><h1>BarberFaster</h1><p>Selecciona la barbería del panel</p></div></div>
-          <form className="auth-form" onSubmit={ingresar}>
-            <div className="field-group"><label htmlFor="barberia-admin">Barbería</label><select id="barberia-admin" value={selectedId} onChange={(event) => setSelectedId(event.target.value)} disabled={loadingBarberias || !barberias.length} required><option value="">{loadingBarberias ? "Cargando barberías..." : "Selecciona una barbería"}</option>{barberias.map((item) => <option key={item.id_barberia} value={item.id_barberia}>{item.nombre}{item.ciudad || item.direccion ? ` - ${item.ciudad || item.direccion}` : ""}</option>)}</select></div>
-            {error && <p className="status error">{error}</p>}
-            <button className="btn auth-btn" type="submit" disabled={loadingBarberias || !barberias.length}>Ingresar al Panel</button>
-          </form>
+  return (
+    <div className="page-section" style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
+      {/* CABECERA PRINCIPAL Y NAVEGACIÓN */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", flexWrap: "wrap", gap: "16px" }}>
+        <div>
+          <h1 style={{ margin: 0, fontSize: "1.8rem" }}>Dashboard BarberFaster</h1>
+          <p style={{ color: "#666", margin: "4px 0 0 0" }}>Panel Administrativo del Establecimiento</p>
+        </div>
+
+        {/* CONTROLES DE PESTAÑAS */}
+        <div style={{ display: "flex", gap: "10px", background: "#f3f4f6", padding: "6px", borderRadius: "12px" }}>
+          <button
+            type="button"
+            onClick={() => setTabActiva("metricas")}
+            style={{
+              padding: "10px 18px",
+              borderRadius: "8px",
+              border: "none",
+              background: tabActiva === "metricas" ? "#d4af37" : "transparent",
+              color: tabActiva === "metricas" ? "#111" : "#4b5563",
+              fontWeight: "bold",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+          >
+            📊 Métricas
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTabActiva("asignaciones")}
+            style={{
+              padding: "10px 18px",
+              borderRadius: "8px",
+              border: "none",
+              background: tabActiva === "asignaciones" ? "#d4af37" : "transparent",
+              color: tabActiva === "asignaciones" ? "#111" : "#4b5563",
+              fontWeight: "bold",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+          >
+            ✂️ Asignaciones y Personal
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTabActiva("perfil")}
+            style={{
+              padding: "10px 18px",
+              borderRadius: "8px",
+              border: "none",
+              background: tabActiva === "perfil" ? "#d4af37" : "transparent",
+              color: tabActiva === "perfil" ? "#111" : "#4b5563",
+              fontWeight: "bold",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+          >
+            🏢 Perfil del Establecimiento
+          </button>
         </div>
       </div>
-    );
-  }
 
-  // Panel principal: métricas y gestión de asignaciones.
-  return (
-    <div className="dashboard-page">
-      <div className="heading-row"><div><h2>Dashboard</h2><p className="page-description">Panel de {barberia.nombre}{barberia.ciudad || barberia.direccion ? ` · ${barberia.ciudad || barberia.direccion}` : ""}</p></div><button className="btn-secondary" type="button" onClick={cambiarBarberia}>Cambiar de Barbería</button></div>
-      {error && <p className="status error">{error}</p>}
-      <div className="tabs" role="tablist"><button type="button" className={section === "metricas" ? "btn" : "btn-secondary"} onClick={() => { setSection("metricas"); setError(""); }}>Métricas</button><button type="button" className={section === "asignaciones" ? "btn" : "btn-secondary"} onClick={() => { setSection("asignaciones"); setError(""); }}>Asignaciones</button></div>
-      {section === "metricas" ? <MetricsView metrics={metrics} loading={loadingMetrics} onExport={exportarCsv} /> : <Barberos />}
+      {mensaje && (
+        <p
+          style={{
+            padding: "12px",
+            borderRadius: "8px",
+            background: mensaje.tipo === "success" ? "#f0fdf4" : "#fef2f2",
+            color: mensaje.tipo === "success" ? "#166534" : "#991b1b",
+            fontWeight: "bold",
+            marginBottom: "20px",
+          }}
+        >
+          {mensaje.texto}
+        </p>
+      )}
+
+      {/* PESTAÑA 1: MÉTRICAS */}
+      {tabActiva === "metricas" && (
+        <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1px solid #e5e7eb" }}>
+          <h2>📊 Métricas del Negocio</h2>
+          <p style={{ color: "#666" }}>Resumen estadístico de citas reservadas e ingresos generados.</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px", marginTop: "20px" }}>
+            <div style={{ background: "#fdf8e1", padding: "20px", borderRadius: "12px", border: "1px solid #fef08a" }}>
+              <span style={{ fontSize: "0.85rem", color: "#854d0e" }}>Total Citas Reservadas</span>
+              <h3 style={{ margin: "10px 0 0 0", fontSize: "1.8rem" }}>24</h3>
+            </div>
+            <div style={{ background: "#f0fdf4", padding: "20px", borderRadius: "12px", border: "1px solid #bbf7d0" }}>
+              <span style={{ fontSize: "0.85rem", color: "#166534" }}>Ingresos Est. Hoy</span>
+              <h3 style={{ margin: "10px 0 0 0", fontSize: "1.8rem" }}>$450.000</h3>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PESTAÑA 2: ASIGNACIONES Y PERSONAL */}
+      {tabActiva === "asignaciones" && (
+        <div>
+          <Barberos />
+        </div>
+      )}
+
+      {/* PESTAÑA 3: PERFIL DE LA BARBERÍA Y HORARIO */}
+      {tabActiva === "perfil" && (
+        <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1px solid #e5e7eb", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+          <h2 style={{ marginTop: 0 }}>🏢 Perfil e Información de la Barbería</h2>
+          <p style={{ color: "#666", fontSize: "0.95rem", marginBottom: "24px" }}>
+            Esta información se mostrará públicamente a los clientes al agendar.
+          </p>
+
+          {cargando ? (
+            <p>Cargando información del establecimiento...</p>
+          ) : (
+            <form onSubmit={guardarPerfil}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
+                {/* DESCRIPCIÓN */}
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label style={{ display: "block", fontWeight: "bold", marginBottom: "6px" }}>Descripción Comercial:</label>
+                  <textarea
+                    rows="3"
+                    value={perfil.descripcion}
+                    onChange={(e) => setPerfil({ ...perfil, descripcion: e.target.value })}
+                    placeholder="Ej. Barbería tradicional con los mejores cortes clásicos y modernos de la ciudad..."
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", boxSizing: "border-box" }}
+                  />
+                </div>
+
+                {/* DIRECCIÓN */}
+                <div>
+                  <label style={{ display: "block", fontWeight: "bold", marginBottom: "6px" }}>Dirección Física:</label>
+                  <input
+                    type="text"
+                    value={perfil.direccion}
+                    onChange={(e) => setPerfil({ ...perfil, direccion: e.target.value })}
+                    placeholder="Ej. Carrera 6 # 7-12, Centro"
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", boxSizing: "border-box" }}
+                  />
+                </div>
+
+                {/* URL GOOGLE MAPS EMBED */}
+                <div>
+                  <label style={{ display: "block", fontWeight: "bold", marginBottom: "6px" }}>Ubicación Google Maps (URL iFrame Embed):</label>
+                  <input
+                    type="text"
+                    value={perfil.url_mapa}
+                    onChange={(e) => setPerfil({ ...perfil, url_mapa: e.target.value })}
+                    placeholder="Ej. https://www.google.com/maps/embed?pb=..."
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", boxSizing: "border-box" }}
+                  />
+                </div>
+
+                {/* HORA APERTURA */}
+                <div>
+                  <label style={{ display: "block", fontWeight: "bold", marginBottom: "6px" }}>Hora de Apertura General:</label>
+                  <input
+                    type="time"
+                    value={perfil.hora_apertura}
+                    onChange={(e) => setPerfil({ ...perfil, hora_apertura: e.target.value })}
+                    required
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", boxSizing: "border-box" }}
+                  />
+                </div>
+
+                {/* HORA CIERRE */}
+                <div>
+                  <label style={{ display: "block", fontWeight: "bold", marginBottom: "6px" }}>Hora de Cierre General:</label>
+                  <input
+                    type="time"
+                    value={perfil.hora_cierre}
+                    onChange={(e) => setPerfil({ ...perfil, hora_cierre: e.target.value })}
+                    required
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", boxSizing: "border-box" }}
+                  />
+                </div>
+              </div>
+
+              {/* VISTA PREVIA MAPA */}
+              {perfil.url_mapa && (
+                <div style={{ marginBottom: "20px" }}>
+                  <label style={{ display: "block", fontWeight: "bold", marginBottom: "6px" }}>Vista Previa de la Ubicación:</label>
+                  <iframe
+                    src={perfil.url_mapa}
+                    width="100%"
+                    height="200"
+                    style={{ border: 0, borderRadius: "12px" }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    title="Ubicacion Barberia"
+                  ></iframe>
+                </div>
+              )}
+
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <button
+                  type="submit"
+                  style={{ padding: "12px 24px", background: "#d4af37", color: "#111", fontWeight: "bold", border: "none", borderRadius: "8px", cursor: "pointer" }}
+                >
+                  Guardar Perfil de Barbería
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      )}
     </div>
   );
 }
-
-function MetricsView({ metrics, loading, onExport }) {
-  // Las tarjetas reutilizan el mismo contrato de métricas y solo cambian su presentación.
-  const cards = [
-    { label: "Ingresos Totales", caption: "Month to date", value: `$${Number(metrics.total_ingresos).toLocaleString("es-CO", { minimumFractionDigits: 2 })}`, change: "+12.4%", tone: "positive", points: "2,38 18,32 34,35 50,22 66,27 82,12 98,16 114,5" },
-    { label: "Citas Totales", caption: "Actividad acumulada", value: metrics.total_citas, change: "+8.2%", tone: "positive", points: "2,32 18,27 34,30 50,18 66,22 82,25 98,10 114,14" },
-    { label: "Clientes Registrados", caption: "Clientes con cita", value: metrics.clientes_unicos, change: "+5.6%", tone: "positive", points: "2,36 18,35 34,25 50,28 66,18 82,20 98,9 114,12" },
-    { label: "Calificación Promedio", caption: "Reseñas de clientes", value: `${Number(metrics.calificacion_promedio).toFixed(1)} / 5`, change: Number(metrics.calificacion_promedio) >= 4 ? "Excelente" : "En seguimiento", tone: Number(metrics.calificacion_promedio) >= 4 ? "positive" : "negative", points: "2,30 18,25 34,27 50,16 66,18 82,12 98,15 114,6" },
-  ];
-  return <section className="metrics-section"><div className="metrics-section-heading"><div><span className="eyebrow">PERFORMANCE OVERVIEW</span><h3>Rendimiento del local</h3><p>Una lectura rápida de la operación de este periodo.</p></div><button className="btn" type="button" onClick={onExport} disabled={loading}>Exportar Reporte CSV</button></div>{loading ? <p>Cargando métricas...</p> : <><div className="metrics-grid">{cards.map((card) => <MetricCard key={card.label} card={card} />)}</div><div className="recent-reports"><div className="recent-reports-heading"><div><span className="eyebrow">ACTIVIDAD</span><h3>Reportes Recientes</h3></div><button className="btn-secondary" type="button" onClick={onExport}>Exportar Reporte CSV</button></div><div className="report-mini-grid">{cards.slice(0, 3).map((card) => <div className="report-mini-card" key={card.label}><span>{card.caption}</span><strong>{card.label}</strong><small>{card.value}</small><button type="button" onClick={onExport}>Descargar CSV</button></div>)}</div></div></>}</section>;
-}
-
-function MetricCard({ card }) {
-  return <article className="metric-card"><div className="metric-card-top"><span>{card.caption}</span><span className={`metric-status ${card.tone}`}>{card.tone === "positive" ? "↗" : "↘"} {card.change}</span></div><h4>{card.label}</h4><strong className="metric-value">{card.value}</strong><svg className="metric-sparkline" viewBox="0 0 116 42" role="img" aria-label={`Tendencia de ${card.label}`}><polyline points={card.points} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /><path d={`M${card.points.split(" ").join(" L")} L114,42 L2,42 Z`} fill="currentColor" opacity="0.08" /></svg><div className="metric-progress"><span style={{ width: card.tone === "positive" ? "78%" : "58%" }} /></div></article>;
-}
-
-export default Dashboard;

@@ -1,65 +1,39 @@
 <?php
+// backend/usuarios/crearu.php
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Content-Type: application/json");
+header("Content-Type: application/json; charset=UTF-8");
+
+require_once '../config/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
+    http_response_code(200);
+    exit();
 }
-
-require_once "../config/database.php";
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (!$data) {
-    echo json_encode(["error" => "No se recibieron datos del usuario en el backend"]);
-    exit;
+$id_barberia = $data['id_barberia'] ?? null;
+$nombre      = $data['nombre'] ?? null;
+$especialidad= $data['especialidad'] ?? 'Barbero Profesional';
+
+if (!$id_barberia || !$nombre) {
+    echo json_encode(["status" => "error", "mensaje" => "El ID de la barbería y el nombre son requeridos."]);
+    exit();
 }
 
 try {
-    // Registro demo: la contraseña no llega desde la UI y se genera internamente.
-    $sql = "INSERT INTO Usuarios (nombre, apellido, email, password_hash, telefono, documento, rol) 
-            VALUES (:nombre, :apellido, :email, :password_hash, :telefono, :documento, :rol)";
-    
-    $stmt = $pdo->prepare($sql);
-    
-    // La demo no solicita contrasena; se conserva un hash interno para el esquema actual.
-    $passwordHash = password_hash("demo123", PASSWORD_DEFAULT);
-    $stmt->execute([
-        ':nombre'        => !empty($data['nombre']) ? $data['nombre'] : null,
-        ':apellido'      => !empty($data['apellido']) ? $data['apellido'] : null,
-        ':email'         => !empty($data['email']) ? $data['email'] : null,
-        ':password_hash' => $passwordHash,
-        ':telefono'      => !empty($data['telefono']) ? $data['telefono'] : null,
-        ':documento'     => !empty($data['documento']) ? $data['documento'] : null,
-        ':rol'           => !empty($data['rol']) ? $data['rol'] : 'barbero'
-    ]);
-    
-    $id_usuario = $pdo->lastInsertId();
-    
-    // Si el rol es cliente, crear también en tabla Clientes
-    if (!empty($data['rol']) && $data['rol'] === 'cliente') {
-        $sqlCliente = "INSERT INTO Clientes (dni, nombre, apellido, telefono, correo) 
-        VALUES (:dni, :nombre, :apellido, :telefono, :correo)";
-        $stmtCliente = $pdo->prepare($sqlCliente);
-        $stmtCliente->execute([
-            ':dni'      => $id_usuario,
-            ':nombre'   => !empty($data['nombre']) ? $data['nombre'] : null,
-            ':apellido' => !empty($data['apellido']) ? $data['apellido'] : null,
-            ':telefono' => !empty($data['telefono']) ? $data['telefono'] : null,
-            ':correo'   => !empty($data['email']) ? $data['email'] : null
-        ]);
-    }
+    $stmt = $pdo->prepare("
+        INSERT INTO barberos (id_barberia, nombre, especialidad, estado)
+        VALUES (?, ?, ?, 'ACTIVO')
+    ");
+    $stmt->execute([$id_barberia, $nombre, $especialidad]);
 
     echo json_encode([
-        "success" => true,
-        "mensaje" => "Usuario registrado con éxito en el sistema",
-        "id_usuario" => $pdo->lastInsertId()
+        "status" => "success",
+        "mensaje" => "Usuario/Barbero registrado exitosamente.",
+        "id_barbero" => $pdo->lastInsertId()
     ]);
-
-} catch (PDOException $e) {
-    echo json_encode(["error" => "Error SQL en Usuarios: " . $e->getMessage()]);
-    exit;
+} catch (Exception $e) {
+    echo json_encode(["status" => "error", "mensaje" => "Error al registrar usuario: " . $e->getMessage()]);
 }
-?>

@@ -1,41 +1,28 @@
 ﻿<?php
-// ==========================
-// BLOQUE 1: Configuración de cabeceras y CORS
-// ==========================
-// Permitir conexiones desde tu frontend en React
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
+// backend/barberias/listarb.php
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
 
-// Respuesta inmediata para preflight OPTIONS
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    exit;
-}
+require_once '../config/database.php';
 
-// ==========================
-// BLOQUE 2: Conexión a la base de datos
-// ==========================
-require_once "../config/database.php";
+$solo_activas = $_GET['activas'] ?? 'true';
 
 try {
-    // ==========================
-    // BLOQUE 3: Consulta de barberías
-    // ==========================
-    $stmt = $pdo->query("SELECT * FROM barberias ORDER BY id_barberia DESC");
-    $barberias = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $sql = "SELECT id_barberia, nombre, direccion, ciudad, telefono, estado, foto FROM barberias";
+    
+    if ($solo_activas === 'true') {
+        $sql .= " WHERE estado = 'ACTIVA'";
+    }
+    
+    $sql .= " ORDER BY nombre ASC";
 
-    // ==========================
-    // BLOQUE 4: Respuesta en formato JSON
-    // ==========================
+    $stmt = $pdo->query($sql);
+    $barberias = $stmt->fetchAll();
+
     echo json_encode([
-        "success"   => true,
-        "barberias" => $barberias
+        "status" => "success",
+        "datos" => $barberias
     ]);
-
 } catch (Exception $e) {
-    // ==========================
-    // BLOQUE 5: Manejo de errores
-    // ==========================
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    echo json_encode(["status" => "error", "mensaje" => "Error al listar barberías: " . $e->getMessage()]);
 }

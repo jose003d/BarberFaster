@@ -1,8 +1,48 @@
 <?php
+// backend/citas/listar_cliente.php
 header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
-require_once "../config/database.php";
-$dni = trim((string) ($_GET['dni_cliente'] ?? ''));
-$stmt = $pdo->prepare("SELECT c.id_cita, c.estado, c.observaciones, e.id_evento, e.start_datetime, e.end_datetime, b.nombre AS barbero, bar.nombre AS barberia FROM citas c INNER JOIN eventos e ON e.id_evento = c.id_evento INNER JOIN barberos b ON b.id_barbero = c.id_barbero INNER JOIN barberias bar ON bar.id_barberia = e.id_barberia WHERE c.dni_cliente = :dni ORDER BY e.start_datetime DESC");
-$stmt->execute([':dni' => $dni]);
-echo json_encode(['success' => true, 'citas' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+header("Content-Type: application/json; charset=UTF-8");
+
+require_once '../config/database.php';
+
+$dni_cliente = $_GET['dni_cliente'] ?? null;
+
+if (!$dni_cliente) {
+    echo json_encode(["status" => "error", "mensaje" => "El DNI del cliente es obligatorio."]);
+    exit();
+}
+
+try {
+    $stmt = $pdo->prepare("
+        SELECT 
+            c.id_cita,
+            c.id_barberia,
+            b.nombre AS nombre_barberia,
+            c.id_barbero,
+            bar.nombre AS nombre_barbero,
+            c.fecha,
+            c.hora_inicio,
+            c.hora_fin,
+            c.precio_total,
+            c.estado,
+            c.notas,
+            GROUP_CONCAT(s.nombre SEPARATOR ', ') AS servicios_nombres
+        FROM citas c
+        INNER JOIN barberias b ON c.id_barberia = b.id_barberia
+        INNER JOIN barberos bar ON c.id_barbero = bar.id_barbero
+        LEFT JOIN cita_servicios cs ON c.id_cita = cs.id_cita
+        LEFT JOIN servicios s ON cs.id_servicio = s.id_servicio
+        WHERE c.dni_cliente = ?
+        GROUP BY c.id_cita
+        ORDER BY c.fecha DESC, c.hora_inicio DESC
+    ");
+    $stmt->execute([$dni_cliente]);
+    $citas = $stmt->fetchAll();
+
+    echo json_encode([
+        "status" => "success",
+        "datos" => $citas
+    ]);
+} catch (Exception $e) {
+    echo json_encode(["status" => "error", "mensaje" => "Error al listar las citas del cliente: " . $e->getMessage()]);
+}

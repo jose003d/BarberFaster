@@ -1,194 +1,165 @@
-import { useEffect, useState } from "react";
-import { crearBarberia, editarBarberia } from "../services/api";
+import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../services/api';
 
-const normalizarFormData = (barberia) => ({
-  nombre: barberia?.nombre ?? "",
-  direccion: barberia?.direccion ?? "",
-  ciudad: barberia?.ciudad ?? "",
-  telefono: barberia?.telefono ?? "",
-  estado: barberia?.estado ?? 1,
-});
+export const BarberiaModal = ({ isOpen, onClose, barberiaEditar, onSuccess }) => {
+  const [form, setForm] = useState({
+    nombre: '',
+    direccion: '',
+    telefono: '',
+    ciudad: '',
+    hora_apertura: '08:00',
+    hora_cierre: '20:00'
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-function BarberiaModal({ isOpen, onClose, onSuccess, barberiaSeleccionada }) {
-  // ==========================
-  // Estados del formulario
-  // ==========================
-  const [formData, setFormData] = useState(() => normalizarFormData());
-  const [fotoFile, setFotoFile] = useState(null); // archivo de imagen
-  const [error, setError] = useState(null);       // mensajes de error
-  const [enviando, setEnviando] = useState(false);// estado de envío
-
-  const esEdicion = !!barberiaSeleccionada; // true si estamos editando
-
-  // ==========================
-  // useEffect: carga datos si hay barbería seleccionada
-  // ==========================
   useEffect(() => {
-    if (barberiaSeleccionada) {
-      // Cargar datos existentes en el formulario
-      setFormData(normalizarFormData(barberiaSeleccionada));
+    if (barberiaEditar) {
+      setForm({
+        nombre: barberiaEditar.nombre || '',
+        direccion: barberiaEditar.direccion || '',
+        telefono: barberiaEditar.telefono || '',
+        ciudad: barberiaEditar.ciudad || '',
+        hora_apertura: barberiaEditar.hora_apertura || '08:00',
+        hora_cierre: barberiaEditar.hora_cierre || '20:00'
+      });
     } else {
-      // Resetear formulario si es creación
-      setFormData(normalizarFormData());
+      setForm({
+        nombre: '',
+        direccion: '',
+        telefono: '',
+        ciudad: '',
+        hora_apertura: '08:00',
+        hora_cierre: '20:00'
+      });
     }
-    setFotoFile(null);
-    setError(null);
-  }, [barberiaSeleccionada, isOpen]);
+  }, [barberiaEditar, isOpen]);
 
-  // Si el modal no está abierto, no renderizar nada
   if (!isOpen) return null;
 
-  // ==========================
-  // Manejo de cambios en inputs
-  // ==========================
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // ==========================
-  // Validación básica antes de enviar
-  // ==========================
-  const validarCampos = () => {
-    if (!formData.nombre.trim()) return "El nombre es obligatorio.";
-    if (!formData.direccion.trim()) return "La dirección es obligatoria.";
-    if (!formData.ciudad.trim()) return "La ciudad es obligatoria.";
-    return null;
-  };
-
-  // ==========================
-  // Manejo del envío del formulario
-  // ==========================
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setEnviando(true);
-    setError(null);
+    setLoading(true);
+    setError('');
 
-    // Validar campos obligatorios
-    const errorValidacion = validarCampos();
-    if (errorValidacion) {
-      setError(errorValidacion);
-      setEnviando(false);
-      return;
-    }
+    const endpoint = barberiaEditar ? 'barberias/editarb.php' : 'barberias/crearb.php';
+    
+    const payload = barberiaEditar
+      ? { id_barberia: barberiaEditar.id_barberia, ...form }
+      : form;
 
-    try {
-      let data;
+    const res = await apiFetch(endpoint, {
+      method: 'POST',
+      body: payload
+    });
 
-      if (esEdicion) {
-        // Caso edición: enviar datos simples
-        const datosActualizados = {
-          ...formData,
-          id_barberia: barberiaSeleccionada.id_barberia,
-        };
-        data = await editarBarberia(datosActualizados);
-        if (data.success) {
-          onSuccess(datosActualizados, true); // notificar éxito
-          onClose();                 // cerrar modal
-        } else {
-          setError(data.error || "Error al actualizar la barbería.");
-        }
-      } else {
-        // Caso creación: usar FormData para incluir archivo
-        const dataToSend = new FormData();
-        Object.keys(formData).forEach((key) =>
-          dataToSend.append(key, formData[key])
-        );
-        if (fotoFile) dataToSend.append("foto", fotoFile);
+    setLoading(false);
 
-        data = await crearBarberia(dataToSend);
-        if (data.success) {
-          onSuccess(data, false); // notificar éxito
-          onClose();              // cerrar modal
-        } else {
-          setError(data.error || "Error al registrar la barbería.");
-        }
-      }
-    } catch (err) {
-      setError(err?.message || "No hay conexión con el servidor backend.");
-    } finally {
-      setEnviando(false);
+    if (res && res.status !== 'error') {
+      onSuccess && onSuccess();
+      onClose();
+    } else {
+      setError(res?.mensaje || 'Error al procesar la barbería.');
     }
   };
 
-  // ==========================
-  // Renderizado del modal
-  // ==========================
   return (
-    <div
-      className="modal-backdrop-custom"
-      onKeyDown={(e) => e.key === "Escape" && onClose()} // cerrar con ESC
-    >
-      <div className="modal-content-custom">
-        {/* Encabezado del modal */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h3 style={{ margin: 0 }}>
-            {esEdicion ? "Editar Barbería" : "Registrar Nueva Barbería"}
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: 'rgba(0, 0, 0, 0.65)',
+      backdropFilter: 'blur(3px)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 9999,
+      animation: 'fadeInOverlay 0.25s ease-out forwards'
+    }}>
+      <style>{`
+        @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleUpModal { from { opacity: 0; transform: scale(0.92) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .erp-modal-input {
+          width: 100%;
+          padding: 10px 14px;
+          background-color: #2b2b2b;
+          border: 1px solid #3d3d3d;
+          color: #f1f1f1;
+          border-radius: 6px;
+          font-size: 0.95rem;
+          box-sizing: border-box;
+          outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .erp-modal-input:focus {
+          border-color: #d4af37;
+          box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+      `}</style>
+
+      <div style={{
+        backgroundColor: '#ffffff',
+        padding: '30px',
+        borderRadius: '12px',
+        width: '100%',
+        maxWidth: '480px',
+        boxShadow: '0 12px 32px rgba(0,0,0,0.3)',
+        boxSizing: 'border-box',
+        animation: 'scaleUpModal 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '12px' }}>
+          <h3 style={{ margin: 0, color: '#1a1a1a', fontSize: '1.25rem', fontWeight: '600' }}>
+            {barberiaEditar ? 'Editar Barbería' : 'Registrar Barbería'}
           </h3>
-          <button
-            aria-label="Cerrar modal"
-            onClick={onClose}
-            style={{
-              background: "transparent",
-              border: "none",
-              fontSize: 20,
-              cursor: "pointer",
-            }}
-          >
-            ✕
-          </button>
+          <button type="button" onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#888' }}>✕</button>
         </div>
 
-        {/* Mensaje de error */}
-        {error && <p className="status error">{error}</p>}
+        {error && <div style={{ color: '#d9534f', marginBottom: '15px', fontSize: '0.9rem', background: '#fdf7f7', padding: '10px', borderRadius: '6px', border: '1px solid #f5c6cb' }}>{error}</div>}
 
-        {/* Formulario */}
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Nombre</label>
-            <input type="text" name="nombre" value={formData.nombre ?? ""} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label>Dirección</label>
-            <input type="text" name="direccion" value={formData.direccion ?? ""} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label>Ciudad</label>
-            <input type="text" name="ciudad" value={formData.ciudad ?? ""} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label>Teléfono</label>
-            <input type="text" name="telefono" value={formData.telefono ?? ""} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label>Estado</label>
-            <select name="estado" value={formData.estado ?? 1} onChange={handleChange}>
-              <option value={1}>Activa</option>
-              <option value={0}>Inactiva</option>
-            </select>
+          <div style={{ marginBottom: '14px' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#444', fontSize: '0.85rem' }}>Nombre del Local:</label>
+            <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej: BarberFaster Central" required className="erp-modal-input" />
           </div>
 
-          {/* Campo de foto solo en creación */}
-          {!esEdicion && (
-            <div className="form-group">
-              <label>Foto</label>
-              <input type="file" accept="image/*" onChange={(e) => setFotoFile(e.target.files[0])} />
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#444', fontSize: '0.85rem' }}>Ciudad:</label>
+              <input type="text" value={form.ciudad} onChange={e => setForm({ ...form, ciudad: e.target.value })} placeholder="Ej: Sonsón" className="erp-modal-input" />
             </div>
-          )}
+            <div style={{ flex: 1 }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#444', fontSize: '0.85rem' }}>Teléfono:</label>
+              <input type="text" value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })} placeholder="Contacto" className="erp-modal-input" />
+            </div>
+          </div>
 
-          {/* Botones de acción */}
-          <div className="modal-actions">
-            <button type="button" className="btn-secondary" onClick={onClose} disabled={enviando}>
-              Cancelar
-            </button>
-            <button type="submit" className="btn" disabled={enviando}>
-              {enviando ? "Guardando..." : esEdicion ? "Guardar Cambios" : "Registrar"}
+          <div style={{ marginBottom: '14px' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#444', fontSize: '0.85rem' }}>Dirección:</label>
+            <input type="text" value={form.direccion} onChange={e => setForm({ ...form, direccion: e.target.value })} placeholder="Ubicación física" className="erp-modal-input" />
+          </div>
+
+          {/* ASIGNACIÓN DE HORARIOS */}
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#444', fontSize: '0.85rem' }}>Hora de Apertura:</label>
+              <input type="time" value={form.hora_apertura} onChange={e => setForm({ ...form, hora_apertura: e.target.value })} required className="erp-modal-input" />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#444', fontSize: '0.85rem' }}>Hora de Cierre:</label>
+              <input type="time" value={form.hora_cierre} onChange={e => setForm({ ...form, hora_cierre: e.target.value })} required className="erp-modal-input" />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <button type="button" onClick={onClose} disabled={loading} style={{ padding: '10px 18px', background: '#e4e4e4', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>Cancelar</button>
+            <button type="submit" disabled={loading} style={{ padding: '10px 20px', background: '#d4af37', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}>
+              {loading ? 'Guardando...' : (barberiaEditar ? 'Guardar Cambios' : 'Registrar')}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-}
-
-export default BarberiaModal;
+};

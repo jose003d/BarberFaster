@@ -1,253 +1,223 @@
-import { useEffect, useState } from "react";
-import { editarUsuario } from "../services/api";
+// src/components/UsuarioModal.jsx
+import React, { useState, useEffect } from 'react';
+import { apiFetch, obtenerBarberias } from '../services/api';
 
-// ==========================
-// Función auxiliar: genera un documento temporal
-// ==========================
-// Se usa para usuarios nuevos, tomando los últimos 8 dígitos del timestamp actual
-const generarDocumentoTemporal = () => Date.now().toString().slice(-8);
+export const UsuarioModal = ({ isOpen, onClose, idBarberia, usuarioEditar, onSuccess }) => {
+  const obtenerBarberiaActivaId = () => {
+    try {
+      const stored = localStorage.getItem('barberia_demo_admin');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return parsed.id_barberia || parsed.id || idBarberia || 1;
+      }
+    } catch (e) {
+      const raw = localStorage.getItem('barberia_demo_admin');
+      if (raw && !isNaN(raw)) return Number(raw);
+    }
+    return idBarberia || 1;
+  };
 
-function UsuarioModal({ isOpen, onClose, onSuccess, usuarioSeleccionado }) {
-  // ==========================
-  // Estados del formulario
-  // ==========================
-  const [formData, setFormData] = useState({
-    nombre: "",
-    email: "",
-    telefono: "",
-    documento: generarDocumentoTemporal(),
-    rol: "barbero",
-    apellido: "",
+  const [form, setForm] = useState({
+    nombre: '',
+    especialidad: '',
+    id_barberia: obtenerBarberiaActivaId()
   });
-  const [error, setError] = useState(null);       // mensajes de error
-  const [enviando, setEnviando] = useState(false);// estado de envío
-  const [barberias, setBarberias] = useState([]); // lista de barberías disponibles
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isAnimating, setIsAnimating] = useState(false);
 
-  const esEdicion = !!usuarioSeleccionado; // true si estamos editando
-
-  // La UI no solicita contraseñas; el backend asigna el hash demo internamente.
-
-  // ==========================
-  // useEffect: carga datos si hay usuario seleccionado
-  // ==========================
   useEffect(() => {
-    if (usuarioSeleccionado) {
-      setFormData({
-        nombre: usuarioSeleccionado.nombre || "",
-        email: usuarioSeleccionado.email || "",
-        telefono: usuarioSeleccionado.telefono || "",
-        documento: usuarioSeleccionado.documento || generarDocumentoTemporal(),
-        rol: usuarioSeleccionado.rol || "barbero",
-        apellido: usuarioSeleccionado.apellido || "",
+    if (isOpen) {
+      setIsAnimating(true);
+      sincronizarBarberiaActiva();
+    }
+    if (usuarioEditar) {
+      setForm({
+        nombre: usuarioEditar.nombre || '',
+        especialidad: usuarioEditar.especialidad || '',
+        id_barberia: usuarioEditar.id_barberia || obtenerBarberiaActivaId()
       });
     } else {
-      // Resetear formulario si es creación
-      setFormData({
-        nombre: "",
-        email: "",
-        telefono: "",
-        documento: generarDocumentoTemporal(),
-        rol: "barbero",
-        apellido: "",
+      setForm({ 
+        nombre: '', 
+        especialidad: '', 
+        id_barberia: obtenerBarberiaActivaId()
       });
     }
-    setError(null);
+  }, [usuarioEditar, isOpen, idBarberia]);
 
-    // Al abrir el modal, cargar barberías desde backend
-    if (isOpen) {
-      fetch("/erpbarber/barberfaster/backend/barberias/listarb.php")
-        .then((r) => r.json())
-        .then((data) => {
-          if (Array.isArray(data)) setBarberias(data);
-        })
-        .catch(() => {});
-    }
-  }, [usuarioSeleccionado, isOpen]);
-
-  // Si el modal no está abierto, no renderizar nada
-  if (!isOpen) return null;
-
-  // ==========================
-  // Manejo de cambios en inputs
-  // ==========================
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // ==========================
-  // Manejo del envío del formulario
-  // ==========================
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setEnviando(true);
-    setError(null);
-
+  const sincronizarBarberiaActiva = async () => {
     try {
-      let data;
+      const barberias = await obtenerBarberias(true);
+      const activeId = Number(obtenerBarberiaActivaId());
+      const barberiaValida = barberias.find((barberia) => Number(barberia.id_barberia) === activeId) || barberias[0];
 
-      if (esEdicion) {
-        // Caso edición: actualizar usuario
-        data = await editarUsuario(formData);
-        if (data.success) {
-          onSuccess(formData, true);
-          onClose();
-        } else {
-          setError(data.error || "Error al actualizar el usuario.");
-        }
-      } else {
-        // Caso creación: enviar datos al backend
-        const response = await fetch(
-          "/erpbarber/barberfaster/backend/usuarios/crearu.php",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData),
-          }
-        );
-        data = await response.json();
-
-        if (data.success) {
-          const nuevoUsuario = {
-            id_usuario: data.id_usuario || Date.now(),
-            ...formData,
-          };
-
-          // ==========================
-          // Lógica adicional según rol
-          // ==========================
-          if (formData.rol === "barbero") {
-            // Crear registro en tabla barberos
-            try {
-              await fetch("/erpbarber/barberfaster/backend/barberos/crearb.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  id_usuario: data.id_usuario,
-                  id_barberia: formData.id_barberia || (barberias[0] && barberias[0].id_barberia),
-                  especialidad: formData.especialidad || '',
-                }),
-              });
-            } catch (err) {
-              // No bloquear la creación del usuario si falla crear barbero
-            }
-          } else {
-            // Crear entrada en clientes (usa documento como dni)
-            try {
-              await fetch("/erpbarber/barberfaster/backend/clientes/crearc.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  dni: formData.documento || data.id_usuario,
-                  nombre: formData.nombre,
-                  apellido: formData.apellido,
-                  telefono: formData.telefono,
-                  correo: formData.email,
-                }),
-              });
-            } catch (err) {
-              // Ignorar errores de cliente
-            }
-          }
-
-          // Notificar éxito y resetear formulario
-          onSuccess(nuevoUsuario, false);
-          setFormData({
-            nombre: "",
-            email: "",
-            telefono: "",
-            documento: generarDocumentoTemporal(),
-            rol: formData.rol,
-            apellido: "",
-          });
-          onClose();
-        } else {
-          setError(data.error || "Ocurrió un error al registrar el usuario.");
-        }
+      if (barberiaValida) {
+        const idValido = Number(barberiaValida.id_barberia);
+        setForm((current) => ({ ...current, id_barberia: idValido }));
+        localStorage.setItem('barberia_demo_admin', JSON.stringify(barberiaValida));
+        return idValido;
       }
     } catch (err) {
-      setError("No hay conexión con el servidor backend.");
-    } finally {
-      setEnviando(false);
+      setError('No se pudo validar la barbería activa.');
+    }
+    return null;
+  };
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    const idBarberiaValida = await sincronizarBarberiaActiva();
+    if (!idBarberiaValida) {
+      setLoading(false);
+      setError('No hay una barbería activa válida para registrar el barbero.');
+      return;
+    }
+
+    const endpoint = usuarioEditar ? 'barberos/actualizarb.php' : 'barberos/crearb.php';
+    
+    const payload = usuarioEditar
+      ? { 
+          id_barbero: usuarioEditar.id_barbero, 
+          nombre: form.nombre, 
+          especialidad: form.especialidad,
+          id_barberia: idBarberiaValida
+        }
+      : { 
+          id_barberia: idBarberiaValida, 
+          nombre: form.nombre, 
+          especialidad: form.especialidad
+        };
+
+    const res = await apiFetch(endpoint, {
+      method: 'POST',
+      body: payload
+    });
+
+    setLoading(false);
+
+    if (res.status === 'success') {
+      onSuccess && onSuccess();
+      onClose();
+    } else {
+      setError(res.mensaje || 'Error al procesar el barbero.');
     }
   };
 
-  // ==========================
-  // Renderizado del modal
-  // ==========================
   return (
-    <div className="modal-backdrop-custom">
-      <div className="modal-content-custom">
-        {/* Encabezado del modal */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0 }}>
-            {esEdicion
-              ? "Editar Usuario"
-              : formData.rol === "cliente"
-              ? "Registrar Nuevo Cliente"
-              : "Registrar Nuevo Colaborador"}
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: 'rgba(0, 0, 0, 0.65)',
+      backdropFilter: 'blur(3px)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 9999,
+      animation: 'fadeInOverlay 0.25s ease-out forwards'
+    }}>
+      <style>{`
+        @keyframes fadeInOverlay {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleUpModal {
+          from { opacity: 0; transform: scale(0.92) translateY(10px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .erp-modal-input {
+          width: 100%;
+          padding: 11px 14px;
+          background-color: #2b2b2b;
+          border: 1px solid #3d3d3d;
+          color: #f1f1f1;
+          border-radius: 6px;
+          font-size: 0.95rem;
+          box-sizing: border-box;
+          outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .erp-modal-input:focus {
+          border-color: #d4af37;
+          box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+      `}</style>
+
+      <div style={{
+        backgroundColor: '#ffffff',
+        padding: '30px',
+        borderRadius: '12px',
+        width: '100%',
+        maxWidth: '460px',
+        boxShadow: '0 12px 32px rgba(0,0,0,0.3)',
+        boxSizing: 'border-box',
+        animation: 'scaleUpModal 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '12px' }}>
+          <h3 style={{ margin: 0, color: '#1a1a1a', fontSize: '1.25rem', fontWeight: '600' }}>
+            {usuarioEditar ? 'Editar Barbero' : 'Registrar Barbero'}
           </h3>
-          <button
-            aria-label="Cerrar"
+          <button 
+            type="button" 
             onClick={onClose}
-            style={{ background: 'transparent', border: 'none', fontSize: 20, cursor: 'pointer' }}
+            style={{ background: 'transparent', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#888', padding: '4px' }}
           >
             ✕
           </button>
         </div>
 
-        {/* Mensaje de error */}
-        {error && <p className="status error">{error}</p>}
+        {error && <div style={{ color: '#d9534f', marginBottom: '15px', fontSize: '0.9rem', background: '#fdf7f7', padding: '10px', borderRadius: '6px', border: '1px solid #f5c6cb' }}>{error}</div>}
 
-        {/* Formulario */}
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Nombre Completo</label>
-            <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} required />
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#444', fontSize: '0.9rem' }}>Nombre:</label>
+            <input 
+              type="text" 
+              value={form.nombre} 
+              onChange={e => setForm({ ...form, nombre: e.target.value })} 
+              placeholder="Nombre completo del barbero"
+              required 
+              className="erp-modal-input"
+            />
           </div>
 
-          <div className="form-group">
-            <label>Apellido</label>
-            <input type="text" name="apellido" value={formData.apellido} onChange={handleChange} required />
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#444', fontSize: '0.9rem' }}>Especialidad:</label>
+            <input 
+              type="text" 
+              placeholder="Ej: Fade, Barba, Corte Clásico"
+              value={form.especialidad} 
+              onChange={e => setForm({ ...form, especialidad: e.target.value })} 
+              className="erp-modal-input"
+            />
           </div>
 
-          <div className="form-group">
-            <label>Documento</label>
-            <input type="text" name="documento" value={formData.documento} onChange={handleChange} required />
-          </div>
-
-          <div className="form-group">
-            <label>Correo Electrónico</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} required />
-          </div>
-
-          <div className="form-group">
-            <label>Teléfono</label>
-            <input type="text" name="telefono" value={formData.telefono} onChange={handleChange} required />
-          </div>
-
-          <div className="form-group">
-            <label>Rol asignado</label>
-            <select name="rol" value={formData.rol} onChange={handleChange}>
-              <option value="barbero">Barbero</option>
-              <option value="cliente">Cliente</option>
-              <option value="admin">Administrador</option>
-            </select>
-          </div>
-
-          {/* Botones de acción */}
-          <div className="modal-actions">
-            <button type="button" className="btn-secondary" onClick={onClose} disabled={enviando}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <button 
+              type="button" 
+              onClick={onClose} 
+              disabled={loading} 
+              style={{ padding: '10px 18px', background: '#e4e4e4', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', fontSize: '0.95rem', transition: 'background 0.2s' }}
+            >
               Cancelar
             </button>
-            <button type="submit" className="btn" disabled={enviando}>
-              {enviando ? "Guardando..." : esEdicion ? "Guardar Cambios" : "Registrar"}
+            <button 
+              type="submit" 
+              disabled={loading} 
+              style={{ padding: '10px 20px', background: '#d4af37', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.95rem', transition: 'background 0.2s' }}
+            >
+              {loading ? 'Guardando...' : 'Guardar'}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-}
-
-export default UsuarioModal;
+};

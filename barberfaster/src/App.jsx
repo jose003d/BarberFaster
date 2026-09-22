@@ -1,17 +1,17 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
+import Login from './pages/Login'; // ✅ Correcto (sin llaves)
 import DashboardLayout from "./layouts/DashboardLayout";
 import Barberias from "./pages/Barberias";
 import Usuarios from "./pages/Usuarios";
 import Clientes from "./pages/Clientes";
 import Profile from "./pages/Profile";
-import Login from "./pages/Login";
 import Agenda from "./pages/Agenda";
 import Dashboard from "./pages/Dashboard";
 import SuperadminDashboard from "./pages/SuperadminDashboard";
 import SuperadminClientes from "./pages/SuperadminClientes";
 import AdminDashboard from "./pages/AdminDashboard";
-import BarberoWorkspace from "./pages/BarberoWorkspace";
+import { BarberoWorkspace } from "./pages/BarberoWorkspace";
 import ClienteDashboard from "./pages/ClienteDashboard";
 
 function ProtectedRoute({ children }) {

@@ -1,435 +1,809 @@
-import { useEffect, useMemo, useState } from "react";
-import { formatDateLabel, getDateKey, isWorkingDay, parseTimeToDate } from "./agendaUtils";
-import "./Agenda.css";
+import React, { useState, useEffect } from 'react';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import es from 'date-fns/locale/es';
+import './Agenda.css';
 
-const BASE_URL = "/erpbarber/barberfaster/backend";
-const defaultHorario = {
-  dias_semana: [1, 2, 3, 4, 5, 6, 7],
-  hora_inicio: "09:00",
-  hora_fin: "19:00",
-  intervalo_minutos: 30,
+const BASE_URL = 'http://localhost/erpbarber/barberfaster/backend';
+
+registerLocale('es', es);
+
+const formatearFechaLocal = (date) => {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 };
-const emptyClient = { nombre: "", apellido: "", dni: "", telefono: "", correo: "" };
-const initialForm = { dni: "", nombre: "", apellido: "", telefono: "", correo: "", observaciones: "", cliente_id: null };
 
-function Agenda() {
+export default function Agenda() {
+  const [pasoActual, setPasoActual] = useState(1);
+
   const [barberos, setBarberos] = useState([]);
-  const [barberoSel, setBarberoSel] = useState(null);
-  const [eventos, setEventos] = useState([]);
-  const [horarioBarbero, setHorarioBarbero] = useState(defaultHorario);
-  const [diasDisponibles, setDiasDisponibles] = useState([]);
-  const [diaSeleccionado, setDiaSeleccionado] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [mensaje, setMensaje] = useState(null);
-  const [form, setForm] = useState(initialForm);
-  const [cliente, setCliente] = useState(emptyClient);
-  const [clienteExistente, setClienteExistente] = useState(null);
-  const [buscandoCliente, setBuscandoCliente] = useState(false);
-  const [validationSent, setValidationSent] = useState(false);
-  const [codigoEnv, setCodigoEnv] = useState("");
-  const [validated, setValidated] = useState(false);
-  const [metodoVal, setMetodoVal] = useState("sms");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [eventoSel, setEventoSel] = useState(null);
-  const [slotSeleccionado, setSlotSeleccionado] = useState(null);
-  const [enviando, setEnviando] = useState(false);
+  const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
+  const [servicios, setServicios] = useState([]);
+  const [serviciosSeleccionados, setServiciosSeleccionados] = useState([]);
+  const [eventosOcupadosBD, setEventosOcupadosBD] = useState([]);
 
-  const resetAgendaState = () => {
-    setEventos([]);
-    setHorarioBarbero(defaultHorario);
-    setDiasDisponibles([]);
-    setDiaSeleccionado("");
-    setSelectedDate(new Date());
-    setValidationSent(false);
-    setCodigoEnv("");
-    setValidated(false);
-    setMetodoVal("sms");
+  // Horario configurado de la barbería
+  const [horarioBarberia, setHorarioBarberia] = useState({
+    apertura: '08:00',
+    cierre: '19:00'
+  });
+
+  // Fechas
+  const [fechaObjeto, setFechaObjeto] = useState(new Date());
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(
+    formatearFechaLocal(new Date())
+  );
+
+  // Hora del input
+  const [horaEscrita, setHoraEscrita] = useState('08:00');
+
+  // Modales
+  const [mostrarModalDatePicker, setMostrarModalDatePicker] = useState(false);
+  const [mostrarModalCita, setMostrarModalCita] = useState(false);
+
+  // Formulario cliente
+  const [dniCliente, setDniCliente] = useState('');
+  const [nombreCliente, setNombreCliente] = useState('');
+  const [telefonoCliente, setTelefonoCliente] = useState('');
+  const [observaciones, setObservaciones] = useState('');
+
+  const [mensaje, setMensaje] = useState(null);
+
+  // ==========================================
+  // FUNCIONES AUXILIARES
+  // ==========================================
+  const formatearHoraLimpiaStr = (time24) => {
+    if (!time24) return '';
+    const [hh, mm] = time24.split(':').map(Number);
+    const dateObj = new Date();
+    dateObj.setHours(hh, mm, 0, 0);
+    return dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
   };
 
+  const formatearFechaCabecera = (strFecha) => {
+    if (!strFecha) return '';
+    const [anio, mes, dia] = strFecha.split('-');
+    const fechaObj = new Date(anio, mes - 1, dia);
+    return fechaObj.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const esHoy = () => fechaSeleccionada === formatearFechaLocal(new Date());
+
+  const obtenerMinutosActualesHoy = () => {
+    const ahora = new Date();
+    return ahora.getHours() * 60 + ahora.getMinutes();
+  };
+
+  const obtenerBarberiaActivaId = () => {
+    try {
+      const stored = localStorage.getItem("barberia_demo_admin");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return parsed.id_barberia || parsed.id || 1;
+      }
+    } catch (e) {
+      const raw = localStorage.getItem("barberia_demo_admin");
+      if (raw && !isNaN(raw)) return Number(raw);
+    }
+    return 1;
+  };
+
+  // 1. Cargar horario de la barbería
   useEffect(() => {
-    fetch(`${BASE_URL}/agenda/listar_barberos.php`)
-      .then((response) => response.json())
+    const idBarberia = obtenerBarberiaActivaId();
+    fetch(`${BASE_URL}/barberias/perfil.php?id_barberia=${idBarberia}`)
+      .then((res) => res.json())
       .then((data) => {
-        const list = Array.isArray(data) ? data : [];
-        setBarberos(list);
-        setBarberoSel((current) => current || list[0] || null);
+        if (data.status === 'success' && data.data) {
+          const ap = data.data.hora_apertura ? data.data.hora_apertura.substring(0, 5) : '08:00';
+          const ci = data.data.hora_cierre ? data.data.hora_cierre.substring(0, 5) : '19:00';
+          
+          setHorarioBarberia({ apertura: ap, cierre: ci });
+          establecerHoraInicialSegunFecha(fechaSeleccionada, ap, ci);
+        }
       })
-      .catch(() => {
-        setMensaje({ tipo: "error", texto: "No se pudieron cargar los barberos." });
-      });
+      .catch(() => {});
+  }, [fechaSeleccionada]);
+
+  const establecerHoraInicialSegunFecha = (fechaStr, aperStr, cierStr) => {
+    const hoyStr = formatearFechaLocal(new Date());
+
+    if (fechaStr === hoyStr) {
+      const ahora = new Date();
+      const [hCi, mCi] = (cierStr || horarioBarberia.cierre).split(':').map(Number);
+      const finJornada = hCi * 60 + mCi;
+      const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes();
+
+      if (minutosAhora >= finJornada) {
+        setHoraEscrita(aperStr);
+        return;
+      }
+
+      ahora.setMinutes(ahora.getMinutes() + 5);
+      const hh = String(ahora.getHours()).padStart(2, '0');
+      const mm = String(ahora.getMinutes()).padStart(2, '0');
+      const horaActualStr = `${hh}:${mm}`;
+
+      if (horaActualStr < aperStr) {
+        setHoraEscrita(aperStr);
+      } else {
+        setHoraEscrita(horaActualStr);
+      }
+    } else {
+      // Si es mañana o un día futuro, arranca con la hora de apertura
+      setHoraEscrita(aperStr);
+    }
+  };
+
+  // 2. Cargar Barberos
+  useEffect(() => {
+    fetch(`${BASE_URL}/barberos/listar_barberos.php`)
+      .then((res) => res.json())
+      .then((data) => {
+        const lista = Array.isArray(data) ? data : data.barberos || data.datos || [];
+        setBarberos(lista);
+      })
+      .catch(() => setMensaje({ tipo: 'error', texto: 'No se pudieron cargar los barberos.' }));
   }, []);
 
-  useEffect(() => {
-    if (!barberoSel) {
-      resetAgendaState();
-      return;
-    }
+  // 3. Cargar Servicios del Barbero
+  const seleccionarBarberoYAvanzar = (b) => {
+    setBarberoSeleccionado(b);
+    const idBarbero = b.id_barbero || b.id;
 
-    const cargarEventos = fetch(`${BASE_URL}/agenda/listar_eventos.php?id_barbero=${barberoSel.id_barbero}`)
-      .then((response) => response.json())
+    fetch(`${BASE_URL}/servicios/servicios_por_barbero.php?id_barbero=${idBarbero}`)
+      .then((res) => res.json())
       .then((data) => {
-        if (!Array.isArray(data)) return [];
-        return data;
-      });
-
-    const cargarHorario = barberoSel.id_usuario
-      ? fetch(`${BASE_URL}/agenda/horario_barbero.php?id_usuario=${barberoSel.id_usuario}`)
-          .then((response) => response.json())
-          .then((data) => (data && data.success && data.horario ? data.horario : defaultHorario))
-      : Promise.resolve(defaultHorario);
-
-    Promise.all([cargarEventos, cargarHorario])
-      .then(([eventosList, horario]) => {
-        setEventos(eventosList);
-        setHorarioBarbero(horario || defaultHorario);
-
-        const fechaKeys = [...new Set(
-          eventosList
-            .filter((evento) => Boolean(evento.extendedProps?.disponible))
-            .map((evento) => getDateKey(evento.start))
-            .filter(Boolean)
-        )].sort();
-
-        const workingDates = [];
-        if (Array.isArray(horario?.dias_semana) && horario.dias_semana.length > 0) {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          for (let i = 0; i < 35; i += 1) {
-            const d = new Date(today);
-            d.setDate(today.getDate() + i);
-            const key = getDateKey(d);
-            if (isWorkingDay(key, horario.dias_semana)) {
-              workingDates.push(key);
-            }
-          }
+        const lista = Array.isArray(data) ? data : data.servicios || data.datos || [];
+        setServicios(lista);
+        if (lista.length > 0) {
+          const idInicial = String(lista[0].id_servicio || lista[0].id);
+          setServiciosSeleccionados([idInicial]);
+        } else {
+          setServiciosSeleccionados([]);
         }
-
-        const fechas = fechaKeys.length > 0
-          ? [...new Set([...fechaKeys, ...workingDates])].sort()
-          : workingDates;
-
-        setDiasDisponibles(fechas);
-        setDiaSeleccionado((current) => (fechas.includes(current) ? current : fechas[0] || ""));
-        if (fechas[0]) {
-          const fechaBase = new Date(`${fechas[0]}T12:00:00`);
-          setSelectedDate(fechaBase);
-        }
+        setPasoActual(2);
       })
       .catch(() => {
-        setEventos([]);
-        setHorarioBarbero(defaultHorario);
-        setDiasDisponibles([]);
-        setDiaSeleccionado("");
-        setMensaje({ tipo: "error", texto: "No se pudieron cargar los eventos del barbero seleccionado." });
+        setServicios([]);
+        setPasoActual(2);
       });
-  }, [barberoSel]);
-
-  const horariosDisponibles = useMemo(() => {
-    if (!diaSeleccionado) return [];
-
-    const horarioActual = horarioBarbero || defaultHorario;
-    const interval = Number(horarioActual.intervalo_minutos) || 30;
-    const horaInicio = horarioActual.hora_inicio || "09:00";
-    const horaFin = horarioActual.hora_fin || "19:00";
-
-    const startDate = parseTimeToDate(diaSeleccionado, horaInicio);
-    const endDate = parseTimeToDate(diaSeleccionado, horaFin);
-    if (!startDate || !endDate || endDate <= startDate) return [];
-
-    const slots = [];
-    let current = new Date(startDate);
-
-    while (current < endDate) {
-      const next = new Date(current.getTime() + interval * 60000);
-      if (next > endDate) break;
-
-      const matching = eventos.find(
-        (event) => getDateKey(event.start) === diaSeleccionado && new Date(event.start).getTime() === current.getTime()
-      );
-      const disponible = matching ? Boolean(matching.extendedProps?.disponible) : true;
-
-      slots.push({
-        id: matching ? matching.id : `${diaSeleccionado}_${current.getTime()}`,
-        start: new Date(current),
-        end: new Date(next),
-        disponible,
-      });
-
-      current = next;
-    }
-
-    return slots;
-  }, [diaSeleccionado, eventos, horarioBarbero]);
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-      ...(name === "dni" ? { cliente_id: null } : {}),
-    }));
   };
 
-  const handleDniBlur = async () => {
-    const dni = form.dni?.trim();
-    if (!dni) return;
+  // 4. Cargar Citas/Eventos Ocupados
+  const cargarEventosBD = () => {
+    if (!barberoSeleccionado) return;
+    const idBarbero = barberoSeleccionado.id_barbero || barberoSeleccionado.id;
 
-    setBuscandoCliente(true);
-    try {
-      const response = await fetch(`${BASE_URL}/clientes/buscar.php?dni=${encodeURIComponent(dni)}`);
-      const data = await response.json();
+    fetch(`${BASE_URL}/agenda/listar_eventos.php?id_barbero=${idBarbero}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const lista = Array.isArray(data) ? data : data.eventos || data.data || [];
+        setEventosOcupadosBD(lista);
+      })
+      .catch(() => setEventosOcupadosBD([]));
+  };
 
-      if (data.success && data.cliente) {
-        setClienteExistente(data.cliente);
-        setForm((prev) => ({
-          ...prev,
-          cliente_id: data.cliente.id_cliente || prev.cliente_id,
-          dni: data.cliente.dni?.toString() || prev.dni,
-          nombre: data.cliente.nombre || prev.nombre,
-          apellido: data.cliente.apellido || prev.apellido,
-          telefono: data.cliente.telefono || prev.telefono,
-          correo: data.cliente.correo || prev.correo,
-        }));
-        setMensaje({ tipo: "success", texto: "Cliente encontrado. Se completaron tus datos automáticamente." });
+  useEffect(() => {
+    cargarEventosBD();
+  }, [barberoSeleccionado]);
+
+  const handleToggleServicio = (idServicioStr) => {
+    setServiciosSeleccionados((prev) => {
+      if (prev.includes(idServicioStr)) {
+        if (prev.length === 1) return prev;
+        return prev.filter((id) => id !== idServicioStr);
       } else {
-        setClienteExistente(null);
-        setMensaje({ tipo: "info", texto: "No se encontró un cliente registrado con ese documento. Completa los datos para crear uno nuevo." });
+        return [...prev, idServicioStr];
       }
-    } catch {
-      setMensaje({ tipo: "error", texto: "No se pudo buscar el cliente." });
-    } finally {
-      setBuscandoCliente(false);
-      setTimeout(() => setMensaje(null), 3000);
-    }
+    });
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (!eventoSel || !form.dni || !form.nombre || !form.apellido || !form.telefono || !form.correo) {
-      setMensaje({ tipo: "error", texto: "Completa todos los campos para agendar la cita." });
+  const duracionTotalMinutos = servicios
+    .filter((s) => serviciosSeleccionados.includes(String(s.id_servicio || s.id)))
+    .reduce((acc, curr) => acc + parseInt(curr.duracion_minutos || curr.duracion || 30, 10), 0);
+
+  const precioTotal = servicios
+    .filter((s) => serviciosSeleccionados.includes(String(s.id_servicio || s.id)))
+    .reduce((acc, curr) => acc + parseFloat(curr.precio || 0), 0);
+
+  // OBTENER CITAS OCUPADAS DEL DÍA PARA MOSTRAR EN TARJETAS
+  const obtenerCitasOcupadasVisibles = () => {
+    const hoyStr = formatearFechaLocal(new Date());
+    const minutosActuales = obtenerMinutosActualesHoy();
+
+    return eventosOcupadosBD
+      .filter((ev) => {
+        if (!ev.start) return false;
+        const [fechaEv, horaEv] = ev.start.replace('T', ' ').split(' ');
+        if (fechaEv !== fechaSeleccionada) return false;
+
+        // Ocultar del panel izquierdo solo las citas pasadas de HOY
+        if (fechaSeleccionada === hoyStr && horaEv) {
+          const [h, m] = horaEv.split(':').map(Number);
+          if (h * 60 + m < minutosActuales) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => a.start.localeCompare(b.start));
+  };
+
+  const citasOcupadasDelDia = obtenerCitasOcupadasVisibles();
+
+  // CAMBIAR FECHA A MAÑANA
+  const handleCambiarAManana = () => {
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+
+    setFechaObjeto(manana);
+    const yyyy = manana.getFullYear();
+    const mm = String(manana.getMonth() + 1).padStart(2, '0');
+    const dd = String(manana.getDate()).padStart(2, '0');
+    
+    setFechaSeleccionada(`${yyyy}-${mm}-${dd}`);
+    setHoraEscrita(horarioBarberia.apertura);
+  };
+
+  // SUGERENCIA DE HORA MÁS CERCANA LIBRE
+  const buscarSiguienteHoraLibre = (minInicio, finJornada) => {
+    const paso = 15;
+    const ocupacionesDia = eventosOcupadosBD.filter((ev) => ev.start && ev.start.startsWith(fechaSeleccionada));
+
+    for (let m = minInicio + paso; m + duracionTotalMinutos <= finJornada; m += paso) {
+      const hh = String(Math.floor(m / 60)).padStart(2, '0');
+      const mm = String(m % 60).padStart(2, '0');
+      const startISO = `${fechaSeleccionada} ${hh}:${mm}:00`;
+
+      const minFin = m + duracionTotalMinutos;
+      const hhFin = String(Math.floor(minFin / 60)).padStart(2, '0');
+      const mmFin = String(minFin % 60).padStart(2, '0');
+      const endISO = `${fechaSeleccionada} ${hhFin}:${mmFin}:00`;
+
+      const choque = ocupacionesDia.some((ev) => {
+        const evStart = ev.start.replace('T', ' ');
+        const evEnd = ev.end.replace('T', ' ');
+        return startISO < evEnd && endISO > evStart;
+      });
+
+      if (!choque) {
+        const dateObj = new Date();
+        dateObj.setHours(Math.floor(m / 60), m % 60, 0, 0);
+        return {
+          time24: `${hh}:${mm}`,
+          time12: dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+        };
+      }
+    }
+    return null;
+  };
+
+  // EVALUADOR DE DISPONIBILIDAD
+  const evaluarHoraIngresada = () => {
+    if (!horaEscrita) return { disponible: false, mensajeError: 'Ingresa una hora válida.' };
+
+    const [h, m] = horaEscrita.split(':').map(Number);
+    if (isNaN(h) || isNaN(m)) return { disponible: false, mensajeError: 'Formato de hora no válido.' };
+
+    const minInicio = h * 60 + m;
+    const minFin = minInicio + duracionTotalMinutos;
+
+    const [hAp, mAp] = horarioBarberia.apertura.split(':').map(Number);
+    const [hCi, mCi] = horarioBarberia.cierre.split(':').map(Number);
+
+    const inicioJornada = hAp * 60 + mAp;
+    const finJornada = hCi * 60 + mCi;
+
+    // 1. Validar jornada laboral
+    if (minInicio < inicioJornada) {
+      return {
+        disponible: false,
+        mensajeError: `Aún no hemos abierto. Abrimos a las ${formatearHoraLimpiaStr(horarioBarberia.apertura)}.`
+      };
+    }
+
+    if (minFin > finJornada) {
+      return {
+        disponible: false,
+        excedeCierre: true,
+        mensajeError: `No alcanza el tiempo. El servicio requiere ${duracionTotalMinutos} min y la barbería cierra a las ${formatearHoraLimpiaStr(horarioBarberia.cierre)}.`
+      };
+    }
+
+    // 2. VALIDACIÓN DE HORA PASADA: ÚNICAMENTE APLICA SI ES EL DÍA DE HOY
+    if (esHoy()) {
+      const minutosAhoraMismo = obtenerMinutosActualesHoy();
+      if (minInicio < minutosAhoraMismo) {
+        return {
+          disponible: false,
+          mensajeError: 'No puedes agendar en una hora que ya transcurrió hoy.'
+        };
+      }
+    }
+
+    const startISO = `${fechaSeleccionada} ${horaEscrita}:00`;
+    const hFinStr = String(Math.floor(minFin / 60)).padStart(2, '0');
+    const mFinStr = String(minFin % 60).padStart(2, '0');
+    const endISO = `${fechaSeleccionada} ${hFinStr}:${mFinStr}:00`;
+
+    // 3. Validar solapamientos con la fecha seleccionada
+    const ocupacionesDia = eventosOcupadosBD.filter((ev) => ev.start && ev.start.startsWith(fechaSeleccionada));
+    const seSolapa = ocupacionesDia.some((ev) => {
+      const evStart = ev.start.replace('T', ' ');
+      const evEnd = ev.end.replace('T', ' ');
+      return startISO < evEnd && endISO > evStart;
+    });
+
+    if (seSolapa) {
+      const sugerencia = buscarSiguienteHoraLibre(minInicio, finJornada);
+      return { disponible: false, choque: true, sugerencia, startISO, endISO };
+    }
+
+    return {
+      disponible: true,
+      startISO,
+      endISO,
+      horaInicioStr: horaEscrita,
+      horaFinStr: `${hFinStr}:${mFinStr}`
+    };
+  };
+
+  const estadoDisponibilidad = evaluarHoraIngresada();
+
+  const handleFechaChange = (date) => {
+    if (!date) return;
+    setFechaObjeto(date);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    setFechaSeleccionada(`${yyyy}-${mm}-${dd}`);
+    setMostrarModalDatePicker(false);
+  };
+
+  // ABRE EL MODAL DE RESERVA
+  const handleAbrirModalConfirmacion = () => {
+    if (!estadoDisponibilidad.disponible) {
+      setMensaje({ tipo: 'error', texto: 'Selecciona una hora válida dentro del horario disponible.' });
+      return;
+    }
+    setMensaje(null);
+    setMostrarModalCita(true);
+  };
+
+  // PROCESA EL AGENDAMIENTO AL PRESIONAR EL FORMULARIO
+  const handleAgendarCita = (e) => {
+    e.preventDefault();
+
+    if (!dniCliente.trim() || !nombreCliente.trim()) {
+      setMensaje({ tipo: 'error', texto: 'Por favor, completa la cédula y el nombre del cliente.' });
       return;
     }
 
-    setEnviando(true);
-    try {
-      const response = await fetch(`${BASE_URL}/agenda/agendar_cita.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_barbero: barberoSel?.id_barbero,
-          id_cliente: form.cliente_id,
-          dni: form.dni,
-          nombre: form.nombre,
-          apellido: form.apellido,
-          telefono: form.telefono,
-          correo: form.correo,
-          observaciones: form.observaciones,
-          start: eventoSel.start,
-          end: eventoSel.end,
-        }),
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setMensaje({ tipo: "success", texto: "Cita agendada correctamente." });
-        setModalOpen(false);
-        setEventoSel(null);
-      } else {
-        setMensaje({ tipo: "error", texto: data.error || "No se pudo agendar la cita." });
-      }
-    } catch {
-      setMensaje({ tipo: "error", texto: "Error de conexión al agendar la cita." });
-    } finally {
-      setEnviando(false);
-    }
-  };
-
-  const sendValidationCode = async () => {
-    setValidationSent(true);
-    setMensaje({ tipo: "success", texto: `Código de validación enviado por ${metodoVal}.` });
-  };
-
-  const verifyValidationCode = async () => {
-    if (!codigoEnv.trim()) {
-      setMensaje({ tipo: "error", texto: "Ingresa el código de validación." });
+    if (!estadoDisponibilidad.disponible) {
+      setMensaje({ tipo: 'error', texto: 'La hora seleccionada no está disponible.' });
       return;
     }
-    setValidated(true);
-    setMensaje({ tipo: "success", texto: "Código verificado correctamente." });
-  };
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setEventoSel(null);
-    setSlotSeleccionado(null);
-    setValidationSent(false);
-    setCodigoEnv("");
-    setValidated(false);
-    setMetodoVal("sms");
-  };
+    const payload = {
+      id_barberia: obtenerBarberiaActivaId(),
+      id_barbero: barberoSeleccionado.id_barbero || barberoSeleccionado.id,
+      fecha: fechaSeleccionada,
+      hora_inicio: `${estadoDisponibilidad.horaInicioStr}:00`,
+      servicios: serviciosSeleccionados.map((id) => parseInt(id, 10)),
+      dni_cliente: dniCliente,
+      nombre_cliente: nombreCliente,
+      telefono_cliente: telefonoCliente,
+      notas: `${nombreCliente}${telefonoCliente ? ` - Teléfono: ${telefonoCliente}` : ''}${observaciones ? ` - ${observaciones}` : ''}`,
+    };
 
-  const handleSlotClick = (slot) => {
-    if (!slot.disponible) return;
-    setEventoSel({ id: slot.id, start: slot.start, end: slot.end });
-    setSlotSeleccionado(slot.id);
-    setModalOpen(true);
+    fetch(`${BASE_URL}/agenda/agendar_cita.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then((res) => res.json())
+      .then((resData) => {
+        if (resData.success || resData.status === 'success') {
+          setMensaje({ tipo: 'success', texto: '¡Cita agendada exitosamente!' });
+          setMostrarModalCita(false);
+          setDniCliente('');
+          setNombreCliente('');
+          setTelefonoCliente('');
+          setObservaciones('');
+          
+          cargarEventosBD();
+        } else {
+          setMensaje({ tipo: 'error', texto: resData.error || resData.mensaje || 'Error al agendar cita.' });
+        }
+      })
+      .catch(() => setMensaje({ tipo: 'error', texto: 'Error de conexión con el servidor.' }));
   };
-
-  const fechaSeleccionadaLabel = diaSeleccionado ? formatDateLabel(`${diaSeleccionado}T12:00:00`) : "Selecciona un día";
 
   return (
-    <div className="agenda-page">
-      <div className="agenda-header">
-        <h1>📅 Agenda BarberFaster</h1>
-        <p>Elige un barbero y selecciona un horario disponible para agendar tu cita</p>
+    <div className="agenda-page" style={{ maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
+      <div className="agenda-header" style={{ textAlign: 'center', marginBottom: '25px' }}>
+        <h1>🗓️ Agenda BarberFaster</h1>
+        <p style={{ color: '#666' }}>Reserva tu cita rápida en 3 sencillos pasos</p>
       </div>
 
-      {mensaje && (
-        <div className={`agenda-mensaje ${mensaje.tipo}`}>
-          {mensaje.texto}
+      {/* PROGRESO DE PASOS */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '30px' }}>
+        <div style={{ padding: '8px 16px', borderRadius: '20px', background: pasoActual === 1 ? '#d4af37' : '#e5e7eb', color: pasoActual === 1 ? '#fff' : '#4b5563', fontWeight: 'bold' }}>
+          1. Barbero
+        </div>
+        <div style={{ padding: '8px 16px', borderRadius: '20px', background: pasoActual === 2 ? '#d4af37' : '#e5e7eb', color: pasoActual === 2 ? '#fff' : '#4b5563', fontWeight: 'bold' }}>
+          2. Servicios
+        </div>
+        <div style={{ padding: '8px 16px', borderRadius: '20px', background: pasoActual === 3 ? '#d4af37' : '#e5e7eb', color: pasoActual === 3 ? '#fff' : '#4b5563', fontWeight: 'bold' }}>
+          3. Horario
+        </div>
+      </div>
+
+      {mensaje && <div className={`agenda-mensaje ${mensaje.tipo}`}>{mensaje.texto}</div>}
+
+      {/* PASO 1 */}
+      {pasoActual === 1 && (
+        <div>
+          <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>¿Con quién te deseas atender hoy?</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+            {barberos.map((b) => (
+              <div
+                key={b.id_barbero || b.id}
+                style={{
+                  background: '#fff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  textAlign: 'center',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center'
+                }}
+              >
+                {b.foto ? (
+                  <img
+                    src={`${BASE_URL}/uploads/${b.foto}`}
+                    alt={b.nombre}
+                    style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #d4af37', marginBottom: '12px' }}
+                  />
+                ) : (
+                  <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#fefce8', border: '2px solid #d4af37', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', marginBottom: '12px' }}>
+                    💈
+                  </div>
+                )}
+                
+                <h3 style={{ margin: '0 0 4px 0', color: '#111827' }}>{b.nombre || b.nombre_barbero}</h3>
+                <span style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '8px' }}>{b.especialidad || 'Especialista en Barbería'}</span>
+                {b.descripcion && <p style={{ fontSize: '0.85rem', color: '#888', margin: '0 0 16px 0' }}>{b.descripcion}</p>}
+                
+                <button
+                  onClick={() => seleccionarBarberoYAvanzar(b)}
+                  style={{ width: '100%', padding: '12px', background: '#d4af37', color: '#111', fontWeight: 'bold', border: 'none', borderRadius: '8px', cursor: 'pointer', marginTop: 'auto' }}
+                >
+                  Elegir a {b.nombre?.split(' ')[0]} ➔
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      <div className="barberos-grid">
-        {barberos.map((barbero) => (
-          <button
-            key={barbero.id_barbero}
-            type="button"
-            className={`barbero-card ${barberoSel?.id_barbero === barbero.id_barbero ? "selected" : ""}`}
-            onClick={() => setBarberoSel(barbero)}
-          >
-            <div className="barbero-avatar">✂️</div>
-            <div className="barbero-info">
-              <strong>{barbero.nombre} {barbero.apellido}</strong>
-              <span>{barbero.barberia || "Barbería"}</span>
+      {/* PASO 2 */}
+      {pasoActual === 2 && barberoSeleccionado && (
+        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div>
+              <h2 style={{ margin: 0 }}>Servicios de {barberoSeleccionado.nombre}</h2>
+              <p style={{ color: '#6b7280', margin: '4px 0 0 0' }}>Marca los servicios que deseas realizarte:</p>
             </div>
-          </button>
-        ))}
-      </div>
+            <button onClick={() => setPasoActual(1)} style={{ background: '#f3f4f6', border: 'none', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+              ← Cambiar Barbero
+            </button>
+          </div>
 
-      {barberoSel && (
-        <div className="agenda-layout">
-          <div className="agenda-calendar-panel">
-            <div className="agenda-panel-header">
-              <h2>Calendario</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+            {servicios.length === 0 ? (
+              <p style={{ color: '#6b7280' }}>Este barbero no tiene servicios asignados actualmente.</p>
+            ) : (
+              servicios.map((s) => {
+                const idStr = String(s.id_servicio || s.id);
+                const estaChequeado = serviciosSeleccionados.includes(idStr);
+
+                return (
+                  <label
+                    key={idStr}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '16px',
+                      border: `2px solid ${estaChequeado ? '#d4af37' : '#e5e7eb'}`,
+                      background: estaChequeado ? '#fefce8' : '#fff',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={estaChequeado}
+                      onChange={() => handleToggleServicio(idStr)}
+                    />
+                    <div>
+                      <strong>{s.nombre}</strong>
+                      <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>{s.duracion_minutos || 30} min · ${s.precio}</div>
+                    </div>
+                  </label>
+                );
+              })
+            )}
+          </div>
+
+          <div style={{ borderTop: '1px solid #eee', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: '0.9rem', color: '#374151' }}>Duración total: <strong>{duracionTotalMinutos} min</strong></div>
+              <div style={{ fontSize: '1.2rem', color: '#16a34a', fontWeight: 'bold' }}>Total: ${precioTotal}</div>
             </div>
 
-            <div className="date-picker-wrapper">
-              <label>Selecciona una fecha:</label>
-              <div className="agenda-day-list">
-                {diasDisponibles.length === 0 ? (
-                  <p className="agenda-empty">No hay días disponibles para este barbero.</p>
+            <button
+              disabled={serviciosSeleccionados.length === 0}
+              onClick={() => setPasoActual(3)}
+              style={{
+                padding: '12px 24px',
+                background: serviciosSeleccionados.length > 0 ? '#d4af37' : '#ccc',
+                color: '#111',
+                fontWeight: 'bold',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: serviciosSeleccionados.length > 0 ? 'pointer' : 'not-allowed',
+                fontSize: '1rem'
+              }}
+            >
+              Elegir Horario ➔
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* PASO 3 */}
+      {pasoActual === 3 && barberoSeleccionado && (
+        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div>
+              <h2 style={{ margin: 0 }}>Reserva con {barberoSeleccionado.nombre}</h2>
+              <span style={{ fontSize: '0.9rem', color: '#6b7280' }}>{duracionTotalMinutos} min · ${precioTotal}</span>
+            </div>
+            <button onClick={() => setPasoActual(2)} style={{ background: '#f3f4f6', border: 'none', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+              ← Cambiar Servicios
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            {/* PANEL IZQUIERDO */}
+            <div>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Fecha de Cita:</label>
+              <button
+                type="button"
+                onClick={() => setMostrarModalDatePicker(true)}
+                style={{ width: '100%', padding: '12px', background: '#f9fafb', border: '1px solid #ccc', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', textAlign: 'left', marginBottom: '20px' }}
+              >
+                📅 {formatearFechaCabecera(fechaSeleccionada)}
+              </button>
+
+              <div style={{ background: '#f9fafb', padding: '16px', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: '#374151' }}>
+                  📌 Horarios ya reservados en este día ({barberoSeleccionado.nombre}):
+                </h4>
+                {citasOcupadasDelDia.length === 0 ? (
+                  <p style={{ fontSize: '0.85rem', color: '#16a34a', margin: 0, fontWeight: 'bold' }}>
+                    ¡Sin reservas previas para este día!
+                  </p>
                 ) : (
-                  diasDisponibles.map((fechaKey) => (
-                    <button
-                      key={fechaKey}
-                      type="button"
-                      className={`agenda-day-item ${diaSeleccionado === fechaKey ? "active" : ""}`}
-                      onClick={() => { setDiaSeleccionado(fechaKey); setSelectedDate(new Date(`${fechaKey}T12:00:00`)); }}
-                    >
-                      {formatDateLabel(`${fechaKey}T12:00:00`)}
-                    </button>
-                  ))
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {citasOcupadasDelDia.map((ev, idx) => {
+                      const horaIni = ev.start.replace('T', ' ').split(' ')[1]?.substring(0, 5);
+                      const horaFin = ev.end ? ev.end.replace('T', ' ').split(' ')[1]?.substring(0, 5) : '';
+
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justify: 'space-between',
+                            padding: '10px 14px',
+                            background: '#fee2e2',
+                            borderLeft: '4px solid #ef4444',
+                            borderRadius: '8px',
+                            color: '#991b1b',
+                            fontSize: '0.85rem',
+                            fontWeight: 'bold',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                          }}
+                        >
+                          <span>🚫 Ocupado</span>
+                          <span>
+                            {formatearHoraLimpiaStr(horaIni)} — {formatearHoraLimpiaStr(horaFin)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             </div>
-          </div>
 
-          <div className="agenda-schedule-panel">
-            <div className="agenda-panel-header">
-              <h2>Agenda de {barberoSel.nombre} {barberoSel.apellido}</h2>
-              <span className="agenda-date-label">{fechaSeleccionadaLabel}</span>
-            </div>
+            {/* PANEL DERECHO */}
+            <div>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '4px', color: '#374151' }}>
+                Ingresa la hora en la que deseas ir:
+              </label>
 
-            <div className="agenda-slots">
-              {horariosDisponibles.length === 0 ? (
-                <p className="agenda-empty">No hay horarios disponibles para la fecha seleccionada.</p>
+              <p style={{ fontSize: '0.8rem', color: '#6b7280', margin: '0 0 12px 0' }}>
+                🕒 Horario de atención: <strong>{formatearHoraLimpiaStr(horarioBarberia.apertura)}</strong> a <strong>{formatearHoraLimpiaStr(horarioBarberia.cierre)}</strong>
+              </p>
+
+              <input
+                type="time"
+                value={horaEscrita}
+                onChange={(e) => setHoraEscrita(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '2px solid #d4af37',
+                  fontSize: '1.2rem',
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                  marginBottom: '16px',
+                  boxSizing: 'border-box'
+                }}
+              />
+
+              {estadoDisponibilidad.disponible ? (
+                <button
+                  type="button"
+                  onClick={handleAbrirModalConfirmacion}
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    background: '#d4af37',
+                    color: '#111',
+                    fontWeight: 'bold',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  Confirmar y Reservar Cita ➔
+                </button>
               ) : (
-                horariosDisponibles.map((slot) => (
-                  <button
-                    key={slot.id}
-                    type="button"
-                    className={`agenda-slot ${slot.disponible ? "available" : "booked"} ${slotSeleccionado === slot.id ? "selected" : ""}`}
-                    onClick={() => handleSlotClick(slot)}
-                    disabled={!slot.disponible}
-                  >
-                    {slot.start.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })} - {slot.end.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}
-                  </button>
-                ))
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '16px', borderRadius: '10px' }}>
+                  <p style={{ margin: '0 0 8px 0', color: '#991b1b', fontWeight: 'bold' }}>
+                    ⚠️ {estadoDisponibilidad.mensajeError || 'La hora elegida se cruza con una cita ocupada.'}
+                  </p>
+
+                  {/* Opción 1: Si excede el cierre del día */}
+                  {estadoDisponibilidad.excedeCierre && (
+                    <button
+                      type="button"
+                      onClick={handleCambiarAManana}
+                      style={{
+                        marginTop: '8px',
+                        padding: '10px 16px',
+                        background: '#d4af37',
+                        color: '#111',
+                        fontWeight: 'bold',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        width: '100%'
+                      }}
+                    >
+                      📅 Ver disponibilidad para mañana
+                    </button>
+                  )}
+
+                  {/* Opción 2: Si hay otro turno libre más temprano el mismo día */}
+                  {estadoDisponibilidad.sugerencia && (
+                    <div>
+                      <p style={{ margin: '8px 0 6px 0', fontSize: '0.85rem', color: '#374151' }}>
+                        Horario libre más cercano hoy:
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setHoraEscrita(estadoDisponibilidad.sugerencia.time24)}
+                        style={{
+                          padding: '10px 16px',
+                          background: '#2563eb',
+                          color: '#fff',
+                          fontWeight: 'bold',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          width: '100%'
+                        }}
+                      >
+                        💡 Ajustar a las {estadoDisponibilidad.sugerencia.time12}
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
         </div>
       )}
 
-      {modalOpen && eventoSel && (
-        <div className="agenda-modal-backdrop">
-          <div className="agenda-modal">
-            <h3>Agendar Cita</h3>
-            <p className="agenda-horario">
-              🕐 {eventoSel.start?.toLocaleString("es-CO", { dateStyle: "full", timeStyle: "short" })}
-            </p>
+      {/* MODAL 1: CALENDARIO */}
+      {mostrarModalDatePicker && (
+        <div className="agenda-modal-backdrop" onClick={() => setMostrarModalDatePicker(false)}>
+          <div className="agenda-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-heading">
+              <h3>Selecciona el día de tu cita</h3>
+              <button className="modal-close" onClick={() => setMostrarModalDatePicker(false)}>&times;</button>
+            </div>
+            <div className="date-picker-wrapper">
+              <DatePicker selected={fechaObjeto} onChange={handleFechaChange} inline locale="es" minDate={new Date()} />
+            </div>
+          </div>
+        </div>
+      )}
 
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>DNI / Documento</label>
-                <input type="number" name="dni" value={form.dni} onChange={handleChange} onBlur={handleDniBlur} required />
-                {buscandoCliente && <small>Buscando cliente...</small>}
-              </div>
-              <div className="form-group">
-                <label>Nombre</label>
-                <input type="text" name="nombre" value={form.nombre} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Apellido</label>
-                <input type="text" name="apellido" value={form.apellido} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Teléfono</label>
-                <input type="text" name="telefono" value={form.telefono} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Correo</label>
-                <input type="email" name="correo" value={form.correo} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Observaciones (opcional)</label>
-                <textarea name="observaciones" value={form.observaciones} onChange={handleChange} rows={3} />
-              </div>
+      {/* MODAL 2: FORMULARIO RESERVA */}
+      {mostrarModalCita && (
+        <div className="agenda-modal-backdrop" onClick={() => setMostrarModalCita(false)}>
+          <div className="agenda-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-heading">
+              <h3>Confirmar Cita con {barberoSeleccionado?.nombre}</h3>
+              <button className="modal-close" onClick={() => setMostrarModalCita(false)}>&times;</button>
+            </div>
 
+            <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>
+              <p style={{ margin: '0 0 4px 0', fontSize: '0.9rem', color: '#374151' }}>
+                📅 <strong>{formatearFechaCabecera(fechaSeleccionada)}</strong>
+              </p>
+              <p style={{ margin: '0 0 4px 0', fontSize: '0.9rem', color: '#374151' }}>
+                ⏰ <strong>{formatearHoraLimpiaStr(estadoDisponibilidad.horaInicioStr)} a {formatearHoraLimpiaStr(estadoDisponibilidad.horaFinStr)}</strong> ({duracionTotalMinutos} min)
+              </p>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: '#16a34a', fontWeight: 'bold' }}>
+                💰 Total a pagar: ${precioTotal}
+              </p>
+            </div>
+
+            <form onSubmit={handleAgendarCita} className="appointment-form">
               <div className="form-group">
-                <label>Método de validación</label>
-                <select value={metodoVal} onChange={(event) => setMetodoVal(event.target.value)}>
-                  <option value="sms">SMS</option>
-                  <option value="email">Correo</option>
-                </select>
-                <div style={{ marginTop: 8 }}>
-                  <button type="button" className="btn-secondary" onClick={sendValidationCode} disabled={validationSent}>
-                    Enviar código
-                  </button>
-                </div>
+                <label>Documento (DNI / Cédula):</label>
+                <input type="text" placeholder="Ej. 1001234567" value={dniCliente} onChange={(e) => setDniCliente(e.target.value)} required />
               </div>
 
-              {validationSent && (
-                <div className="form-group">
-                  <label>Código de validación</label>
-                  <input type="text" value={codigoEnv} onChange={(event) => setCodigoEnv(event.target.value)} />
-                  <div style={{ marginTop: 8 }}>
-                    <button type="button" className="btn" onClick={verifyValidationCode} disabled={validated}>
-                      Verificar código
-                    </button>
-                    {validated && <span style={{ marginLeft: 8, color: "green" }}>Verificado</span>}
-                  </div>
-                </div>
-              )}
+              <div className="form-group">
+                <label>Nombre Completo:</label>
+                <input type="text" placeholder="Tu nombre y apellido" value={nombreCliente} onChange={(e) => setNombreCliente(e.target.value)} required />
+              </div>
+
+              <div className="form-group">
+                <label>Teléfono de contacto:</label>
+                <input type="tel" placeholder="300 000 0000" value={telefonoCliente} onChange={(e) => setTelefonoCliente(e.target.value)} />
+              </div>
+
+              <div className="form-group">
+                <label>Observaciones (opcional):</label>
+                <textarea rows="2" placeholder="Notas adicionales..." value={observaciones} onChange={(e) => setObservaciones(e.target.value)} />
+              </div>
 
               <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={closeModal} disabled={enviando}>
-                  Cancelar
-                </button>
-                <button type="submit" className="btn" disabled={enviando}>
-                  {enviando ? "Confirmando..." : "Confirmar Cita"}
-                </button>
+                <button type="button" onClick={() => setMostrarModalCita(false)} style={{ padding: '10px 16px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Cancelar</button>
+                <button type="submit" style={{ padding: '10px 16px', background: '#d4af37', color: '#fff', fontWeight: 'bold', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Confirmar Cita</button>
               </div>
             </form>
           </div>
@@ -438,5 +812,3 @@ function Agenda() {
     </div>
   );
 }
-
-export default Agenda;

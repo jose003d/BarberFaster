@@ -1,44 +1,35 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Content-Type: application/json");
+// backend/barberos/actualizarb.php
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json; charset=UTF-8");
+
+require_once '../config/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
-    exit;
+    exit();
 }
 
-require_once "../config/database.php";
+$data = json_decode(file_get_contents("php://input"), true);
 
-$data = json_decode(file_get_contents('php://input'), true);
-
-if (empty($data) && isset($_POST)) {
-    $data = $_POST;
-}
-
-$id_barbero = $data['id_barbero'] ?? null;
-$id_usuario = $data['id_usuario'] ?? null;
-$id_barberia = $data['id_barberia'] ?? null;
+$id_barbero   = $data['id_barbero'] ?? null;
+$nombre       = $data['nombre'] ?? null;
 $especialidad = $data['especialidad'] ?? null;
 
-if (!$id_barbero) {
-    echo json_encode(["success" => false, "error" => "Falta el id_barbero"]);
-    exit;
+if (!$id_barbero || !$nombre) {
+    echo json_encode(["status" => "error", "mensaje" => "ID y nombre del barbero son requeridos."]);
+    exit();
 }
 
-$sql = "UPDATE barberos 
-        SET id_usuario = :id_usuario,
-            id_barberia = :id_barberia,
-            especialidad = :especialidad 
-        WHERE id_barbero = :id_barbero";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([
-    ':id_usuario'   => $id_usuario,
-    ':id_barberia'  => $id_barberia,
-    ':especialidad' => $especialidad,
-    ':id_barbero'   => $id_barbero
-]);
+try {
+    $stmt = $pdo->prepare("UPDATE barberos SET nombre = ?, especialidad = ? WHERE id_barbero = ?");
+    $stmt->execute([$nombre, $especialidad, $id_barbero]);
 
-echo json_encode(["success" => true]);
-?>
+    echo json_encode([
+        "status" => "success",
+        "mensaje" => "Datos del barbero actualizados correctamente."
+    ]);
+} catch (Exception $e) {
+    echo json_encode(["status" => "error", "mensaje" => "Error al actualizar barbero: " . $e->getMessage()]);
+}

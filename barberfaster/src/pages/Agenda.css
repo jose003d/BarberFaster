@@ -1,4 +1,3 @@
-
 .agenda-page {
   width: 100%;
   max-width: 1400px;
@@ -35,9 +34,10 @@
 .agenda-mensaje.success { background: #d1fae5; color: #065f46; }
 .agenda-mensaje.error   { background: #fee2e2; color: #991b1b; }
 
+/* Layout principal rediseñado para equilibrar controles y resultados */
 .agenda-layout {
   display: grid;
-  grid-template-columns: minmax(300px, 420px) minmax(0, 1.7fr);
+  grid-template-columns: 380px minmax(0, 1fr);
   gap: 24px;
   align-items: start;
   width: 100%;
@@ -50,7 +50,7 @@
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-  padding: 20px;
+  padding: 24px;
   min-width: 0;
   box-sizing: border-box;
 }
@@ -124,7 +124,7 @@
   color: #6b7280;
 }
 
-/* Calendario */
+/* Calendario y Bloques de Servicios */
 .calendario-wrapper {
   background: #fff;
   border-radius: 16px;
@@ -155,43 +155,6 @@
 .leyenda-item.disponible { color: #16a34a; }
 .leyenda-item.ocupado    { color: #dc2626; }
 
-.calendar-container {
-  width: 100%;
-}
-
-.calendar-container .fc {
-  min-height: 760px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.calendar-container .fc-scrollgrid {
-  table-layout: fixed;
-}
-
-.calendar-container .fc-col-header-cell {
-  min-width: 88px;
-  padding: 8px 4px;
-  text-align: center;
-}
-
-.calendar-container .fc-col-header-cell-cushion {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  white-space: nowrap;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: #374151;
-  line-height: 1.2;
-}
-
-.calendar-container .fc-timegrid-col {
-  min-width: 88px;
-}
-
 .date-picker-row {
   display: flex;
   align-items: center;
@@ -210,45 +173,6 @@
   border-radius: 10px;
 }
 
-.calendar-days-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.calendar-day-btn {
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-  padding: 10px 8px;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-weight: 600;
-  color: #374151;
-  background: #f9fafb;
-}
-
-.calendar-day-btn.available {
-  border-color: #86efac;
-  background: #f0fdf4;
-  color: #166534;
-}
-
-.calendar-day-btn.blocked {
-  border-color: #fecaca;
-  background: #fef2f2;
-  color: #991b1b;
-  cursor: not-allowed;
-  opacity: 0.85;
-}
-
-.calendar-day-btn.selected {
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
-  border-color: #d4af37;
-}
-
 .selected-day-heading {
   margin-bottom: 16px;
 }
@@ -264,19 +188,14 @@
   color: #6b7280;
 }
 
+/* Grilla de Horarios y Turnos optimizada */
 .hours-grid,
 .slots-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
   align-items: start;
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
-
-.hours-grid > .slot-card,
-.hours-grid > .agenda-empty {
-  min-width: 220px;
+  width: 100%;
 }
 
 .slot-card {
@@ -290,7 +209,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 170px;
+  min-height: 150px;
 }
 
 .slot-card:hover {
@@ -391,8 +310,7 @@
 
 .appointment-form input,
 .appointment-form select,
-.appointment-form textarea,
-.agenda-calendar-panel > input[type="date"] {
+.appointment-form textarea {
   width: 100%;
   box-sizing: border-box;
   padding: 10px 12px;
@@ -409,51 +327,6 @@
   border-radius: 8px;
   background: #fffbeb;
   color: #92400e;
-}
-
-.occupied-events {
-  display: grid;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.occupied-event {
-  display: grid;
-  gap: 3px;
-  padding: 12px;
-  border-left: 4px solid #dc2626;
-  border-radius: 6px;
-  background: #fef2f2;
-  color: #991b1b;
-}
-
-.schedule-selection {
-  display: grid;
-  gap: 14px;
-  padding: 24px;
-  border: 1px dashed #d1d5db;
-  border-radius: 12px;
-  background: #f9fafb;
-}
-
-.schedule-selection label {
-  color: #374151;
-  font-weight: 700;
-}
-
-.schedule-selection input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font: inherit;
-}
-
-.schedule-selection p {
-  margin: 0;
-  color: #6b7280;
-  font-size: .9rem;
 }
 
 /* Modal */
@@ -492,11 +365,6 @@
   margin-bottom: 18px;
 }
 
-.modal-heading p {
-  margin: 4px 0 0;
-  color: #6b7280;
-}
-
 .modal-close {
   border: 0;
   background: transparent;
@@ -504,12 +372,6 @@
   cursor: pointer;
   font-size: 1.8rem;
   line-height: 1;
-}
-
-.agenda-horario {
-  color: #6b7280;
-  margin-bottom: 20px;
-  font-size: 0.95rem;
 }
 
 .agenda-modal .form-group {
@@ -525,19 +387,10 @@
   color: #374151;
 }
 
-.agenda-modal .form-group small {
-  color: #6b7280;
-  font-size: 0.8rem;
-}
-
 .agenda-modal .form-group input,
 .agenda-modal .form-group textarea {
   border: 1px solid #d1d5db;
-    border-radius: var(--radius);
-}
-
-.agenda-modal .form-group textarea {
-  resize: vertical;
+  border-radius: 8px;
 }
 
 .agenda-modal .modal-actions {
@@ -547,13 +400,11 @@
   margin-top: 20px;
 }
 
-/* Date Picker: contenedor fluido, texto visible y celdas adaptables. */
+/* Date Picker Adaptado */
 .date-picker-wrapper {
   margin: 20px 0;
   padding: 20px;
   width: 100%;
-  max-width: 100%;
-  overflow: hidden;
   box-sizing: border-box;
   background: #f9fafb;
   border-radius: 12px;
@@ -561,209 +412,54 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.date-picker-wrapper label {
-  display: block;
-  width: 100%;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 12px;
-  font-size: 0.95rem;
-}
-
-.react-datepicker-wrapper-custom {
-  width: 100%;
-  max-width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.react-datepicker-wrapper-custom > div {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-/* Estilos personalizados para react-datepicker */
-.react-datepicker__wrapper {
-  width: 100%;
 }
 
 .react-datepicker {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box;
-  height: auto;
-  min-height: 0;
-  color: #374151;
   background: #ffffff;
   border: none;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   padding: 16px;
   font-family: inherit;
-  width: min(100%, 360px);
-  max-width: 100%;
-  margin: 0 auto;
 }
 
 .react-datepicker__header {
   background: linear-gradient(135deg, #d4af37 0%, #c9a027 100%);
   border-radius: 8px 8px 0 0;
-  padding: 0;
   border: none;
+  padding: 12px;
 }
 
-.react-datepicker__month-container,
-.react-datepicker__month {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  min-height: 0;
-  color: #374151;
-  background: #ffffff;
-}
-
-.agenda-datepicker-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  min-height: 58px;
-  padding: 12px 14px;
-  gap: 12px;
-}
-
-.agenda-datepicker-nav {
-  display: grid;
-  flex: 0 0 30px;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  border: 1px solid #ffffff;
-  border-radius: 50%;
-  background: #ffffff;
-  color: #8a6a10;
-  cursor: pointer;
-  font: inherit;
-  font-size: 1.35rem;
-  font-weight: 800;
-  line-height: 1;
-  box-shadow: 0 2px 8px rgba(92, 65, 5, 0.22);
-  transition: all 0.2s ease;
-}
-
-.agenda-datepicker-nav:hover,
-.agenda-datepicker-nav:focus-visible {
-  background: #111827;
-  border-color: #111827;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.35);
-  outline: none;
-}
-
-.agenda-datepicker-nav:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-
-.agenda-datepicker-title {
-  flex: 1 1 auto;
-  color: #fff;
-  font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: 0.02em;
-  text-align: center;
-  text-transform: capitalize;
-}
-
-.react-datepicker__day-names {
-  display: flex;
-  gap: 4px;
-  padding: 12px 0;
-  width: 100%;
-  box-sizing: border-box;
-  color: #374151;
-}
-
+.react-datepicker__current-month,
 .react-datepicker__day-name {
-  flex: 1 1 0;
-  width: auto;
-  min-width: 0;
-  text-align: center;
-  font-weight: 600;
-  color: #374151;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-}
-
-.react-datepicker__week {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 4px;
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 0;
+  color: #ffffff !important;
 }
 
 .react-datepicker__day {
-  flex: 1 1 0;
-  width: auto;
-  min-width: 0;
-  height: auto;
   aspect-ratio: 1 / 1;
-  min-height: 0;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
   color: #374151;
-  border: 1px solid transparent;
   transition: all 0.2s ease;
 }
 
-.react-datepicker__day:hover {
-  background: #000000;
-  border-color: #d1d5db;
-}
-
 .react-datepicker__day--selected {
-  background: linear-gradient(135deg, #d4af37 0%, #c9a027 100%);
-  color: #fff;
-  font-weight: 600;
-  border-color: #d4af37;
-}
-
-.react-datepicker__day--today {
-  border: 2px solid #d4af37;
+  background: #d4af37 !important;
+  color: #fff !important;
   font-weight: 600;
 }
 
-.react-datepicker__day--disabled {
-  color: #d1d5db;
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.react-datepicker__day--outside-month {
-  color: #d1d5db;
-}
-
-/* Ajustes para pantalla móvil */
+/* Responsivo para pantallas medianas y móviles */
 @media (max-width: 980px) {
   .agenda-layout {
     grid-template-columns: 1fr;
-  }
-
-  .agenda-panel-header {
-    flex-direction: column;
-    align-items: flex-start;
   }
 }
 
@@ -771,66 +467,8 @@
   .agenda-page {
     padding: 16px 12px;
   }
-
-  .agenda-calendar-panel,
-  .agenda-schedule-panel {
-    padding: 14px;
-  }
-
-  .date-picker-wrapper {
-    padding: 12px;
-  }
-
-  .react-datepicker {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 12px;
-    font-size: 0.9rem;
-  }
-
-  .react-datepicker__day {
-    width: auto;
-    height: auto;
-    font-size: 0.8rem;
-  }
-
-  .react-datepicker__day-name {
-    width: auto;
-    font-size: 0.75rem;
-  }
-
-  .calendar-container .fc {
-    min-height: 620px;
-  }
-}
-
-@media (max-width: 420px) {
-  .agenda-header h1 {
-    font-size: 1.5rem;
-  }
-
-  .barberos-grid {
-    gap: 10px;
-  }
-
-  .barbero-card {
-    min-width: 100%;
-  }
-
-  .react-datepicker__day {
-    width: auto;
-    height: auto;
-    font-size: 0.75rem;
-  }
-
-  .react-datepicker__day-name {
-    width: auto;
-    font-size: 0.7rem;
-  }
-
-  .agenda-datepicker-nav {
-    width: 28px;
-    height: 28px;
-    flex-basis: 28px;
+  .hours-grid,
+  .slots-grid {
+    grid-template-columns: 1fr;
   }
 }

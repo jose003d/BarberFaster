@@ -1,120 +1,181 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { loginUsuario } from "../services/api";
 
-function Login() {
-  // ==========================
-  // Estados del formulario
-  // ==========================
-  const [email, setEmail]       = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole]       = useState("superadmin");
-  const [error, setError]       = useState("");
-  const [loading, setLoading]   = useState(false);
+// Desactivar cuando se quiera volver a validar las credenciales contra el backend.
+const TEMPORARY_LOGIN_BYPASS = true;
 
-  const navigate = useNavigate();
+export default function Login({ onLoginSuccess }) {
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // ==========================
-  // Manejo del envío del formulario
-  // ==========================
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    // Validación básica
-    if (!email.trim() || !password.trim()) {
-      setError("Completa el correo y la contraseña.");
-      return;
-    }
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
-    setError("");
+    setError(null);
 
     try {
-      // Usuario de demostración (mock)
-      const demoUser = {
-        id_usuario: 5,
-        nombre: "Usuario",
-        apellido: "Demo",
-        email: email.trim(),
-        telefono: "",
-        documento: "",
-        rol: role,
-        estado: 1,
-      };
+      let user;
 
-      // Guardar datos en localStorage
+      if (TEMPORARY_LOGIN_BYPASS) {
+        user = {
+          id_usuario: 0,
+          nombre: form.email || "Usuario de prueba",
+          email: form.email || "demo@barberfaster.local",
+          rol: "admin"
+        };
+      } else {
+        const response = await loginUsuario(form.email, form.password);
+        if (response && response.status === "error") {
+          throw new Error(response.mensaje || "Credenciales inválidas.");
+        }
+        user = response.usuario || response;
+      }
+
+      localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("erpbarber_auth", "true");
-      localStorage.setItem("user", JSON.stringify(demoUser));
-      localStorage.removeItem("barbero_demo_sesion");
-
-      const destination = demoUser.rol === "barbero" ? "/barbero" : demoUser.rol === "admin" ? "/dashboard" : "/superadmin";
-      navigate(destination, { replace: true });
+      if (onLoginSuccess) onLoginSuccess(user);
+      window.location.reload();
+    } catch (err) {
+      setError(err.message || "Error al iniciar sesión.");
     } finally {
       setLoading(false);
     }
   };
 
-  // ==========================
-  // Renderizado del formulario de login
-  // ==========================
   return (
-    <div className="auth-shell">
-      <div className="auth-card">
-        {/* Marca / Logo */}
-        <div className="auth-brand">
-          <div className="auth-badge">BF</div>
-          <div>
-            <h1>BarberFaster</h1>
-            <p>Acceso a la plataforma</p>
+    <div style={{
+      minHeight: "100vh",
+      width: "100vw",
+      backgroundColor: "#121212",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      boxSizing: "border-box",
+      fontFamily: "Inter, system-ui, sans-serif"
+    }}>
+      <style>{`
+        .login-input {
+          width: 100%;
+          padding: 12px 16px;
+          background-color: #1e1e1e;
+          border: 1px solid #333;
+          color: #f1f1f1;
+          border-radius: 8px;
+          font-size: 0.95rem;
+          box-sizing: border-box;
+          outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .login-input:focus {
+          border-color: #d4af37;
+          box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+        .login-btn {
+          width: 100%;
+          padding: 12px;
+          background-color: #d4af37;
+          color: #121212;
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background-color 0.2s, transform 0.1s;
+        }
+        .login-btn:hover {
+          background-color: #c4a133;
+        }
+        .login-btn:active {
+          transform: scale(0.98);
+        }
+      `}</style>
+
+      <div style={{
+        backgroundColor: "#1a1a1a",
+        padding: "40px",
+        borderRadius: "16px",
+        width: "100%",
+        maxWidth: "420px",
+        boxShadow: "0 16px 40px rgba(0, 0, 0, 0.5)",
+        border: "1px solid #2a2a2a",
+        boxSizing: "border-box"
+      }}>
+        {/* Encabezado con Logo / Símbolo BF */}
+        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+          <div style={{
+            width: "55px",
+            height: "55px",
+            backgroundColor: "#d4af37",
+            color: "#121212",
+            fontWeight: "bold",
+            fontSize: "1.2rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "12px",
+            margin: "0 auto 15px",
+            boxShadow: "0 4px 12px rgba(212, 175, 55, 0.3)"
+          }}>
+            BF
           </div>
+          <h2 style={{ margin: "0 0 8px", color: "#ffffff", fontSize: "1.5rem", fontWeight: "600" }}>
+            BarberFaster
+          </h2>
+          <p style={{ margin: 0, color: "#888", fontSize: "0.9rem" }}>
+            Inicia sesión en tu panel administrativo
+          </p>
         </div>
 
-        {/* Formulario */}
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="field-group">
-            <label htmlFor="email">Correo</label>
+        {error && (
+          <div style={{
+            backgroundColor: "rgba(217, 83, 79, 0.15)",
+            border: "1px solid #d9534f",
+            color: "#f5c6cb",
+            padding: "12px",
+            borderRadius: "8px",
+            fontSize: "0.85rem",
+            marginBottom: "20px",
+            textAlign: "center"
+          }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "18px" }}>
+            <label style={{ display: "block", marginBottom: "8px", color: "#ccc", fontSize: "0.85rem", fontWeight: "500" }}>
+              Usuario / Correo electrónico:
+            </label>
             <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="example@barberfaster.com"
+              type="text"
+              name="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="tucorreo@barberfaster.com"
+              className="login-input"
             />
           </div>
 
-          <div className="field-group">
-            <label htmlFor="password">Contraseña</label>
+          <div style={{ marginBottom: "25px" }}>
+            <label style={{ display: "block", marginBottom: "8px", color: "#ccc", fontSize: "0.85rem", fontWeight: "500" }}>
+              Contraseña:
+            </label>
             <input
-              id="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="contraseña123"
+              name="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              placeholder="••••••••"
+              className="login-input"
             />
           </div>
 
-          <div className="field-group">
-            <label htmlFor="role">Perfil de acceso</label>
-            <select id="role" value={role} onChange={(e) => setRole(e.target.value)}>
-              <option value="superadmin">Superadmin SaaS</option>
-              <option value="admin">Administrador local</option>
-              <option value="barbero">Barbero</option>
-            </select>
-          </div>
-
-          {/* Mensaje de error */}
-          {error && <p className="status error">{error}</p>}
-
-          {/* Botón de envío */}
-          <button type="submit" className="btn auth-btn" disabled={loading}>
-            {loading ? "Validando..." : "Entrar al sistema"}
-          </button>
-          <button type="button" className="btn-secondary auth-btn" onClick={() => navigate("/cliente")}>
-            Acceso cliente
+          <button type="submit" disabled={loading} className="login-btn">
+            {loading ? "Validando acceso..." : "Iniciar Sesión"}
           </button>
         </form>
       </div>
     </div>
   );
 }
-
-export default Login;

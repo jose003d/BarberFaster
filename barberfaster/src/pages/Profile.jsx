@@ -1,5 +1,4 @@
 import { useState } from "react";
-import LoginDemo from "../components/LoginDemo";
 import PerfilBarbero from "../components/PerfilBarbero";
 
 const SESSION_KEY = "barbero_demo_sesion";
@@ -25,6 +24,40 @@ export default function Profile() {
     window.dispatchEvent(new Event("barberfaster-role-change"));
   };
 
-  if (!barbero) return <LoginDemo onLogin={handleLogin} />;
-  return <PerfilBarbero barbero={barbero} onChangeBarbero={handleChangeBarbero} />;
+  // ==========================
+  // Renderizado corregido
+  // ==========================
+  return (
+    <div style={{ padding: "2rem", width: "100%", boxSizing: "border-box" }}>
+      {!barbero ? (
+        <div style={{ maxWidth: "450px", margin: "40px auto", background: "#fff", padding: "30px", borderRadius: "12px", boxShadow: "0 4px 15px rgba(0,0,0,0.08)", textAlign: "center" }}>
+          <div style={{ background: "#d4af37", color: "#fff", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "8px", margin: "0 auto 15px", fontWeight: "bold" }}>BF</div>
+          <h3 style={{ margin: "0 0 10px", color: "#1a1a1a" }}>BarberFaster</h3>
+          <p style={{ color: "#666", fontSize: "0.9rem", marginBottom: "20px" }}>Selecciona el barbero de la sesión demo</p>
+          
+          {/* Ejemplo rápido de selector para pruebas o integración con tu lista de barberos */}
+          <button 
+            className="btn" 
+            onClick={() => handleLogin({ id_barbero: 4, nombre: "Kleiser Regino", rol: "barbero" })}
+            style={{ width: "100%", padding: "12px", background: "#d4af37", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}
+          >
+            Ingresar como Kleiser Regino
+          </button>
+        </div>
+      ) : (
+        <div>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1rem" }}>
+            <button 
+              className="btn-secondary" 
+              onClick={handleChangeBarbero}
+              style={{ padding: "8px 14px", background: "#e4e4e4", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500" }}
+            >
+              Cambiar de Barbero / Cerrar Sesión
+            </button>
+          </div>
+          <PerfilBarbero barbero={barbero} />
+        </div>
+      )}
+    </div>
+  );
 }
