@@ -1,18 +1,26 @@
 <?php
 // backend/citas/listar_cliente.php
+// Este archivo devuelve todas las citas de un cliente con información asociada.
+// Incluye nombre de la barbería, nombre del barbero y servicios contratados.
+
+// Permite peticiones desde el frontend.
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
+// Conexión a la base de datos.
 require_once '../config/database.php';
 
+// Obtiene el DNI del cliente desde la URL, por ejemplo: ?dni_cliente=12345678
 $dni_cliente = $_GET['dni_cliente'] ?? null;
 
+// Valida que el DNI venga en la petición.
 if (!$dni_cliente) {
     echo json_encode(["status" => "error", "mensaje" => "El DNI del cliente es obligatorio."]);
     exit();
 }
 
 try {
+    // Consulta las citas del cliente con joins a barberías, barberos y servicios.
     $stmt = $pdo->prepare("
         SELECT 
             c.id_cita,
@@ -39,10 +47,12 @@ try {
     $stmt->execute([$dni_cliente]);
     $citas = $stmt->fetchAll();
 
+    // Respuesta con la lista de citas.
     echo json_encode([
         "status" => "success",
         "datos" => $citas
     ]);
 } catch (Exception $e) {
+    // Si ocurre un error, lo retorna como JSON.
     echo json_encode(["status" => "error", "mensaje" => "Error al listar las citas del cliente: " . $e->getMessage()]);
 }

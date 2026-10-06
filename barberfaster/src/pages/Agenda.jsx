@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import es from 'date-fns/locale/es';
 import './Agenda.css';
+import TimeSlotGrid from './TimeSlotGrid';
+import { getAvailableTimeSlots } from './timeSlotUtils';
 
 const BASE_URL = 'http://localhost/erpbarber/barberfaster/backend';
 
@@ -22,13 +24,17 @@ export default function Agenda() {
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
   const [servicios, setServicios] = useState([]);
   const [serviciosSeleccionados, setServiciosSeleccionados] = useState([]);
-  const [eventosOcupadosBD, setEventosOcupadosBD] = useState([]);
+  const [citasOcupadas, setCitasOcupadas] = useState([]);
+  const [cargandoOcupaciones, setCargandoOcupaciones] = useState(false);
+  const [errorOcupaciones, setErrorOcupaciones] = useState('');
 
   // Horario configurado de la barbería
   const [horarioBarberia, setHorarioBarberia] = useState({
     apertura: '08:00',
     cierre: '19:00'
   });
+  const [horarioCargado, setHorarioCargado] = useState(false);
+  const [errorHorario, setErrorHorario] = useState('');
 
   // Fechas
   const [fechaObjeto, setFechaObjeto] = useState(new Date());
@@ -36,8 +42,7 @@ export default function Agenda() {
     formatearFechaLocal(new Date())
   );
 
-  // Hora del input
-  const [horaEscrita, setHoraEscrita] = useState('08:00');
+  const [horaSeleccionada, setHoraSeleccionada] = useState('');
 
   // Modales
   const [mostrarModalDatePicker, setMostrarModalDatePicker] = useState(false);
@@ -74,13 +79,6 @@ export default function Agenda() {
     });
   };
 
-  const esHoy = () => fechaSeleccionada === formatearFechaLocal(new Date());
-
-  const obtenerMinutosActualesHoy = () => {
-    const ahora = new Date();
-    return ahora.getHours() * 60 + ahora.getMinutes();
-  };
-
   const obtenerBarberiaActivaId = () => {
     try {
       const stored = localStorage.getItem("barberia_demo_admin");
@@ -99,48 +97,19 @@ export default function Agenda() {
   useEffect(() => {
     const idBarberia = obtenerBarberiaActivaId();
     fetch(`${BASE_URL}/barberias/perfil.php?id_barberia=${idBarberia}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === 'success' && data.data) {
-          const ap = data.data.hora_apertura ? data.data.hora_apertura.substring(0, 5) : '08:00';
-          const ci = data.data.hora_cierre ? data.data.hora_cierre.substring(0, 5) : '19:00';
-          
-          setHorarioBarberia({ apertura: ap, cierre: ci });
-          establecerHoraInicialSegunFecha(fechaSeleccionada, ap, ci);
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok || data.status !== 'success' || !data.data) {
+          throw new Error(data.mensaje || 'No se pudo cargar el horario de atención.');
         }
+        const apertura = data.data.hora_apertura?.substring(0, 5);
+        const cierre = data.data.hora_cierre?.substring(0, 5);
+        if (!apertura || !cierre) throw new Error('El horario de atención no está configurado.');
+        setHorarioBarberia({ apertura, cierre });
       })
-      .catch(() => {});
-  }, [fechaSeleccionada]);
-
-  const establecerHoraInicialSegunFecha = (fechaStr, aperStr, cierStr) => {
-    const hoyStr = formatearFechaLocal(new Date());
-
-    if (fechaStr === hoyStr) {
-      const ahora = new Date();
-      const [hCi, mCi] = (cierStr || horarioBarberia.cierre).split(':').map(Number);
-      const finJornada = hCi * 60 + mCi;
-      const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes();
-
-      if (minutosAhora >= finJornada) {
-        setHoraEscrita(aperStr);
-        return;
-      }
-
-      ahora.setMinutes(ahora.getMinutes() + 5);
-      const hh = String(ahora.getHours()).padStart(2, '0');
-      const mm = String(ahora.getMinutes()).padStart(2, '0');
-      const horaActualStr = `${hh}:${mm}`;
-
-      if (horaActualStr < aperStr) {
-        setHoraEscrita(aperStr);
-      } else {
-        setHoraEscrita(horaActualStr);
-      }
-    } else {
-      // Si es mañana o un día futuro, arranca con la hora de apertura
-      setHoraEscrita(aperStr);
-    }
-  };
+      .catch((error) => setErrorHorario(error.message || 'No se pudo cargar el horario de atención.'))
+      .finally(() => setHorarioCargado(true));
+  }, []);
 
   // 2. Cargar Barberos
   useEffect(() => {
@@ -177,25 +146,39 @@ export default function Agenda() {
       });
   };
 
-  // 4. Cargar Citas/Eventos Ocupados
-  const cargarEventosBD = () => {
+  // 4. Cargar únicamente las ocupaciones activas del día seleccionado.
+  const cargarCitasOcupadas = useCallback(async (signal) => {
     if (!barberoSeleccionado) return;
     const idBarbero = barberoSeleccionado.id_barbero || barberoSeleccionado.id;
 
-    fetch(`${BASE_URL}/agenda/listar_eventos.php?id_barbero=${idBarbero}`)
-      .then((res) => res.json())
-      .then((data) => {
-        const lista = Array.isArray(data) ? data : data.eventos || data.data || [];
-        setEventosOcupadosBD(lista);
-      })
-      .catch(() => setEventosOcupadosBD([]));
-  };
+    setCargandoOcupaciones(true);
+    setErrorOcupaciones('');
+    try {
+      const query = new URLSearchParams({ id_barbero: idBarbero, fecha: fechaSeleccionada });
+      const response = await fetch(`${BASE_URL}/agenda/listar_ocupaciones.php?${query}`, { signal });
+      const data = await response.json();
+      if (!response.ok || data.status !== 'success' || !Array.isArray(data.datos)) {
+        throw new Error(data.mensaje || 'No se pudieron consultar las citas ocupadas.');
+      }
+      setCitasOcupadas(data.datos);
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+      setCitasOcupadas([]);
+      setErrorOcupaciones(error.message || 'No se pudieron consultar las citas ocupadas.');
+    } finally {
+      if (!signal?.aborted) setCargandoOcupaciones(false);
+    }
+  }, [barberoSeleccionado, fechaSeleccionada]);
 
   useEffect(() => {
-    cargarEventosBD();
-  }, [barberoSeleccionado]);
+    const controller = new AbortController();
+    setCitasOcupadas([]);
+    cargarCitasOcupadas(controller.signal);
+    return () => controller.abort();
+  }, [cargarCitasOcupadas]);
 
   const handleToggleServicio = (idServicioStr) => {
+    setHoraSeleccionada('');
     setServiciosSeleccionados((prev) => {
       if (prev.includes(idServicioStr)) {
         if (prev.length === 1) return prev;
@@ -214,147 +197,27 @@ export default function Agenda() {
     .filter((s) => serviciosSeleccionados.includes(String(s.id_servicio || s.id)))
     .reduce((acc, curr) => acc + parseFloat(curr.precio || 0), 0);
 
-  // OBTENER CITAS OCUPADAS DEL DÍA PARA MOSTRAR EN TARJETAS
-  const obtenerCitasOcupadasVisibles = () => {
-    const hoyStr = formatearFechaLocal(new Date());
-    const minutosActuales = obtenerMinutosActualesHoy();
-
-    return eventosOcupadosBD
-      .filter((ev) => {
-        if (!ev.start) return false;
-        const [fechaEv, horaEv] = ev.start.replace('T', ' ').split(' ');
-        if (fechaEv !== fechaSeleccionada) return false;
-
-        // Ocultar del panel izquierdo solo las citas pasadas de HOY
-        if (fechaSeleccionada === hoyStr && horaEv) {
-          const [h, m] = horaEv.split(':').map(Number);
-          if (h * 60 + m < minutosActuales) return false;
-        }
-        return true;
-      })
-      .sort((a, b) => a.start.localeCompare(b.start));
-  };
-
-  const citasOcupadasDelDia = obtenerCitasOcupadasVisibles();
-
-  // CAMBIAR FECHA A MAÑANA
-  const handleCambiarAManana = () => {
-    const manana = new Date();
-    manana.setDate(manana.getDate() + 1);
-
-    setFechaObjeto(manana);
-    const yyyy = manana.getFullYear();
-    const mm = String(manana.getMonth() + 1).padStart(2, '0');
-    const dd = String(manana.getDate()).padStart(2, '0');
-    
-    setFechaSeleccionada(`${yyyy}-${mm}-${dd}`);
-    setHoraEscrita(horarioBarberia.apertura);
-  };
-
-  // SUGERENCIA DE HORA MÁS CERCANA LIBRE
-  const buscarSiguienteHoraLibre = (minInicio, finJornada) => {
-    const paso = 15;
-    const ocupacionesDia = eventosOcupadosBD.filter((ev) => ev.start && ev.start.startsWith(fechaSeleccionada));
-
-    for (let m = minInicio + paso; m + duracionTotalMinutos <= finJornada; m += paso) {
-      const hh = String(Math.floor(m / 60)).padStart(2, '0');
-      const mm = String(m % 60).padStart(2, '0');
-      const startISO = `${fechaSeleccionada} ${hh}:${mm}:00`;
-
-      const minFin = m + duracionTotalMinutos;
-      const hhFin = String(Math.floor(minFin / 60)).padStart(2, '0');
-      const mmFin = String(minFin % 60).padStart(2, '0');
-      const endISO = `${fechaSeleccionada} ${hhFin}:${mmFin}:00`;
-
-      const choque = ocupacionesDia.some((ev) => {
-        const evStart = ev.start.replace('T', ' ');
-        const evEnd = ev.end.replace('T', ' ');
-        return startISO < evEnd && endISO > evStart;
-      });
-
-      if (!choque) {
-        const dateObj = new Date();
-        dateObj.setHours(Math.floor(m / 60), m % 60, 0, 0);
-        return {
-          time24: `${hh}:${mm}`,
-          time12: dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
-        };
+  const citasOcupadasDelDia = citasOcupadas;
+  const horariosDisponibles = useMemo(
+    () => getAvailableTimeSlots({
+      openingTime: horarioBarberia.apertura,
+      closingTime: horarioBarberia.cierre,
+      durationMinutes: duracionTotalMinutos,
+      appointments: citasOcupadas,
+      date: fechaSeleccionada,
+    }),
+    [horarioBarberia, duracionTotalMinutos, citasOcupadas, fechaSeleccionada]
+  );
+  const horarioElegido = horariosDisponibles.find(
+    (slot) => slot.hora_inicio.slice(0, 5) === horaSeleccionada
+  );
+  const estadoDisponibilidad = horarioElegido
+    ? {
+        disponible: true,
+        horaInicioStr: horarioElegido.hora_inicio.slice(0, 5),
+        horaFinStr: horarioElegido.hora_fin.slice(0, 5),
       }
-    }
-    return null;
-  };
-
-  // EVALUADOR DE DISPONIBILIDAD
-  const evaluarHoraIngresada = () => {
-    if (!horaEscrita) return { disponible: false, mensajeError: 'Ingresa una hora válida.' };
-
-    const [h, m] = horaEscrita.split(':').map(Number);
-    if (isNaN(h) || isNaN(m)) return { disponible: false, mensajeError: 'Formato de hora no válido.' };
-
-    const minInicio = h * 60 + m;
-    const minFin = minInicio + duracionTotalMinutos;
-
-    const [hAp, mAp] = horarioBarberia.apertura.split(':').map(Number);
-    const [hCi, mCi] = horarioBarberia.cierre.split(':').map(Number);
-
-    const inicioJornada = hAp * 60 + mAp;
-    const finJornada = hCi * 60 + mCi;
-
-    // 1. Validar jornada laboral
-    if (minInicio < inicioJornada) {
-      return {
-        disponible: false,
-        mensajeError: `Aún no hemos abierto. Abrimos a las ${formatearHoraLimpiaStr(horarioBarberia.apertura)}.`
-      };
-    }
-
-    if (minFin > finJornada) {
-      return {
-        disponible: false,
-        excedeCierre: true,
-        mensajeError: `No alcanza el tiempo. El servicio requiere ${duracionTotalMinutos} min y la barbería cierra a las ${formatearHoraLimpiaStr(horarioBarberia.cierre)}.`
-      };
-    }
-
-    // 2. VALIDACIÓN DE HORA PASADA: ÚNICAMENTE APLICA SI ES EL DÍA DE HOY
-    if (esHoy()) {
-      const minutosAhoraMismo = obtenerMinutosActualesHoy();
-      if (minInicio < minutosAhoraMismo) {
-        return {
-          disponible: false,
-          mensajeError: 'No puedes agendar en una hora que ya transcurrió hoy.'
-        };
-      }
-    }
-
-    const startISO = `${fechaSeleccionada} ${horaEscrita}:00`;
-    const hFinStr = String(Math.floor(minFin / 60)).padStart(2, '0');
-    const mFinStr = String(minFin % 60).padStart(2, '0');
-    const endISO = `${fechaSeleccionada} ${hFinStr}:${mFinStr}:00`;
-
-    // 3. Validar solapamientos con la fecha seleccionada
-    const ocupacionesDia = eventosOcupadosBD.filter((ev) => ev.start && ev.start.startsWith(fechaSeleccionada));
-    const seSolapa = ocupacionesDia.some((ev) => {
-      const evStart = ev.start.replace('T', ' ');
-      const evEnd = ev.end.replace('T', ' ');
-      return startISO < evEnd && endISO > evStart;
-    });
-
-    if (seSolapa) {
-      const sugerencia = buscarSiguienteHoraLibre(minInicio, finJornada);
-      return { disponible: false, choque: true, sugerencia, startISO, endISO };
-    }
-
-    return {
-      disponible: true,
-      startISO,
-      endISO,
-      horaInicioStr: horaEscrita,
-      horaFinStr: `${hFinStr}:${mFinStr}`
-    };
-  };
-
-  const estadoDisponibilidad = evaluarHoraIngresada();
+    : { disponible: false };
 
   const handleFechaChange = (date) => {
     if (!date) return;
@@ -363,6 +226,7 @@ export default function Agenda() {
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
     setFechaSeleccionada(`${yyyy}-${mm}-${dd}`);
+    setHoraSeleccionada('');
     setMostrarModalDatePicker(false);
   };
 
@@ -417,7 +281,7 @@ export default function Agenda() {
           setTelefonoCliente('');
           setObservaciones('');
           
-          cargarEventosBD();
+          cargarCitasOcupadas();
         } else {
           setMensaje({ tipo: 'error', texto: resData.error || resData.mensaje || 'Error al agendar cita.' });
         }
@@ -585,7 +449,7 @@ export default function Agenda() {
             </button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+          <div className="booking-date-time-layout">
             {/* PANEL IZQUIERDO */}
             <div>
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Fecha de Cita:</label>
@@ -601,15 +465,19 @@ export default function Agenda() {
                 <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: '#374151' }}>
                   📌 Horarios ya reservados en este día ({barberoSeleccionado.nombre}):
                 </h4>
-                {citasOcupadasDelDia.length === 0 ? (
+                {cargandoOcupaciones ? (
+                  <p className="time-slot-message" role="status">Consultando reservas...</p>
+                ) : errorOcupaciones ? (
+                  <p className="time-slot-error" role="alert">{errorOcupaciones}</p>
+                ) : citasOcupadasDelDia.length === 0 ? (
                   <p style={{ fontSize: '0.85rem', color: '#16a34a', margin: 0, fontWeight: 'bold' }}>
                     ¡Sin reservas previas para este día!
                   </p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {citasOcupadasDelDia.map((ev, idx) => {
-                      const horaIni = ev.start.replace('T', ' ').split(' ')[1]?.substring(0, 5);
-                      const horaFin = ev.end ? ev.end.replace('T', ' ').split(' ')[1]?.substring(0, 5) : '';
+                      const horaIni = ev.hora_inicio.substring(0, 5);
+                      const horaFin = ev.hora_fin.substring(0, 5);
 
                       return (
                         <div
@@ -643,31 +511,28 @@ export default function Agenda() {
             {/* PANEL DERECHO */}
             <div>
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '4px', color: '#374151' }}>
-                Ingresa la hora en la que deseas ir:
+                Selecciona un horario disponible:
               </label>
 
               <p style={{ fontSize: '0.8rem', color: '#6b7280', margin: '0 0 12px 0' }}>
-                🕒 Horario de atención: <strong>{formatearHoraLimpiaStr(horarioBarberia.apertura)}</strong> a <strong>{formatearHoraLimpiaStr(horarioBarberia.cierre)}</strong>
+                🕒 Atención: <strong>{formatearHoraLimpiaStr(horarioBarberia.apertura)}</strong> a <strong>{formatearHoraLimpiaStr(horarioBarberia.cierre)}</strong>
+                {' · '}Turnos cada 30 minutos · Servicio de {duracionTotalMinutos} min
               </p>
 
-              <input
-                type="time"
-                value={horaEscrita}
-                onChange={(e) => setHoraEscrita(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: '2px solid #d4af37',
-                  fontSize: '1.2rem',
-                  fontWeight: 'bold',
-                  textAlign: 'center',
-                  marginBottom: '16px',
-                  boxSizing: 'border-box'
-                }}
-              />
+              {errorHorario ? (
+                <p className="time-slot-error" role="alert">{errorHorario}</p>
+              ) : errorOcupaciones ? (
+                <p className="time-slot-error" role="alert">{errorOcupaciones}</p>
+              ) : (
+                <TimeSlotGrid
+                  slots={horariosDisponibles}
+                  selectedTime={horaSeleccionada}
+                  onSelect={setHoraSeleccionada}
+                  isLoading={!horarioCargado || cargandoOcupaciones}
+                />
+              )}
 
-              {estadoDisponibilidad.disponible ? (
+              {estadoDisponibilidad.disponible && horarioCargado && !errorHorario && !cargandoOcupaciones && !errorOcupaciones && (
                 <button
                   type="button"
                   onClick={handleAbrirModalConfirmacion}
@@ -686,58 +551,6 @@ export default function Agenda() {
                 >
                   Confirmar y Reservar Cita ➔
                 </button>
-              ) : (
-                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '16px', borderRadius: '10px' }}>
-                  <p style={{ margin: '0 0 8px 0', color: '#991b1b', fontWeight: 'bold' }}>
-                    ⚠️ {estadoDisponibilidad.mensajeError || 'La hora elegida se cruza con una cita ocupada.'}
-                  </p>
-
-                  {/* Opción 1: Si excede el cierre del día */}
-                  {estadoDisponibilidad.excedeCierre && (
-                    <button
-                      type="button"
-                      onClick={handleCambiarAManana}
-                      style={{
-                        marginTop: '8px',
-                        padding: '10px 16px',
-                        background: '#d4af37',
-                        color: '#111',
-                        fontWeight: 'bold',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        width: '100%'
-                      }}
-                    >
-                      📅 Ver disponibilidad para mañana
-                    </button>
-                  )}
-
-                  {/* Opción 2: Si hay otro turno libre más temprano el mismo día */}
-                  {estadoDisponibilidad.sugerencia && (
-                    <div>
-                      <p style={{ margin: '8px 0 6px 0', fontSize: '0.85rem', color: '#374151' }}>
-                        Horario libre más cercano hoy:
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setHoraEscrita(estadoDisponibilidad.sugerencia.time24)}
-                        style={{
-                          padding: '10px 16px',
-                          background: '#2563eb',
-                          color: '#fff',
-                          fontWeight: 'bold',
-                          border: 'none',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          width: '100%'
-                        }}
-                      >
-                        💡 Ajustar a las {estadoDisponibilidad.sugerencia.time12}
-                      </button>
-                    </div>
-                  )}
-                </div>
               )}
             </div>
           </div>

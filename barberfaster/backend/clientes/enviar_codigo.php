@@ -1,30 +1,43 @@
 <?php
-// backend/clientes/enviar_codigo.php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json; charset=UTF-8");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
+declare(strict_types=1);
+
+require_once __DIR__ . '/../verificacion/comun.php';
+
+setCorsHeaders();
+manejarPreflight();
+
+$data = obtenerJsonBody();
+$telefono = obtenerTexto($data, 'telefono');
+
+if ($telefono === '') {
+    responder(400, false, 'El número de teléfono es obligatorio.');
 }
 
-$data = json_decode(file_get_contents("php://input"), true);
-$telefono = $data['telefono'] ?? null;
-
-if (!$telefono) {
-    echo json_encode(["status" => "error", "mensaje" => "El número de teléfono es requerido."]);
-    exit();
+$telefonoNormalizado = normalizarTelefono($telefono);
+if (!telefonoValido($telefonoNormalizado)) {
+    responder(422, false, 'El número de teléfono no es válido.');
 }
 
-// Generar código numérico de 4 dígitos
-$codigo = rand(1000, 9999);
+try {
+    $codigo = generarCodigoOtp();
+    guardarOtp($telefonoNormalizado, $codigo, 300);
+    $resultado = enviarMensajeWuapi($telefonoNormalizado, $codigo);
+} catch (Throwable $e) {
+    responder(500, false, 'No se pudo generar o guardar el código de verificación.', [
+        'detalle' => $e->getMessage(),
+    ]);
+}
 
-// TODO: Integrar servicio de mensajería (Twilio, UltraMsg, API WhatsApp local, etc.)
-// Por ahora simulamos la generación correcta del token en sesión/respuesta de pruebas:
+if ($resultado['ok'] !== true) {
+    responder(502, false, 'No se pudo enviar el código por WhatsApp.', [
+        'detalle' => $resultado['mensaje'] ?? 'Error desconocido de Wuapi.',
+        'http_code' => $resultado['http_code'] ?? null,
+    ]);
+}
 
-echo json_encode([
-    "status" => "success",
-    "mensaje" => "Código de verificación enviado correctamente a " . $telefono,
-    "codigo_demo" => $codigo // Solo para pruebas de desarrollo
+responder(200, true, 'Código enviado correctamente.', [
+    'telefono' => $telefonoNormalizado,
+    'expira_en' => time() + 300,
+    'codigo_demo' => $codigo,
 ]);

@@ -1,33 +1,49 @@
 <?php
-// backend/clientes/verificar_codigo.php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json; charset=UTF-8");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
+declare(strict_types=1);
+
+require_once __DIR__ . '/../verificacion/comun.php';
+
+setCorsHeaders();
+manejarPreflight();
+
+$data = obtenerJsonBody();
+$telefono = obtenerTexto($data, 'telefono');
+$codigoIngresado = obtenerTexto($data, 'codigo');
+
+if ($telefono === '' || $codigoIngresado === '') {
+    responder(400, false, 'Faltan datos para verificar el código.');
 }
 
-$data = json_decode(file_get_contents("php://input"), true);
-$codigo_ingresado = $data['codigo'] ?? null;
-$codigo_esperado  = $data['codigo_esperado'] ?? null;
-
-if (!$codigo_ingresado || !$codigo_esperado) {
-    echo json_encode(["status" => "error", "mensaje" => "Faltan parámetros para verificar."]);
-    exit();
+$telefonoNormalizado = normalizarTelefono($telefono);
+if (!telefonoValido($telefonoNormalizado)) {
+    responder(422, false, 'El número de teléfono no es válido.');
 }
 
-if ((string)$codigo_ingresado === (string)$codigo_esperado) {
-    echo json_encode([
-        "status" => "success",
-        "valido" => true,
-        "mensaje" => "Código verificado exitosamente."
-    ]);
-} else {
-    echo json_encode([
-        "status" => "error",
-        "valido" => false,
-        "mensaje" => "El código ingresado es incorrecto."
-    ]);
+$otp = leerOtpDesdeTelefono($telefonoNormalizado);
+if (!is_array($otp)) {
+    responder(404, false, 'No existe un código activo para este teléfono. Solicita uno nuevo.');
 }
+
+if (expirarOtpSiEsNecesario($telefonoNormalizado)) {
+    responder(401, false, 'El código ha expirado. Solicita un nuevo código.');
+}
+
+$intentos = (int) ($otp['intentos'] ?? 0);
+if ($intentos >= 5) {
+    unlink(rutaArchivoOtp($telefonoNormalizado));
+    responder(429, false, 'Demasiados intentos. Solicita un código nuevo.');
+}
+
+if (!hash_equals((string) ($otp['codigo'] ?? ''), $codigoIngresado)) {
+    $otp['intentos'] = $intentos + 1;
+    $ruta = rutaArchivoOtp($telefonoNormalizado);
+    file_put_contents($ruta, json_encode($otp, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+    responder(401, false, 'El código ingresado es incorrecto.');
+}
+
+unlink(rutaArchivoOtp($telefonoNormalizado));
+responder(200, true, 'Código verificado exitosamente.', [
+    'valido' => true,
+    'telefono' => $telefonoNormalizado,
+]);

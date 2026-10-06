@@ -188,6 +188,73 @@
   color: #6b7280;
 }
 
+.booking-date-time-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 24px;
+}
+
+.time-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.time-slot-button {
+  display: flex;
+  min-height: 64px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 8px;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  background: #f0fdf4;
+  color: #166534;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+}
+
+.time-slot-button:hover {
+  transform: translateY(-1px);
+  border-color: #16a34a;
+}
+
+.time-slot-button:focus-visible {
+  outline: 3px solid rgba(212, 175, 55, 0.45);
+  outline-offset: 2px;
+}
+
+.time-slot-button.selected {
+  border-color: #b8941f;
+  background: #fef3c7;
+  color: #78350f;
+}
+
+.time-slot-button small {
+  color: #4b5563;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.time-slot-message,
+.time-slot-error {
+  margin: 16px 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: #4b5563;
+}
+
+.time-slot-error {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
 /* Grilla de Horarios y Turnos optimizada */
 .hours-grid,
 .slots-grid {
@@ -464,6 +531,10 @@
 }
 
 @media (max-width: 768px) {
+  .booking-date-time-layout {
+    grid-template-columns: 1fr;
+  }
+
   .agenda-page {
     padding: 16px 12px;
   }
