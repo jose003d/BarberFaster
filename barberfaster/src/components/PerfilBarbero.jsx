@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import { crearServicio, desactivarServicio, editarUsuario, obtenerServicios } from "../services/api";
 
 const BASE_URL = "/erpbarber/barberfaster/backend";
-const PUBLIC_URL = `${BASE_URL}/public`;
 const days = [{ value: 1, label: "Lunes" }, { value: 2, label: "Martes" }, { value: 3, label: "Miércoles" }, { value: 4, label: "Jueves" }, { value: 5, label: "Viernes" }, { value: 6, label: "Sábado" }, { value: 7, label: "Domingo" }];
 const emptyService = { id_servicio: null, nombre: "", precio: "", duracion_minutos: 30 };
 
-const photoUrl = (photo) => photo ? (/^https?:\/\//i.test(photo) ? photo : `${PUBLIC_URL}/${photo}`) : "";
+const photoUrl = (photo) => {
+  if (!photo) return "";
+  if (/^https?:\/\//i.test(photo)) return photo;
+  const path = photo.replace(/^\/+/, "").replace(/^uploads\//, "");
+  return `${BASE_URL}/uploads/${path.split("/").map(encodeURIComponent).join("/")}`;
+};
 
 export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero }) {
   const [barbero, setBarbero] = useState(initialBarbero);
@@ -18,6 +22,7 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
   const [serviceForm, setServiceForm] = useState(emptyService);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingPhoto, setSavingPhoto] = useState(false);
   const [message, setMessage] = useState(null);
 
   useEffect(() => {
@@ -85,21 +90,47 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
   };
 
   const changePhoto = async (event) => {
-    const file = event.target.files?.[0];
+    const input = event.currentTarget;
+    const file = input.files?.[0];
     if (!file) return;
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setMessage({ type: "error", text: "Usa una imagen JPG, PNG o WebP." });
+      input.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: "error", text: "La foto no puede superar los 5 MB." });
+      input.value = "";
+      return;
+    }
+
+    if (!barbero.id_barbero) {
+      setMessage({ type: "error", text: "No se encontró el identificador del barbero." });
+      input.value = "";
+      return;
+    }
+
     const body = new FormData();
     body.append("foto", file);
-    body.append("id_usuario", barbero.id_usuario);
+    body.append("id_barbero", barbero.id_barbero);
+    setSavingPhoto(true);
     try {
-      const response = await fetch(`${BASE_URL}/usuarios/subirFoto.php`, { method: "POST", body });
+      const response = await fetch(`${BASE_URL}/barberos/subir_foto.php`, { method: "POST", body });
       const data = await response.json();
-      if (!data.success) throw new Error(data.error || "No se pudo subir la foto.");
+      if (!response.ok || data.status !== "success" || !data.foto) {
+        throw new Error(data.mensaje || "No se pudo guardar la foto.");
+      }
       const updated = { ...barbero, foto: data.foto };
       setBarbero(updated);
       localStorage.setItem("barbero_demo_sesion", JSON.stringify(updated));
       setMessage({ type: "success", text: "Foto actualizada correctamente." });
     } catch (error) { 
-      setMessage({ type: "error", text: error.message }); 
+      setMessage({ type: "error", text: error.message || "No se pudo guardar la foto." });
+    } finally {
+      setSavingPhoto(false);
+      input.value = "";
     }
   };
 
@@ -155,13 +186,13 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
           {validPhoto ? (
             <img className="profile-avatar" src={validPhoto} alt="Foto del barbero" />
           ) : (
-            <div className="profile-avatar" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "#2b2b2b", color: "#d4af37", fontSize: "2.5rem", fontWeight: "bold" }}>
+            <div className="profile-avatar" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bauhaus-cyan-light)", color: "var(--bauhaus-ink)", fontSize: "2.5rem", fontWeight: "bold" }}>
               {form.nombre ? form.nombre.charAt(0).toUpperCase() : "K"}
             </div>
           )}
           <label className="btn profile-upload-btn">
-            <input type="file" accept="image/*" onChange={changePhoto} hidden />
-            Cambiar foto
+            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={changePhoto} disabled={savingPhoto} hidden />
+            {savingPhoto ? "Guardando foto..." : "Cambiar foto"}
           </label>
         </div>
         <div className="profile-summary">
@@ -263,9 +294,11 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
                         <td>${Number(service.precio || 0).toLocaleString("es-CO")}</td>
                         <td>{service.duracion_minutos} min</td>
                         <td>{String(service.estado || "ACTIVO").toUpperCase() === "ACTIVO" ? "Activo" : "Inactivo"}</td>
-                        <td>
-                          <button className="btn-secondary" type="button" onClick={() => setServiceForm({ id_servicio: service.id_servicio, nombre: service.nombre, precio: service.precio, duracion_minutos: service.duracion_minutos })} style={{ padding: "6px 10px", marginRight: "5px" }}>Editar</button>
-                          <button className="btn-secondary" type="button" onClick={() => removeService(service)} style={{ padding: "6px 10px" }}>Desactivar</button>
+                        <td className="table-actions-cell">
+                          <div className="table-actions table-actions--wide">
+                            <button className="btn-secondary" type="button" onClick={() => setServiceForm({ id_servicio: service.id_servicio, nombre: service.nombre, precio: service.precio, duracion_minutos: service.duracion_minutos })}>Editar</button>
+                            <button className="btn-secondary" type="button" onClick={() => removeService(service)}>Desactivar</button>
+                          </div>
                         </td>
                       </tr>
                     ))

@@ -22,7 +22,7 @@ Requisitos:
 
 ```apache
 SetEnv WUAPI_ACCOUNT_ID "tu_account_id_aqui"
-SetEnv WUAPI_KEY "tu_api_key_aqui"
+SetEnv WUAPI_API_KEY "tu_api_key_aqui"
 ```
 
 Endpoints activos:
@@ -31,7 +31,13 @@ Endpoints activos:
 - `backend/verificacion/verificar.php`
 - Compatibilidad: `backend/clientes/enviar_codigo.php` y `backend/clientes/verificar_codigo.php`
 
-La API guarda el OTP temporalmente en un archivo JSON del sistema durante 5 minutos y envía mensajes a través de `https://api.wuapi.dev/v1/messages` usando basic auth con `Account ID` y `API key`.
+La API guarda el OTP temporalmente en un archivo JSON del sistema durante 5 minutos y envía mensajes a través de `https://api.wuapi.dev/v1/messages` usando un bearer token (`WUAPI_API_KEY`) y el `WUAPI_ACCOUNT_ID` en el cuerpo de la solicitud.
+
+El formulario de reservas solicita y verifica el código por WhatsApp antes de permitir confirmar una cita. La reserva vuelve a validar en el backend que el teléfono coincida con el código y requiere un ticket de un solo uso, válido por 10 minutos. El código OTP no se devuelve en la respuesta de envío.
+
+## Fotos de barberos
+
+Las fotos de perfil se guardan en `backend/uploads/barberos` y se aceptan imágenes JPG, PNG y WebP de hasta 5 MB. Para bases de datos existentes, ejecuta una vez `migration_add_barbero_foto.sql`; las instalaciones nuevas incluyen la columna `foto` en `restore_database.sql`.
 
 ## Expanding the ESLint configuration
 

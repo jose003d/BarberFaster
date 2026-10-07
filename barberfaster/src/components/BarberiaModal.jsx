@@ -91,18 +91,18 @@ export const BarberiaModal = ({ isOpen, onClose, barberiaEditar, onSuccess }) =>
         .erp-modal-input {
           width: 100%;
           padding: 10px 14px;
-          background-color: #2b2b2b;
-          border: 1px solid #3d3d3d;
-          color: #f1f1f1;
-          border-radius: 6px;
+          background-color: #ffffff;
+          border: 1px solid #cdcdcf;
+          color: #393939;
+          border-radius: 2px;
           font-size: 0.95rem;
           box-sizing: border-box;
           outline: none;
           transition: border-color 0.2s, box-shadow 0.2s;
         }
         .erp-modal-input:focus {
-          border-color: #d4af37;
-          box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+          border-color: #147d7d;
+          box-shadow: 0 0 0 3px rgba(43, 207, 206, 0.32);
         }
       `}</style>
 
@@ -117,7 +117,7 @@ export const BarberiaModal = ({ isOpen, onClose, barberiaEditar, onSuccess }) =>
         animation: 'scaleUpModal 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '12px' }}>
-          <h3 style={{ margin: 0, color: '#1a1a1a', fontSize: '1.25rem', fontWeight: '600' }}>
+          <h3 style={{ margin: 0, color: '#393939', fontSize: '1.25rem', fontWeight: '400' }}>
             {barberiaEditar ? 'Editar Barbería' : 'Registrar Barbería'}
           </h3>
           <button type="button" onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#888' }}>✕</button>
@@ -161,7 +161,7 @@ export const BarberiaModal = ({ isOpen, onClose, barberiaEditar, onSuccess }) =>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
             <button type="button" onClick={onClose} disabled={loading} style={{ padding: '10px 18px', background: '#e4e4e4', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>Cancelar</button>
-            <button type="submit" disabled={loading} style={{ padding: '10px 20px', background: '#d4af37', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}>
+            <button type="submit" disabled={loading} style={{ padding: '10px 20px', background: '#2bcfce', color: '#393939', border: '2px solid #393939', borderRadius: '2px', cursor: 'pointer', fontWeight: '600', fontFamily: '"Chillax", Arial, sans-serif' }}>
               {loading ? 'Guardando...' : (barberiaEditar ? 'Guardar Cambios' : 'Registrar')}
             </button>
           </div>

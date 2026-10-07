@@ -44,138 +44,45 @@ export default function Login({ onLoginSuccess }) {
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      width: "100vw",
-      backgroundColor: "#121212",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      boxSizing: "border-box",
-      fontFamily: "Inter, system-ui, sans-serif"
-    }}>
-      <style>{`
-        .login-input {
-          width: 100%;
-          padding: 12px 16px;
-          background-color: #1e1e1e;
-          border: 1px solid #333;
-          color: #f1f1f1;
-          border-radius: 8px;
-          font-size: 0.95rem;
-          box-sizing: border-box;
-          outline: none;
-          transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .login-input:focus {
-          border-color: #d4af37;
-          box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-        }
-        .login-btn {
-          width: 100%;
-          padding: 12px;
-          background-color: #d4af37;
-          color: #121212;
-          border: none;
-          border-radius: 8px;
-          font-weight: 600;
-          font-size: 1rem;
-          cursor: pointer;
-          transition: background-color 0.2s, transform 0.1s;
-        }
-        .login-btn:hover {
-          background-color: #c4a133;
-        }
-        .login-btn:active {
-          transform: scale(0.98);
-        }
-      `}</style>
+    <main className="login-page">
+      <section className="login-card" aria-labelledby="login-title">
+        <div className="login-brand-mark" aria-hidden="true">BF</div>
+        <p className="login-kicker">BarberFaster · Administración</p>
+        <h1 id="login-title">Bienvenido</h1>
+        <p className="login-description">Inicia sesión en tu panel administrativo.</p>
 
-      <div style={{
-        backgroundColor: "#1a1a1a",
-        padding: "40px",
-        borderRadius: "16px",
-        width: "100%",
-        maxWidth: "420px",
-        boxShadow: "0 16px 40px rgba(0, 0, 0, 0.5)",
-        border: "1px solid #2a2a2a",
-        boxSizing: "border-box"
-      }}>
-        {/* Encabezado con Logo / Símbolo BF */}
-        <div style={{ textAlign: "center", marginBottom: "30px" }}>
-          <div style={{
-            width: "55px",
-            height: "55px",
-            backgroundColor: "#d4af37",
-            color: "#121212",
-            fontWeight: "bold",
-            fontSize: "1.2rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: "12px",
-            margin: "0 auto 15px",
-            boxShadow: "0 4px 12px rgba(212, 175, 55, 0.3)"
-          }}>
-            BF
-          </div>
-          <h2 style={{ margin: "0 0 8px", color: "#ffffff", fontSize: "1.5rem", fontWeight: "600" }}>
-            BarberFaster
-          </h2>
-          <p style={{ margin: 0, color: "#888", fontSize: "0.9rem" }}>
-            Inicia sesión en tu panel administrativo
-          </p>
-        </div>
+        {error && <div className="login-error" role="alert">{error}</div>}
 
-        {error && (
-          <div style={{
-            backgroundColor: "rgba(217, 83, 79, 0.15)",
-            border: "1px solid #d9534f",
-            color: "#f5c6cb",
-            padding: "12px",
-            borderRadius: "8px",
-            fontSize: "0.85rem",
-            marginBottom: "20px",
-            textAlign: "center"
-          }}>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "18px" }}>
-            <label style={{ display: "block", marginBottom: "8px", color: "#ccc", fontSize: "0.85rem", fontWeight: "500" }}>
-              Usuario / Correo electrónico:
-            </label>
+        <form onSubmit={handleSubmit} className="login-form">
+          <label className="login-field">
+            Usuario / Correo electrónico
             <input
               type="text"
               name="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               placeholder="tucorreo@barberfaster.com"
-              className="login-input"
+              autoComplete="username"
             />
-          </div>
+          </label>
 
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ display: "block", marginBottom: "8px", color: "#ccc", fontSize: "0.85rem", fontWeight: "500" }}>
-              Contraseña:
-            </label>
+          <label className="login-field">
+            Contraseña
             <input
               type="password"
               name="password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               placeholder="••••••••"
-              className="login-input"
+              autoComplete="current-password"
             />
-          </div>
+          </label>
 
           <button type="submit" disabled={loading} className="login-btn">
-            {loading ? "Validando acceso..." : "Iniciar Sesión"}
+            {loading ? "Validando acceso..." : "Iniciar sesión"}
           </button>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

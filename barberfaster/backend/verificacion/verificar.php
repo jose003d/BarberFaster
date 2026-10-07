@@ -43,8 +43,15 @@ if (!hash_equals((string) ($otp['codigo'] ?? ''), $codigoIngresado)) {
     responder(401, false, 'El código ingresado es incorrecto.');
 }
 
+try {
+    $ticket = crearTicketVerificacionTelefono($telefonoNormalizado);
+} catch (Throwable $e) {
+    responder(500, false, 'No se pudo guardar la verificación del teléfono.');
+}
+
 unlink(rutaArchivoOtp($telefonoNormalizado));
 responder(200, true, 'Código verificado exitosamente.', [
     'valido' => true,
     'telefono' => $telefonoNormalizado,
+    'ticket_verificacion' => $ticket,
 ]);

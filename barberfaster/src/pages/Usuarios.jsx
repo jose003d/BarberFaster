@@ -157,7 +157,7 @@ function Usuarios() {
         <div style={{ background: "#fff", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.06)", overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
-              <tr style={{ background: "#1a1a1a", color: "#fff" }}>
+              <tr style={{ background: "var(--bauhaus-ink)", color: "var(--bauhaus-paper)" }}>
                 <th style={{ padding: "12px 16px", width: "80px" }}>ID</th>
                 <th style={{ padding: "12px 16px" }}>Nombre</th>
                 <th style={{ padding: "12px 16px" }}>Especialidad</th>

@@ -12,6 +12,7 @@ header("Content-Type: application/json; charset=UTF-8");
 // Carga la conexión PDO a la base de datos.
 require_once '../config/database.php';
 require_once 'horarios_utils.php';
+require_once '../verificacion/comun.php';
 
 // Los navegadores suelen enviar OPTIONS antes de una petición POST (preflight).
 // Se responde correctamente sin intentar crear una cita.
@@ -42,6 +43,7 @@ $hora_inicio = $data['hora_inicio'] ?? null;   // HH:MM:SS
 $servicios   = $data['servicios'] ?? [];       // Array de IDs: [1, 2]
 $nombre_cliente = isset($data['nombre_cliente']) && is_scalar($data['nombre_cliente']) ? trim((string)$data['nombre_cliente']) : '';
 $telefono_cliente = isset($data['telefono_cliente']) && is_scalar($data['telefono_cliente']) ? trim((string)$data['telefono_cliente']) : '';
+$ticket_verificacion = isset($data['ticket_verificacion']) && is_string($data['ticket_verificacion']) ? $data['ticket_verificacion'] : '';
 $notas       = isset($data['notas']) && is_scalar($data['notas']) ? (string)$data['notas'] : null;
 
 // -----------------------------------------------------------------------------
@@ -53,6 +55,7 @@ if (
     !$id_barberia ||
     !$id_barbero ||
     !$dni_cliente ||
+    !$telefono_cliente ||
     !is_string($fecha) ||
     !is_string($hora_inicio) ||
     !is_array($servicios) ||
@@ -60,6 +63,20 @@ if (
 ) {
     http_response_code(400);
     echo json_encode(["status" => "error", "mensaje" => "Faltan datos obligatorios para la reserva."]);
+    exit();
+}
+
+$telefono_cliente = normalizarTelefono($telefono_cliente);
+if (!telefonoValido($telefono_cliente)) {
+    http_response_code(422);
+    echo json_encode(["status" => "error", "mensaje" => "El número de teléfono no es válido."]);
+    exit();
+}
+
+$ticketBloqueado = bloquearTicketVerificacion($telefono_cliente, $ticket_verificacion);
+if ($ticketBloqueado === false) {
+    http_response_code(403);
+    echo json_encode(["status" => "error", "mensaje" => "Verifica nuevamente tu teléfono antes de reservar."]);
     exit();
 }
 
@@ -73,6 +90,7 @@ foreach ($servicios as $idServicio) {
 $servicios = array_values(array_unique($serviciosValidos));
 
 if (empty($servicios)) {
+    liberarTicketVerificacion($ticketBloqueado);
     http_response_code(400);
     echo json_encode(["status" => "error", "mensaje" => "Selecciona al menos un servicio válido."]);
     exit();
@@ -141,7 +159,8 @@ try {
     $inicioMinutos = horaAMinutos($hora_inicio);
     $aperturaMinutos = horaAMinutos($horarioBarberia['hora_apertura']);
     $cierreMinutos = horaAMinutos($horarioBarberia['hora_cierre']);
-    $fechaValidada = DateTime::createFromFormat('!Y-m-d', $fecha);
+    $zonaHorariaBarberFaster = new DateTimeZone('America/Bogota');
+    $fechaValidada = DateTime::createFromFormat('!Y-m-d', $fecha, $zonaHorariaBarberFaster);
     $erroresFecha = DateTime::getLastErrors();
 
     if (
@@ -165,8 +184,10 @@ try {
         throw new RuntimeException("El turno debe iniciar en una franja de 30 minutos y terminar antes del cierre.", 422);
     }
 
-    $fechaHoy = new DateTime('today');
-    if ($fechaValidada < $fechaHoy || ($fechaValidada->format('Y-m-d') === $fechaHoy->format('Y-m-d') && $inicioMinutos <= ((int)date('G') * 60 + (int)date('i')))) {
+    $ahoraBogota = new DateTime('now', $zonaHorariaBarberFaster);
+    $fechaHoy = (clone $ahoraBogota)->setTime(0, 0);
+    $minutoActualBogota = ((int)$ahoraBogota->format('G') * 60) + (int)$ahoraBogota->format('i');
+    if ($fechaValidada < $fechaHoy || ($fechaValidada->format('Y-m-d') === $fechaHoy->format('Y-m-d') && $inicioMinutos <= $minutoActualBogota)) {
         throw new RuntimeException("No puedes reservar una fecha u hora que ya pasó.", 422);
     }
 
@@ -227,6 +248,13 @@ try {
         $stmtDetalle->execute([$id_cita, $s['id_servicio'], $s['precio']]);
     }
 
+    // El ticket se consume al reservar y queda ligado al teléfono validado.
+    $ticketConsumido = consumirTicketVerificacion($ticketBloqueado);
+    $ticketBloqueado = null;
+    if (!$ticketConsumido) {
+        throw new RuntimeException("No se pudo confirmar la verificación del teléfono.", 500);
+    }
+
     // Confirma definitivamente todos los INSERT realizados en la transacción.
     $pdo->commit();
 
@@ -252,6 +280,9 @@ try {
     // parciales para no dejar datos incompletos en la base de datos.
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
+    }
+    if ($ticketBloqueado !== null) {
+        liberarTicketVerificacion($ticketBloqueado);
     }
     $codigo = (int)$e->getCode();
     if ($codigo >= 400 && $codigo < 500) {

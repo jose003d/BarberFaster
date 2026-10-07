@@ -176,7 +176,7 @@ function Clientes() {
         <div style={{ background: "#fff", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.06)", overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
-              <tr style={{ background: "#1a1a1a", color: "#fff" }}>
+              <tr style={{ background: "var(--bauhaus-ink)", color: "var(--bauhaus-paper)" }}>
                 <th style={{ padding: "12px 16px" }}>DNI</th>
                 <th style={{ padding: "12px 16px" }}>Nombre</th>
                 <th style={{ padding: "12px 16px" }}>Apellido</th>
@@ -202,18 +202,19 @@ function Clientes() {
                       <td style={{ padding: "12px 16px", color: "#555" }}>{c.apellido || "-"}</td>
                       <td style={{ padding: "12px 16px", color: "#555" }}>{c.telefono || "-"}</td>
                       <td style={{ padding: "12px 16px", color: "#555" }}>{c.correo || "-"}</td>
-                      <td style={{ padding: "12px 16px", textAlign: "center" }}>
-                        <button className="btn-secondary" onClick={() => handleEditar(c)} title="Editar" style={{ padding: "6px 10px", marginRight: "5px" }}>
+                      <td className="table-actions-cell" style={{ padding: "12px 16px" }}>
+                        <div className="table-actions">
+                        <button className="btn-secondary table-action-icon" onClick={() => handleEditar(c)} title="Editar">
                           <FontAwesomeIcon icon={faPenToSquare} />
                         </button>
                         <button
-                          className="btn-secondary"
+                          className="btn-secondary table-action-icon"
                           onClick={() => handleDesactivar(c)}
                           title={mostrarPapelera ? "Reactivar" : "Mover a papelera"}
-                          style={{ padding: "6px 10px" }}
                         >
                           <FontAwesomeIcon icon={mostrarPapelera ? faTrashCanArrowUp : esInactivo ? faToggleOff : faToggleOn} />
                         </button>
+                        </div>
                       </td>
                     </tr>
                   );

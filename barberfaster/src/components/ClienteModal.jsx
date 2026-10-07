@@ -92,18 +92,18 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
         .erp-modal-input {
           width: 100%;
           padding: 10px 14px;
-          background-color: #2b2b2b;
-          border: 1px solid #3d3d3d;
-          color: #f1f1f1;
-          border-radius: 6px;
+          background-color: #ffffff;
+          border: 1px solid #cdcdcf;
+          color: #393939;
+          border-radius: 2px;
           font-size: 0.95rem;
           box-sizing: border-box;
           outline: none;
           transition: border-color 0.2s, box-shadow 0.2s;
         }
         .erp-modal-input:focus {
-          border-color: #d4af37;
-          box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+          border-color: #147d7d;
+          box-shadow: 0 0 0 3px rgba(43, 207, 206, 0.32);
         }
         .erp-modal-input:disabled {
           background-color: #1f1f1f;
@@ -123,7 +123,7 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
         animation: 'scaleUpModal 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '12px' }}>
-          <h3 style={{ margin: 0, color: '#1a1a1a', fontSize: '1.25rem', fontWeight: '600' }}>
+          <h3 style={{ margin: 0, color: '#393939', fontSize: '1.25rem', fontWeight: '400' }}>
             {clienteEditar ? 'Editar Cliente' : 'Registrar Cliente'}
           </h3>
           <button 
@@ -209,7 +209,7 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
             <button 
               type="submit" 
               disabled={loading} 
-              style={{ padding: '10px 20px', background: '#d4af37', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.95rem', transition: 'background 0.2s' }}
+              style={{ padding: '10px 20px', background: 'var(--bauhaus-cyan)', color: 'var(--bauhaus-ink)', border: '2px solid var(--bauhaus-ink)', borderRadius: '2px', cursor: 'pointer', fontWeight: '600', fontFamily: '"Chillax", Arial, sans-serif', fontSize: '0.95rem', transition: 'background 0.2s' }}
             >
               {loading ? 'Guardando...' : (clienteEditar ? 'Guardar Cambios' : 'Registrar')}
             </button>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Barberos from "./Barberos"; // Importa tu componente de gestión de personal y servicios
+import "./Dashboard.css";
 
 // Usar localhost para coincidir con el dominio de Vite (http://localhost:5173)
 const BASE_URL = "http://localhost/erpbarber/barberfaster/backend";
@@ -102,100 +103,67 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="page-section" style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
-      {/* CABECERA PRINCIPAL Y NAVEGACIÓN */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", flexWrap: "wrap", gap: "16px" }}>
+    <div className="page-section dashboard-page">
+      <header className="dashboard-header">
         <div>
-          <h1 style={{ margin: 0, fontSize: "1.8rem" }}>Dashboard BarberFaster</h1>
-          <p style={{ color: "#666", margin: "4px 0 0 0" }}>Panel Administrativo del Establecimiento</p>
+          <p className="dashboard-eyebrow">BarberFaster · Administración</p>
+          <h1>Panel de control</h1>
+          <p className="dashboard-description">Administra la operación y la información de tu barbería.</p>
         </div>
 
-        {/* CONTROLES DE PESTAÑAS */}
-        <div style={{ display: "flex", gap: "10px", background: "#f3f4f6", padding: "6px", borderRadius: "12px" }}>
+        <nav className="dashboard-tabs" aria-label="Secciones del panel">
           <button
             type="button"
+            className={tabActiva === "metricas" ? "active" : ""}
             onClick={() => setTabActiva("metricas")}
-            style={{
-              padding: "10px 18px",
-              borderRadius: "8px",
-              border: "none",
-              background: tabActiva === "metricas" ? "#d4af37" : "transparent",
-              color: tabActiva === "metricas" ? "#111" : "#4b5563",
-              fontWeight: "bold",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-            }}
+            aria-pressed={tabActiva === "metricas"}
           >
             📊 Métricas
           </button>
 
           <button
             type="button"
+            className={tabActiva === "asignaciones" ? "active" : ""}
             onClick={() => setTabActiva("asignaciones")}
-            style={{
-              padding: "10px 18px",
-              borderRadius: "8px",
-              border: "none",
-              background: tabActiva === "asignaciones" ? "#d4af37" : "transparent",
-              color: tabActiva === "asignaciones" ? "#111" : "#4b5563",
-              fontWeight: "bold",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-            }}
+            aria-pressed={tabActiva === "asignaciones"}
           >
             ✂️ Asignaciones y Personal
           </button>
 
           <button
             type="button"
+            className={tabActiva === "perfil" ? "active" : ""}
             onClick={() => setTabActiva("perfil")}
-            style={{
-              padding: "10px 18px",
-              borderRadius: "8px",
-              border: "none",
-              background: tabActiva === "perfil" ? "#d4af37" : "transparent",
-              color: tabActiva === "perfil" ? "#111" : "#4b5563",
-              fontWeight: "bold",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-            }}
+            aria-pressed={tabActiva === "perfil"}
           >
             🏢 Perfil del Establecimiento
           </button>
-        </div>
-      </div>
+        </nav>
+      </header>
 
       {mensaje && (
-        <p
-          style={{
-            padding: "12px",
-            borderRadius: "8px",
-            background: mensaje.tipo === "success" ? "#f0fdf4" : "#fef2f2",
-            color: mensaje.tipo === "success" ? "#166534" : "#991b1b",
-            fontWeight: "bold",
-            marginBottom: "20px",
-          }}
-        >
+        <p className={`dashboard-message ${mensaje.tipo}`}>
           {mensaje.texto}
         </p>
       )}
 
       {/* PESTAÑA 1: MÉTRICAS */}
       {tabActiva === "metricas" && (
-        <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1px solid #e5e7eb" }}>
-          <h2>📊 Métricas del Negocio</h2>
-          <p style={{ color: "#666" }}>Resumen estadístico de citas reservadas e ingresos generados.</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px", marginTop: "20px" }}>
-            <div style={{ background: "#fdf8e1", padding: "20px", borderRadius: "12px", border: "1px solid #fef08a" }}>
-              <span style={{ fontSize: "0.85rem", color: "#854d0e" }}>Total Citas Reservadas</span>
-              <h3 style={{ margin: "10px 0 0 0", fontSize: "1.8rem" }}>24</h3>
-            </div>
-            <div style={{ background: "#f0fdf4", padding: "20px", borderRadius: "12px", border: "1px solid #bbf7d0" }}>
-              <span style={{ fontSize: "0.85rem", color: "#166534" }}>Ingresos Est. Hoy</span>
-              <h3 style={{ margin: "10px 0 0 0", fontSize: "1.8rem" }}>$450.000</h3>
-            </div>
+        <section className="dashboard-panel">
+          <p className="dashboard-eyebrow">Tu negocio</p>
+          <h2>📊 Métricas del negocio</h2>
+          <p className="dashboard-description">Resumen estadístico de citas reservadas e ingresos generados.</p>
+          <div className="dashboard-metrics">
+            <article className="dashboard-metric-card">
+              <span>Total citas reservadas</span>
+              <h3>24</h3>
+            </article>
+            <article className="dashboard-metric-card accent">
+              <span>Ingresos estimados hoy</span>
+              <h3>$450.000</h3>
+            </article>
           </div>
-        </div>
+        </section>
       )}
 
       {/* PESTAÑA 2: ASIGNACIONES Y PERSONAL */}
@@ -207,87 +175,88 @@ export default function Dashboard() {
 
       {/* PESTAÑA 3: PERFIL DE LA BARBERÍA Y HORARIO */}
       {tabActiva === "perfil" && (
-        <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1px solid #e5e7eb", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
-          <h2 style={{ marginTop: 0 }}>🏢 Perfil e Información de la Barbería</h2>
-          <p style={{ color: "#666", fontSize: "0.95rem", marginBottom: "24px" }}>
+        <section className="dashboard-panel">
+          <p className="dashboard-eyebrow">Información pública</p>
+          <h2>🏢 Perfil e información de la barbería</h2>
+          <p className="dashboard-description">
             Esta información se mostrará públicamente a los clientes al agendar.
           </p>
 
           {cargando ? (
-            <p>Cargando información del establecimiento...</p>
+            <p className="dashboard-loading">Cargando información del establecimiento...</p>
           ) : (
-            <form onSubmit={guardarPerfil}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
+            <form className="dashboard-profile-form" onSubmit={guardarPerfil}>
+              <div className="dashboard-profile-grid">
                 {/* DESCRIPCIÓN */}
-                <div style={{ gridColumn: "1 / -1" }}>
-                  <label style={{ display: "block", fontWeight: "bold", marginBottom: "6px" }}>Descripción Comercial:</label>
+                <div className="dashboard-field full">
+                  <label htmlFor="dashboard-description">Descripción comercial:</label>
                   <textarea
+                    id="dashboard-description"
                     rows="3"
                     value={perfil.descripcion}
                     onChange={(e) => setPerfil({ ...perfil, descripcion: e.target.value })}
                     placeholder="Ej. Barbería tradicional con los mejores cortes clásicos y modernos de la ciudad..."
-                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", boxSizing: "border-box" }}
                   />
                 </div>
 
                 {/* DIRECCIÓN */}
-                <div>
-                  <label style={{ display: "block", fontWeight: "bold", marginBottom: "6px" }}>Dirección Física:</label>
+                <div className="dashboard-field">
+                  <label htmlFor="dashboard-address">Dirección física:</label>
                   <input
+                    id="dashboard-address"
                     type="text"
                     value={perfil.direccion}
                     onChange={(e) => setPerfil({ ...perfil, direccion: e.target.value })}
                     placeholder="Ej. Carrera 6 # 7-12, Centro"
-                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", boxSizing: "border-box" }}
                   />
                 </div>
 
                 {/* URL GOOGLE MAPS EMBED */}
-                <div>
-                  <label style={{ display: "block", fontWeight: "bold", marginBottom: "6px" }}>Ubicación Google Maps (URL iFrame Embed):</label>
+                <div className="dashboard-field">
+                  <label htmlFor="dashboard-map-url">Ubicación Google Maps (URL iFrame Embed):</label>
                   <input
+                    id="dashboard-map-url"
                     type="text"
                     value={perfil.url_mapa}
                     onChange={(e) => setPerfil({ ...perfil, url_mapa: e.target.value })}
                     placeholder="Ej. https://www.google.com/maps/embed?pb=..."
-                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", boxSizing: "border-box" }}
                   />
                 </div>
 
                 {/* HORA APERTURA */}
-                <div>
-                  <label style={{ display: "block", fontWeight: "bold", marginBottom: "6px" }}>Hora de Apertura General:</label>
+                <div className="dashboard-field">
+                  <label htmlFor="dashboard-opening-time">Hora de apertura general:</label>
                   <input
+                    id="dashboard-opening-time"
                     type="time"
                     value={perfil.hora_apertura}
                     onChange={(e) => setPerfil({ ...perfil, hora_apertura: e.target.value })}
                     required
-                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", boxSizing: "border-box" }}
                   />
                 </div>
 
                 {/* HORA CIERRE */}
-                <div>
-                  <label style={{ display: "block", fontWeight: "bold", marginBottom: "6px" }}>Hora de Cierre General:</label>
+                <div className="dashboard-field">
+                  <label htmlFor="dashboard-closing-time">Hora de cierre general:</label>
                   <input
+                    id="dashboard-closing-time"
                     type="time"
                     value={perfil.hora_cierre}
                     onChange={(e) => setPerfil({ ...perfil, hora_cierre: e.target.value })}
                     required
-                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", boxSizing: "border-box" }}
                   />
                 </div>
               </div>
 
               {/* VISTA PREVIA MAPA */}
               {perfil.url_mapa && (
-                <div style={{ marginBottom: "20px" }}>
-                  <label style={{ display: "block", fontWeight: "bold", marginBottom: "6px" }}>Vista Previa de la Ubicación:</label>
+                <div className="dashboard-map-preview">
+                  <label htmlFor="dashboard-map-preview">Vista previa de la ubicación:</label>
                   <iframe
+                    id="dashboard-map-preview"
                     src={perfil.url_mapa}
                     width="100%"
                     height="200"
-                    style={{ border: 0, borderRadius: "12px" }}
                     allowFullScreen=""
                     loading="lazy"
                     title="Ubicacion Barberia"
@@ -295,17 +264,14 @@ export default function Dashboard() {
                 </div>
               )}
 
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <button
-                  type="submit"
-                  style={{ padding: "12px 24px", background: "#d4af37", color: "#111", fontWeight: "bold", border: "none", borderRadius: "8px", cursor: "pointer" }}
-                >
+              <div className="dashboard-form-actions">
+                <button type="submit" className="btn">
                   Guardar Perfil de Barbería
                 </button>
               </div>
             </form>
           )}
-        </div>
+        </section>
       )}
     </div>
   );

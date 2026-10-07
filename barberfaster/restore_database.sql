@@ -53,6 +53,7 @@ CREATE TABLE barberos (
   id_barberia INT UNSIGNED NOT NULL,
   id_usuario INT UNSIGNED NULL,
   nombre VARCHAR(150) NOT NULL,
+  foto VARCHAR(255) NULL,
   perfil TEXT NULL,
   estado TINYINT(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (id_barbero),

@@ -13,6 +13,7 @@ import SuperadminClientes from "./pages/SuperadminClientes";
 import AdminDashboard from "./pages/AdminDashboard";
 import { BarberoWorkspace } from "./pages/BarberoWorkspace";
 import ClienteDashboard from "./pages/ClienteDashboard";
+import BarberiaDiscovery from "./pages/BarberiaDiscovery";
 
 function ProtectedRoute({ children }) {
   const isAuthenticated = localStorage.getItem("erpbarber_auth") === "true";
@@ -44,8 +45,10 @@ function App() {
     <BrowserRouter basename="/erpbarber/barberfaster">
       <Routes>
         {/* Rutas públicas y paneles administrativos protegidos por rol activo. */}
-        <Route path="/" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/" element={<BarberiaDiscovery />} />
+        <Route path="/seleccionar-barberia" element={<BarberiaDiscovery />} />
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/reservar" element={<Agenda reservaPublica />} />
         <Route path="/dashboard" element={<AdminRoute><DashboardLayout><Dashboard /></DashboardLayout></AdminRoute>} />
         <Route path="/barberias" element={<AdminRoute><DashboardLayout><Barberias /></DashboardLayout></AdminRoute>} />
         <Route path="/usuarios" element={<AdminRoute><DashboardLayout><Usuarios /></DashboardLayout></AdminRoute>} />

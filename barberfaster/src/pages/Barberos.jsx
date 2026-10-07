@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faTrashCan, faScissors, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faTrashCan, faScissors, faPlus, faBan } from "@fortawesome/free-solid-svg-icons";
 import ConfirmModal from "../components/ConfirmModal";
+import { desactivarServicio } from "../services/api";
 
 const BASE_URL = "/erpbarber/barberfaster/backend";
 
@@ -121,8 +122,24 @@ function Barberos() {
     }
   };
 
-  // --- GESTIÓN DE CREACIÓN DE SERVICIOS (CATÁLOGO) ---
-  const crearServicioCatalogo = async (e) => {
+  // --- GESTIÓN DE CREACIÓN / EDICIÓN DE SERVICIOS (CATÁLOGO) ---
+  const abrirServicioModal = (servicio = null) => {
+    if (servicio) {
+      setFormServicio({
+        id_servicio: servicio.id_servicio,
+        nombre: servicio.nombre || "",
+        precio: servicio.precio ?? "",
+        duracion_minutos: servicio.duracion_minutos ?? 30,
+        descripcion: servicio.descripcion || ""
+      });
+    } else {
+      setFormServicio({ nombre: "", precio: "", duracion_minutos: 30, descripcion: "" });
+    }
+    setFetchError(null);
+    setIsModalServicioOpen(true);
+  };
+
+  const guardarServicioCatalogo = async (e) => {
     e.preventDefault();
     setFetchError(null);
     try {
@@ -134,17 +151,37 @@ function Barberos() {
         duracion_minutos: Number(formServicio.duracion_minutos)
       };
 
-      const res = await fetch(`${BASE_URL}/servicios/crears.php`, {
+      const isEditing = Boolean(formServicio.id_servicio);
+      const url = isEditing ? `${BASE_URL}/servicios/editars.php` : `${BASE_URL}/servicios/crears.php`;
+      const body = isEditing ? { ...payload, id_servicio: formServicio.id_servicio } : payload;
+
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(body)
       });
       const data = await res.json();
-      if (data.status === "error") throw new Error(data.mensaje || "No se pudo crear el servicio.");
+      if (data.status === "error") throw new Error(data.mensaje || (isEditing ? "No se pudo actualizar el servicio." : "No se pudo crear el servicio."));
 
-      setSuccessMessage("Nuevo servicio agregado al catálogo con éxito.");
+      setSuccessMessage(isEditing ? "Servicio actualizado con éxito." : "Nuevo servicio agregado al catálogo con éxito.");
       setFormServicio({ nombre: "", precio: "", duracion_minutos: 30, descripcion: "" });
       setIsModalServicioOpen(false);
+      await cargarDatosIniciales();
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (error) {
+      setFetchError(error.message);
+    }
+  };
+
+  const desactivarServicioCatalogo = async (servicio) => {
+    if (!servicio?.id_servicio) return;
+    setFetchError(null);
+    try {
+      const response = await desactivarServicio(servicio.id_servicio, "INACTIVO");
+      if (response && response.status === "error") {
+        throw new Error(response.mensaje || "No se pudo desactivar el servicio.");
+      }
+      setSuccessMessage("Servicio desactivado con éxito.");
       await cargarDatosIniciales();
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (error) {
@@ -237,16 +274,18 @@ function Barberos() {
                   <td>{b.id_barbero}</td>
                   <td>{b.nombre}</td>
                   <td>{b.especialidad || "Sin especialidad"}</td>
-                  <td style={{ display: "flex", gap: "6px" }}>
+                  <td className="table-actions-cell">
+                    <div className="table-actions">
                     <button className="btn-secondary" onClick={() => abrirGestionServicios(b)} title="Asignar Servicios del Catálogo">
                       <FontAwesomeIcon icon={faScissors} /> Servicios
                     </button>
-                    <button className="btn-secondary" onClick={() => { setBarberoSeleccionado(b); setFormBarbero({ nombre: b.nombre, especialidad: b.especialidad }); setIsModalBarberoOpen(true); }} title="Editar Barbero">
+                    <button className="btn-secondary table-action-icon" onClick={() => { setBarberoSeleccionado(b); setFormBarbero({ nombre: b.nombre, especialidad: b.especialidad }); setIsModalBarberoOpen(true); }} title="Editar Barbero">
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
-                    <button className="btn-secondary" onClick={() => setConfirmModal({ open: true, item: b })} title="Eliminar Barbero">
+                    <button className="btn-secondary table-action-icon" onClick={() => setConfirmModal({ open: true, item: b })} title="Eliminar Barbero">
                       <FontAwesomeIcon icon={faTrashCan} />
                     </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -261,7 +300,7 @@ function Barberos() {
           <h2>Catálogo de Servicios Generales</h2>
           <p className="page-description">Servicios disponibles para ser asignados a los barberos.</p>
         </div>
-        <button className="btn" style={{ background: "#d4af37", color: "#111", fontWeight: "bold" }} onClick={() => setIsModalServicioOpen(true)}>
+        <button className="btn" onClick={() => abrirServicioModal()}>
           <FontAwesomeIcon icon={faPlus} /> Crear servicio
         </button>
       </div>
@@ -274,13 +313,14 @@ function Barberos() {
               <th>Servicio</th>
               <th>Precio</th>
               <th>Duración</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="4">Cargando catálogo...</td></tr>
+              <tr><td colSpan="5">Cargando catálogo...</td></tr>
             ) : serviciosCatalogo.length === 0 ? (
-              <tr><td colSpan="4">No hay servicios registrados en el catálogo.</td></tr>
+              <tr><td colSpan="5">No hay servicios registrados en el catálogo.</td></tr>
             ) : (
               serviciosCatalogo.map((s) => (
                 <tr key={s.id_servicio}>
@@ -288,6 +328,16 @@ function Barberos() {
                   <td><strong>{s.nombre}</strong></td>
                   <td>${s.precio}</td>
                   <td>{s.duracion_minutos} min</td>
+                  <td className="table-actions-cell">
+                    <div className="table-actions table-actions--wide">
+                      <button className="btn-secondary" type="button" onClick={() => abrirServicioModal(s)} title="Editar servicio">
+                        <FontAwesomeIcon icon={faPenToSquare} /> Editar
+                      </button>
+                      <button className="btn-secondary" type="button" onClick={() => desactivarServicioCatalogo(s)} title="Desactivar servicio">
+                        <FontAwesomeIcon icon={faBan} /> Desactivar
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))
             )}
@@ -318,26 +368,26 @@ function Barberos() {
 
       {/* MODAL 2: CREAR SERVICIO PARA EL CATÁLOGO */}
       {isModalServicioOpen && (
-        <div style={{ background: "#1e1e1e", color: "#fff", border: "1px solid #333", borderRadius: "16px", padding: "24px", margin: "20px 0" }}>
-          <h3 style={{ color: "#d4af37", marginTop: 0 }}>Nuevo Servicio para el Catálogo</h3>
-          <form onSubmit={crearServicioCatalogo}>
+        <div style={{ background: "#fff", color: "var(--bauhaus-ink)", border: "2px solid var(--bauhaus-ink)", borderRadius: "2px", padding: "24px", margin: "20px 0", boxShadow: "5px 5px 0 var(--bauhaus-cyan)" }}>
+          <h3 style={{ marginTop: 0 }}>{formServicio.id_servicio ? "Editar Servicio del Catálogo" : "Nuevo Servicio para el Catálogo"}</h3>
+          <form onSubmit={guardarServicioCatalogo}>
             <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "12px", marginBottom: "12px" }}>
               <div>
-                <label style={{ fontSize: "0.85rem", color: "#aaa" }}>Nombre del Servicio</label>
-                <input type="text" value={formServicio.nombre} onChange={(e) => setFormServicio({ ...formServicio, nombre: e.target.value })} placeholder="Ej. Corte y Barba" required style={{ width: "100%", padding: "8px", background: "#2a2a2a", border: "1px solid #444", color: "#fff", borderRadius: "6px" }} />
+                <label style={{ fontSize: "0.85rem", color: "var(--bauhaus-ink)" }}>Nombre del Servicio</label>
+                <input type="text" value={formServicio.nombre} onChange={(e) => setFormServicio({ ...formServicio, nombre: e.target.value })} placeholder="Ej. Corte y Barba" required style={{ width: "100%", padding: "8px", background: "#fff", border: "1px solid var(--bauhaus-gray)", color: "var(--bauhaus-ink)", borderRadius: "2px" }} />
               </div>
               <div>
-                <label style={{ fontSize: "0.85rem", color: "#aaa" }}>Precio ($)</label>
-                <input type="number" value={formServicio.precio} onChange={(e) => setFormServicio({ ...formServicio, precio: e.target.value })} required style={{ width: "100%", padding: "8px", background: "#2a2a2a", border: "1px solid #444", color: "#fff", borderRadius: "6px" }} />
+                <label style={{ fontSize: "0.85rem", color: "var(--bauhaus-ink)" }}>Precio ($)</label>
+                <input type="number" value={formServicio.precio} onChange={(e) => setFormServicio({ ...formServicio, precio: e.target.value })} required style={{ width: "100%", padding: "8px", background: "#fff", border: "1px solid var(--bauhaus-gray)", color: "var(--bauhaus-ink)", borderRadius: "2px" }} />
               </div>
               <div>
-                <label style={{ fontSize: "0.85rem", color: "#aaa" }}>Duración (min)</label>
-                <input type="number" value={formServicio.duracion_minutos} onChange={(e) => setFormServicio({ ...formServicio, duracion_minutos: e.target.value })} required style={{ width: "100%", padding: "8px", background: "#2a2a2a", border: "1px solid #444", color: "#fff", borderRadius: "6px" }} />
+                <label style={{ fontSize: "0.85rem", color: "var(--bauhaus-ink)" }}>Duración (min)</label>
+                <input type="number" value={formServicio.duracion_minutos} onChange={(e) => setFormServicio({ ...formServicio, duracion_minutos: e.target.value })} required style={{ width: "100%", padding: "8px", background: "#fff", border: "1px solid var(--bauhaus-gray)", color: "var(--bauhaus-ink)", borderRadius: "2px" }} />
               </div>
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
               <button type="button" className="btn-secondary" onClick={() => setIsModalServicioOpen(false)}>Cancelar</button>
-              <button type="submit" className="btn" style={{ background: "#d4af37", color: "#111", fontWeight: "bold" }}>Guardar en Catálogo</button>
+              <button type="submit" className="btn">{formServicio.id_servicio ? "Guardar cambios" : "Guardar en Catálogo"}</button>
             </div>
           </form>
         </div>
@@ -345,17 +395,17 @@ function Barberos() {
 
       {/* MODAL 3: ASIGNAR SERVICIOS A BARBERO (CHECKBOXES) */}
       {modalGestion === "servicios" && barberoSeleccionado && (
-        <div style={{ background: "#1e1e1e", color: "#fff", border: "1px solid #333", borderRadius: "16px", padding: "24px", margin: "20px 0" }}>
-          <h3 style={{ color: "#d4af37", marginTop: 0 }}>Asignar Servicios a {barberoSeleccionado.nombre}</h3>
-          <p style={{ color: "#aaa", fontSize: "0.9rem" }}>Marca las casillas de los servicios que este barbero puede realizar:</p>
+        <div style={{ background: "#fff", color: "var(--bauhaus-ink)", border: "2px solid var(--bauhaus-ink)", borderRadius: "2px", padding: "24px", margin: "20px 0", boxShadow: "5px 5px 0 var(--bauhaus-cyan)" }}>
+          <h3 style={{ marginTop: 0 }}>Asignar Servicios a {barberoSeleccionado.nombre}</h3>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Marca las casillas de los servicios que este barbero puede realizar:</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "12px", margin: "20px 0" }}>
             {serviciosCatalogo.length === 0 ? (
-              <p style={{ color: "#888" }}>No hay servicios en el catálogo para asignar.</p>
+              <p style={{ color: "var(--text-muted)" }}>No hay servicios en el catálogo para asignar.</p>
             ) : (
               serviciosCatalogo.map((serv) => {
                 const estaAsignado = serviciosSeleccionados.includes(serv.id_servicio);
                 return (
-                  <label key={serv.id_servicio} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px", background: "#2a2a2a", borderRadius: "8px", cursor: "pointer", border: estaAsignado ? "1px solid #d4af37" : "1px solid #444" }}>
+                  <label key={serv.id_servicio} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px", background: estaAsignado ? "var(--bauhaus-cyan-light)" : "#fafafa", color: "var(--bauhaus-ink)", borderRadius: "2px", cursor: "pointer", border: estaAsignado ? "1px solid var(--bauhaus-ink)" : "1px solid var(--bauhaus-gray)" }}>
                     <input
                       type="checkbox"
                       checked={estaAsignado}
@@ -366,7 +416,7 @@ function Barberos() {
                     />
                     <div>
                       <strong>{serv.nombre}</strong>
-                      <div style={{ fontSize: "0.8rem", color: "#888" }}>${serv.precio} · {serv.duracion_minutos} min</div>
+                      <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>${serv.precio} · {serv.duracion_minutos} min</div>
                     </div>
                   </label>
                 );
@@ -375,7 +425,7 @@ function Barberos() {
           </div>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
             <button className="btn-secondary" onClick={() => setModalGestion(null)}>Cancelar</button>
-            <button className="btn" style={{ background: "#d4af37", color: "#111", fontWeight: "bold" }} onClick={guardarAsignacionesServicios}>Guardar Asignaciones</button>
+            <button className="btn" onClick={guardarAsignacionesServicios}>Guardar Asignaciones</button>
           </div>
         </div>
       )}

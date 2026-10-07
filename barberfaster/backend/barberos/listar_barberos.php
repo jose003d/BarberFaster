@@ -22,8 +22,8 @@ $id_barberia = $_GET['id_barberia'] ?? $_POST['id_barberia'] ?? 1;
 try {
     // Consulta solo los barberos activos de la barbería seleccionada.
     $stmt = $pdo->prepare("
-        SELECT id_barbero, id_barberia, nombre, especialidad, estado 
-        FROM barberos 
+        SELECT id_barbero, id_barberia, nombre, especialidad, estado, foto
+        FROM barberos
         WHERE id_barberia = ? AND estado = 'ACTIVO'
     ");
     $stmt->execute([$id_barberia]);

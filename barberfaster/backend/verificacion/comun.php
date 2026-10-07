@@ -84,6 +84,80 @@ function telefonoValido(string $telefono): bool
     return preg_match('/^57\d{9,10}$/', $telefono) === 1;
 }
 
+function crearTicketVerificacionTelefono(string $telefono, int $ttlSegundos = 600): string
+{
+    $ticket = bin2hex(random_bytes(32));
+    $ruta = rutaTicketVerificacion($ticket);
+    $datos = [
+        'telefono' => normalizarTelefono($telefono),
+        'expira_en' => time() + $ttlSegundos,
+    ];
+
+    $bytes = file_put_contents($ruta, json_encode($datos, JSON_UNESCAPED_UNICODE), LOCK_EX);
+    if ($bytes === false) {
+        throw new RuntimeException('No se pudo guardar la verificación del teléfono.');
+    }
+
+    return $ticket;
+}
+
+function rutaTicketVerificacion(string $ticket): string
+{
+    return sys_get_temp_dir() . '/wuapi_verificado_' . hash('sha256', $ticket) . '.json';
+}
+
+function bloquearTicketVerificacion(string $telefono, string $ticket)
+{
+    if (preg_match('/^[a-f0-9]{64}$/', $ticket) !== 1) {
+        return false;
+    }
+
+    $ruta = rutaTicketVerificacion($ticket);
+    $archivo = @fopen($ruta, 'r+');
+    if ($archivo === false || !flock($archivo, LOCK_EX)) {
+        if (is_resource($archivo)) {
+            fclose($archivo);
+        }
+        return false;
+    }
+
+    rewind($archivo);
+    $datos = json_decode(stream_get_contents($archivo), true);
+    if (
+        !is_array($datos) ||
+        !isset($datos['telefono'], $datos['expira_en']) ||
+        !hash_equals((string)$datos['telefono'], normalizarTelefono($telefono)) ||
+        (int)$datos['expira_en'] < time()
+    ) {
+        flock($archivo, LOCK_UN);
+        fclose($archivo);
+        return false;
+    }
+
+    return ['archivo' => $archivo, 'ruta' => $ruta];
+}
+
+function consumirTicketVerificacion(array $ticketBloqueado): bool
+{
+    $archivo = $ticketBloqueado['archivo'];
+    $ruta = $ticketBloqueado['ruta'];
+    $eliminado = ftruncate($archivo, 0) && fflush($archivo);
+    if ($eliminado && is_file($ruta)) {
+        $eliminado = unlink($ruta);
+    }
+
+    flock($archivo, LOCK_UN);
+    fclose($archivo);
+    return $eliminado;
+}
+
+function liberarTicketVerificacion(array $ticketBloqueado): void
+{
+    $archivo = $ticketBloqueado['archivo'];
+    flock($archivo, LOCK_UN);
+    fclose($archivo);
+}
+
 function rutaArchivoOtp(string $telefono): string
 {
     $telefono = normalizarTelefono($telefono);
@@ -116,14 +190,13 @@ function enviarMensajeWuapi(string $telefono, string $codigo): array
     }
 
     $accountId = credencialWuapi('WUAPI_ACCOUNT_ID');
-    $apiKey = credencialWuapi('WUAPI_KEY');
+    $apiKey = credencialWuapi('WUAPI_API_KEY');
 
     $payload = [
+        'accountId' => $accountId,
         'to' => $telefono,
         'type' => 'text',
-        'text' => [
-            'body' => "Tu código de verificación es *{$codigo}*. Válido por 5 minutos.",
-        ],
+        'text' => "Tu código de verificación es *{$codigo}*. Válido por 5 minutos.",
     ];
 
     $ch = curl_init('https://api.wuapi.dev/v1/messages');
@@ -136,7 +209,7 @@ function enviarMensajeWuapi(string $telefono, string $codigo): array
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
             'Accept: application/json',
-            'Authorization: Basic ' . base64_encode($accountId . ':' . $apiKey),
+            'Authorization: Bearer ' . $apiKey,
         ],
         CURLOPT_SSL_VERIFYPEER => true,
     ]);
@@ -147,11 +220,23 @@ function enviarMensajeWuapi(string $telefono, string $codigo): array
     curl_close($ch);
 
     if ($respuesta === false || $httpCode >= 400 || $httpCode === 0) {
+        $errorProveedor = is_string($respuesta) ? json_decode($respuesta, true) : null;
+        $codigoProveedor = '';
+        if (is_array($errorProveedor)) {
+            $errorCampo = $errorProveedor['error'] ?? null;
+            $codigoProveedor = is_string($errorCampo)
+                ? $errorCampo
+                : (is_array($errorCampo) ? (string)($errorCampo['code'] ?? '') : '');
+            if ($codigoProveedor === '') {
+                $codigoProveedor = (string)($errorProveedor['code'] ?? '');
+            }
+        }
+
         return [
             'ok' => false,
             'mensaje' => $error !== '' ? $error : 'No se pudo enviar el mensaje por Wuapi.',
             'http_code' => $httpCode,
-            'body' => $respuesta,
+            'provider_code' => preg_match('/^[a-z0-9_]{1,80}$/i', $codigoProveedor) === 1 ? $codigoProveedor : null,
         ];
     }
 
@@ -220,7 +305,7 @@ function expirarOtpSiEsNecesario(string $telefono): bool
 
 function manejarPreflight(): void
 {
-    if ($_SERVER['REQUEST_METHOD'] ?? '' === 'OPTIONS') {
+    if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
         http_response_code(204);
         exit;
     }

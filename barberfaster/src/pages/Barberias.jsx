@@ -205,18 +205,19 @@ function Barberias() {
                         {Number(b.estado) === 1 ? "Activa" : "Inactiva"}
                       </span>
                     </td>
-                    <td>
-                      <button className="btn-secondary" onClick={() => handleEditar(b)} title="Editar">
+                    <td className="table-actions-cell">
+                      <div className="table-actions">
+                      <button className="btn-secondary table-action-icon" onClick={() => handleEditar(b)} title="Editar">
                         <FontAwesomeIcon icon={faPenToSquare} />
                       </button>
                       <button
-                        className="btn-secondary"
+                        className="btn-secondary table-action-icon"
                         onClick={() => handleDesactivar(b)}
                         title={mostrarPapelera ? "Reactivar" : "Mover a papelera"}
-                        style={{ marginLeft: "0.35rem" }}
                       >
                         <FontAwesomeIcon icon={mostrarPapelera ? faTrashCanArrowUp : Number(b.estado) === 1 ? faToggleOff : faToggleOn} />
                       </button>
+                      </div>
                     </td>
                   </tr>
                 ))
