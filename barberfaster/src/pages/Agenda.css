@@ -1,43 +1,85 @@
-
+/* Maquetación, calendario, disponibilidad y formularios del flujo de reserva. */
 .agenda-page {
   width: 100%;
-  max-width: 1400px;
+  max-width: 920px;
   margin: 0 auto;
-  padding: 32px 20px;
-  font-family: inherit;
+  padding: 20px 20px 40px;
+  font-family: "Satoshi", "Arial", sans-serif;
   box-sizing: border-box;
 }
 
+.booking-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  color: var(--bauhaus-ink);
+  font-family: "Chillax", "Arial", sans-serif;
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
 .agenda-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 18px;
+}
+
+.agenda-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 12px;
+  border: 2px solid var(--bauhaus-ink);
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 4px 4px 0 var(--bauhaus-cyan);
+  font-size: 2rem;
 }
 
 .agenda-header h1 {
-  font-size: 2rem;
-  color: #111827;
-  margin-bottom: 8px;
+  margin: 0;
+  color: var(--bauhaus-ink);
+  font-family: "Satoshi", "Arial", sans-serif;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-weight: 700;
 }
 
 .agenda-header p {
-  color: #6b7280;
-  font-size: 1rem;
+  margin-top: 12px;
+  color: #4b5563;
+  font-size: 1.1rem;
+  font-family: "Satoshi", "Arial", sans-serif;
+}
+
+.agenda-step.active {
+  background: var(--bauhaus-cyan);
 }
 
 .agenda-mensaje {
   padding: 14px 20px;
-  border-radius: 8px;
+  border-radius: 2px;
   margin-bottom: 20px;
-  font-weight: 600;
+  font-family: "Chillax", "Arial", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   text-align: center;
+  text-transform: uppercase;
 }
 
 .agenda-mensaje.success { background: #d1fae5; color: #065f46; }
 .agenda-mensaje.error   { background: #fee2e2; color: #991b1b; }
 
+/* Cabecera y distribución de calendario frente a horarios disponibles. */
 .agenda-layout {
   display: grid;
-  grid-template-columns: minmax(300px, 420px) minmax(0, 1.7fr);
+  grid-template-columns: 380px minmax(0, 1fr);
   gap: 24px;
   align-items: start;
   width: 100%;
@@ -45,10 +87,14 @@
 
 .agenda-calendar-panel,
 .agenda-schedule-panel {
+  position: relative;
+  overflow: hidden;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-  padding: 20px;
+  border: 2px solid var(--bauhaus-ink);
+  border-radius: 2px;
+  box-shadow: 4px 4px 0 var(--bauhaus-cyan);
+  padding: 24px;
   min-width: 0;
   box-sizing: border-box;
 }
@@ -64,6 +110,7 @@
 .agenda-panel-header h2 {
   margin: 0;
   color: #111827;
+  font-family: "Satoshi", "Arial", sans-serif;
   font-size: 1.25rem;
 }
 
@@ -73,56 +120,26 @@
   font-weight: 600;
 }
 
-/* Barberos */
-.barberos-grid {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 32px;
+/* Tarjetas para seleccionar al profesional que atenderá la cita. */
+.barber-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 20px;
+  margin-bottom: 12px;
 }
 
-.barbero-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 20px;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: #fff;
-  min-width: 200px;
+.barber-profile-grid .pc-card-wrapper.selected .pc-card {
+  outline: 3px solid var(--bauhaus-cyan);
+  outline-offset: 3px;
 }
 
-.barbero-card:hover {
-  border-color: #d4af37;
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+@media (prefers-reduced-motion: reduce) {
+  .barber-profile-grid .pc-card {
+    transform: none;
+  }
 }
 
-.barbero-card.selected {
-  border-color: #d4af37;
-  background: #fefce8;
-}
-
-.barbero-avatar {
-  font-size: 2rem;
-}
-
-.barbero-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.barbero-info strong {
-  color: #111827;
-}
-
-.barbero-info span {
-  font-size: 0.85rem;
-  color: #6b7280;
-}
-
-/* Calendario */
+/* Calendario, resumen de la reserva y selección de horarios/servicios. */
 .calendario-wrapper {
   background: #fff;
   border-radius: 16px;
@@ -153,16 +170,6 @@
 .leyenda-item.disponible { color: #16a34a; }
 .leyenda-item.ocupado    { color: #dc2626; }
 
-.calendar-container {
-  width: 100%;
-}
-
-.calendar-container .fc {
-  min-height: 760px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
 .date-picker-row {
   display: flex;
   align-items: center;
@@ -181,45 +188,6 @@
   border-radius: 10px;
 }
 
-.calendar-days-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.calendar-day-btn {
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-  padding: 10px 8px;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-weight: 600;
-  color: #374151;
-  background: #f9fafb;
-}
-
-.calendar-day-btn.available {
-  border-color: #86efac;
-  background: #f0fdf4;
-  color: #166534;
-}
-
-.calendar-day-btn.blocked {
-  border-color: #fecaca;
-  background: #fef2f2;
-  color: #991b1b;
-  cursor: not-allowed;
-  opacity: 0.85;
-}
-
-.calendar-day-btn.selected {
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
-  border-color: #d4af37;
-}
-
 .selected-day-heading {
   margin-bottom: 16px;
 }
@@ -227,6 +195,7 @@
 .selected-day-heading h3 {
   margin: 0 0 4px;
   color: #111827;
+  font-family: "Satoshi", "Arial", sans-serif;
   text-transform: capitalize;
 }
 
@@ -235,19 +204,380 @@
   color: #6b7280;
 }
 
+/* Resumen de servicios, precio y fecha seleccionada en el flujo de reserva. */
+.booking-date-time-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.82fr) minmax(0, 1.35fr);
+  gap: clamp(18px, 3vw, 30px);
+  align-items: start;
+}
+
+.booking-schedule-card {
+  padding: 22px;
+  border: 2px solid var(--bauhaus-ink);
+  background: #fff;
+  box-shadow: 4px 4px 0 var(--bauhaus-cyan);
+  font-family: "Satoshi", "Arial", sans-serif;
+}
+
+.booking-selection-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px 20px;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 18px;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-cyan-light);
+  box-shadow: 4px 4px 0 var(--bauhaus-orange);
+}
+
+.booking-selection-heading {
+  min-width: 0;
+}
+
+.booking-selection-eyebrow {
+  display: block;
+  margin-bottom: 5px;
+  color: #55595a;
+  font-family: "Chillax", "Arial", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.booking-selection-heading h2 {
+  margin: 0;
+  color: var(--bauhaus-ink);
+  font-family: "Satoshi", "Arial", sans-serif;
+  font-size: clamp(1.2rem, 2.6vw, 1.65rem);
+  line-height: 1.15;
+}
+
+.booking-selected-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  grid-column: 1 / -1;
+}
+
+.booking-selected-service {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid var(--bauhaus-ink);
+  background: #fff;
+  color: var(--bauhaus-ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.booking-selected-service > span {
+  color: #147d7d;
+}
+
+.booking-selection-totals {
+  display: flex;
+  gap: 10px;
+}
+
+.booking-selection-totals > span {
+  display: flex;
+  min-width: 84px;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+  border-left: 2px solid var(--bauhaus-ink);
+}
+
+.booking-selection-totals small {
+  color: #55595a;
+  font-family: "Chillax", "Arial", sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.booking-selection-totals strong {
+  color: var(--bauhaus-ink);
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.booking-column-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  min-height: 49px;
+  margin-bottom: 12px;
+}
+
+.booking-column-number {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-cyan);
+  color: var(--bauhaus-ink);
+  font-family: "Chillax", "Arial", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.booking-column-heading h3 {
+  margin: 0;
+  color: var(--bauhaus-ink);
+  font-family: "Satoshi", "Arial", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.booking-column-heading p {
+  margin: 3px 0 0;
+  color: #626267;
+  font-size: 0.77rem;
+  line-height: 1.4;
+}
+
+.booking-column-heading .booking-selected-date {
+  color: #147d7d;
+  font-family: "Chillax", "Arial", sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+/* Calendario interactivo y estilos de las celdas de fecha disponibles. */
+.booking-calendar-panel {
+  width: 100%;
+  margin: 0;
+  padding: 12px;
+  align-items: stretch;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-paper);
+  box-shadow: 3px 3px 0 var(--bauhaus-cyan);
+}
+
+.booking-calendar-panel .react-datepicker {
+  width: 100% !important;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-family: "Satoshi", "Arial", sans-serif;
+}
+
+.booking-calendar-panel .react-datepicker__month-container {
+  float: none;
+  width: 100%;
+}
+
+.booking-calendar-panel .react-datepicker__header {
+  padding: 12px 8px 10px;
+  border-bottom: 2px solid var(--bauhaus-ink);
+  border-radius: 0;
+  background: var(--bauhaus-ink);
+}
+
+.booking-calendar-panel .react-datepicker__current-month {
+  margin-bottom: 10px;
+  color: #fff;
+  font-family: "Chillax", "Arial", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: capitalize;
+}
+
+.booking-calendar-panel .react-datepicker__day-names,
+.booking-calendar-panel .react-datepicker__week {
+  display: flex;
+  justify-content: space-around;
+}
+
+.booking-calendar-panel .react-datepicker__day-name {
+  width: calc(100% / 7);
+  margin: 0;
+  color: var(--bauhaus-cyan) !important;
+  font-family: "Chillax", "Arial", sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.booking-calendar-panel .react-datepicker__month {
+  margin: 8px 0 0;
+}
+
+.booking-calendar-panel .react-datepicker__day {
+  display: inline-flex;
+  width: calc(100% / 7);
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 0;
+  color: var(--bauhaus-ink);
+  font-family: "Satoshi", "Arial", sans-serif;
+  font-size: 0.82rem;
+  transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.booking-calendar-panel .react-datepicker__day:hover:not(.react-datepicker__day--disabled):not(.react-datepicker__day--selected) {
+  border-color: var(--bauhaus-ink);
+  border-radius: 0;
+  background: var(--bauhaus-orange);
+  color: #fff;
+}
+
+.booking-calendar-panel .react-datepicker__day--selected,
+.booking-calendar-panel .react-datepicker__day--keyboard-selected {
+  border-color: var(--bauhaus-ink);
+  border-radius: 0;
+  background: var(--bauhaus-cyan) !important;
+  color: var(--bauhaus-ink) !important;
+  font-weight: 800;
+}
+
+.booking-calendar-panel .react-datepicker__day--today {
+  border-bottom: 2px solid var(--bauhaus-orange);
+  border-radius: 0;
+  font-weight: 800;
+}
+
+.booking-calendar-panel .react-datepicker__day--disabled {
+  color: #b8b8b8;
+  cursor: not-allowed;
+}
+
+.booking-calendar-panel .react-datepicker__navigation {
+  top: 12px;
+}
+
+.booking-calendar-panel .react-datepicker__navigation-icon::before {
+  border-color: #fff;
+}
+
+.booking-availability-note {
+  margin: -4px 0 12px;
+  color: #626267;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.booking-selected-time {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 11px 12px;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-cyan-light);
+  box-shadow: 3px 3px 0 var(--bauhaus-orange);
+}
+
+.booking-selected-time span {
+  color: #55595a;
+  font-family: "Chillax", "Arial", sans-serif;
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.booking-selected-time strong {
+  color: var(--bauhaus-ink);
+  font-family: "Chillax", "Arial", sans-serif;
+  font-size: 0.93rem;
+}
+
+/* Turnos disponibles, selección del usuario y mensajes de disponibilidad. */
+.time-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 9px;
+  max-height: 420px;
+  margin: 12px 0 0;
+  padding: 2px 4px 6px 2px;
+  overflow-y: auto;
+}
+
+.time-slot-button {
+  display: flex;
+  min-height: 64px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 8px;
+  border: 2px solid var(--bauhaus-ink);
+  border-radius: 2px;
+  background: var(--bauhaus-cyan);
+  color: var(--bauhaus-ink);
+  cursor: pointer;
+  font: inherit;
+  font-family: "Chillax", "Arial", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+}
+
+.time-slot-button:hover {
+  transform: translate(-1px, -1px);
+  border-color: var(--bauhaus-ink);
+  background-color: var(--bauhaus-orange);
+  color: #ffffff;
+  box-shadow: 3px 3px 0 var(--bauhaus-ink);
+}
+
+.time-slot-button:focus-visible {
+  outline: 3px solid rgba(236, 77, 37, 0.45);
+  outline-offset: 2px;
+}
+
+.time-slot-button.selected {
+  border-color: var(--bauhaus-ink);
+  background: var(--bauhaus-orange);
+  color: var(--bauhaus-ink);
+  box-shadow: 3px 3px 0 var(--bauhaus-ink);
+}
+
+.time-slot-button small {
+  color: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.time-slot-message,
+.time-slot-error {
+  margin: 16px 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: #4b5563;
+}
+
+.time-slot-error {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+/* Grilla de Horarios y Turnos optimizada */
 .hours-grid,
 .slots-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
   align-items: start;
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
-
-.hours-grid > .slot-card,
-.hours-grid > .agenda-empty {
-  min-width: 220px;
+  width: 100%;
 }
 
 .slot-card {
@@ -261,7 +591,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 170px;
+  min-height: 150px;
 }
 
 .slot-card:hover {
@@ -270,21 +600,21 @@
 }
 
 .slot-card.disponible {
-  border-color: #bbf7d0;
-  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border-color: rgba(57, 57, 57, 0.18);
+  background: #dff7f6;
 }
 
 .slot-card.ocupado {
-  border-color: #fecaca;
-  background: #fef2f2;
+  border-color: rgba(57, 57, 57, 0.18);
+  background: #f4f4f4;
   cursor: not-allowed;
   opacity: 0.8;
 }
 
 .slot-card.selected {
-  border-color: #d4af37;
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-  background: #fefce8;
+  border-color: var(--bauhaus-ink);
+  box-shadow: 0 0 0 3px rgba(236, 77, 37, 0.12);
+  background: #dff7f6;
 }
 
 .slot-header {
@@ -304,13 +634,13 @@
 }
 
 .slot-badge.disponible {
-  background: #dcfce7;
-  color: #166534;
+  background: rgba(236, 77, 37, 0.12);
+  color: #1b1b1b;
 }
 
 .slot-badge.ocupado {
-  background: #fee2e2;
-  color: #991b1b;
+  background: rgba(57, 57, 57, 0.08);
+  color: #4b5563;
 }
 
 .slot-hour {
@@ -348,7 +678,107 @@
   background: #f9fafb;
 }
 
+/* Campos del cliente y controles para verificar el teléfono por WhatsApp. */
+.appointment-form {
+  display: grid;
+  gap: 14px;
+}
+
+.appointment-form label {
+  display: grid;
+  gap: 6px;
+  color: #374151;
+  font-family: "Satoshi", "Arial", sans-serif;
+  font-weight: 600;
+}
+
+.appointment-form input,
+.appointment-form select,
+.appointment-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+  font-family: "Satoshi", "Arial", sans-serif;
+}
+
+.phone-input-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.phone-country-code {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-right: 0;
+  border-radius: 8px 0 0 8px;
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 600;
+}
+
+.phone-input-group input {
+  min-width: 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.phone-verification-row {
+  display: flex;
+  gap: 8px;
+}
+
+.phone-verification-row input {
+  min-width: 0;
+}
+
+.phone-verification-button {
+  flex: 0 0 auto;
+  padding: 10px 12px;
+  border: 2px solid var(--bauhaus-ink);
+  border-radius: 8px;
+  background: var(--bauhaus-cyan);
+  color: var(--bauhaus-ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.phone-verification-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.phone-verification-status {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.phone-verification-status.success {
+  color: #166534;
+}
+
+.phone-verification-status.error {
+  color: #991b1b;
+}
+
+.calculated-end {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  border: 1px solid var(--bauhaus-cyan);
+  border-radius: 2px;
+  background: var(--bauhaus-cyan-light);
+  color: var(--bauhaus-ink);
+}
+
 /* Modal */
+/* Ventana de confirmación de la reserva y sus acciones. */
 .agenda-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -376,10 +806,21 @@
   color: #111827;
 }
 
-.agenda-horario {
+.modal-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.modal-close {
+  border: 0;
+  background: transparent;
   color: #6b7280;
-  margin-bottom: 20px;
-  font-size: 0.95rem;
+  cursor: pointer;
+  font-size: 1.8rem;
+  line-height: 1;
 }
 
 .agenda-modal .form-group {
@@ -395,19 +836,10 @@
   color: #374151;
 }
 
-.agenda-modal .form-group small {
-  color: #6b7280;
-  font-size: 0.8rem;
-}
-
 .agenda-modal .form-group input,
 .agenda-modal .form-group textarea {
   border: 1px solid #d1d5db;
-    border-radius: var(--radius);
-}
-
-.agenda-modal .form-group textarea {
-  resize: vertical;
+  border-radius: 8px;
 }
 
 .agenda-modal .modal-actions {
@@ -417,35 +849,26 @@
   margin-top: 20px;
 }
 
-/* Date Picker Personalizado */
+/* Date Picker Adaptado */
 .date-picker-wrapper {
   margin: 20px 0;
   padding: 20px;
-  background: #f9fafb;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-}
-
-.date-picker-wrapper label {
-  display: block;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 12px;
-  font-size: 0.95rem;
-}
-
-.react-datepicker-wrapper-custom {
   width: 100%;
+  box-sizing: border-box;
+  background: var(--bauhaus-paper);
+  border-radius: 2px;
+  border: 1px solid var(--bauhaus-gray);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Estilos personalizados para react-datepicker */
-.react-datepicker__wrapper {
-  width: 100%;
-}
-
+/* Ajustes del calendario de fecha cuando se presenta fuera del panel principal. */
 .react-datepicker {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+  background: #ffffff;
   border: none;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   border-radius: 12px;
@@ -454,199 +877,98 @@
 }
 
 .react-datepicker__header {
-  position: relative;
-  background: linear-gradient(135deg, #d4af37 0%, #c9a027 100%);
-  border-radius: 8px 8px 0 0;
-  padding: 12px 12px 18px;
+  background: var(--bauhaus-ink);
+  border-radius: 2px 2px 0 0;
   border: none;
-  overflow: visible;
+  padding: 12px;
 }
 
-.react-datepicker__navigation {
-  position: absolute;
-  bottom: -16px;
-  width: 34px;
-  height: 34px;
-  border: 1px solid #d9d9d9;
-  border-radius: 50%;
-  background: #000000 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
-  z-index: 2;
-}
-
-.react-datepicker__navigation:hover,
-.react-datepicker__navigation:focus,
-.react-datepicker__navigation:active {
-  background: #000000 !important;
-  box-shadow: 0 4px 10px rgba(232, 255, 102, 0.74);
-}
-
-.react-datepicker__navigation--previous {
-  left: 18px;
-}
-
-.react-datepicker__navigation--next {
-  right: 18px;
-}
-
-.react-datepicker__navigation-icon::before {
-  border-color: #233246;
-  border-width: 2px 2px 0 0;
-  width: 8px;
-  height: 8px;
-  top: 10px;
-}
-
-.react-datepicker__header__text {
-  color: #fff;
-  font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: 0.02em;
-  display: block;
-  text-align: center;
-  padding-top: 8px;
-  padding-bottom: 6px;
-}
-
-.react-datepicker__day-names {
-  display: flex;
-  gap: 4px;
-  padding: 12px 0;
-}
-
+.react-datepicker__current-month,
 .react-datepicker__day-name {
-  width: 40px;
-  text-align: center;
-  font-weight: 600;
-  color: #374151;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-}
-
-.react-datepicker__week {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 4px;
+  color: #ffffff !important;
 }
 
 .react-datepicker__day {
-  width: 40px;
-  height: 40px;
-  display: flex;
+  aspect-ratio: 1 / 1;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
   color: #374151;
-  border: 1px solid transparent;
   transition: all 0.2s ease;
 }
 
-.react-datepicker__day:hover {
-  background: #000000;
-  border-color: #d1d5db;
-}
-
 .react-datepicker__day--selected {
-  background: linear-gradient(135deg, #d4af37 0%, #c9a027 100%);
-  color: #fff;
-  font-weight: 600;
-  border-color: #d4af37;
-}
-
-.react-datepicker__day--today {
-  border: 2px solid #d4af37;
+  background: var(--bauhaus-cyan) !important;
+  color: var(--bauhaus-ink) !important;
   font-weight: 600;
 }
 
-.react-datepicker__day--disabled {
-  color: #d1d5db;
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.react-datepicker__day--outside-month {
-  color: #d1d5db;
-}
-
-/* Ajustes para pantalla móvil */
+/* Reglas responsivas para adaptar calendario, turnos y formulario a móviles. */
 @media (max-width: 980px) {
   .agenda-layout {
     grid-template-columns: 1fr;
   }
-
-  .agenda-panel-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
 
 @media (max-width: 768px) {
+  .booking-date-time-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-schedule-card {
+    padding: 16px;
+  }
+
+  .booking-selection-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-selection-totals {
+    grid-row: 2;
+  }
+
+  .booking-selected-services {
+    grid-row: 3;
+  }
+
+  .booking-calendar-panel {
+    max-width: 420px;
+  }
+
   .agenda-page {
     padding: 16px 12px;
   }
-
-  .agenda-calendar-panel,
-  .agenda-schedule-panel {
-    padding: 14px;
+  .hours-grid,
+  .slots-grid {
+    grid-template-columns: 1fr;
   }
 
-  .date-picker-wrapper {
-    padding: 12px;
-  }
-
-  .react-datepicker {
-    width: 100%;
-    max-width: 100%;
-    padding: 12px;
-    font-size: 0.9rem;
-  }
-
-  .react-datepicker__day {
-    width: 34px;
-    height: 34px;
-    font-size: 0.8rem;
-  }
-
-  .react-datepicker__day-name {
-    width: 34px;
-    font-size: 0.75rem;
-  }
-
-  .calendar-container .fc {
-    min-height: 620px;
+  .phone-verification-row {
+    flex-direction: column;
   }
 }
 
 @media (max-width: 420px) {
-  .agenda-header h1 {
-    font-size: 1.5rem;
+  .booking-selection-summary {
+    padding: 14px;
   }
 
-  .barberos-grid {
-    gap: 10px;
+  .booking-column-heading {
+    gap: 8px;
   }
 
-  .barbero-card {
-    min-width: 100%;
+  .booking-calendar-panel {
+    padding: 8px;
   }
 
-  .react-datepicker__day {
-    width: 30px;
-    height: 30px;
-    font-size: 0.75rem;
+  .booking-calendar-panel .react-datepicker__day {
+    height: 32px;
   }
 
-  .react-datepicker__day-name {
-    width: 30px;
-    font-size: 0.7rem;
-  }
-
-  .react-datepicker__navigation {
-    width: 28px;
-    height: 28px;
-    bottom: -12px;
+  .time-slot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

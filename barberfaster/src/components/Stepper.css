@@ -1,0 +1,226 @@
+/* Indicadores y conectores que muestran el avance entre etapas. */
+.booking-stepper {
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 2px solid var(--bauhaus-ink);
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 4px 4px 0 var(--bauhaus-cyan);
+}
+
+.booking-stepper-indicators {
+  display: flex;
+  align-items: center;
+  padding: 24px 28px 30px;
+}
+
+.booking-stepper-indicator-group {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+}
+
+.booking-stepper-indicator-group:last-child {
+  flex: 0 0 auto;
+}
+
+.booking-stepper-indicator {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: default;
+}
+
+.booking-stepper-label {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  width: max-content;
+  max-width: 120px;
+  color: #646b70;
+  font-family: "Chillax", "Arial", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.booking-stepper-indicator.active .booking-stepper-label,
+.booking-stepper-indicator.complete .booking-stepper-label {
+  color: var(--bauhaus-ink);
+}
+
+.booking-stepper-indicator:disabled {
+  opacity: 1;
+}
+
+.booking-stepper-indicator-inner {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 2px solid #c9ccce;
+  border-radius: 50%;
+  background: #fff;
+  color: #646b70;
+  font-family: "Chillax", "Arial", sans-serif;
+  font-weight: 700;
+  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+}
+
+.booking-stepper-indicator.active .booking-stepper-indicator-inner,
+.booking-stepper-indicator.complete .booking-stepper-indicator-inner {
+  border-color: var(--bauhaus-ink);
+  background: var(--bauhaus-cyan);
+  color: var(--bauhaus-ink);
+}
+
+.booking-stepper-indicator-inner svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.booking-stepper-connector {
+  position: relative;
+  height: 3px;
+  flex: 1;
+  margin: 0 10px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #dedfe0;
+}
+
+.booking-stepper-connector span {
+  position: absolute;
+  inset: 0;
+  background: var(--bauhaus-cyan);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 250ms ease;
+}
+
+.booking-stepper-connector.complete span {
+  transform: scaleX(1);
+}
+
+.booking-stepper-content {
+  padding: 8px 28px 24px;
+  animation: booking-step-enter 250ms ease both;
+}
+
+/* Contenido visible del paso y controles para avanzar o regresar. */
+.booking-step {
+  min-width: 0;
+}
+
+.booking-stepper-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 28px 24px;
+}
+
+.booking-stepper-back,
+.booking-stepper-next {
+  min-height: 42px;
+  padding: 9px 16px;
+  border: 2px solid var(--bauhaus-ink);
+  border-radius: 2px;
+  color: var(--bauhaus-ink);
+  cursor: pointer;
+  font: inherit;
+  font-family: "Chillax", "Arial", sans-serif;
+  font-weight: 700;
+  transition: background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.booking-stepper-back {
+  background: #fff;
+}
+
+.booking-stepper-back:hover {
+  background: #f1f3f3;
+}
+
+.booking-stepper-next {
+  margin-left: auto;
+  background: var(--bauhaus-cyan);
+}
+
+.booking-stepper-next:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--bauhaus-ink);
+}
+
+.booking-stepper-next:disabled {
+  border-color: #aeb2b4;
+  background: #e5e5e7;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.booking-stepper-back:focus-visible,
+.booking-stepper-next:focus-visible {
+  outline: 3px solid rgba(236, 77, 37, 0.45);
+  outline-offset: 3px;
+}
+
+@keyframes booking-step-enter {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 600px) {
+  /* Reduce espacios y tamaños de indicadores en móviles. */
+  .booking-stepper-indicators {
+    padding: 18px 16px 28px;
+  }
+
+  .booking-stepper-label {
+    font-size: 0.7rem;
+  }
+
+  .booking-stepper-content {
+    padding: 8px 16px 20px;
+  }
+
+  .booking-stepper-footer {
+    padding: 0 16px 18px;
+  }
+
+  .booking-stepper-connector {
+    margin: 0 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Elimina transiciones y entrada animada cuando se solicita menos movimiento. */
+  .booking-stepper-content {
+    animation: none;
+  }
+
+  .booking-stepper-indicator-inner,
+  .booking-stepper-connector span,
+  .booking-stepper-back,
+  .booking-stepper-next {
+    transition: none;
+  }
+}

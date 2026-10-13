@@ -1,95 +1,163 @@
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faScissors,
   faUsers,
   faUserGroup,
-  faUser,
   faCalendarDays,
-  faRightFromBracket
+  faGaugeHigh,
+  faUserTie,
+  faRightFromBracket,
+  faXmark
 } from "@fortawesome/free-solid-svg-icons";
 
 function Sidebar() {
-  // ==========================
-  // Hook de navegación
-  // ==========================
+  // La sesión demo determina si se presentan las opciones del barbero o del administrador.
   const navigate = useNavigate();
+  const [barberoActivo, setBarberoActivo] = useState(() => Boolean(localStorage.getItem("barbero_demo_sesion")));
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
-  // ==========================
-  // Función para aplicar clase activa en NavLink
-  // ==========================
-  const linkClass = ({ isActive }) =>
-    `nav-link${isActive ? " active" : ""}`;
+  // Escucha cambios de rol y sincroniza el estado del menú con la sesión.
+  useEffect(() => {
+    const syncRole = () => setBarberoActivo(Boolean(localStorage.getItem("barbero_demo_sesion")));
+    window.addEventListener("barberfaster-role-change", syncRole);
+    window.addEventListener("storage", syncRole);
+    return () => {
+      window.removeEventListener("barberfaster-role-change", syncRole);
+      window.removeEventListener("storage", syncRole);
+    };
+  }, []);
 
-  // ==========================
-  // Función de cierre de sesión
-  // ==========================
+  // Bloquea el scroll y permite cerrar el menú con Escape mientras está abierto.
+  useEffect(() => {
+    if (!menuAbierto) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setMenuAbierto(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [menuAbierto]);
+
+  // Borra la sesión local, notifica el cambio de rol y vuelve al inicio de sesión.
   const handleLogout = () => {
-    // Eliminar datos de autenticación del localStorage
     localStorage.removeItem("user");
     localStorage.removeItem("erpbarber_auth");
-    // Redirigir al login
+    localStorage.removeItem("barbero_demo_sesion");
+    window.dispatchEvent(new Event("barberfaster-role-change"));
+    setMenuAbierto(false);
     navigate("/login", { replace: true });
   };
 
-  // ==========================
-  // Renderizado del sidebar
-  // ==========================
+  // Construye las opciones de navegación apropiadas al rol activo.
+  const menuItems = barberoActivo
+    ? [
+        { label: "Workspace", to: "/barbero", icon: faGaugeHigh },
+        { label: "Mi perfil", to: "/perfil", icon: faUserTie }
+      ]
+    : [
+        { label: "Dashboard local", to: "/dashboard", icon: faGaugeHigh },
+        { label: "Superadmin", to: "/superadmin", icon: faScissors },
+        { label: "Barberías", to: "/barberias", icon: faScissors },
+        { label: "Personal", to: "/usuarios", icon: faUsers },
+        { label: "Clientes", to: "/clientes", icon: faUserGroup },
+        { label: "Agenda", to: "/agenda", icon: faCalendarDays },
+        { label: "Perfil de barbero", to: "/perfil", icon: faUserTie }
+      ];
+
+  // Renderiza la cabecera, el fondo interactivo y el panel de navegación móvil.
   return (
-    <aside className="sidebar">
-      {/* Encabezado con logo y título */}
-      <div className="sidebar-header">
-        <img
-          src="http://localhost/erpbarber/barberfaster/backend/uploads/logo.png"
-          alt="BarberFaster logo"
-          className="sidebar-avatar"
-        />
-        <h3 className="sidebar-title">BarberFaster</h3>
+    <aside className={`staggered-menu${menuAbierto ? " is-open" : ""}`} data-open={menuAbierto || undefined}>
+      <header className="staggered-menu-header">
+        <button
+          className="staggered-menu-toggle"
+          type="button"
+          aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={menuAbierto}
+          aria-controls="erp-staggered-menu-panel"
+          onClick={() => setMenuAbierto((open) => !open)}
+        >
+          <span className="staggered-menu-icon" aria-hidden="true">
+            {menuAbierto ? <FontAwesomeIcon icon={faXmark} /> : <><i /><i /></>}
+          </span>
+          <span>{menuAbierto ? "Cerrar" : "Menú"}</span>
+        </button>
+
+        <NavLink
+          className="staggered-menu-brand"
+          to={barberoActivo ? "/barbero" : "/dashboard"}
+          aria-label="BarberFaster, inicio"
+          onClick={() => setMenuAbierto(false)}
+        >
+          <img
+            src="/erpbarber/barberfaster/backend/uploads/logo.png"
+            alt=""
+            className="staggered-menu-logo"
+          />
+          <span>BarberFaster</span>
+        </NavLink>
+      </header>
+
+      <button
+        className="staggered-menu-backdrop"
+        type="button"
+        aria-label="Cerrar menú"
+        tabIndex={menuAbierto ? 0 : -1}
+        onClick={() => setMenuAbierto(false)}
+      />
+      <div className="staggered-menu-layers" aria-hidden="true">
+        <span />
+        <span />
       </div>
 
-      {/* Navegación principal */}
-      <nav>
-        <NavLink to="/barberias" className={linkClass}>
-          <FontAwesomeIcon icon={faScissors} className="nav-icon" />
-          <span className="nav-label">Barberías</span>
-        </NavLink>
+      <nav
+        className="staggered-menu-panel"
+        id="erp-staggered-menu-panel"
+        aria-label={barberoActivo ? "Menú de barbero" : "Menú de administración"}
+        aria-hidden={!menuAbierto}
+      >
+        <div className="staggered-menu-panel-inner">
+          <p className="staggered-menu-eyebrow">
+            {barberoActivo ? "Modo barbero" : "Administración"}
+          </p>
+          <ol className="staggered-menu-list">
+            {menuItems.map(({ label, to, icon }, index) => (
+              <li
+                className="staggered-menu-item"
+                key={to}
+                style={{ "--menu-index": index }}
+              >
+                <NavLink
+                  to={to}
+                  end
+                  className={({ isActive }) => `staggered-menu-link${isActive ? " active" : ""}`}
+                  tabIndex={menuAbierto ? 0 : -1}
+                  onClick={() => setMenuAbierto(false)}
+                >
+                  <FontAwesomeIcon icon={icon} aria-hidden="true" />
+                  <span>{label}</span>
+                </NavLink>
+              </li>
+            ))}
+          </ol>
 
-        <NavLink to="/usuarios" className={linkClass}>
-          <FontAwesomeIcon icon={faUsers} className="nav-icon" />
-          <span className="nav-label">Usuarios</span>
-        </NavLink>
-
-        <NavLink to="/clientes" className={linkClass}>
-          <FontAwesomeIcon icon={faUserGroup} className="nav-icon" />
-          <span className="nav-label">Clientes</span>
-        </NavLink>
-
-        <NavLink to="/agenda" className={linkClass}>
-          <FontAwesomeIcon icon={faCalendarDays} className="nav-icon" />
-          <span className="nav-label">Agenda</span>
-        </NavLink>
-
-        <NavLink to="/perfil" className={linkClass}>
-          <FontAwesomeIcon icon={faUser} className="nav-icon" />
-          <span className="nav-label">Perfil</span>
-        </NavLink>
-
-        {/* Botón de cierre de sesión */}
-        <button
-          type="button"
-          className="nav-link"
-          onClick={handleLogout}
-          style={{
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            width: "100%",
-            textAlign: "left"
-          }}
-        >
-          <FontAwesomeIcon icon={faRightFromBracket} className="nav-icon" />
-          <span className="nav-label">Cerrar sesión</span>
-        </button>
+          <button
+            className="staggered-menu-logout"
+            type="button"
+            tabIndex={menuAbierto ? 0 : -1}
+            onClick={handleLogout}
+          >
+            <FontAwesomeIcon icon={faRightFromBracket} aria-hidden="true" />
+            <span>Cerrar sesión</span>
+          </button>
+        </div>
       </nav>
     </aside>
   );

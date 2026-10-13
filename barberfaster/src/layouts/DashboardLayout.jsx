@@ -1,10 +1,6 @@
 import Sidebar from "../components/Sidebar";
 
-// ==========================
-// Componente de Layout principal
-// ==========================
-// Recibe como prop `children` el contenido dinámico que se renderiza
-// en la sección principal, mientras el Sidebar permanece fijo.
+// Mantiene la navegación lateral y muestra en el área principal la ruta activa.
 export default function DashboardLayout({ children }) {
   return (
     <div className="app-shell">

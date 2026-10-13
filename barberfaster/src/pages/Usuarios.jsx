@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
-import { desactivarUsuario, obtenerUsuarios } from "../services/api";
-import UsuarioModal from "../components/UsuarioModal";
+import { obtenerBarberos, desactivarUsuario } from "../services/api";
+import { UsuarioModal } from "../components/UsuarioModal";
 import ConfirmModal from "../components/ConfirmModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faToggleOff, faToggleOn, faTrashCanArrowUp, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
+// Administra los barberos del local y controla su alta, edición y estado.
 function Usuarios() {
-  // ==========================
-  // Estados principales
-  // ==========================
-  const [usuarios, setUsuarios]             = useState([]);
+  // Registros, mensajes, filtros de papelera y estado de los formularios.
+  const [usuarios, setUsuarios]              = useState([]);
   const [confirmModal, setConfirmModal]     = useState({ open: false, item: null });
   const [loading, setLoading]               = useState(true);
   const [fetchError, setFetchError]         = useState(null);
@@ -18,16 +17,23 @@ function Usuarios() {
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [mostrarPapelera, setMostrarPapelera] = useState(false);
 
-  // ==========================
-  // Cargar usuarios al montar
-  // ==========================
-  useEffect(() => { cargar(); }, []);
+  // Carga el personal al entrar a la pantalla.
+  useEffect(() => {
+    cargar();
+    setIsModalOpen(true);
+  }, []);
 
+  // Consulta los registros y conserva los mensajes de error del servicio.
   const cargar = async () => {
     try {
-      const data = await obtenerUsuarios();
-      if (Array.isArray(data)) setUsuarios(data);
-      else setFetchError("Formato de datos inesperado.");
+      setLoading(true);
+      const data = await obtenerBarberos();
+      if (Array.isArray(data)) {
+        setUsuarios(data);
+        setFetchError(null);
+      } else {
+        setFetchError("Formato de datos inesperado.");
+      }
     } catch (error) {
       setFetchError("No hay conexión con el servidor backend.");
     } finally {
@@ -35,9 +41,6 @@ function Usuarios() {
     }
   };
 
-  // ==========================
-  // Acciones de usuario
-  // ==========================
   const handleAgregar = () => {
     setUsuarioSeleccionado(null);
     setIsModalOpen(true);
@@ -56,25 +59,13 @@ function Usuarios() {
     setIsModalOpen(true);
   };
 
-  // ==========================
-  // Manejo de éxito en modal
-  // ==========================
-  const handleModalSuccess = (usuarioData, esEdicion) => {
-    if (esEdicion) {
-      setUsuarios((prev) =>
-        prev.map((u) => (u.id_usuario === usuarioData.id_usuario ? usuarioData : u))
-      );
-      setSuccessMessage("Usuario actualizado con éxito.");
-    } else {
-      setUsuarios((prev) => [usuarioData, ...prev]);
-      setSuccessMessage("Colaborador registrado con éxito.");
-    }
+  const handleModalSuccess = () => {
+    cargar();
+    setSuccessMessage("Operación realizada con éxito.");
     setTimeout(() => setSuccessMessage(null), 3000);
   };
 
-  // ==========================
-  // Desactivar / Reactivar usuario
-  // ==========================
+  // Cambia el estado activo/inactivo después de la confirmación del usuario.
   const handleDesactivar = async (usuario, skipConfirm = false) => {
     if (!skipConfirm) {
       openConfirmModal(usuario);
@@ -82,17 +73,22 @@ function Usuarios() {
     }
 
     try {
-      const response = await desactivarUsuario(usuario.id_usuario);
-      if (response.success) {
+      const idTarget = usuario.id_barbero || usuario.id_usuario;
+      const response = await desactivarUsuario(idTarget);
+      
+      if (response && response.status !== "error") {
         setUsuarios((prev) =>
-          prev.map((u) =>
-            u.id_usuario === usuario.id_usuario ? { ...u, estado: Number(u.estado) === 1 ? 0 : 1 } : u
-          )
+          prev.map((u) => {
+            const currentId = u.id_barbero || u.id_usuario;
+            return currentId === idTarget ? { ...u, estado: u.estado === "ACTIVO" ? "INACTIVO" : "ACTIVO" } : u;
+          })
         );
-        setSuccessMessage(`Usuario ${Number(usuario.estado) === 1 ? "movido a papelera" : "reactivado"} con éxito.`);
+        setSuccessMessage("Estado actualizado con éxito.");
+      } else {
+        setFetchError(response?.mensaje || "No se pudo cambiar el estado.");
       }
     } catch (err) {
-      setFetchError(err?.message || "No se pudo cambiar el estado del usuario.");
+      setFetchError(err?.message || "No se pudo cambiar el estado del registro.");
     } finally {
       setTimeout(() => setSuccessMessage(null), 3000);
     }
@@ -105,22 +101,30 @@ function Usuarios() {
     }
   };
 
-  // ==========================
-  // Filtrar usuarios activos e inactivos
-  // ==========================
-  const usuariosActivos = usuarios.filter((u) => Number(u.estado) !== 0);
-  const usuariosPapelera = usuarios.filter((u) => Number(u.estado) === 0);
+  // Divide el listado en personal activo y registros de la papelera.
+  const usuariosActivos = Array.isArray(usuarios) 
+    ? usuarios.filter((u) => {
+        if (!u) return false;
+        const est = String(u.estado || "ACTIVO").trim().toUpperCase();
+        return est === "ACTIVO" || est === "1" || est === "0";
+      }) 
+    : [];
 
-  // ==========================
-  // Renderizado principal
-  // ==========================
+  const usuariosPapelera = Array.isArray(usuarios) 
+    ? usuarios.filter((u) => {
+        if (!u) return false;
+        const est = String(u.estado || "").trim().toUpperCase();
+        return est === "INACTIVO" || est === "INACTIVA";
+      }) 
+    : [];
+
+  // Renderiza las acciones, formularios modales y tabla filtrada del personal.
   return (
-    <div className="page-section">
-      {/* Encabezado con acciones */}
-      <div className="heading-row">
+    <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
+      <div className="heading-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <div>
-          <h2>Gestión de Personal y Barberos</h2>
-          <p className="page-description"></p>
+          <h2 style={{ margin: 0, fontSize: "1.6rem", color: "#222" }}>Gestión de Personal y Barberos</h2>
+          <p className="page-description" style={{ margin: "4px 0 0", color: "#666" }}></p>
         </div>
         <div style={{ display: "flex", gap: "0.75rem" }}>
           <button className="btn-secondary" onClick={() => setMostrarPapelera((prev) => !prev)}>
@@ -133,76 +137,72 @@ function Usuarios() {
         </div>
       </div>
 
-      {/* Mensajes de éxito */}
-      {successMessage && <p className="status success">{successMessage}</p>}
+      {successMessage && <p className="status success" style={{ marginBottom: "1rem" }}>{successMessage}</p>}
 
-      {/* Modal de creación/edición */}
       <UsuarioModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleModalSuccess}
-        usuarioSeleccionado={usuarioSeleccionado}
+        usuarioEditar={usuarioSeleccionado}
       />
 
-      {/* Modal de confirmación */}
       <ConfirmModal
         isOpen={confirmModal.open}
-        title={confirmModal.item?.estado === 1 ? "Confirmar envío a papelera" : "Confirmar reactivación"}
-        message={
-          confirmModal.item?.estado === 1
-            ? `¿Estás seguro de enviar "${confirmModal.item?.nombre}" a la papelera?`
-            : `¿Estás seguro de reactivar "${confirmModal.item?.nombre}"?`
-        }
-        confirmText={confirmModal.item?.estado === 1 ? "Sí, enviar" : "Sí, reactivar"}
+        title="Confirmar cambio de estado"
+        message={`¿Estás seguro de modificar el estado de "${confirmModal.item?.nombre}"?`}
+        confirmText="Sí, continuar"
         cancelText="Cancelar"
         onConfirm={confirmDesactivar}
         onCancel={closeConfirmModal}
       />
 
-      {/* Tabla de usuarios */}
       {loading ? (
         <p>Cargando personal...</p>
       ) : fetchError ? (
         <p className="status error">{fetchError}</p>
       ) : (
-        <div className="table-wrapper">
-          <table>
+        <div style={{ background: "#fff", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Teléfono</th>
-                <th>Rol / Puesto</th>
-                <th>Acciones</th>
+              <tr style={{ background: "var(--bauhaus-ink)", color: "var(--bauhaus-paper)" }}>
+                <th style={{ padding: "12px 16px", width: "80px" }}>ID</th>
+                <th style={{ padding: "12px 16px" }}>Nombre</th>
+                <th style={{ padding: "12px 16px" }}>Especialidad</th>
+                <th style={{ padding: "12px 16px", width: "120px", textAlign: "center" }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {(!mostrarPapelera ? usuariosActivos : usuariosPapelera).length === 0 ? (
                 <tr>
-                  <td colSpan="5">{mostrarPapelera ? "No hay usuarios en la papelera." : "No hay personal registrado en el sistema."}</td>
+                  <td colSpan="4" style={{ padding: "20px", textAlign: "center", color: "#666" }}>
+                    {mostrarPapelera ? "No hay registros en la papelera." : "No hay personal registrado en el sistema."}
+                  </td>
                 </tr>
               ) : (
-                (!mostrarPapelera ? usuariosActivos : usuariosPapelera).map((u) => (
-                  <tr key={u.id_usuario}>
-                    <td>{u.nombre}</td>
-                    <td>{u.email}</td>
-                    <td>{u.telefono}</td>
-                    <td><span className="badge">{u.rol}</span></td>
-                    <td>
-                      <button className="btn-secondary" onClick={() => handleEditar(u)} title="Editar">
-                        <FontAwesomeIcon icon={faPenToSquare} />
-                      </button>
-                      <button
-                        className="btn-secondary"
-                        onClick={() => handleDesactivar(u)}
-                        title={mostrarPapelera ? "Reactivar" : "Mover a papelera"}
-                        style={{ marginLeft: "0.35rem" }}
-                      >
-                        <FontAwesomeIcon icon={mostrarPapelera ? faTrashCanArrowUp : Number(u.estado) === 1 ? faToggleOff : faToggleOn} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                (!mostrarPapelera ? usuariosActivos : usuariosPapelera).map((u) => {
+                  const uniqueKey = u.id_barbero || u.id_usuario;
+                  const esInactivo = String(u.estado).trim().toUpperCase() === "INACTIVO";
+                  return (
+                    <tr key={uniqueKey} style={{ borderBottom: "1px solid #eee" }}>
+                      <td style={{ padding: "12px 16px" }}>{uniqueKey}</td>
+                      <td style={{ padding: "12px 16px", fontWeight: "500" }}>{u.nombre}</td>
+                      <td style={{ padding: "12px 16px", color: "#555" }}>{u.especialidad || "Sin especialidad"}</td>
+                      <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                        <button className="btn-secondary" onClick={() => handleEditar(u)} title="Editar" style={{ padding: "6px 10px", marginRight: "5px" }}>
+                          <FontAwesomeIcon icon={faPenToSquare} />
+                        </button>
+                        <button
+                          className="btn-secondary"
+                          onClick={() => handleDesactivar(u)}
+                          title={mostrarPapelera ? "Reactivar" : "Mover a papelera"}
+                          style={{ padding: "6px 10px" }}
+                        >
+                          <FontAwesomeIcon icon={mostrarPapelera ? faTrashCanArrowUp : esInactivo ? faToggleOff : faToggleOn} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

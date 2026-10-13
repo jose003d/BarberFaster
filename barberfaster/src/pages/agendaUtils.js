@@ -1,6 +1,7 @@
 // Utilidades de fecha y calendario para la agenda.
 const LOCALE = "es-CO";
 
+// Formatea fechas y horas para mostrarlas en la interfaz en español colombiano.
 const formatDateLabel = (value) => {
   const date = value instanceof Date ? value : new Date(value);
   return date.toLocaleString(LOCALE, {
@@ -29,6 +30,7 @@ const formatDayLabel = (value) => {
   });
 };
 
+// Convierte fechas a claves/días de semana y combina fechas con horas locales.
 const getDateKey = (value) => {
   if (!value) return "";
   const date = value instanceof Date ? value : new Date(value);

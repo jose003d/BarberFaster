@@ -1,41 +1,41 @@
 ﻿<?php
-// ==========================
-// BLOQUE 1: Configuración de cabeceras y CORS
-// ==========================
-// Permitir conexiones desde tu frontend en React
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
+// backend/barberias/listarb.php
+// Este archivo consulta todas las barberías y las devuelve en formato JSON.
+// Se usa para cargar la lista en el frontend, normalmente en tablas o cards.
 
-// Respuesta inmediata para preflight OPTIONS
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    exit;
-}
+// Permite que el frontend pueda consumir esta API desde otro dominio.
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
 
-// ==========================
-// BLOQUE 2: Conexión a la base de datos
-// ==========================
-require_once "../config/database.php";
+// Incluye la conexión a la base de datos.
+require_once '../config/database.php';
+
+// Lee el parámetro ?activas=true o ?activas=false desde la URL.
+// Si no llega, por defecto toma true.
+$solo_activas = $_GET['activas'] ?? 'true';
 
 try {
-    // ==========================
-    // BLOQUE 3: Consulta de barberías
-    // ==========================
-    $stmt = $pdo->query("SELECT * FROM barberias ORDER BY id_barberia DESC");
-    $barberias = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Consulta base para traer todas las barberías.
+    $sql = "SELECT id_barberia, nombre, direccion, ciudad, telefono, estado, foto FROM barberias";
+    
+    // Si se pide solo activas, agrega filtro por estado = ACTIVA.
+    if ($solo_activas === 'true') {
+        $sql .= " WHERE estado = 'ACTIVA'";
+    }
+    
+    // Ordena por nombre para que la lista salga organizada.
+    $sql .= " ORDER BY nombre ASC";
 
-    // ==========================
-    // BLOQUE 4: Respuesta en formato JSON
-    // ==========================
+    // Ejecuta la consulta.
+    $stmt = $pdo->query($sql);
+    $barberias = $stmt->fetchAll();
+
+    // Responde con los datos en JSON.
     echo json_encode([
-        "success"   => true,
-        "barberias" => $barberias
+        "status" => "success",
+        "datos" => $barberias
     ]);
-
 } catch (Exception $e) {
-    // ==========================
-    // BLOQUE 5: Manejo de errores
-    // ==========================
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    // Si falla la consulta, devuelve el error en JSON.
+    echo json_encode(["status" => "error", "mensaje" => "Error al listar barberías: " . $e->getMessage()]);
 }

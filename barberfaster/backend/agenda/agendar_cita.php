@@ -1,206 +1,293 @@
 <?php
-// ==========================
-// BLOQUE 1: Configuración de cabeceras y CORS
-// ==========================
+// -----------------------------------------------------------------------------
+// 1. Configuración de la respuesta HTTP
+// -----------------------------------------------------------------------------
+// Permite que el frontend realice peticiones desde otro origen o puerto.
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
+// Indica que el endpoint acepta peticiones cuyo cuerpo se envía como JSON.
 header("Access-Control-Allow-Headers: Content-Type");
+// Todas las respuestas de este archivo tendrán formato JSON y codificación UTF-8.
+header("Content-Type: application/json; charset=UTF-8");
 
-// Respuesta inmediata para preflight OPTIONS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { 
-    http_response_code(200); 
-    exit; 
+// Carga la conexión PDO a la base de datos.
+require_once '../config/database.php';
+require_once 'horarios_utils.php';
+require_once '../verificacion/comun.php';
+
+// Los navegadores suelen enviar OPTIONS antes de una petición POST (preflight).
+// Se responde correctamente sin intentar crear una cita.
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
 }
 
-header("Content-Type: application/json");
-require_once "../config/database.php";
+// -----------------------------------------------------------------------------
+// 2. Lectura de los datos enviados por el frontend
+// -----------------------------------------------------------------------------
+// Lee el cuerpo de la petición y lo convierte de JSON a un array asociativo PHP.
+$data = json_decode(file_get_contents("php://input"), true);
 
-// Asegurar columnas nuevas en eventos (no falla si ya existen)
-try {
-    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS intervalo INT DEFAULT 30");
-    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS servicio VARCHAR(100) NULL");
-    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS estado VARCHAR(50) DEFAULT 'DISPONIBLE'");
-    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS observaciones TEXT NULL");
-    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS metodo_validacion VARCHAR(20) NULL");
-    $pdo->exec("ALTER TABLE eventos ADD COLUMN IF NOT EXISTS estado_validacion VARCHAR(20) DEFAULT 'PENDIENTE'");
-} catch (Exception $e) {
-    // ignore
+if (!is_array($data)) {
+    http_response_code(400);
+    echo json_encode(["status" => "error", "mensaje" => "El cuerpo de la reserva no es válido."]);
+    exit();
+}
+
+// Extrae los datos de la reserva. El operador ?? usa null o un array vacío
+// cuando una clave no fue enviada.
+$id_barberia = filter_var($data['id_barberia'] ?? null, FILTER_VALIDATE_INT);
+$id_barbero  = filter_var($data['id_barbero'] ?? null, FILTER_VALIDATE_INT);
+$dni_cliente = isset($data['dni_cliente']) && is_scalar($data['dni_cliente']) ? trim((string)$data['dni_cliente']) : '';
+$fecha       = $data['fecha'] ?? null;         // YYYY-MM-DD
+$hora_inicio = $data['hora_inicio'] ?? null;   // HH:MM:SS
+$servicios   = $data['servicios'] ?? [];       // Array de IDs: [1, 2]
+$nombre_cliente = isset($data['nombre_cliente']) && is_scalar($data['nombre_cliente']) ? trim((string)$data['nombre_cliente']) : '';
+$telefono_cliente = isset($data['telefono_cliente']) && is_scalar($data['telefono_cliente']) ? trim((string)$data['telefono_cliente']) : '';
+$ticket_verificacion = isset($data['ticket_verificacion']) && is_string($data['ticket_verificacion']) ? $data['ticket_verificacion'] : '';
+$notas       = isset($data['notas']) && is_scalar($data['notas']) ? (string)$data['notas'] : null;
+
+// -----------------------------------------------------------------------------
+// 3. Validación de los datos mínimos obligatorios
+// -----------------------------------------------------------------------------
+// Sin barbería, barbero, cliente, fecha, hora o servicios no se puede crear
+// una cita, por lo que se devuelve un error y se detiene la ejecución.
+if (
+    !$id_barberia ||
+    !$id_barbero ||
+    !$dni_cliente ||
+    !$telefono_cliente ||
+    !is_string($fecha) ||
+    !is_string($hora_inicio) ||
+    !is_array($servicios) ||
+    empty($servicios)
+) {
+    http_response_code(400);
+    echo json_encode(["status" => "error", "mensaje" => "Faltan datos obligatorios para la reserva."]);
+    exit();
+}
+
+$telefono_cliente = normalizarTelefono($telefono_cliente);
+if (!telefonoValido($telefono_cliente)) {
+    http_response_code(422);
+    echo json_encode(["status" => "error", "mensaje" => "El número de teléfono no es válido."]);
+    exit();
+}
+
+$ticketBloqueado = bloquearTicketVerificacion($telefono_cliente, $ticket_verificacion);
+if ($ticketBloqueado === false) {
+    http_response_code(403);
+    echo json_encode(["status" => "error", "mensaje" => "Verifica nuevamente tu teléfono antes de reservar."]);
+    exit();
+}
+
+$serviciosValidos = [];
+foreach ($servicios as $idServicio) {
+    $idServicio = filter_var($idServicio, FILTER_VALIDATE_INT);
+    if ($idServicio !== false && $idServicio > 0) {
+        $serviciosValidos[] = $idServicio;
+    }
+}
+$servicios = array_values(array_unique($serviciosValidos));
+
+if (empty($servicios)) {
+    liberarTicketVerificacion($ticketBloqueado);
+    http_response_code(400);
+    echo json_encode(["status" => "error", "mensaje" => "Selecciona al menos un servicio válido."]);
+    exit();
 }
 
 try {
-    // ==========================
-    // BLOQUE 2: Recepción y validación de datos
-    // ==========================
-    $data = json_decode(file_get_contents("php://input"), true);
+    $pdo->beginTransaction();
 
-    $id_evento     = $data['id_evento']     ?? null;
-    $dni           = isset($data['dni']) ? trim((string)$data['dni']) : null;
-    $nombre        = $data['nombre']        ?? '';
-    $apellido      = $data['apellido']      ?? '';
-    $telefono      = $data['telefono']      ?? '';
-    $correo        = $data['correo']        ?? '';
-    $observaciones = $data['observaciones'] ?? '';
-    $start         = $data['start']         ?? null;
-    $end           = $data['end']           ?? null;
-    $id_barbero    = $data['id_barbero']    ?? null;
-    $id_cliente    = $data['cliente_id']    ?? null;
-
-    // Validación de campos obligatorios
-    if ((!$id_evento && (!$start || !$end || !$id_barbero)) || !$dni || !$nombre || !$correo) {
-        echo json_encode(["success" => false, "error" => "Faltan datos obligatorios"]);
-        exit;
+    // Bloquea la fila del barbero hasta terminar la transacción. Así, dos
+    // reservas simultáneas del mismo barbero no pueden pasar juntas el chequeo.
+    $stmtBarbero = $pdo->prepare("
+        SELECT id_barbero
+        FROM barberos
+        WHERE id_barbero = :id_barbero AND id_barberia = :id_barberia
+        FOR UPDATE
+    ");
+    $stmtBarbero->execute([
+        ':id_barbero' => $id_barbero,
+        ':id_barberia' => $id_barberia,
+    ]);
+    if (!$stmtBarbero->fetchColumn()) {
+        throw new RuntimeException("El barbero no pertenece a esta barbería.", 422);
     }
 
-    // Normalizar fechas si vienen en ISO
-    if ($start) {
-        $fechaInicio = new DateTime($start);
-        $start = $fechaInicio->format('Y-m-d H:i:s');
-    }
-    if ($end) {
-        $fechaFin = new DateTime($end);
-        $end = $fechaFin->format('Y-m-d H:i:s');
-    }
-
-    // ==========================
-    // BLOQUE 3: Creación o actualización de cliente
-    // ==========================
-    $cliente = null;
-    if ($dni) {
-        $stmt = $pdo->prepare("SELECT dni FROM clientes WHERE dni = :dni LIMIT 1");
-        $stmt->execute([':dni' => $dni]);
-        $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmtHorario = $pdo->prepare("
+        SELECT hora_apertura, hora_cierre
+        FROM barberias
+        WHERE id_barberia = :id_barberia
+    ");
+    $stmtHorario->execute([':id_barberia' => $id_barberia]);
+    $horarioBarberia = $stmtHorario->fetch();
+    if (!$horarioBarberia) {
+        throw new RuntimeException("No se encontró el horario de la barbería.", 422);
     }
 
-    if (!$cliente) {
-        $insertCliente = $pdo->prepare("INSERT INTO clientes (dni, nombre, apellido, telefono, correo) VALUES (:dni, :nombre, :apellido, :telefono, :correo)");
-        $insertCliente->execute([
-            ':dni'      => $dni,
-            ':nombre'   => $nombre,
-            ':apellido' => $apellido,
-            ':telefono' => $telefono,
-            ':correo'   => $correo,
-        ]);
-    } else {
-        $updateCliente = $pdo->prepare("UPDATE clientes SET nombre = :nombre, apellido = :apellido, telefono = :telefono, correo = :correo WHERE dni = :dni");
-        $updateCliente->execute([
-            ':dni'        => $dni,
-            ':nombre'     => $nombre,
-            ':apellido'   => $apellido,
-            ':telefono'   => $telefono,
-            ':correo'     => $correo,
-        ]);
+    // -------------------------------------------------------------------------
+    // 4. Consultar los servicios y calcular duración y precio
+    // -------------------------------------------------------------------------
+    // Crea un signo ? por cada servicio para construir de forma segura la
+    // cláusula IN (?, ?, ...). Los valores se envían después como parámetros.
+    $placeholders = implode(',', array_fill(0, count($servicios), '?'));
+    $stmtServ = $pdo->prepare("SELECT id_servicio, precio, duracion_minutos FROM servicios WHERE id_servicio IN ($placeholders) AND id_barberia = ?");
+    // Añade el id de la barbería después de los ids de los servicios, respetando
+    // el mismo orden de los signos ? de la consulta.
+    $paramsServ = array_merge($servicios, [$id_barberia]);
+    $stmtServ->execute($paramsServ);
+    $listaServicios = $stmtServ->fetchAll();
+
+    // Si no se encontró ningún servicio válido para esa barbería, se cancela
+    // la reserva antes de hacer cambios en la base de datos.
+    if (count($listaServicios) !== count($servicios)) {
+        throw new RuntimeException("Uno o más servicios seleccionados no son válidos.", 422);
     }
 
-    // ==========================
-    // BLOQUE 4: Verificación de disponibilidad del evento y validación de código
-    // ==========================
-    $evento = null;
-    if ($id_evento) {
-        $stmt = $pdo->prepare("SELECT * FROM eventos WHERE id_evento = :id AND disponible = 1");
-        $stmt->execute([':id' => $id_evento]);
-        $evento = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Acumula los minutos y el precio de todos los servicios seleccionados.
+    $duracionTotal = 0;
+    $precioTotal = 0.00;
+    foreach ($listaServicios as $s) {
+        $duracionTotal += (int)$s['duracion_minutos'];
+        $precioTotal   += (float)$s['precio'];
     }
 
-    if (!$evento && $start && $end && $id_barbero) {
-        $stmt = $pdo->prepare("SELECT * FROM eventos WHERE id_barbero = :id_barbero AND start_datetime = :start AND end_datetime = :end AND disponible = 1 LIMIT 1");
-        $stmt->execute([
-            ':id_barbero' => $id_barbero,
-            ':start'      => $start,
-            ':end'        => $end,
-        ]);
-        $evento = $stmt->fetch(PDO::FETCH_ASSOC);
+    // -------------------------------------------------------------------------
+    // 5. Validar y calcular las horas de inicio y finalización
+    // -------------------------------------------------------------------------
+    $inicioMinutos = horaAMinutos($hora_inicio);
+    $aperturaMinutos = horaAMinutos($horarioBarberia['hora_apertura']);
+    $cierreMinutos = horaAMinutos($horarioBarberia['hora_cierre']);
+    $zonaHorariaBarberFaster = new DateTimeZone('America/Bogota');
+    $fechaValidada = DateTime::createFromFormat('!Y-m-d', $fecha, $zonaHorariaBarberFaster);
+    $erroresFecha = DateTime::getLastErrors();
+
+    if (
+        $inicioMinutos === null ||
+        $aperturaMinutos === null ||
+        $cierreMinutos === null ||
+        $cierreMinutos <= $aperturaMinutos ||
+        !$fechaValidada ||
+        ($erroresFecha && ($erroresFecha['warning_count'] > 0 || $erroresFecha['error_count'] > 0)) ||
+        $fechaValidada->format('Y-m-d') !== $fecha
+    ) {
+        throw new RuntimeException("La fecha o la hora de la reserva no es válida.", 422);
     }
 
-    $nuevoEvento = false;
-    if (!$evento) {
-        $barberoStmt = $pdo->prepare("SELECT id_barberia FROM barberos WHERE id_barbero = :id_barbero LIMIT 1");
-        $barberoStmt->execute([':id_barbero' => $id_barbero]);
-        $barberoData = $barberoStmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$barberoData) {
-            echo json_encode(["success" => false, "error" => "No se encontró al barbero asociado"]);
-            exit;
-        }
-
-        $insertStmt = $pdo->prepare("INSERT INTO eventos (titulo, start_datetime, end_datetime, disponible, tipo, color, id_barbero, id_barberia, clientes_dni, estado, observaciones, metodo_validacion, estado_validacion) VALUES ('OCUPADO', :start, :end, 0, 'OCUPADO', '#dc2626', :id_barbero, :id_barberia, :dni, 'OCUPADO', :obs, :metodo, 'VERIFICADO')");
-        $insertStmt->execute([
-            ':start'      => $start,
-            ':end'        => $end,
-            ':id_barbero' => $id_barbero,
-            ':id_barberia'=> $barberoData['id_barberia'],
-            ':dni'        => $dni,
-            ':obs'        => $observaciones,
-            ':metodo'     => $data['metodo_validacion'] ?? null,
-        ]);
-        $id_evento = $pdo->lastInsertId();
-        $evento = ['id_evento' => $id_evento, 'id_barbero' => $id_barbero, 'id_barberia' => $barberoData['id_barberia'], 'disponible' => 0];
-        $nuevoEvento = true;
+    $finMinutos = $inicioMinutos + $duracionTotal;
+    if (
+        $inicioMinutos < $aperturaMinutos ||
+        ($inicioMinutos - $aperturaMinutos) % 30 !== 0 ||
+        $finMinutos > $cierreMinutos
+    ) {
+        throw new RuntimeException("El turno debe iniciar en una franja de 30 minutos y terminar antes del cierre.", 422);
     }
 
-    // Validar que el slot esté disponible
-    if (!$evento || (!$nuevoEvento && isset($evento['disponible']) && !$evento['disponible'])) {
-        echo json_encode(["success" => false, "error" => "Este horario ya no está disponible"]);
-        exit;
+    $ahoraBogota = new DateTime('now', $zonaHorariaBarberFaster);
+    $fechaHoy = (clone $ahoraBogota)->setTime(0, 0);
+    $minutoActualBogota = ((int)$ahoraBogota->format('G') * 60) + (int)$ahoraBogota->format('i');
+    if ($fechaValidada < $fechaHoy || ($fechaValidada->format('Y-m-d') === $fechaHoy->format('Y-m-d') && $inicioMinutos <= $minutoActualBogota)) {
+        throw new RuntimeException("No puedes reservar una fecha u hora que ya pasó.", 422);
     }
 
-    // Verificar código de validación solo si se envió uno
-    $codigo = $data['validation_code'] ?? null;
-    if ($codigo) {
-        try {
-            $valStmt = $pdo->prepare("CREATE TABLE IF NOT EXISTS validaciones (id INT AUTO_INCREMENT PRIMARY KEY, dni VARCHAR(50), codigo VARCHAR(20), metodo VARCHAR(20), estado VARCHAR(20) DEFAULT 'PENDIENTE', creado_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, valido_hasta DATETIME)");
-            $valStmt->execute();
-        } catch (Exception $e) {
-            // ignore
-        }
+    $hora_inicio = minutosAHora($inicioMinutos);
+    $hora_fin = minutosAHora($finMinutos);
 
-        $checkVal = $pdo->prepare("SELECT id, estado, valido_hasta FROM validaciones WHERE dni = :dni AND codigo = :codigo ORDER BY creado_at DESC LIMIT 1");
-        $checkVal->execute([':dni' => $dni, ':codigo' => $codigo]);
-        $val = $checkVal->fetch(PDO::FETCH_ASSOC);
-        if (!$val) {
-            echo json_encode(["success" => false, "error" => "Código de validación inválido"]);
-            exit;
-        }
-        if (isset($val['valido_hasta']) && $val['valido_hasta'] < date('Y-m-d H:i:s')) {
-            echo json_encode(["success" => false, "error" => "Código expirado"]);
-            exit;
-        }
-        // Marcar validación
-        $pdo->prepare("UPDATE validaciones SET estado = 'VERIFICADO' WHERE id = :id")->execute([':id' => $val['id']]);
+    // -------------------------------------------------------------------------
+    // 6. Comprobar que el horario esté disponible
+    // -------------------------------------------------------------------------
+    // La comparación de intervalos detecta cualquier traslape. El bloqueo
+    // previo de la fila del barbero protege también ante dos INSERT simultáneos.
+    $stmtCheck = $pdo->prepare("
+        SELECT id_cita
+        FROM citas
+        WHERE id_barbero = :id
+          AND fecha = :fecha
+          AND estado NOT IN ('CANCELADA', 'cancelada')
+          AND (:inicio < hora_fin AND :fin > hora_inicio)
+        FOR UPDATE
+    ");
+    $stmtCheck->execute([
+        ':id' => $id_barbero,
+        ':fecha' => $fecha,
+        ':inicio' => $hora_inicio,
+        ':fin' => $hora_fin,
+    ]);
+    
+    if ($stmtCheck->fetchColumn()) {
+        throw new RuntimeException("El turno seleccionado se cruza con otra reserva.", 409);
     }
 
-    if (!$nuevoEvento) {
-        $pdo->prepare("UPDATE eventos SET disponible = 0, tipo = 'OCUPADO', color = '#dc2626', clientes_dni = :dni, estado = 'OCUPADO', observaciones = :obs, metodo_validacion = :metodo, estado_validacion = 'VERIFICADO' WHERE id_evento = :id")
-            ->execute([':dni' => $dni, ':id' => $id_evento, ':obs' => $observaciones, ':metodo' => $data['metodo_validacion'] ?? null]);
+    // -------------------------------------------------------------------------
+    // 7. Guardar la cita y sus servicios dentro de una transacción
+    // -------------------------------------------------------------------------
+    // La transacción garantiza que todas las operaciones se confirmen juntas o
+    // que ninguna quede guardada si ocurre un error.
+    // Primero crea o actualiza el cliente. Esto permite cumplir la relación
+    // entre citas y clientes mediante el DNI.
+    $stmtCliente = $pdo->prepare("
+        INSERT INTO clientes (dni, nombre, telefono)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE nombre = VALUES(nombre), telefono = VALUES(telefono)
+    ");
+    $stmtCliente->execute([$dni_cliente, $nombre_cliente ?: 'Cliente de agenda', $telefono_cliente ?: null]);
+
+    // Inserta la cita principal con estado PENDIENTE y conserva el id generado.
+    $stmtCita = $pdo->prepare("
+        INSERT INTO citas (id_barberia, id_barbero, dni_cliente, fecha, hora_inicio, hora_fin, precio_total, estado, notas)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDIENTE', ?)
+    ");
+    $stmtCita->execute([$id_barberia, $id_barbero, $dni_cliente, $fecha, $hora_inicio, $hora_fin, $precioTotal, $notas]);
+    $id_cita = $pdo->lastInsertId();
+
+    // Guarda cada servicio en la tabla intermedia y conserva su precio histórico.
+    // Así, futuros cambios de precio no alteran el detalle de esta cita.
+    $stmtDetalle = $pdo->prepare("INSERT INTO cita_servicios (id_cita, id_servicio, precio_historico) VALUES (?, ?, ?)");
+    foreach ($listaServicios as $s) {
+        $stmtDetalle->execute([$id_cita, $s['id_servicio'], $s['precio']]);
     }
 
-    // ==========================
-    // BLOQUE 5: Actualización del evento (marcar como ocupado)
-    // ==========================
-    $pdo->prepare("
-        UPDATE eventos 
-        SET disponible = 0, tipo = 'OCUPADO', color = '#dc2626', clientes_dni = :dni 
-        WHERE id_evento = :id
-    ")->execute([':dni' => $dni, ':id' => $id_evento]);
+    // El ticket se consume al reservar y queda ligado al teléfono validado.
+    $ticketConsumido = consumirTicketVerificacion($ticketBloqueado);
+    $ticketBloqueado = null;
+    if (!$ticketConsumido) {
+        throw new RuntimeException("No se pudo confirmar la verificación del teléfono.", 500);
+    }
 
-    // ==========================
-    // BLOQUE 6: Creación de la cita
-    // ==========================
-    $pdo->prepare("
-        INSERT INTO citas (id_evento, estado, observaciones, fecha_creacion, clientes_dni, Barberos_id_barbero)
-        VALUES (:id_evento, 'PENDIENTE', :obs, NOW(), :dni, :id_barbero)
-    ")->execute([
-        ':id_evento'  => $id_evento,
-        ':obs'        => $observaciones,
-        ':dni'        => $dni,
-        ':id_barbero' => $evento['id_barbero']
+    // Confirma definitivamente todos los INSERT realizados en la transacción.
+    $pdo->commit();
+
+    // -------------------------------------------------------------------------
+    // 8. Respuesta exitosa al frontend
+    // -------------------------------------------------------------------------
+    // Devuelve los datos principales para que la interfaz pueda mostrar el
+    // resultado o actualizar la agenda sin repetir cálculos.
+    echo json_encode([
+        "status" => "success",
+        "mensaje" => "Cita agendada exitosamente.",
+        "id_cita" => $id_cita,
+        "hora_inicio" => $hora_inicio,
+        "hora_fin" => $hora_fin,
+        "precio_total" => $precioTotal
     ]);
 
-    // ==========================
-    // BLOQUE 7: Respuesta final
-    // ==========================
-    echo json_encode(["success" => true, "message" => "¡Cita agendada con éxito!"]);
-
 } catch (Exception $e) {
-    // Manejo de errores
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    // -------------------------------------------------------------------------
+    // 9. Tratamiento de errores
+    // -------------------------------------------------------------------------
+    // Si algo falla después de iniciar la transacción, deshace los cambios
+    // parciales para no dejar datos incompletos en la base de datos.
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    if ($ticketBloqueado !== null) {
+        liberarTicketVerificacion($ticketBloqueado);
+    }
+    $codigo = (int)$e->getCode();
+    if ($codigo >= 400 && $codigo < 500) {
+        http_response_code($codigo);
+    }
+    // Informa al frontend de que la operación falló y devuelve el motivo.
+    echo json_encode(["status" => "error", "mensaje" => "Error al agendar cita: " . $e->getMessage()]);
 }

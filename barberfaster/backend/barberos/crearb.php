@@ -1,64 +1,50 @@
 <?php
-// ==========================
-// BLOQUE 1: Configuración de cabeceras y CORS
-// ==========================
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+// backend/barberos/crearb.php
+// Este archivo registra un nuevo barbero en la base de datos.
 
-// Respuesta inmediata para preflight OPTIONS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { 
-    http_response_code(200); 
-    exit; 
+// Configura CORS para permitir peticiones del frontend.
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json; charset=UTF-8");
+
+// Importa la conexión a la base de datos.
+require_once '../config/database.php';
+
+// Responde a las solicitudes OPTIONS para evitar errores de CORS.
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
 }
 
-header("Content-Type: application/json");
-require_once "../config/database.php";
+// Lee el body del request JSON enviado por el frontend.
+$data = json_decode(file_get_contents("php://input"), true);
+
+// Extrae los campos requeridos.
+$id_barberia  = $data['id_barberia'] ?? null;
+$nombre       = $data['nombre'] ?? null;
+$especialidad = $data['especialidad'] ?? null;
+
+// Valida que la barbería y el nombre sean obligatorios.
+if (!$id_barberia || !$nombre) {
+    echo json_encode(["status" => "error", "mensaje" => "El nombre del barbero y la barbería son obligatorios."]);
+    exit();
+}
 
 try {
-    // ==========================
-    // BLOQUE 2: Recepción y validación de datos
-    // ==========================
-    $data = json_decode(file_get_contents('php://input'), true);
-    $id_usuario   = $data['id_usuario']   ?? null;
-    $id_barberia  = $data['id_barberia']  ?? null;
-    $especialidad = $data['especialidad'] ?? '';
+    // Inserta el nuevo barbero con estado ACTIVO por defecto.
+    $stmt = $pdo->prepare("
+        INSERT INTO barberos (id_barberia, nombre, especialidad, estado)
+        VALUES (?, ?, ?, 'ACTIVO')
+    ");
+    $stmt->execute([$id_barberia, $nombre, $especialidad]);
 
-    if (!$id_usuario || !$id_barberia) {
-        echo json_encode([
-            "success" => false, 
-            "error"   => "Faltan datos obligatorios (id_usuario o id_barberia)"
-        ]);
-        exit;
-    }
-
-    // ==========================
-    // BLOQUE 3: Inserción en la base de datos
-    // ==========================
-    $sql = "INSERT INTO barberos (id_usuario, id_barberia, especialidad) 
-            VALUES (:id_usuario, :id_barberia, :especialidad)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        ':id_usuario'   => $id_usuario,
-        ':id_barberia'  => $id_barberia,
-        ':especialidad' => $especialidad,
-    ]);
-
-    // ==========================
-    // BLOQUE 4: Respuesta en formato JSON
-    // ==========================
-    $id_barbero = $pdo->lastInsertId();
+    // Devuelve respuesta de éxito y el ID generado.
     echo json_encode([
-        "success"    => true, 
-        "id_barbero" => (int)$id_barbero
+        "status" => "success",
+        "mensaje" => "Barbero registrado correctamente.",
+        "id_barbero" => $pdo->lastInsertId()
     ]);
-
 } catch (Exception $e) {
-    // ==========================
-    // BLOQUE 5: Manejo de errores
-    // ==========================
-    echo json_encode([
-        "success" => false, 
-        "error"   => $e->getMessage()
-    ]);
+    // Si falla la inserción, devuelve el error.
+    echo json_encode(["status" => "error", "mensaje" => "Error al registrar barbero: " . $e->getMessage()]);
 }

@@ -1,107 +1,92 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { loginUsuario } from "../services/api";
 
-function Login() {
-  // ==========================
-  // Estados del formulario
-  // ==========================
-  const [email, setEmail]       = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError]       = useState("");
-  const [loading, setLoading]   = useState(false);
+// Desactivar cuando se quiera volver a validar las credenciales contra el backend.
+const TEMPORARY_LOGIN_BYPASS = true;
 
-  const navigate = useNavigate();
+// Gestiona el acceso y guarda en el navegador la sesión recibida o de prueba.
+export default function Login({ onLoginSuccess }) {
+  // Guarda los campos del formulario y los estados de envío y error.
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // ==========================
-  // Manejo del envío del formulario
-  // ==========================
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    // Validación básica
-    if (!email.trim() || !password.trim()) {
-      setError("Completa el correo y la contraseña.");
-      return;
-    }
-
+  // Autentica con el backend o crea la sesión temporal configurada para desarrollo.
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
-    setError("");
+    setError(null);
 
     try {
-      // Usuario de demostración (mock)
-      const demoUser = {
-        id_usuario: 5,
-        nombre: "Usuario",
-        apellido: "Demo",
-        email: email.trim(),
-        telefono: "",
-        documento: "",
-        rol: "barbero",
-        estado: 1,
-      };
+      let user;
 
-      // Guardar datos en localStorage
+      if (TEMPORARY_LOGIN_BYPASS) {
+        user = {
+          id_usuario: 0,
+          nombre: form.email || "Usuario de prueba",
+          email: form.email || "demo@barberfaster.local",
+          rol: "admin"
+        };
+      } else {
+        const response = await loginUsuario(form.email, form.password);
+        if (response && response.status === "error") {
+          throw new Error(response.mensaje || "Credenciales inválidas.");
+        }
+        user = response.usuario || response;
+      }
+
+      localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("erpbarber_auth", "true");
-      localStorage.setItem("user", JSON.stringify(demoUser));
-
-      // Redirigir al panel de barberías
-      navigate("/barberias", { replace: true });
+      if (onLoginSuccess) onLoginSuccess(user);
+      window.location.reload();
+    } catch (err) {
+      setError(err.message || "Error al iniciar sesión.");
     } finally {
       setLoading(false);
     }
   };
 
-  // ==========================
-  // Renderizado del formulario de login
-  // ==========================
+  // Renderiza el formulario de acceso, incluidos los mensajes de carga y error.
   return (
-    <div className="auth-shell">
-      <div className="auth-card">
-        {/* Marca / Logo */}
-        <div className="auth-brand">
-          <div className="auth-badge">BF</div>
-          <div>
-            <h1>BarberFaster</h1>
-            <p>Acceso a la plataforma</p>
-          </div>
-        </div>
+    <main className="login-page">
+      <section className="login-card" aria-labelledby="login-title">
+        <div className="login-brand-mark" aria-hidden="true">BF</div>
+        <p className="login-kicker">BarberFaster · Administración</p>
+        <h1 id="login-title">Bienvenido</h1>
+        <p className="login-description">Inicia sesión en tu panel administrativo.</p>
 
-        {/* Formulario */}
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="field-group">
-            <label htmlFor="email">Correo</label>
+        {error && <div className="login-error" role="alert">{error}</div>}
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <label className="login-field">
+            Usuario / Correo electrónico
             <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="example@barberfaster.com"
+              type="text"
+              name="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="tucorreo@barberfaster.com"
+              autoComplete="username"
             />
-          </div>
+          </label>
 
-          <div className="field-group">
-            <label htmlFor="password">Contraseña</label>
+          <label className="login-field">
+            Contraseña
             <input
-              id="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="contraseña123"
+              name="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              placeholder="••••••••"
+              autoComplete="current-password"
             />
-          </div>
+          </label>
 
-          {/* Mensaje de error */}
-          {error && <p className="status error">{error}</p>}
-
-          {/* Botón de envío */}
-          <button type="submit" className="btn auth-btn" disabled={loading}>
-            {loading ? "Validando..." : "Entrar al sistema"}
+          <button type="submit" disabled={loading} className="login-btn">
+            {loading ? "Validando acceso..." : "Iniciar sesión"}
           </button>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
-
-export default Login;

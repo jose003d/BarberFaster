@@ -1,10 +1,12 @@
 ﻿import { useEffect, useState } from "react";
 import { desactivarBarberia, obtenerBarberias } from "../services/api";
-import BarberiaModal from "../components/BarberiaModal";
+// Línea 3 en src/pages/Barberias.jsx
+import { BarberiaModal } from "../components/BarberiaModal";
 import ConfirmModal from "../components/ConfirmModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faToggleOff, faToggleOn, faTrashCanArrowUp, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
+// Administra el listado de locales, su papelera y los formularios de edición.
 function Barberias() {
   // ==========================
   // Estados principales
@@ -159,7 +161,7 @@ function Barberias() {
         onCancel={closeConfirmModal}
       />
 
-      {/* Tabla de barberías */}
+      {/* Tabla de locales activos o enviados a la papelera con sus acciones. */}
       {loading ? (
         <p>Cargando barberías...</p>
       ) : fetchError ? (
@@ -187,7 +189,7 @@ function Barberias() {
                     <td>
                       {b.fotos ? (
                         <img
-                          src={`http://localhost/erpbarber/barberfaster/backend/uploads/${b.fotos}`}
+                          src={`/erpbarber/barberfaster/backend/uploads/${b.fotos}`}
                           alt={b.nombre}
                           style={{ width: "80px", height: "60px", objectFit: "cover", borderRadius: "4px" }}
                         />
@@ -204,18 +206,19 @@ function Barberias() {
                         {Number(b.estado) === 1 ? "Activa" : "Inactiva"}
                       </span>
                     </td>
-                    <td>
-                      <button className="btn-secondary" onClick={() => handleEditar(b)} title="Editar">
+                    <td className="table-actions-cell">
+                      <div className="table-actions">
+                      <button className="btn-secondary table-action-icon" onClick={() => handleEditar(b)} title="Editar">
                         <FontAwesomeIcon icon={faPenToSquare} />
                       </button>
                       <button
-                        className="btn-secondary"
+                        className="btn-secondary table-action-icon"
                         onClick={() => handleDesactivar(b)}
                         title={mostrarPapelera ? "Reactivar" : "Mover a papelera"}
-                        style={{ marginLeft: "0.35rem" }}
                       >
                         <FontAwesomeIcon icon={mostrarPapelera ? faTrashCanArrowUp : Number(b.estado) === 1 ? faToggleOff : faToggleOn} />
                       </button>
+                      </div>
                     </td>
                   </tr>
                 ))
