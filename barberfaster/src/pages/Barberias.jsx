@@ -6,6 +6,7 @@ import ConfirmModal from "../components/ConfirmModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faToggleOff, faToggleOn, faTrashCanArrowUp, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
+// Administra el listado de locales, su papelera y los formularios de edición.
 function Barberias() {
   // ==========================
   // Estados principales
@@ -160,7 +161,7 @@ function Barberias() {
         onCancel={closeConfirmModal}
       />
 
-      {/* Tabla de barberías */}
+      {/* Tabla de locales activos o enviados a la papelera con sus acciones. */}
       {loading ? (
         <p>Cargando barberías...</p>
       ) : fetchError ? (

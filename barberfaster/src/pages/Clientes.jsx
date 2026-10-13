@@ -5,10 +5,9 @@ import ConfirmModal from "../components/ConfirmModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faToggleOff, faToggleOn, faTrashCanArrowUp, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
+// Administra clientes, permite editarlos y alternar entre activos y papelera.
 function Clientes() {
-  // ==========================
-  // Estados principales
-  // ==========================
+  // Registros, filtros de estado, mensajes y controles de los modales.
   const [clientes, setClientes]             = useState([]);
   const [confirmModal, setConfirmModal]     = useState({ open: false, item: null });
   const [loading, setLoading]               = useState(true);
@@ -18,9 +17,7 @@ function Clientes() {
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [mostrarPapelera, setMostrarPapelera] = useState(false);
 
-  // ==========================
-  // Cargar clientes al montar
-  // ==========================
+  // Consulta los registros iniciales y mantiene visibles los errores del servicio.
   useEffect(() => { cargar(); }, []);
 
   const cargar = async () => {
@@ -40,9 +37,7 @@ function Clientes() {
     }
   };
 
-  // ==========================
-  // Acciones de usuario
-  // ==========================
+  // Abre los formularios y confirmaciones para las acciones del listado.
   const handleAgregar = () => {
     setClienteSeleccionado(null);
     setIsModalOpen(true);
@@ -61,18 +56,14 @@ function Clientes() {
     setIsModalOpen(true);
   };
 
-  // ==========================
-  // Manejo de éxito en modal
-  // ==========================
+  // Refresca los datos y muestra confirmación tras guardar cambios.
   const handleModalSuccess = () => {
     cargar();
     setSuccessMessage("Operación realizada con éxito.");
     setTimeout(() => setSuccessMessage(null), 3000);
   };
 
-  // ==========================
-  // Desactivar / Reactivar cliente
-  // ==========================
+  // Cambia el estado del cliente después de solicitar confirmación.
   const handleDesactivar = async (cliente, skipConfirm = false) => {
     if (!skipConfirm) {
       openConfirmModal(cliente);
@@ -105,9 +96,7 @@ function Clientes() {
     }
   };
 
-  // ==========================
-  // Filtrar clientes activos e inactivos de forma segura
-  // ==========================
+  // Separa los registros activos y los inactivos para mostrarlos por filtro.
   const clientesActivos = Array.isArray(clientes) 
     ? clientes.filter((c) => {
         if (!c) return false;
@@ -124,9 +113,7 @@ function Clientes() {
       }) 
     : [];
 
-  // ==========================
-  // Renderizado principal
-  // ==========================
+  // Renderiza cabecera, modales y tabla según carga, error y filtro actual.
   return (
     <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
       {/* Encabezado con acciones */}

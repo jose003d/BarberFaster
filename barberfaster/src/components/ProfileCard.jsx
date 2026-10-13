@@ -10,6 +10,7 @@ const initialsFromName = (name) =>
     .join('')
     .toLocaleUpperCase('es');
 
+// Tarjeta interactiva de barbero con foto, información y efecto 3D opcional.
 export default function ProfileCard({
   name = 'Barbero',
   title = 'Especialista en barbería',
@@ -26,6 +27,7 @@ export default function ProfileCard({
   const [avatarError, setAvatarError] = useState(false);
   const cardName = name || 'Barbero';
 
+  // Ajusta inclinación, brillo y reflejo según la posición del cursor.
   const handlePointerMove = (event) => {
     if (!enableTilt || event.pointerType !== 'mouse' || !wrapperRef.current) return;
     const bounds = wrapperRef.current.getBoundingClientRect();
@@ -39,6 +41,7 @@ export default function ProfileCard({
     wrapperRef.current.style.setProperty('--card-opacity', '1');
   };
 
+  // Restablece la perspectiva y el reflejo al salir del área de la tarjeta.
   const handlePointerLeave = () => {
     if (!wrapperRef.current) return;
     wrapperRef.current.style.setProperty('--rotate-x', '0deg');
@@ -46,6 +49,7 @@ export default function ProfileCard({
     wrapperRef.current.style.setProperty('--card-opacity', '0');
   };
 
+  // Muestra la foto o iniciales, datos del profesional y acción de contacto.
   return (
     <div
       ref={wrapperRef}

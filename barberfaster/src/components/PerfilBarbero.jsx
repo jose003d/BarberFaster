@@ -5,6 +5,7 @@ const BASE_URL = "/erpbarber/barberfaster/backend";
 const days = [{ value: 1, label: "Lunes" }, { value: 2, label: "Martes" }, { value: 3, label: "Miércoles" }, { value: 4, label: "Jueves" }, { value: 5, label: "Viernes" }, { value: 6, label: "Sábado" }, { value: 7, label: "Domingo" }];
 const emptyService = { id_servicio: null, nombre: "", precio: "", duracion_minutos: 30 };
 
+// Normaliza rutas de fotos para que funcionen con URL absolutas o cargas locales.
 const photoUrl = (photo) => {
   if (!photo) return "";
   if (/^https?:\/\//i.test(photo)) return photo;
@@ -12,6 +13,7 @@ const photoUrl = (photo) => {
   return `${BASE_URL}/uploads/${path.split("/").map(encodeURIComponent).join("/")}`;
 };
 
+// Perfil del barbero: datos personales, horario, citas, servicios y foto.
 export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero }) {
   const [barbero, setBarbero] = useState(initialBarbero);
   const [tab, setTab] = useState("datos");
@@ -25,6 +27,7 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
   const [savingPhoto, setSavingPhoto] = useState(false);
   const [message, setMessage] = useState(null);
 
+  // Carga el perfil, horario, servicios y eventos cuando cambia el barbero activo.
   useEffect(() => {
     const current = initialBarbero;
     if (!current) return;
@@ -52,10 +55,12 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
     }).finally(() => setLoading(false));
   }, [initialBarbero]);
 
+  // Mantiene sincronizados los campos editables y los días de trabajo.
   const updateForm = (event) => setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
   const updateSchedule = (event) => setSchedule((current) => ({ ...current, [event.target.name]: event.target.name === "intervalo_minutos" ? Number(event.target.value) : event.target.value }));
   const toggleDay = (day) => setSchedule((current) => ({ ...current, dias_semana: current.dias_semana.includes(day) ? current.dias_semana.filter((item) => item !== day) : [...current.dias_semana, day] }));
 
+  // Persiste los datos personales y los actualiza también en la sesión local.
   const saveProfile = async (event) => {
     event.preventDefault();
     setSaving(true);
@@ -74,6 +79,7 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
     }
   };
 
+  // Guarda los días y horas laborales configurados para el barbero.
   const saveSchedule = async (event) => {
     event.preventDefault();
     setSaving(true);
@@ -89,6 +95,7 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
     }
   };
 
+  // Valida y sube una imagen de perfil con límite de formato y tamaño.
   const changePhoto = async (event) => {
     const input = event.currentTarget;
     const file = input.files?.[0];
@@ -134,6 +141,7 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
     }
   };
 
+  // Crea o actualiza un servicio y refresca el catálogo del barbero.
   const saveService = async (event) => {
     event.preventDefault();
     setSaving(true);
@@ -154,6 +162,7 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
     }
   };
 
+  // Marca un servicio como inactivo y actualiza la lista visible.
   const removeService = async (service) => {
     try {
       const response = await desactivarServicio(service.id_servicio);
@@ -170,6 +179,7 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
 
   const validPhoto = photoUrl(barbero.foto);
 
+  // Renderiza el resumen del barbero y el contenido asociado a cada pestaña.
   return (
     <div className="page-section">
       <div className="heading-row">
@@ -181,6 +191,7 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
       </div>
       {message && <p className={`status ${message.type}`}>{message.text}</p>}
       
+      {/* Cabecera con avatar, datos principales y control de carga de foto. */}
       <div className="profile-header card">
         <div className="profile-avatar-box">
           {validPhoto ? (
@@ -202,6 +213,7 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
         </div>
       </div>
 
+      {/* Pestañas de datos, horario, citas y catálogo de servicios. */}
       <div className="panel">
         <div className="tabs" role="tablist">
           <button className={tab === "datos" ? "btn" : "btn-secondary"} onClick={() => setTab("datos")}>Mis Datos</button>
@@ -314,6 +326,7 @@ export default function PerfilBarbero({ barbero: initialBarbero, onChangeBarbero
 }
 
 function Field({ name, label, type = "text", value, onChange, ...props }) { 
+  // Campo reutilizable que conserva el nombre de propiedad del formulario.
   return (
     <div className="form-group">
       <label htmlFor={`perfil-${name}`}>{label}</label>
@@ -323,6 +336,7 @@ function Field({ name, label, type = "text", value, onChange, ...props }) {
 }
 
 function Action({ saving, text }) { 
+  // Botón reutilizable que refleja el estado de guardado del formulario.
   return (
     <div className="modal-actions" style={{ gridColumn: "1 / -1" }}>
       <button className="btn" type="submit" disabled={saving}>{saving ? "Guardando..." : text}</button>

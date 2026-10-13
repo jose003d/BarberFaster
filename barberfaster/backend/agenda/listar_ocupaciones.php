@@ -1,4 +1,7 @@
 <?php
+// Devuelve las citas no canceladas de un barbero para una fecha concreta.
+
+// Cabeceras JSON y permisos de lectura del endpoint de disponibilidad.
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
@@ -9,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+// Carga PDO y valida el identificador del barbero y el formato de fecha.
 require_once '../config/database.php';
 
 $id_barbero = filter_input(INPUT_GET, 'id_barbero', FILTER_VALIDATE_INT);
@@ -25,6 +29,7 @@ if (!$id_barbero || !$fechaValidada || $fechaValidada->format('Y-m-d') !== $fech
 }
 
 try {
+    // Consulta las horas ocupadas ordenadas para calcular los turnos libres.
     $stmt = $pdo->prepare("
         SELECT hora_inicio, hora_fin
         FROM citas
@@ -43,6 +48,7 @@ try {
         "datos" => $stmt->fetchAll()
     ]);
 } catch (PDOException $e) {
+    // Responde con error HTTP si falla la consulta de ocupaciones.
     http_response_code(500);
     echo json_encode([
         "status" => "error",

@@ -5,6 +5,7 @@ import "./Dashboard.css";
 // Usar localhost para coincidir con el dominio de Vite (http://localhost:5173)
 const BASE_URL = "http://localhost/erpbarber/barberfaster/backend";
 
+// Dashboard del local: muestra métricas, personal y datos públicos del negocio.
 export default function Dashboard() {
   // Control de pestañas: 'metricas' | 'asignaciones' | 'perfil'
   const [tabActiva, setTabActiva] = useState("perfil");
@@ -21,6 +22,7 @@ export default function Dashboard() {
   const [cargando, setCargando] = useState(true);
   const [mensaje, setMensaje] = useState(null);
 
+  // Lee el identificador del local elegido en la sesión administrativa demo.
   const obtenerBarberiaActivaId = () => {
     try {
       const stored = localStorage.getItem("barberia_demo_admin");
@@ -39,6 +41,7 @@ export default function Dashboard() {
     cargarPerfilBarberia();
   }, []);
 
+  // Carga y normaliza el perfil público del establecimiento desde el backend.
   const cargarPerfilBarberia = () => {
     setCargando(true);
     setMensaje(null);
@@ -69,6 +72,7 @@ export default function Dashboard() {
       .finally(() => setCargando(false));
   };
 
+  // Guarda la descripción, dirección, mapa y horario general del local.
   const guardarPerfil = (e) => {
     e.preventDefault();
     setMensaje(null);
@@ -147,7 +151,7 @@ export default function Dashboard() {
         </p>
       )}
 
-      {/* PESTAÑA 1: MÉTRICAS */}
+      {/* Pestaña de resumen de citas e ingresos del negocio. */}
       {tabActiva === "metricas" && (
         <section className="dashboard-panel">
           <p className="dashboard-eyebrow">Tu negocio</p>
@@ -166,14 +170,14 @@ export default function Dashboard() {
         </section>
       )}
 
-      {/* PESTAÑA 2: ASIGNACIONES Y PERSONAL */}
+      {/* Pestaña de administración de personal y servicios. */}
       {tabActiva === "asignaciones" && (
         <div>
           <Barberos />
         </div>
       )}
 
-      {/* PESTAÑA 3: PERFIL DE LA BARBERÍA Y HORARIO */}
+      {/* Pestaña de edición de perfil, ubicación y horas de atención. */}
       {tabActiva === "perfil" && (
         <section className="dashboard-panel">
           <p className="dashboard-eyebrow">Información pública</p>

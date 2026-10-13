@@ -1,8 +1,9 @@
-﻿// src/services/api.js
+﻿// Funciones compartidas para conectar las pantallas React con los endpoints PHP.
 
 const BASE_URL = "/erpbarber/barberfaster/backend";
 const FALLBACK_BASE_URL = "http://localhost:8000/backend";
 
+// Prueba las ubicaciones configuradas y convierte la respuesta JSON en datos o error.
 export async function fetchJsonWithFallback(endpoint, options = {}) {
   const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const candidates = [
@@ -45,6 +46,7 @@ export async function fetchJsonWithFallback(endpoint, options = {}) {
 // Manejadores Genéricos de Respuestas y Peticiones (CORS & JSON)
 // ============================================================
 
+// Verifica el contenido, el estado HTTP y los errores enviados por PHP.
 async function handleResponse(response) {
   const text = await response.text();
   
@@ -66,6 +68,7 @@ async function handleResponse(response) {
   return data;
 }
 
+// Acepta los formatos de lista usados por los diferentes endpoints del backend.
 function extractListData(data, key) {
   if (Array.isArray(data)) return data;
   if (data && Array.isArray(data.datos)) return data.datos;
@@ -73,6 +76,7 @@ function extractListData(data, key) {
   return [];
 }
 
+// Prepara peticiones JSON y centraliza el registro de errores de red.
 export async function apiFetch(endpoint, options = {}) {
   const config = {
     headers: {

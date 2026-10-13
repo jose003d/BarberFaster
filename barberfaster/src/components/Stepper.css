@@ -1,3 +1,4 @@
+/* Indicadores y conectores que muestran el avance entre etapas. */
 .booking-stepper {
   width: 100%;
   margin: 0 auto;
@@ -117,6 +118,7 @@
   animation: booking-step-enter 250ms ease both;
 }
 
+/* Contenido visible del paso y controles para avanzar o regresar. */
 .booking-step {
   min-width: 0;
 }
@@ -187,6 +189,7 @@
 }
 
 @media (max-width: 600px) {
+  /* Reduce espacios y tamaños de indicadores en móviles. */
   .booking-stepper-indicators {
     padding: 18px 16px 28px;
   }
@@ -209,6 +212,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Elimina transiciones y entrada animada cuando se solicita menos movimiento. */
   .booking-stepper-content {
     animation: none;
   }

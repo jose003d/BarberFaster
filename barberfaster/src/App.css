@@ -1,3 +1,4 @@
+/* Estilos compartidos para las pantallas administrativas y sus componentes. */
 /* ── Reset global ── */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -1166,6 +1167,7 @@ html, body {
   background: var(--bauhaus-paper);
 }
 
+/* Menú global adaptable que reemplaza la navegación lateral fija. */
 /* Staggered ERP navigation */
 .app-shell:has(.staggered-menu) .content {
   padding-top: 92px;
@@ -1449,6 +1451,7 @@ input[type="reset"]:not(:disabled),
 .btn-success,
 .btn-danger,
 .login-btn,
+/* Acciones destacadas de la página pública de descubrimiento. */
 .discovery-hero-link {
   border: 2px solid var(--bauhaus-ink);
   background-color: var(--bauhaus-cyan);

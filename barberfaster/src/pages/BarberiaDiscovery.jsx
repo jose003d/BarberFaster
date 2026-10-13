@@ -5,7 +5,9 @@ import "./BarberiaDiscovery.css";
 
 const IMAGE_BASE_URL = "/erpbarber/barberfaster/backend/uploads";
 
+// Permite buscar barberías por texto o ciudad y empezar una reserva pública.
 function BarberiaDiscovery() {
+  // Conserva locales, filtros y estados de carga/error de la consulta inicial.
   const [barberias, setBarberias] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [ciudadSeleccionada, setCiudadSeleccionada] = useState("");
@@ -13,6 +15,7 @@ function BarberiaDiscovery() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // Carga locales activos y evita actualizar el estado si la vista ya se desmontó.
   useEffect(() => {
     let activa = true;
 
@@ -32,6 +35,7 @@ function BarberiaDiscovery() {
     };
   }, []);
 
+  // Deriva opciones de ciudad y resultados sin duplicar datos del servidor.
   const ciudades = useMemo(
     () => [...new Set(barberias.map((barberia) => barberia.ciudad?.trim()).filter(Boolean))]
       .sort((a, b) => a.localeCompare(b, "es")),
@@ -50,12 +54,14 @@ function BarberiaDiscovery() {
     });
   }, [barberias, busqueda, ciudadSeleccionada]);
 
+  // Redirige a la reserva con el identificador del local elegido.
   const reservarEnBarberia = (barberia) => {
     navigate(`/reservar?barberia=${encodeURIComponent(barberia.id_barberia)}`);
   };
 
   return (
     <main className="barber-discovery-page">
+      {/* Navegación pública hacia el catálogo y el acceso de negocios. */}
       <header className="discovery-nav">
         <Link className="discovery-brand" to="/" aria-label="BarberFaster, inicio">
           <span>BARBER<span>FASTER</span></span>
@@ -66,6 +72,7 @@ function BarberiaDiscovery() {
         </nav>
       </header>
 
+      {/* Mensaje de bienvenida y acceso directo al listado de locales. */}
       <section className="discovery-hero" aria-labelledby="discovery-title">
         <div className="discovery-hero-content">
           <p className="discovery-eyebrow"><span>01</span> BARBERFASTER · RESERVA TU CITA</p>
@@ -77,6 +84,7 @@ function BarberiaDiscovery() {
         </div>
       </section>
 
+      {/* Filtros, estados de consulta y tarjetas con acciones de reserva. */}
       <section className="discovery-listing" id="barberias" aria-labelledby="barber-list-title">
         <div className="discovery-section-heading">
           <div>
@@ -169,6 +177,7 @@ function BarberiaDiscovery() {
         )}
       </section>
 
+      {/* Acceso al área de negocios desde el pie de la página pública. */}
       <footer className="discovery-footer">
         <span>BARBERFASTER · Tu estilo, a tu tiempo.</span>
         <Link to="/login">Acceso para negocios</Link>

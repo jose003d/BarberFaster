@@ -1,11 +1,15 @@
 import React from "react";
 
+// Presenta estados de espera/vacío y permite seleccionar un horario disponible.
 export default function TimeSlotGrid({ slots, selectedTime, onSelect, isLoading }) {
+  // Informa que la disponibilidad todavía se está consultando.
   if (isLoading) {
     return <p className="time-slot-message" role="status">Cargando horarios disponibles...</p>;
   }
 
+  // Explica cuando no existen turnos que se puedan reservar.
   if (slots.length === 0) {
+    // Muestra cada horario y marca el que coincide con la selección actual.
     return (
       <p className="time-slot-message" role="status">
         No hay horarios disponibles para esta fecha y duración.

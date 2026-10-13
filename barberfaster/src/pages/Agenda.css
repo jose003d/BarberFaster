@@ -1,3 +1,4 @@
+/* Maquetación, calendario, disponibilidad y formularios del flujo de reserva. */
 .agenda-page {
   width: 100%;
   max-width: 920px;
@@ -75,7 +76,7 @@
 .agenda-mensaje.success { background: #d1fae5; color: #065f46; }
 .agenda-mensaje.error   { background: #fee2e2; color: #991b1b; }
 
-/* Layout principal rediseñado para equilibrar controles y resultados */
+/* Cabecera y distribución de calendario frente a horarios disponibles. */
 .agenda-layout {
   display: grid;
   grid-template-columns: 380px minmax(0, 1fr);
@@ -119,7 +120,7 @@
   font-weight: 600;
 }
 
-/* Barberos */
+/* Tarjetas para seleccionar al profesional que atenderá la cita. */
 .barber-profile-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
@@ -138,7 +139,7 @@
   }
 }
 
-/* Calendario y Bloques de Servicios */
+/* Calendario, resumen de la reserva y selección de horarios/servicios. */
 .calendario-wrapper {
   background: #fff;
   border-radius: 16px;
@@ -203,6 +204,7 @@
   color: #6b7280;
 }
 
+/* Resumen de servicios, precio y fecha seleccionada en el flujo de reserva. */
 .booking-date-time-layout {
   display: grid;
   grid-template-columns: minmax(250px, 0.82fr) minmax(0, 1.35fr);
@@ -349,6 +351,7 @@
   text-transform: capitalize;
 }
 
+/* Calendario interactivo y estilos de las celdas de fecha disponibles. */
 .booking-calendar-panel {
   width: 100%;
   margin: 0;
@@ -496,6 +499,7 @@
   font-size: 0.93rem;
 }
 
+/* Turnos disponibles, selección del usuario y mensajes de disponibilidad. */
 .time-slot-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
@@ -674,6 +678,7 @@
   background: #f9fafb;
 }
 
+/* Campos del cliente y controles para verificar el teléfono por WhatsApp. */
 .appointment-form {
   display: grid;
   gap: 14px;
@@ -773,6 +778,7 @@
 }
 
 /* Modal */
+/* Ventana de confirmación de la reserva y sus acciones. */
 .agenda-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -857,6 +863,7 @@
   align-items: center;
 }
 
+/* Ajustes del calendario de fecha cuando se presenta fuera del panel principal. */
 .react-datepicker {
   width: 100% !important;
   max-width: 100% !important;
@@ -899,7 +906,7 @@
   font-weight: 600;
 }
 
-/* Responsivo para pantallas medianas y móviles */
+/* Reglas responsivas para adaptar calendario, turnos y formulario a móviles. */
 @media (max-width: 980px) {
   .agenda-layout {
     grid-template-columns: 1fr;

@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+// Configura CORS, procesa JSON y centraliza utilidades de OTP, tickets y Wuapi.
+
+// Devuelve cabeceras CORS solo a orígenes permitidos y define el formato JSON.
 function setCorsHeaders(): void
 {
     $origen = $_SERVER['HTTP_ORIGIN'] ?? '';
@@ -17,6 +20,7 @@ function setCorsHeaders(): void
     header('Content-Type: application/json; charset=utf-8');
 }
 
+// Estandariza el cuerpo/status HTTP de las respuestas y termina el endpoint.
 function responder(int $codigoHttp, bool $exito, string $mensaje, array $extra = []): void
 {
     http_response_code($codigoHttp);
@@ -34,6 +38,7 @@ function responder(int $codigoHttp, bool $exito, string $mensaje, array $extra =
     exit;
 }
 
+// Lee el cuerpo JSON y extrae valores de texto ya recortados.
 function obtenerJsonBody(): array
 {
     $raw = file_get_contents('php://input');
@@ -51,6 +56,7 @@ function obtenerTexto(array $datos, string $clave): string
     return is_string($valor) ? trim($valor) : trim((string) $valor);
 }
 
+// Convierte formatos de teléfono a la representación internacional colombiana.
 function normalizarTelefono(string $telefono): string
 {
     $telefono = preg_replace('/\D+/', '', $telefono) ?? '';
@@ -78,12 +84,14 @@ function normalizarTelefono(string $telefono): string
     return $telefono;
 }
 
+// Acepta únicamente números que cumplen el patrón telefónico admitido.
 function telefonoValido(string $telefono): bool
 {
     $telefono = normalizarTelefono($telefono);
     return preg_match('/^57\d{9,10}$/', $telefono) === 1;
 }
 
+// Guarda un ticket aleatorio vinculado al teléfono con fecha de expiración.
 function crearTicketVerificacionTelefono(string $telefono, int $ttlSegundos = 600): string
 {
     $ticket = bin2hex(random_bytes(32));
@@ -101,11 +109,13 @@ function crearTicketVerificacionTelefono(string $telefono, int $ttlSegundos = 60
     return $ticket;
 }
 
+// Calcula la ruta segura del archivo temporal asociado al ticket.
 function rutaTicketVerificacion(string $ticket): string
 {
     return sys_get_temp_dir() . '/wuapi_verificado_' . hash('sha256', $ticket) . '.json';
 }
 
+// Bloquea el archivo del ticket y valida formato, teléfono y vigencia.
 function bloquearTicketVerificacion(string $telefono, string $ticket)
 {
     if (preg_match('/^[a-f0-9]{64}$/', $ticket) !== 1) {
@@ -137,6 +147,7 @@ function bloquearTicketVerificacion(string $telefono, string $ticket)
     return ['archivo' => $archivo, 'ruta' => $ruta];
 }
 
+// Invalida y elimina el ticket ya utilizado, liberando su bloqueo.
 function consumirTicketVerificacion(array $ticketBloqueado): bool
 {
     $archivo = $ticketBloqueado['archivo'];
@@ -151,6 +162,7 @@ function consumirTicketVerificacion(array $ticketBloqueado): bool
     return $eliminado;
 }
 
+// Libera un ticket bloqueado sin consumirlo.
 function liberarTicketVerificacion(array $ticketBloqueado): void
 {
     $archivo = $ticketBloqueado['archivo'];
@@ -158,12 +170,14 @@ function liberarTicketVerificacion(array $ticketBloqueado): void
     fclose($archivo);
 }
 
+// Calcula la ruta temporal de almacenamiento para el OTP del teléfono.
 function rutaArchivoOtp(string $telefono): string
 {
     $telefono = normalizarTelefono($telefono);
     return sys_get_temp_dir() . '/otp_' . md5($telefono) . '.json';
 }
 
+// Lee una credencial de entorno obligatoria y genera error si no está definida.
 function credencialWuapi(string $nombre): string
 {
     $valor = getenv($nombre) ?: $_ENV[$nombre] ?? '';
@@ -178,6 +192,7 @@ function credencialWuapi(string $nombre): string
     return $valor;
 }
 
+// Envía el OTP a través de Wuapi y normaliza la respuesta o el error recibido.
 function enviarMensajeWuapi(string $telefono, string $codigo): array
 {
     if (!function_exists('curl_init')) {
@@ -249,11 +264,13 @@ function enviarMensajeWuapi(string $telefono, string $codigo): array
     ];
 }
 
+// Genera un código OTP numérico de seis dígitos con aleatoriedad segura.
 function generarCodigoOtp(): string
 {
     return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 }
 
+// Carga del almacenamiento temporal el OTP vigente asociado a un teléfono.
 function leerOtpDesdeTelefono(string $telefono): ?array
 {
     $ruta = rutaArchivoOtp($telefono);
@@ -270,6 +287,7 @@ function leerOtpDesdeTelefono(string $telefono): ?array
     return is_array($datos) ? $datos : null;
 }
 
+// Persiste OTP, expiración e intentos iniciales en el almacenamiento temporal.
 function guardarOtp(string $telefono, string $codigo, int $ttlSegundos = 300): void
 {
     $ruta = rutaArchivoOtp($telefono);
@@ -287,6 +305,7 @@ function guardarOtp(string $telefono, string $codigo, int $ttlSegundos = 300): v
     }
 }
 
+// Elimina el OTP vencido y señala si la expiración ocurrió.
 function expirarOtpSiEsNecesario(string $telefono): bool
 {
     $datos = leerOtpDesdeTelefono($telefono);
@@ -303,6 +322,7 @@ function expirarOtpSiEsNecesario(string $telefono): bool
     return false;
 }
 
+// Finaliza rápidamente la solicitud preflight OPTIONS.
 function manejarPreflight(): void
 {
     if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {

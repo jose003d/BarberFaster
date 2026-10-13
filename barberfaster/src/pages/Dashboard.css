@@ -1,3 +1,4 @@
+/* Estructura del panel administrativo y sus cabeceras. */
 .dashboard-page {
   width: min(1180px, 100%);
   margin: 0 auto;
@@ -77,6 +78,7 @@
   transform: translateY(-1px);
 }
 
+/* Mensajes de estado y paneles que contienen cada sección del dashboard. */
 .dashboard-message {
   margin: 0 0 20px;
   padding: 13px 16px;
@@ -153,6 +155,7 @@
   letter-spacing: -0.04em;
 }
 
+/* Formulario del perfil del local y vista previa del mapa. */
 .dashboard-loading {
   padding: 18px 0;
   color: var(--text-muted);
@@ -242,6 +245,7 @@
 }
 
 @media (max-width: 800px) {
+  /* Reorganiza cabecera y pestañas para pantallas medianas. */
   .dashboard-header {
     align-items: stretch;
     flex-direction: column;
@@ -258,6 +262,7 @@
 }
 
 @media (max-width: 560px) {
+  /* Apila campos y acciones del formulario en móviles. */
   .dashboard-profile-grid {
     grid-template-columns: 1fr;
   }

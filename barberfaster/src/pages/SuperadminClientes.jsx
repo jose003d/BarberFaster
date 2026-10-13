@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import Clientes from "./Clientes";
 
+// Presenta el directorio global de clientes dentro de la navegación superadmin.
 export default function SuperadminClientes() {
   return <div className="page-section">
     <div className="heading-row">

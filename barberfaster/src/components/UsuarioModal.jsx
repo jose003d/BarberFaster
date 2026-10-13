@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch, obtenerBarberias } from '../services/api';
 
+// Formulario modal para crear o editar barberos asociados a una barbería activa.
 export const UsuarioModal = ({ isOpen, onClose, idBarberia, usuarioEditar, onSuccess }) => {
+  // Resuelve la barbería activa desde la sesión demo o desde las propiedades recibidas.
   const obtenerBarberiaActivaId = () => {
     try {
       const stored = localStorage.getItem('barberia_demo_admin');
@@ -17,6 +19,7 @@ export const UsuarioModal = ({ isOpen, onClose, idBarberia, usuarioEditar, onSuc
     return idBarberia || 1;
   };
 
+  // Prepara el formulario y la interfaz según el barbero y barbería seleccionados.
   const [form, setForm] = useState({
     nombre: '',
     especialidad: '',
@@ -46,6 +49,7 @@ export const UsuarioModal = ({ isOpen, onClose, idBarberia, usuarioEditar, onSuc
     }
   }, [usuarioEditar, isOpen, idBarberia]);
 
+  // Comprueba que la barbería activa siga disponible antes de guardar.
   const sincronizarBarberiaActiva = async () => {
     try {
       const barberias = await obtenerBarberias(true);
@@ -66,6 +70,7 @@ export const UsuarioModal = ({ isOpen, onClose, idBarberia, usuarioEditar, onSuc
 
   if (!isOpen) return null;
 
+  // Envía el alta o edición con el identificador de barbería validado.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -108,6 +113,7 @@ export const UsuarioModal = ({ isOpen, onClose, idBarberia, usuarioEditar, onSuc
     }
   };
 
+  // Renderiza el formulario modal y sus campos de barbero.
   return (
     <div style={{
       position: 'fixed',

@@ -1,10 +1,14 @@
 <?php
 
+// Recibe una foto de barbero, valida el archivo y actualiza su ruta en la base.
+
+// Define la respuesta JSON y limita este endpoint a la carga de imágenes por POST.
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset=UTF-8");
 
+// Atiende preflight CORS y rechaza métodos distintos de POST.
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -18,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 require_once '../config/database.php';
 
+// Valida identificador, presencia del archivo, carga y límite de tamaño.
 $idBarbero = filter_input(INPUT_POST, 'id_barbero', FILTER_VALIDATE_INT);
 if (!$idBarbero || $idBarbero < 1) {
     http_response_code(400);
@@ -51,6 +56,7 @@ $tiposPermitidos = [
     'image/png' => 'png',
     'image/webp' => 'webp',
 ];
+// Verifica el tipo real del archivo y confirma que el barbero exista.
 $finfo = new finfo(FILEINFO_MIME_TYPE);
 $tipoMime = $finfo->file($archivo['tmp_name']);
 if (!isset($tiposPermitidos[$tipoMime])) {
@@ -69,6 +75,7 @@ if (!$barbero) {
 }
 
 $directorio = __DIR__ . '/../uploads/barberos';
+// Genera un nombre aleatorio, guarda el archivo y registra su ruta relativa.
 if (!is_dir($directorio) && !mkdir($directorio, 0755, true) && !is_dir($directorio)) {
     http_response_code(500);
     echo json_encode(["status" => "error", "mensaje" => "No se pudo preparar el almacenamiento de fotos."]);
@@ -86,6 +93,7 @@ if (!move_uploaded_file($archivo['tmp_name'], $rutaArchivo)) {
 }
 
 try {
+    // Actualiza la foto y elimina la anterior solo si es un archivo gestionado.
     $actualizar = $pdo->prepare("UPDATE barberos SET foto = ? WHERE id_barbero = ?");
     $actualizar->execute([$rutaGuardada, $idBarbero]);
 
@@ -103,6 +111,7 @@ try {
         "foto" => $rutaGuardada,
     ]);
 } catch (Throwable $error) {
+    // Limpia el archivo nuevo si la actualización de base de datos falla.
     if (is_file($rutaArchivo)) {
         unlink($rutaArchivo);
     }

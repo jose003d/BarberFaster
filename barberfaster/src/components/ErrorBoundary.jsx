@@ -1,5 +1,6 @@
 import React from 'react';
 
+// Captura errores de render de React y muestra una pantalla recuperable.
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);

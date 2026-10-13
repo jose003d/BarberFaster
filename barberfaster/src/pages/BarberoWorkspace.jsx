@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../services/api';
 
+// Muestra la agenda diaria del barbero y permite actualizar el estado de sus citas.
 export const BarberoWorkspace = ({ idBarbero }) => {
+  // Recarga las citas cuando cambia el barbero o la fecha seleccionada.
   const [citas, setCitas] = useState([]);
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
@@ -13,6 +15,7 @@ export const BarberoWorkspace = ({ idBarbero }) => {
     }
   }, [idBarbero, fecha]);
 
+  // Obtiene las citas asignadas al barbero para el día elegido.
   const cargarCitas = async () => {
     setLoading(true);
     const res = await apiFetch(`agenda/listar_citas.php?id_barbero=${idBarbero}&fecha=${fecha}`);
@@ -23,6 +26,7 @@ export const BarberoWorkspace = ({ idBarbero }) => {
     }
   };
 
+  // Marca la cita como completada o cancelada y actualiza la tabla al tener éxito.
   const cambiarEstado = async (idCita, nuevoEstado) => {
     const endpoint = nuevoEstado === 'COMPLETADA' ? 'citas/completar.php' : 'citas/cancelar.php';
     const res = await apiFetch(endpoint, {
@@ -35,6 +39,7 @@ export const BarberoWorkspace = ({ idBarbero }) => {
     }
   };
 
+  // Presenta el selector de fecha, el estado de carga y la tabla de citas.
   return (
     <div className="workspace-container">
       <header className="workspace-header">

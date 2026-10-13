@@ -4,11 +4,14 @@ import { loginUsuario } from "../services/api";
 // Desactivar cuando se quiera volver a validar las credenciales contra el backend.
 const TEMPORARY_LOGIN_BYPASS = true;
 
+// Gestiona el acceso y guarda en el navegador la sesión recibida o de prueba.
 export default function Login({ onLoginSuccess }) {
+  // Guarda los campos del formulario y los estados de envío y error.
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Autentica con el backend o crea la sesión temporal configurada para desarrollo.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -43,6 +46,7 @@ export default function Login({ onLoginSuccess }) {
     }
   };
 
+  // Renderiza el formulario de acceso, incluidos los mensajes de carga y error.
   return (
     <main className="login-page">
       <section className="login-card" aria-labelledby="login-title">

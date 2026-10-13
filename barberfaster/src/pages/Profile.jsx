@@ -3,6 +3,7 @@ import PerfilBarbero from "../components/PerfilBarbero";
 
 const SESSION_KEY = "barbero_demo_sesion";
 
+// Alterna entre el selector de la sesión demo y el perfil del barbero activo.
 export default function Profile() {
   // Este wrapper decide si se muestra el selector o el perfil del barbero.
   const [barbero, setBarbero] = useState(() => {
@@ -24,9 +25,7 @@ export default function Profile() {
     window.dispatchEvent(new Event("barberfaster-role-change"));
   };
 
-  // ==========================
-  // Renderizado corregido
-  // ==========================
+  // Renderiza el selector inicial o el perfil con opción para cambiar de barbero.
   return (
     <div style={{ padding: "2rem", width: "100%", boxSizing: "border-box" }}>
       {!barbero ? (

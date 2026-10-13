@@ -1,3 +1,4 @@
+// Modal reutilizable para pedir confirmación antes de ejecutar una acción.
 function ConfirmModal({
   isOpen,             // controla si el modal está visible
   title,              // título del modal
@@ -10,6 +11,7 @@ function ConfirmModal({
   // Si el modal no está abierto, no renderizar nada
   if (!isOpen) return null;
 
+  // Muestra el contexto de la acción y las opciones para confirmar o cancelar.
   return (
     <div className="modal-backdrop-custom">
       <div className="modal-content-custom">

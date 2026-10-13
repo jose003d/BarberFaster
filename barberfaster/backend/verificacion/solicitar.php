@@ -1,15 +1,20 @@
 <?php
 
+// Genera un código OTP temporal y solicita su envío al teléfono del cliente.
+
 declare(strict_types=1);
 
+// Carga normalización, utilidades OTP, mensajería y respuestas comunes.
 require_once __DIR__ . '/comun.php';
 
+// Configura CORS y termina solicitudes preflight del navegador.
 setCorsHeaders();
 manejarPreflight();
 
 $datos = obtenerJsonBody();
 $telefono = obtenerTexto($datos, 'telefono');
 
+// Rechaza números vacíos o que no tengan un formato admitido.
 if ($telefono === '') {
     responder(400, false, 'El número de teléfono es obligatorio.');
 }
@@ -20,6 +25,7 @@ if (!telefonoValido($telefonoNormalizado)) {
 }
 
 try {
+    // Guarda el código con vencimiento y lo envía al proveedor WhatsApp.
     $codigo = generarCodigoOtp();
     guardarOtp($telefonoNormalizado, $codigo, 300);
     $resultado = enviarMensajeWuapi($telefonoNormalizado, $codigo);
@@ -33,6 +39,7 @@ try {
     ]);
 }
 
+// Informa fallos del proveedor o confirma la entrega del código.
 if ($resultado['ok'] !== true) {
     $codigoError = ($resultado['http_code'] ?? null) === 500 &&
         strpos($resultado['mensaje'] ?? '', 'extensión cURL') !== false

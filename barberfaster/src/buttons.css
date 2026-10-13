@@ -1,3 +1,23 @@
+/* Aplica el desplazamiento magnético y la apariencia compartida de los controles. */
+#root :is(
+  button:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  .btn:not(:disabled),
+  .btn-secondary:not(:disabled),
+  .btn-success:not(:disabled),
+  .btn-danger:not(:disabled),
+  .login-btn:not(:disabled),
+  .discovery-login,
+  .discovery-hero-link,
+  .discovery-footer a
+) {
+  translate: var(--magnetic-x, 0px) var(--magnetic-y, 0px);
+  transition: translate 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Colores, borde y elevación comunes al pasar el puntero por acciones habilitadas. */
 #root :is(
   button:not(:disabled),
   input[type="button"]:not(:disabled),
@@ -34,4 +54,25 @@
   color: #ffffff !important;
   box-shadow: 3px 3px 0 var(--bauhaus-cyan) !important;
   transform: translateY(-1px) !important;
+}
+
+/* Desactiva el movimiento para usuarios que prefieren reducir animaciones. */
+@media (prefers-reduced-motion: reduce) {
+  #root :is(
+    button:not(:disabled),
+    input[type="button"]:not(:disabled),
+    input[type="submit"]:not(:disabled),
+    input[type="reset"]:not(:disabled),
+    .btn:not(:disabled),
+    .btn-secondary:not(:disabled),
+    .btn-success:not(:disabled),
+    .btn-danger:not(:disabled),
+    .login-btn:not(:disabled),
+    .discovery-login,
+    .discovery-hero-link,
+    .discovery-footer a
+  ) {
+    translate: var(--magnetic-x, 0px) var(--magnetic-y, 0px);
+    transition: none !important;
+  }
 }

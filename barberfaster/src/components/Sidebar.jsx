@@ -13,10 +13,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 function Sidebar() {
+  // La sesión demo determina si se presentan las opciones del barbero o del administrador.
   const navigate = useNavigate();
   const [barberoActivo, setBarberoActivo] = useState(() => Boolean(localStorage.getItem("barbero_demo_sesion")));
   const [menuAbierto, setMenuAbierto] = useState(false);
 
+  // Escucha cambios de rol y sincroniza el estado del menú con la sesión.
   useEffect(() => {
     const syncRole = () => setBarberoActivo(Boolean(localStorage.getItem("barbero_demo_sesion")));
     window.addEventListener("barberfaster-role-change", syncRole);
@@ -27,6 +29,7 @@ function Sidebar() {
     };
   }, []);
 
+  // Bloquea el scroll y permite cerrar el menú con Escape mientras está abierto.
   useEffect(() => {
     if (!menuAbierto) return undefined;
 
@@ -43,6 +46,7 @@ function Sidebar() {
     };
   }, [menuAbierto]);
 
+  // Borra la sesión local, notifica el cambio de rol y vuelve al inicio de sesión.
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("erpbarber_auth");
@@ -52,6 +56,7 @@ function Sidebar() {
     navigate("/login", { replace: true });
   };
 
+  // Construye las opciones de navegación apropiadas al rol activo.
   const menuItems = barberoActivo
     ? [
         { label: "Workspace", to: "/barbero", icon: faGaugeHigh },
@@ -67,6 +72,7 @@ function Sidebar() {
         { label: "Perfil de barbero", to: "/perfil", icon: faUserTie }
       ];
 
+  // Renderiza la cabecera, el fondo interactivo y el panel de navegación móvil.
   return (
     <aside className={`staggered-menu${menuAbierto ? " is-open" : ""}`} data-open={menuAbierto || undefined}>
       <header className="staggered-menu-header">

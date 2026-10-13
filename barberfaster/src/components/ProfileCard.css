@@ -1,3 +1,4 @@
+/* Estructura 3D, reflejos y halo de la tarjeta interactiva del barbero. */
 .pc-card-wrapper {
   --pointer-x: 50%;
   --pointer-y: 50%;
@@ -120,6 +121,7 @@
   box-shadow: 5px 5px 0 var(--bauhaus-orange, #ec4d25);
 }
 
+/* Datos del profesional y botón de contacto en la base de la tarjeta. */
 .pc-user-info {
   position: absolute;
   z-index: 4;
@@ -214,6 +216,7 @@
 }
 
 @media (max-width: 600px) {
+  /* Ajustes de tamaño y controles para pantallas pequeñas. */
   .pc-card-shell {
     height: 300px;
   }
@@ -229,6 +232,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Conserva la tarjeta estática para quien reduce las animaciones. */
   .pc-card,
   .pc-behind,
   .pc-contact-btn {

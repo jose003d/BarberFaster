@@ -6,7 +6,9 @@ import { desactivarServicio } from "../services/api";
 
 const BASE_URL = "/erpbarber/barberfaster/backend";
 
+// Gestiona barberos y catálogo de servicios para la barbería activa.
 function Barberos() {
+  // Mantiene datos, formularios, asignaciones y estado de los diferentes modales.
   const [barberos, setBarberos] = useState([]);
   const [serviciosCatalogo, setServiciosCatalogo] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,10 +28,12 @@ function Barberos() {
   const [formBarbero, setFormBarbero] = useState({ nombre: "", especialidad: "" });
   const [formServicio, setFormServicio] = useState({ nombre: "", precio: "", duracion_minutos: 30, descripcion: "" });
 
+  // Obtiene los registros del local activo al entrar al módulo.
   useEffect(() => {
     cargarDatosIniciales();
   }, []);
 
+  // Resuelve el local seleccionado por la sesión administrativa demo.
   const obtenerBarberiaActivaId = () => {
     try {
       const stored = localStorage.getItem("barberia_demo_admin");
@@ -44,6 +48,7 @@ function Barberos() {
     return 1;
   };
 
+  // Carga barberos y catálogo para refrescar las dos tablas del módulo.
   const cargarDatosIniciales = async () => {
     try {
       setLoading(true);
@@ -227,6 +232,7 @@ function Barberos() {
     }
   };
 
+  // Presenta las tablas de gestión y los formularios modales asociados.
   return (
     <div className="page-section">
       {successMessage && <p className="status success">{successMessage}</p>}

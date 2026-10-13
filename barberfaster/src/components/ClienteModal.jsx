@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../services/api';
 
+// Formulario modal para registrar un cliente o actualizar sus datos de contacto.
 export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
+  // Conserva los campos del cliente junto con los estados de envío y error.
   const [form, setForm] = useState({
     dni: '',
     nombre: '',
@@ -13,6 +15,7 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Precarga los datos seleccionados para editar o limpia el formulario para alta.
   useEffect(() => {
     if (clienteEditar) {
       setForm({
@@ -35,6 +38,7 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
 
   if (!isOpen) return null;
 
+  // Envía los datos al endpoint de creación o actualización del cliente.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -65,6 +69,7 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
     }
   };
 
+  // Dibuja el modal con los campos de identidad y contacto del cliente.
   return (
     <div style={{
       position: 'fixed',

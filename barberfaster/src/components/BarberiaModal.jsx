@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../services/api';
 
-// Este componente renderiza un modal para crear o editar una barbería.
-// Recibe: isOpen, onClose, barberiaEditar, onSuccess.
+// Formulario modal para registrar un local o actualizar los datos existentes.
 export const BarberiaModal = ({ isOpen, onClose, barberiaEditar, onSuccess }) => {
   // Estado del formulario para guardar los datos de la barbería.
   const [form, setForm] = useState({
@@ -17,8 +16,7 @@ export const BarberiaModal = ({ isOpen, onClose, barberiaEditar, onSuccess }) =>
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Cuando cambia la barbería a editar o se abre/cierra el modal,
-  // se actualiza el formulario con los datos actuales.
+  // Sincroniza los campos con el local editado o los valores iniciales de alta.
   useEffect(() => {
     if (barberiaEditar) {
       setForm({
@@ -43,7 +41,7 @@ export const BarberiaModal = ({ isOpen, onClose, barberiaEditar, onSuccess }) =>
 
   if (!isOpen) return null;
 
-  // Envía el formulario al backend según el modo: crear o editar.
+  // Envía el formulario al endpoint correspondiente y notifica el resultado.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -70,6 +68,7 @@ export const BarberiaModal = ({ isOpen, onClose, barberiaEditar, onSuccess }) =>
     }
   };
 
+  // Presenta los datos del local, horarios de atención y acciones del formulario.
   return (
     <div style={{
       position: 'fixed',

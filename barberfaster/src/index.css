@@ -1,3 +1,4 @@
+/* Fuentes locales disponibles para la identidad visual de la aplicación. */
 @font-face {
   font-family: "Satoshi";
   src: url("./assets/fonts/Satoshi-Variable.ttf") format("truetype");
@@ -71,6 +72,7 @@
 }
 
 :root {
+  /* Tipografía, paleta Bauhaus y tokens reutilizables de interfaz. */
   font-family: "Satoshi", "Arial", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -100,6 +102,7 @@
   background: var(--bg);
 }
 
+/* Normalización de cajas, dimensiones base y fuentes para controles nativos. */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -158,6 +161,7 @@ textarea::placeholder {
   letter-spacing: 0.01em;
 }
 
+/* Jerarquía y apariencia global de los elementos de contenido. */
 #root {
   width: 100%;
   min-height: 100vh;

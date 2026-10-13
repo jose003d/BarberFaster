@@ -5,7 +5,9 @@ import ConfirmModal from "../components/ConfirmModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faToggleOff, faToggleOn, faTrashCanArrowUp, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
+// Administra los barberos del local y controla su alta, edición y estado.
 function Usuarios() {
+  // Registros, mensajes, filtros de papelera y estado de los formularios.
   const [usuarios, setUsuarios]              = useState([]);
   const [confirmModal, setConfirmModal]     = useState({ open: false, item: null });
   const [loading, setLoading]               = useState(true);
@@ -15,11 +17,13 @@ function Usuarios() {
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
   const [mostrarPapelera, setMostrarPapelera] = useState(false);
 
+  // Carga el personal al entrar a la pantalla.
   useEffect(() => {
     cargar();
     setIsModalOpen(true);
   }, []);
 
+  // Consulta los registros y conserva los mensajes de error del servicio.
   const cargar = async () => {
     try {
       setLoading(true);
@@ -61,6 +65,7 @@ function Usuarios() {
     setTimeout(() => setSuccessMessage(null), 3000);
   };
 
+  // Cambia el estado activo/inactivo después de la confirmación del usuario.
   const handleDesactivar = async (usuario, skipConfirm = false) => {
     if (!skipConfirm) {
       openConfirmModal(usuario);
@@ -96,6 +101,7 @@ function Usuarios() {
     }
   };
 
+  // Divide el listado en personal activo y registros de la papelera.
   const usuariosActivos = Array.isArray(usuarios) 
     ? usuarios.filter((u) => {
         if (!u) return false;
@@ -112,6 +118,7 @@ function Usuarios() {
       }) 
     : [];
 
+  // Renderiza las acciones, formularios modales y tabla filtrada del personal.
   return (
     <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
       <div className="heading-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>

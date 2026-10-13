@@ -1,3 +1,4 @@
+/* Identidad y maquetación de la página pública de búsqueda de barberías. */
 #root:has(.barber-discovery-page) {
   width: 100%;
   max-width: none;
@@ -26,6 +27,7 @@
   box-sizing: border-box;
 }
 
+/* Navegación superior, marca y llamada principal de la portada. */
 .discovery-nav {
   display: flex;
   min-height: 72px;
@@ -196,6 +198,7 @@
   outline-offset: 5px;
 }
 
+/* Listado de locales, filtros de búsqueda y tarjetas de resultados. */
 .discovery-listing {
   width: min(1120px, calc(100% - 48px));
   margin: 0 auto;
@@ -461,6 +464,7 @@
   transform: translateY(-1px);
 }
 
+/* Estados de carga, ausencia de resultados, errores y cierre de página. */
 .discovery-state {
   display: grid;
   min-height: 170px;
@@ -563,6 +567,7 @@
 }
 
 @media (max-width: 760px) {
+  /* Ajustes de la portada y el ancho del catálogo en tabletas. */
   .discovery-hero {
     min-height: 350px;
   }
@@ -577,6 +582,7 @@
 }
 
 @media (max-width: 560px) {
+  /* Reorganiza navegación, filtros, tarjetas y pie de página en móviles. */
   .discovery-nav {
     min-height: 62px;
     padding-inline: 17px;
@@ -676,6 +682,7 @@
 }
 
 @media (max-width: 380px) {
+  /* Simplifica la composición para teléfonos de ancho reducido. */
   .discovery-nav {
     flex-wrap: wrap;
     row-gap: 8px;
@@ -750,6 +757,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Desactiva desplazamientos y transiciones en modo de movimiento reducido. */
   .discovery-card,
   .discovery-hero-link,
   .discovery-card-footer button {

@@ -1,5 +1,6 @@
 const DEFAULT_SLOT_INTERVAL_MINUTES = 30;
 
+// Convierte horas entre el formato HH:mm y minutos desde la medianoche.
 const timeToMinutes = (time) => {
   const match = /^([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$/.exec(String(time || ""));
   if (!match) return null;
@@ -19,6 +20,7 @@ const getAppointmentTime = (appointment, field) => {
   return String(value).split(/[T ]/).pop();
 };
 
+// Genera los turnos libres según horario del local, duración y citas existentes.
 const getAvailableTimeSlots = ({
   openingTime,
   closingTime,

@@ -25,6 +25,7 @@ const tabConfig = [
   }
 ];
 
+// Controla las secciones de resumen, clientes y barberías del superadministrador.
 export default function SuperadminDashboard() {
   const [activeTab, setActiveTab] = useState("resumen");
 
@@ -37,6 +38,7 @@ export default function SuperadminDashboard() {
         </div>
       </div>
 
+      {/* Las pestañas cambian entre los módulos globales disponibles. */}
       <nav className="module-navigation" aria-label="Navegación del superadmin">
         {tabConfig.map((tab) => (
           <button
@@ -57,6 +59,7 @@ export default function SuperadminDashboard() {
         ))}
       </nav>
 
+      {/* Muestra el resumen inicial o el módulo seleccionado. */}
       <div className="superadmin-module-panel">
         {activeTab === "resumen" && (
           <>

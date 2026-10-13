@@ -13,6 +13,7 @@ const BASE_URL = '/erpbarber/barberfaster/backend';
 
 registerLocale('es', es);
 
+// Convierte respuestas del backend y prepara mensajes y formatos usados en la reserva.
 const leerRespuestaJson = async (response) => {
   const contenido = await response.text();
   try {
@@ -62,6 +63,7 @@ const obtenerUrlFotoBarbero = (foto) => {
 };
 
 export default function Agenda({ reservaPublica = false }) {
+  // Estado del flujo, personal, servicios, disponibilidad, fecha y datos del cliente.
   const [searchParams] = useSearchParams();
   const [pasoActual, setPasoActual] = useState(1);
 
@@ -152,7 +154,7 @@ export default function Agenda({ reservaPublica = false }) {
     return 1;
   };
 
-  // 1. Cargar horario de la barbería
+  // Carga el horario general y el nombre del local asociado a la reserva.
   useEffect(() => {
     const idBarberia = obtenerBarberiaActivaId();
     if (!idBarberia) {
@@ -176,7 +178,7 @@ export default function Agenda({ reservaPublica = false }) {
       .finally(() => setHorarioCargado(true));
   }, []);
 
-  // 2. Cargar Barberos
+  // Carga los barberos registrados para la barbería seleccionada.
   useEffect(() => {
     const idBarberia = obtenerBarberiaActivaId();
     if (!idBarberia) return;
@@ -189,7 +191,7 @@ export default function Agenda({ reservaPublica = false }) {
       .catch(() => setMensaje({ tipo: 'error', texto: 'No se pudieron cargar los barberos.' }));
   }, []);
 
-  // 3. Cargar Servicios del Barbero
+  // Selecciona un profesional, consulta sus servicios y avanza al segundo paso.
   const seleccionarBarberoYAvanzar = (b) => {
     setBarberoSeleccionado(b);
     const idBarbero = b.id_barbero || b.id;
@@ -213,7 +215,7 @@ export default function Agenda({ reservaPublica = false }) {
       });
   };
 
-  // 4. Cargar únicamente las ocupaciones activas del día seleccionado.
+  // Consulta las citas ocupadas y mantiene la disponibilidad del día actualizada.
   const cargarCitasOcupadas = useCallback(async (signal) => {
     if (!barberoSeleccionado) return;
     const idBarbero = barberoSeleccionado.id_barbero || barberoSeleccionado.id;
@@ -264,6 +266,7 @@ export default function Agenda({ reservaPublica = false }) {
     };
   }, [barberoSeleccionado, cargarCitasOcupadas, pasoActual]);
 
+  // Actualiza la selección de servicios y deriva duración, precio y turnos libres.
   const handleToggleServicio = (idServicioStr) => {
     setHoraSeleccionada('');
     setServiciosSeleccionados((prev) => {
@@ -327,7 +330,7 @@ export default function Agenda({ reservaPublica = false }) {
     setHoraSeleccionada('');
   };
 
-  // ABRE EL MODAL DE RESERVA
+  // Valida el horario antes de abrir el formulario de confirmación.
   const handleAbrirModalConfirmacion = () => {
     if (!estadoDisponibilidad.disponible) {
       setMensaje({ tipo: 'error', texto: 'Selecciona una hora válida dentro del horario disponible.' });
@@ -337,6 +340,7 @@ export default function Agenda({ reservaPublica = false }) {
     setMostrarModalCita(true);
   };
 
+  // Envía un código de verificación al teléfono antes de aceptar la reserva.
   const solicitarCodigoTelefono = async () => {
     if (!/^\d{10}$/.test(telefonoCliente)) {
       setMensajeVerificacion({ tipo: 'error', texto: 'Ingresa un celular colombiano de 10 dígitos.' });
@@ -367,6 +371,7 @@ export default function Agenda({ reservaPublica = false }) {
     }
   };
 
+  // Comprueba el código recibido y conserva el ticket de verificación del backend.
   const verificarCodigoTelefono = async () => {
     if (!/^\d{6}$/.test(codigoTelefono)) {
       setMensajeVerificacion({ tipo: 'error', texto: 'Ingresa el código de 6 dígitos recibido por WhatsApp.' });
@@ -395,7 +400,7 @@ export default function Agenda({ reservaPublica = false }) {
     }
   };
 
-  // PROCESA EL AGENDAMIENTO AL PRESIONAR EL FORMULARIO
+  // Valida cliente, horario y teléfono; luego crea la cita y limpia el formulario.
   const handleAgendarCita = (e) => {
     e.preventDefault();
 
@@ -453,6 +458,7 @@ export default function Agenda({ reservaPublica = false }) {
       .catch(() => setMensaje({ tipo: 'error', texto: 'Error de conexión con el servidor.' }));
   };
 
+  // Renderiza los tres pasos de reserva y el modal con los datos de confirmación.
   return (
     <div className="agenda-page">
       {esReservaPublica && (
@@ -489,6 +495,7 @@ export default function Agenda({ reservaPublica = false }) {
               : false
         }
       >
+      {/* Paso 1: selección del profesional que atenderá la cita. */}
       <Step label="Barbero">
         <div>
           <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>¿Con quién te deseas atender hoy?</h2>
@@ -519,6 +526,7 @@ export default function Agenda({ reservaPublica = false }) {
         </div>
       </Step>
 
+      {/* Paso 2: selección de servicios y cálculo de duración y precio. */}
       <Step label="Servicios">
         {barberoSeleccionado ? (
         <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
@@ -579,6 +587,7 @@ export default function Agenda({ reservaPublica = false }) {
         )}
       </Step>
 
+      {/* Paso 3: consulta de disponibilidad y elección de fecha y hora. */}
       <Step label="Horario">
         {barberoSeleccionado ? (
           <div className="booking-schedule-card">
@@ -669,7 +678,7 @@ export default function Agenda({ reservaPublica = false }) {
       </Step>
       </Stepper>
 
-      {/* MODAL 2: FORMULARIO RESERVA */}
+      {/* Modal final: datos del cliente y verificación del teléfono. */}
       {mostrarModalCita && (
         <div className="agenda-modal-backdrop" onClick={() => setMostrarModalCita(false)}>
           <div className="agenda-modal" onClick={(e) => e.stopPropagation()}>

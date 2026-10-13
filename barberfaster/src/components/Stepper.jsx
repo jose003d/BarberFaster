@@ -1,6 +1,7 @@
 import { Children, useState } from 'react';
 import './Stepper.css';
 
+// Controla el avance, retroceso y selección de etapas de un flujo de reserva.
 export default function Stepper({
   children,
   initialStep = 1,
@@ -20,11 +21,13 @@ export default function Stepper({
   const totalSteps = steps.length;
   const isLastStep = step === totalSteps;
 
+  // Actualiza el paso local cuando el control no está manejado desde el padre.
   const updateStep = (nextStep) => {
     if (currentStep === undefined) setInternalStep(nextStep);
     onStepChange(nextStep);
   };
 
+  // Limita la navegación a los pasos existentes y ejecuta el cierre final.
   const navigateToStep = (nextStep) => {
     if (nextStep >= 1 && nextStep <= totalSteps && nextStep !== step) {
       updateStep(nextStep);
@@ -40,6 +43,7 @@ export default function Stepper({
     navigateToStep(step + 1);
   };
 
+  // Renderiza los indicadores, contenido activo y controles de navegación.
   return (
     <section className="booking-stepper" aria-label="Progreso de la reserva">
       <div className="booking-stepper-indicators">
@@ -117,5 +121,6 @@ export default function Stepper({
 }
 
 export function Step({ children }) {
+  // Contenedor semántico para el contenido de una etapa del asistente.
   return <div className="booking-step">{children}</div>;
 }
