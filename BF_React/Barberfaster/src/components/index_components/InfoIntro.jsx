@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const InfoIntro = () => {
   return (
     <section className="container info-intro my-5 py-4">
@@ -22,19 +24,19 @@ const InfoIntro = () => {
       </div>
       <div className="row">
         <div className="col-md-6 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="200">
-          <a href="/clientes" className="img-link">
+          <Link to="/clientes" className="img-link">
             <div className="img-container-black-bg info-img-container">
-              <img src="/img/bfclientes.png" className="img-fluid rounded shadow mb-3" alt="Clientes" />
+              <img src="/img/bfclientes.png" className="img-fluid rounded shadow mb-3" alt="Portal Clientes" />
             </div>
-          </a>
+          </Link>
           <h4 className="text-center info-img-title">Clientes</h4>
         </div>
         <div className="col-md-6" data-aos="fade-up" data-aos-delay="300">
-          <a href="/barberos" className="img-link">
+          <Link to="/barberos" className="img-link">
             <div className="img-container-black-bg info-img-container">
-              <img src="/img/bfbarberos.png" className="img-fluid rounded shadow mb-3" alt="Barberos" />
+              <img src="/img/bfbarberos.png" className="img-fluid rounded shadow mb-3" alt="Portal Barberos" />
             </div>
-          </a>
+          </Link>
           <h4 className="text-center info-img-title">Barberos</h4>
         </div>
       </div>

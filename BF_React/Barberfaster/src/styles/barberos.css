@@ -346,3 +346,112 @@ p {
 .reg-barbero-modal .login-input-wrap {
   margin-bottom: 0;
 }
+
+.tools-section {
+  padding: 1rem 0 2rem;
+}
+
+.tool-card {
+  background-color: var(--color-secundario);
+  border: 1px solid var(--color-terciario);
+  border-radius: var(--borde-redondeado);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  height: 100%;
+  transition: transform var(--transicion-rapida), box-shadow var(--transicion-rapida), border-color var(--transicion-rapida);
+}
+
+.tool-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--sombra-media);
+  border-color: var(--color-naranja);
+}
+
+.tool-icon-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(255, 122, 26, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.5rem;
+  color: var(--color-naranja);
+}
+
+.tool-title {
+  color: var(--color-blanco);
+  font-weight: 600;
+  font-size: 1.1rem;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.tool-text {
+  color: var(--color-gris-claro);
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+
+.testimonials-wrap {
+  background-color: var(--color-secundario);
+  border: 1px solid var(--color-terciario);
+  border-radius: var(--borde-redondeado);
+  padding: 3rem 2rem;
+  margin-top: 1rem;
+}
+
+.testimonial-card {
+  background-color: var(--color-principal);
+  border: 1px solid var(--color-terciario);
+  border-radius: var(--borde-redondeado-medio);
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.testimonial-quote {
+  font-style: italic;
+  line-height: 1.7;
+  color: var(--color-gris-claro);
+  margin-bottom: 1rem;
+}
+
+.testimonial-author {
+  color: var(--color-naranja);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.testimonial-author:hover {
+  color: var(--color-naranja-claro);
+  text-decoration: underline;
+}
+
+/* Modal de registro de barbería */
+.reg-barbero-modal {
+  background: var(--color-secundario);
+  border: 1px solid var(--color-terciario);
+  border-radius: 12px;
+  color: #fff;
+}
+
+.reg-barbero-header {
+  background: var(--color-terciario);
+  border-bottom: 1px solid #333;
+  border-radius: 12px 12px 0 0;
+  padding: 1.1rem 1.5rem;
+}
+
+.reg-barbero-header .modal-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-naranja);
+}
+
+.login-input--error {
+  border-color: #dc3545 !important;
+}

@@ -38,12 +38,7 @@ body {
   color: var(--color-blanco);
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   color: var(--color-naranja);
 }
 
@@ -51,7 +46,7 @@ p {
   color: var(--color-gris-claro);
 }
 
-/* Navbar */
+/* --- NAVBAR --- */
 .custom-navbar {
   background: var(--gradiente-oscuro);
   border-bottom: 1px solid var(--color-terciario);
@@ -90,7 +85,6 @@ p {
   width: 100%;
 }
 
-/* Barra de búsqueda */
 .custom-navbar .form-control {
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -108,7 +102,6 @@ p {
   color: var(--color-blanco);
 }
 
-/* Botones */
 .custom-btn {
   background: var(--gradiente-naranja);
   color: var(--color-principal);
@@ -124,68 +117,74 @@ p {
   color: var(--color-blanco);
 }
 
-/* Seccion de beneficios para clientes */
-.benefits-section {
-  padding: 1rem 0 2rem;
-}
-
-.benefit-icon-circle {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background-color: rgba(255, 122, 26, 0.15);
+/* --- HERO (SECCIÓN DE BIENVENIDA) --- */
+.welcome-section {
+  position: relative;
+  min-height: 85vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
-  font-size: 1.6rem;
-  color: var(--color-naranja);
+  padding: 0;
+  border-top: 6px solid var(--color-naranja);
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.75)),
+    url("../img/bfclientes.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.benefit-title {
+/* Reducido a la mitad del espacio vertical original */
+.welcome-section-sub {
+  min-height: 22vh;
+}
+
+.welcome-overlay {
+  width: 100%;
+}
+
+.welcome-content {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1rem; /* Padding más compacto */
+}
+
+.welcome-icon {
+  font-size: 2.2rem;
   color: var(--color-blanco);
-  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.welcome-title {
+  color: var(--color-blanco);
+  font-weight: 700;
+  font-size: 2.2rem;
   margin-bottom: 0.5rem;
 }
 
-.benefit-text {
+.welcome-text {
+  font-size: 1rem;
+  line-height: 1.5;
   color: var(--color-gris-claro);
-  font-size: 0.95rem;
+  margin-bottom: 0;
 }
 
-/* Tarjetas de servicios */
-.service-card {
-  border-radius: var(--borde-redondeado);
-  transition:
-    transform var(--transicion-rapida),
-    box-shadow var(--transicion-rapida);
-  background-color: var(--color-secundario);
+/* --- SECCIÓN Y TARJETAS DE BARBERÍAS --- */
+.clientes-cards-wrap {
+  background-color: var(--color-secundario); /* Gris oscuro que contrasta con el fondo #0d0d0d */
   border: 1px solid var(--color-terciario);
+  border-radius: var(--borde-redondeado);
+  padding: 2.5rem 2rem;
+  box-shadow: var(--sombra-suave);
 }
 
-.service-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--sombra-media);
-  border-color: var(--color-naranja);
-}
-
-.service-card .card-title {
-  color: var(--color-naranja);
-}
-
-.service-card .card-text {
-  color: var(--color-gris-claro);
-}
-
-/* Tarjetas de barberías */
 .style-card {
   position: relative;
   overflow: hidden;
   border-radius: 12px;
   background: #1a1a1a;
-  transition:
-    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.35s ease;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease;
 }
 
 .style-card:hover {
@@ -198,9 +197,7 @@ p {
   aspect-ratio: 1 / 1;
   object-fit: cover;
   display: block;
-  transition:
-    transform 0.5s ease,
-    filter 0.4s ease;
+  transition: transform 0.5s ease, filter 0.4s ease;
 }
 
 .style-card:hover img {
@@ -244,24 +241,17 @@ p {
   opacity: 0;
 }
 
-/* Overlay con información */
 .card-info-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.2) 0%,
-    rgba(0, 0, 0, 0.92) 40%
-  );
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.92) 40%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   padding: 20px 16px;
   opacity: 0;
   transform: translateY(20px);
-  transition:
-    opacity 0.35s ease,
-    transform 0.35s ease;
+  transition: opacity 0.35s ease, transform 0.35s ease;
   z-index: 3;
 }
 
@@ -316,133 +306,87 @@ p {
   color: #000;
 }
 
-/* Contenedor gris que agrupa las tarjetas de barberías */
-.clientes-cards-wrap {
-  background-color: var(--color-secundario);
-  border: 1px solid var(--color-terciario);
-  border-radius: var(--borde-redondeado);
-  padding: 2.5rem 2rem;
-}
-
-/* Sección de ayuda */
-.help-section {
-  background-color: var(--color-secundario);
-  padding: 4rem 0;
-  border-top: 1px solid var(--color-terciario);
-}
-
-/* Footer */
-.custom-footer {
-  background: var(--color-secundario);
-  color: var(--color-blanco);
-  border-top: 1px solid var(--color-terciario);
-}
-
-.custom-footer a {
-  color: var(--color-naranja);
-  text-decoration: none;
-}
-
-.custom-footer a:hover {
-  color: var(--color-naranja-claro);
-}
-
-.section-title {
-  color: var(--color-naranja);
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  position: relative;
-  display: inline-block;
-}
-
-.section-title::after {
-  content: "";
-  position: absolute;
-  width: 50%;
-  height: 3px;
-  bottom: -8px;
-  left: 25%;
-  background: var(--gradiente-naranja);
-}
-
-/* Hero (bienvenida) */
-.welcome-section {
-  position: relative;
-  min-height: 85vh;
+/* Estado "Sin resultados" totalmente centrado */
+.no-results {
+  width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  border-top: 6px solid var(--color-naranja);
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.75)),
-    url("../img/bfclientes.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.welcome-section-sub {
-  min-height: 45vh;
-}
-
-.welcome-overlay {
-  width: 100%;
-}
-
-.welcome-content {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 4rem 1rem;
-}
-
-.welcome-icon {
-  font-size: 2.5rem;
-  color: var(--color-blanco);
-  margin-bottom: 1rem;
-  display: inline-block;
-}
-
-.welcome-title {
-  color: var(--color-blanco);
-  font-weight: 700;
-  font-size: 2.75rem;
-  margin-bottom: 1rem;
-}
-
-.welcome-text {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: var(--color-gris-claro);
-  margin-bottom: 0;
-}
-
-@media (max-width: 768px) {
-  .welcome-title {
-    font-size: 2rem;
-  }
-
-  .welcome-text {
-    font-size: 1rem;
-  }
-}
-
-/* Estado "sin resultados" */
-.no-results {
   text-align: center;
   padding: 60px 20px;
-  color: #888;
-  display: none;
+  color: var(--color-gris-medio);
 }
 
 .no-results i {
   font-size: 3rem;
   margin-bottom: 16px;
-  display: block;
-  color: #555;
+  color: var(--color-naranja);
 }
 
-/* Sugerencias del buscador */
+.no-results h4 {
+  color: var(--color-blanco);
+  margin-bottom: 8px;
+}
+
+/* --- BENEFICIOS PARA CLIENTES (CON OUTLINE Y TARJETAS) --- */
+.benefits-section {
+  padding: 2rem 0 3rem;
+}
+
+.benefit-card {
+  background-color: var(--color-secundario);
+  border: 1px solid var(--color-terciario);
+  border-radius: var(--borde-redondeado);
+  padding: 2rem 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: border-color var(--transicion-rapida), transform var(--transicion-rapida), box-shadow var(--transicion-rapida);
+}
+
+.benefit-card:hover {
+  border-color: var(--color-naranja);
+  transform: translateY(-5px);
+  box-shadow: var(--sombra-suave);
+}
+
+.benefit-icon-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background-color: rgba(255, 122, 26, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  font-size: 1.6rem;
+  color: var(--color-naranja);
+}
+
+.benefit-title {
+  color: var(--color-blanco);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.benefit-text {
+  color: var(--color-gris-claro);
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+
+/* --- SECCIÓN DE AYUDA Y MARGEN INFERIOR CON FOOTER --- */
+.help-section {
+  background-color: var(--color-secundario);
+  padding: 4rem 0;
+  border-top: 1px solid var(--color-terciario);
+  border-bottom: 1px solid var(--color-terciario);
+  margin-bottom: 4rem; /* Separación marcada con el footer */
+}
+
+/* --- SEARCH SUGGESTIONS --- */
 .search-suggestions {
   position: absolute;
   top: 100%;
@@ -496,33 +440,46 @@ p {
   color: #888;
 }
 
-/* Scrollbar sugerencias */
-.search-suggestions::-webkit-scrollbar {
-  width: 6px;
+/* --- FOOTER --- */
+.custom-footer {
+  background: var(--color-secundario);
+  color: var(--color-blanco);
+  border-top: 1px solid var(--color-terciario);
 }
 
-.search-suggestions::-webkit-scrollbar-track {
-  background: #222;
+.custom-footer a {
+  color: var(--color-naranja);
+  text-decoration: none;
 }
 
-.search-suggestions::-webkit-scrollbar-thumb {
-  background: #444;
-  border-radius: 3px;
+.custom-footer a:hover {
+  color: var(--color-naranja-claro);
 }
 
-/* Transición suave al filtrar */
-.barberia-col {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+.section-title {
+  color: var(--color-naranja);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  position: relative;
+  display: inline-block;
 }
 
-.barberia-col.hidden {
-  opacity: 0;
-  transform: scale(0.9);
-  pointer-events: none;
+.section-title::after {
+  content: "";
   position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
+  width: 50%;
+  height: 3px;
+  bottom: -8px;
+  left: 25%;
+  background: var(--gradiente-naranja);
+}
+
+@media (max-width: 768px) {
+  .welcome-title {
+    font-size: 1.8rem;
+  }
+
+  .welcome-text {
+    font-size: 0.95rem;
+  }
 }
