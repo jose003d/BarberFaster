@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { obtenerBarberias } from "../services/api";
+import logoBarberFaster from "../assets/logo-barberfaster.png";
 import "./BarberiaDiscovery.css";
 
 const IMAGE_BASE_URL = "/erpbarber/barberfaster/backend/uploads";
@@ -64,7 +65,8 @@ function BarberiaDiscovery() {
       {/* Navegación pública hacia el catálogo y el acceso de negocios. */}
       <header className="discovery-nav">
         <Link className="discovery-brand" to="/" aria-label="BarberFaster, inicio">
-          <span>BARBER<span>FASTER</span></span>
+          <img src={logoBarberFaster} alt="" aria-hidden="true" />
+          <span>BARBERFASTER</span>
         </Link>
         <nav aria-label="Navegación principal">
           <a href="#barberias">Barberías</a>
@@ -74,13 +76,15 @@ function BarberiaDiscovery() {
 
       {/* Mensaje de bienvenida y acceso directo al listado de locales. */}
       <section className="discovery-hero" aria-labelledby="discovery-title">
-        <div className="discovery-hero-content">
-          <p className="discovery-eyebrow"><span>01</span> BARBERFASTER · RESERVA TU CITA</p>
-          <h1 id="discovery-title">Tu estilo.<br /><em>Tu lugar.</em></h1>
-          <p className="discovery-intro">
-            Encuentra una barbería cerca de ti y reserva tu próxima cita.
-          </p>
-          <a className="discovery-hero-link" href="#barberias">EXPLORAR LOCALES <span aria-hidden="true">↘</span></a>
+        <div className="discovery-hero-layout">
+          <div className="discovery-hero-content">
+            <p className="discovery-eyebrow"><span>01</span> BARBERFASTER · RESERVA TU CITA</p>
+            <h1 id="discovery-title">Tu estilo.<br /><em>Tu lugar.</em></h1>
+            <p className="discovery-intro">
+              Encuentra una barbería cerca de ti y reserva tu próxima cita.
+            </p>
+            <a className="discovery-hero-link" href="#barberias">EXPLORAR LOCALES <span aria-hidden="true">↘</span></a>
+          </div>
         </div>
       </section>
 
