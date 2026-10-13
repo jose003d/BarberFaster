@@ -1,36 +1,40 @@
 import { useEffect } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
+// Importar Componentes Globales
 import Navbar from '../components/Navbar';
-import WelcomeSection from '../components/WelcomeSection';
-import InfoSection from '../components/InfoSection';
-import ServiceSection from '../components/ServiceSection';
-import CommentSection from '../components/CommentSection';
-import GallerySection from '../components/GallerySection';
 import Footer from '../components/Footer';
 
-import '../css/index.css'; 
+// Importar Estilos 
+import '../styles/index.css';
 
-export default function IndexPage() {
+// Importar Componentes Específicos
+import Hero from '../components/index_components/Hero';
+import InfoIntro from '../components/index_components/InfoIntro';
+import Services from '../components/index_components/Services';
+import Testimonials from '../components/index_components/Testimonials';
+
+const Index = () => {
   useEffect(() => {
     AOS.init({
-      duration: 800,
-      once: true
+      once: true,
+      duration: 800
     });
   }, []);
 
   return (
     <>
       <Navbar />
-      <WelcomeSection />
-      <InfoSection />
-      <ServiceSection />
-      <CommentSection />
-      <GallerySection />
+      <main>
+        <Hero />
+        <InfoIntro />
+        <Services />
+        <Testimonials />
+      </main>
       <Footer />
     </>
   );
-}
+};
+
+export default Index;
