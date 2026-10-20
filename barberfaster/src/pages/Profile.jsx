@@ -30,7 +30,7 @@ export default function Profile() {
     <div style={{ padding: "2rem", width: "100%", boxSizing: "border-box" }}>
       {!barbero ? (
         <div style={{ maxWidth: "450px", margin: "40px auto", background: "#fff", padding: "30px", borderRadius: "12px", boxShadow: "0 4px 15px rgba(0,0,0,0.08)", textAlign: "center" }}>
-          <div style={{ background: "var(--bauhaus-cyan)", color: "var(--bauhaus-ink)", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid var(--bauhaus-ink)", borderRadius: "2px", margin: "0 auto 15px", fontWeight: "bold", fontFamily: '"Satoshi", Arial, sans-serif' }}>BF</div>
+          <div style={{ background: "var(--bauhaus-cyan)", color: "var(--bauhaus-ink)", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid var(--bauhaus-ink)", borderRadius: "2px", margin: "0 auto 15px", fontWeight: "bold", fontFamily: 'var(--font-brand)' }}>BF</div>
           <h3 style={{ margin: "0 0 10px", color: "var(--bauhaus-ink)" }}>BarberFaster</h3>
           <p style={{ color: "#666", fontSize: "0.9rem", marginBottom: "20px" }}>Selecciona el barbero de la sesión demo</p>
           
@@ -38,7 +38,7 @@ export default function Profile() {
           <button 
             className="btn" 
             onClick={() => handleLogin({ id_barbero: 4, nombre: "Kleiser Regino", rol: "barbero" })}
-            style={{ width: "100%", padding: "12px", background: "var(--bauhaus-cyan)", color: "var(--bauhaus-ink)", border: "2px solid var(--bauhaus-ink)", borderRadius: "2px", cursor: "pointer", fontWeight: "600", fontFamily: '"Chillax", Arial, sans-serif' }}
+            style={{ width: "100%", padding: "12px", background: "var(--bauhaus-cyan)", color: "var(--bauhaus-ink)", border: "2px solid var(--bauhaus-ink)", borderRadius: "2px", cursor: "pointer", fontWeight: "600", fontFamily: 'var(--font-ui)' }}
           >
             Ingresar como Kleiser Regino
           </button>

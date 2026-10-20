@@ -4,7 +4,7 @@
   max-width: 920px;
   margin: 0 auto;
   padding: 20px 20px 40px;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   box-sizing: border-box;
 }
 
@@ -12,13 +12,32 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-height: 42px;
   margin-bottom: 18px;
+  padding: 0 13px;
+  border: 2px solid var(--bauhaus-ink);
+  border-radius: 2px;
+  background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
-  font-size: 0.96rem;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
-  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.booking-back-link:hover {
+  background: var(--bauhaus-orange);
+  color: #ffffff;
+  box-shadow: 3px 3px 0 var(--bauhaus-cyan);
+  transform: translateY(-1px);
+}
+
+.booking-back-link:focus-visible {
+  outline: 3px solid var(--bauhaus-ink);
+  outline-offset: 3px;
 }
 
 .agenda-header {
@@ -44,18 +63,23 @@
 .agenda-header h1 {
   margin: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: clamp(2.4rem, 5vw, 4rem);
   line-height: 0.95;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   font-weight: 700;
+}
+
+.agenda-brand-name {
+  font-family: inherit;
+  letter-spacing: 0;
 }
 
 .agenda-header p {
   margin-top: 12px;
   color: #4b5563;
   font-size: 1.1rem;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
 .agenda-step.active {
@@ -66,7 +90,7 @@
   padding: 14px 20px;
   border-radius: 2px;
   margin-bottom: 20px;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   letter-spacing: 0.03em;
   text-align: center;
@@ -75,6 +99,14 @@
 
 .agenda-mensaje.success { background: #d1fae5; color: #065f46; }
 .agenda-mensaje.error   { background: #fee2e2; color: #991b1b; }
+
+@media (min-width: 769px) {
+  .booking-back-link {
+    display: flex;
+    width: fit-content;
+    margin-left: auto;
+  }
+}
 
 /* Cabecera y distribución de calendario frente a horarios disponibles. */
 .agenda-layout {
@@ -110,7 +142,7 @@
 .agenda-panel-header h2 {
   margin: 0;
   color: #111827;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: 1.25rem;
 }
 
@@ -133,8 +165,54 @@
   outline-offset: 3px;
 }
 
+.booking-service-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid var(--bauhaus-ink);
+  border-radius: 2px;
+  background: #fff;
+  color: var(--bauhaus-ink);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.booking-service-option.is-selected {
+  background: var(--bauhaus-cyan-light);
+}
+
+.booking-service-option:hover {
+  box-shadow: 4px 4px 0 var(--bauhaus-orange);
+  transform: translateY(-2px);
+}
+
+.booking-service-details {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.booking-service-option:focus-within {
+  outline: 3px solid var(--bauhaus-cyan);
+  outline-offset: 3px;
+}
+
+.booking-service-option input[type="checkbox"] {
+  flex: 0 0 auto;
+  accent-color: var(--bauhaus-cyan);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .barber-profile-grid .pc-card {
+    transform: none;
+  }
+
+  .booking-service-option {
+    transition: none;
+  }
+
+  .booking-service-option:hover {
     transform: none;
   }
 }
@@ -195,7 +273,7 @@
 .selected-day-heading h3 {
   margin: 0 0 4px;
   color: #111827;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   text-transform: capitalize;
 }
 
@@ -217,7 +295,7 @@
   border: 2px solid var(--bauhaus-ink);
   background: #fff;
   box-shadow: 4px 4px 0 var(--bauhaus-cyan);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
 .booking-selection-summary {
@@ -240,7 +318,7 @@
   display: block;
   margin-bottom: 5px;
   color: #55595a;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -249,7 +327,7 @@
 .booking-selection-heading h2 {
   margin: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: clamp(1.2rem, 2.6vw, 1.65rem);
   line-height: 1.15;
 }
@@ -293,7 +371,7 @@
 
 .booking-selection-totals small {
   color: #55595a;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -323,7 +401,7 @@
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.7rem;
   font-weight: 800;
 }
@@ -331,7 +409,7 @@
 .booking-column-heading h3 {
   margin: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: 1.05rem;
   font-weight: 700;
 }
@@ -345,7 +423,7 @@
 
 .booking-column-heading .booking-selected-date {
   color: #147d7d;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.74rem;
   font-weight: 700;
   text-transform: capitalize;
@@ -369,7 +447,7 @@
   border-radius: 0;
   background: transparent;
   box-shadow: none;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
 .booking-calendar-panel .react-datepicker__month-container {
@@ -387,7 +465,7 @@
 .booking-calendar-panel .react-datepicker__current-month {
   margin-bottom: 10px;
   color: #fff;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -404,7 +482,7 @@
   width: calc(100% / 7);
   margin: 0;
   color: var(--bauhaus-cyan) !important;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -424,7 +502,7 @@
   border: 1px solid transparent;
   border-radius: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
 }
@@ -486,7 +564,7 @@
 
 .booking-selected-time span {
   color: #55595a;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.67rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -495,7 +573,7 @@
 
 .booking-selected-time strong {
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.93rem;
 }
 
@@ -524,7 +602,7 @@
   color: var(--bauhaus-ink);
   cursor: pointer;
   font: inherit;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   letter-spacing: 0.02em;
   transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
@@ -688,7 +766,7 @@
   display: grid;
   gap: 6px;
   color: #374151;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-weight: 600;
 }
 
@@ -701,7 +779,7 @@
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font: inherit;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
 .phone-input-group {

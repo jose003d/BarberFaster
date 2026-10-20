@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { obtenerBarberias } from "../services/api";
 import logoBarberFaster from "../assets/logo-barberfaster.png";
+import heroVideo from "../assets/hero-barberfaster.mp4";
 import "./BarberiaDiscovery.css";
 
 const IMAGE_BASE_URL = "/erpbarber/barberfaster/backend/uploads";
@@ -62,7 +63,7 @@ function BarberiaDiscovery() {
 
   return (
     <main className="barber-discovery-page">
-      {/* Navegación pública hacia el catálogo y el acceso de negocios. */}
+      {/* Navegación pública hacia el catálogo y el perfil del cliente. */}
       <header className="discovery-nav">
         <Link className="discovery-brand" to="/" aria-label="BarberFaster, inicio">
           <img src={logoBarberFaster} alt="" aria-hidden="true" />
@@ -71,7 +72,6 @@ function BarberiaDiscovery() {
         <nav aria-label="Navegación principal">
           <a href="#barberias">Barberías</a>
           <Link to="/cliente">Mi perfil</Link>
-          <Link className="discovery-login" to="/login">Ingresar</Link>
         </nav>
       </header>
 
@@ -85,6 +85,18 @@ function BarberiaDiscovery() {
               Encuentra una barbería cerca de ti y reserva tu próxima cita.
             </p>
             <a className="discovery-hero-link" href="#barberias">EXPLORAR LOCALES <span aria-hidden="true">↘</span></a>
+          </div>
+          <div className="discovery-hero-media">
+            <video
+              className="discovery-hero-video"
+              src={heroVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              aria-hidden="true"
+            />
           </div>
         </div>
       </section>

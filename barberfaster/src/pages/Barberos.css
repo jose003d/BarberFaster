@@ -1,0 +1,171 @@
+.barberos-modal-backdrop {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 24px;
+  background: rgba(20, 20, 20, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.barberos-modal {
+  width: min(760px, 100%);
+  max-height: min(90vh, 820px);
+  overflow-y: auto;
+  padding: clamp(20px, 4vw, 30px);
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-paper);
+  color: var(--bauhaus-ink);
+  box-shadow: 6px 6px 0 var(--bauhaus-cyan);
+  animation: barberos-modal-enter 180ms ease-out;
+}
+
+.barberos-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.barberos-modal-header h3 {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1.25rem;
+}
+
+.barberos-modal-close {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-cyan);
+  color: var(--bauhaus-ink);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.barberos-service-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(110px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.barberos-service-form-grid label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--bauhaus-ink);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+}
+
+.barberos-service-form-grid input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px;
+  border: 1px solid var(--bauhaus-gray);
+  border-radius: 0;
+  background: #fff;
+  color: var(--bauhaus-ink);
+}
+
+.barberos-assignment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+  max-height: min(48vh, 420px);
+  margin: 20px 0;
+  overflow-y: auto;
+}
+
+.barberos-assignment-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 2px solid var(--bauhaus-gray);
+  background: #fff;
+  color: var(--bauhaus-ink);
+  cursor: pointer;
+  transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.barberos-assignment-option.is-selected {
+  border-color: var(--bauhaus-ink);
+  background: var(--bauhaus-cyan-light);
+}
+
+.barberos-assignment-option:hover {
+  border-color: var(--bauhaus-ink);
+  background: var(--bauhaus-paper);
+  box-shadow: 3px 3px 0 var(--bauhaus-orange);
+  transform: translateY(-2px);
+}
+
+.barberos-assignment-option input {
+  flex: 0 0 auto;
+  accent-color: var(--bauhaus-cyan);
+}
+
+.barberos-assignment-details {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.barberos-assignment-details div {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.barberos-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@keyframes barberos-modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 600px) {
+  .barberos-modal-backdrop {
+    align-items: flex-start;
+    padding: 14px;
+  }
+
+  .barberos-service-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barberos-modal {
+    animation: none;
+  }
+
+  .barberos-assignment-option {
+    transition: none;
+  }
+
+  .barberos-assignment-option:hover {
+    transform: none;
+  }
+}

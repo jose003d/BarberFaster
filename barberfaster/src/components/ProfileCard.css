@@ -115,7 +115,7 @@
   border-radius: 0;
   background: var(--bauhaus-cyan, #2bcfce);
   color: var(--bauhaus-ink, #393939);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 3rem;
   font-weight: 600;
   box-shadow: 5px 5px 0 var(--bauhaus-orange, #ec4d25);

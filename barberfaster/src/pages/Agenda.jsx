@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import es from 'date-fns/locale/es';
@@ -64,6 +64,7 @@ const obtenerUrlFotoBarbero = (foto) => {
 
 export default function Agenda({ reservaPublica = false }) {
   // Estado del flujo, personal, servicios, disponibilidad, fecha y datos del cliente.
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [pasoActual, setPasoActual] = useState(1);
 
@@ -103,6 +104,14 @@ export default function Agenda({ reservaPublica = false }) {
   const [codigoEnviado, setCodigoEnviado] = useState(false);
   const [verificandoTelefono, setVerificandoTelefono] = useState(false);
   const [mensajeVerificacion, setMensajeVerificacion] = useState(null);
+
+  const invalidarVerificacionCliente = () => {
+    setTelefonoVerificado(null);
+    setCodigoEnviado(false);
+    setCodigoTelefono('');
+    setMensajeVerificacion(null);
+    localStorage.removeItem('barberfaster_cliente_session');
+  };
 
   const [mensaje, setMensaje] = useState(null);
   const idBarberiaEnlace = searchParams.get('barberia');
@@ -342,6 +351,11 @@ export default function Agenda({ reservaPublica = false }) {
 
   // Envía un código de verificación al teléfono antes de aceptar la reserva.
   const solicitarCodigoTelefono = async () => {
+    if (!dniCliente.trim() || !nombreCliente.trim()) {
+      setMensajeVerificacion({ tipo: 'error', texto: 'Ingresa tu nombre y documento antes de verificar el teléfono.' });
+      return;
+    }
+
     if (!/^\d{10}$/.test(telefonoCliente)) {
       setMensajeVerificacion({ tipo: 'error', texto: 'Ingresa un celular colombiano de 10 dígitos.' });
       return;
@@ -384,11 +398,19 @@ export default function Agenda({ reservaPublica = false }) {
       const response = await fetch(`${BASE_URL}/verificacion/verificar.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telefono: `+57${telefonoCliente}`, codigo: codigoTelefono }),
+        body: JSON.stringify({
+          telefono: `+57${telefonoCliente}`,
+          codigo: codigoTelefono,
+          dni_cliente: dniCliente.trim(),
+          nombre_cliente: nombreCliente.trim(),
+        }),
       });
       const data = await leerRespuestaJson(response);
       if (!response.ok || data.status !== 'success' || !data.ticket_verificacion) {
         throw new Error(data.mensaje || 'No se pudo verificar el código.');
+      }
+      if (data.sesion_cliente) {
+        localStorage.setItem('barberfaster_cliente_session', data.sesion_cliente);
       }
       setTelefonoVerificado({ numero: telefonoCliente, ticket: data.ticket_verificacion });
       setMensajeVerificacion({ tipo: 'success', texto: 'Teléfono verificado. Ya puedes confirmar la cita.' });
@@ -440,6 +462,9 @@ export default function Agenda({ reservaPublica = false }) {
       .then((res) => res.json())
       .then((resData) => {
         if (resData.success || resData.status === 'success') {
+          if (resData.sesion_cliente) {
+            localStorage.setItem('barberfaster_cliente_session', resData.sesion_cliente);
+          }
           setMensaje({ tipo: 'success', texto: '¡Cita agendada exitosamente!' });
           setMostrarModalCita(false);
           setDniCliente('');
@@ -462,13 +487,13 @@ export default function Agenda({ reservaPublica = false }) {
   return (
     <div className="agenda-page">
       {esReservaPublica && (
-        <Link className="booking-back-link" to="/">
-          ← Cambiar barbería{nombreBarberia ? ` · ${nombreBarberia}` : ''}
-        </Link>
+        <button className="booking-back-link" type="button" onClick={() => navigate('/')}>
+          ← Cambiar barbería
+        </button>
       )}
       <div className="agenda-header">
         <div className="agenda-brand-mark" aria-hidden="true">📅</div>
-        <h1>Agenda BarberFaster</h1>
+        <h1>Agenda <span className="agenda-brand-name">{nombreBarberia || 'BarberFaster'}</span></h1>
         <p>Reserva tu cita rápida en 3 sencillos pasos</p>
       </div>
 
@@ -548,17 +573,7 @@ export default function Agenda({ reservaPublica = false }) {
                 return (
                   <label
                     key={idStr}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      padding: '16px',
-                      border: `2px solid ${estaChequeado ? '#393939' : '#e5e5e7'}`,
-                      background: estaChequeado ? 'var(--bauhaus-cyan-light)' : '#fff',
-                      borderRadius: '2px',
-                      cursor: 'pointer',
-                      fontSize: '1rem'
-                    }}
+                    className={`booking-service-option${estaChequeado ? ' is-selected' : ''}`}
                   >
                     <input
                       type="checkbox"
@@ -567,7 +582,7 @@ export default function Agenda({ reservaPublica = false }) {
                     />
                     <div>
                       <strong>{s.nombre}</strong>
-                      <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>{s.duracion_minutos || 30} min · ${s.precio}</div>
+                      <div className="booking-service-details">{s.duracion_minutos || 30} min · ${s.precio}</div>
                     </div>
                   </label>
                 );
@@ -702,12 +717,30 @@ export default function Agenda({ reservaPublica = false }) {
             <form onSubmit={handleAgendarCita} className="appointment-form">
               <div className="form-group">
                 <label>Documento (DNI / Cédula):</label>
-                <input type="text" placeholder="Ej. 1001234567" value={dniCliente} onChange={(e) => setDniCliente(e.target.value)} required />
+                <input
+                  type="text"
+                  placeholder="Ej. 1001234567"
+                  value={dniCliente}
+                  onChange={(e) => {
+                    setDniCliente(e.target.value);
+                    invalidarVerificacionCliente();
+                  }}
+                  required
+                />
               </div>
 
               <div className="form-group">
                 <label>Nombre Completo:</label>
-                <input type="text" placeholder="Tu nombre y apellido" value={nombreCliente} onChange={(e) => setNombreCliente(e.target.value)} required />
+                <input
+                  type="text"
+                  placeholder="Tu nombre y apellido"
+                  value={nombreCliente}
+                  onChange={(e) => {
+                    setNombreCliente(e.target.value);
+                    invalidarVerificacionCliente();
+                  }}
+                  required
+                />
               </div>
 
               <div className="form-group">
@@ -727,12 +760,7 @@ export default function Agenda({ reservaPublica = false }) {
                       if (digits.startsWith('57') && digits.length > 10) digits = digits.slice(2);
                       const numero = digits.slice(0, 10);
                       setTelefonoCliente(numero);
-                      if (numero !== telefonoVerificado?.numero) {
-                        setTelefonoVerificado(null);
-                        setCodigoEnviado(false);
-                        setCodigoTelefono('');
-                        setMensajeVerificacion(null);
-                      }
+                      if (numero !== telefonoVerificado?.numero) invalidarVerificacionCliente();
                     }}
                     required
                     disabled={verificandoTelefono}

@@ -23,7 +23,7 @@ body {
   display: flex;
   min-height: 100vh;
   width: 100%;
-  background: var(--bauhaus-cyan-light);
+  background: var(--brand-gradient);
 }
 
 .content {
@@ -73,7 +73,7 @@ body {
 .sidebar-title {
   margin: 0;
   color: var(--bauhaus-paper);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-brand);
   font-size: 1.1rem;
   letter-spacing: 0.025em;
   text-transform: uppercase;
@@ -99,7 +99,7 @@ body {
   box-sizing: border-box;
   border-radius: 2px;
   color: #eeeeef;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -496,7 +496,7 @@ textarea:focus-visible {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: var(--bauhaus-cyan-light);
+  background: var(--brand-gradient);
 }
 
 .auth-card {
@@ -514,7 +514,7 @@ textarea:focus-visible {
   display: grid;
   place-items: center;
   padding: 24px;
-  background: var(--bauhaus-cyan-light);
+  background: var(--brand-gradient);
 }
 
 .login-card {
@@ -534,14 +534,14 @@ textarea:focus-visible {
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-brand);
   font-size: 1.2rem;
 }
 
 .login-kicker {
   margin-bottom: 8px;
   color: var(--accent-dark);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -578,7 +578,7 @@ textarea:focus-visible {
   border-radius: 2px;
   background: #fff;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
 .login-btn {
@@ -590,7 +590,7 @@ textarea:focus-visible {
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
   cursor: pointer;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -833,7 +833,7 @@ button,
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
   cursor: pointer;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -863,7 +863,7 @@ button,
   background: var(--bauhaus-paper);
   color: var(--bauhaus-ink);
   cursor: pointer;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -933,7 +933,7 @@ table {
 thead {
   background: var(--bauhaus-ink);
   color: var(--bauhaus-paper);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1107,7 +1107,7 @@ html, body {
 .content h2,
 .content h3 {
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-weight: 700;
 }
 
@@ -1123,12 +1123,12 @@ html, body {
 .content button,
 .content .btn,
 .content .btn-secondary {
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
 }
 
 .content input::placeholder,
 .content textarea::placeholder {
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
 .content input:not([type="checkbox"]):not([type="radio"]),
@@ -1201,7 +1201,7 @@ html, body {
   align-items: center;
   gap: 10px;
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -1229,7 +1229,7 @@ html, body {
   background: var(--bauhaus-ink);
   color: var(--bauhaus-paper);
   cursor: pointer;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -1327,7 +1327,7 @@ html, body {
 .staggered-menu-eyebrow {
   margin: 0 0 30px;
   color: #5f6267;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.16em;
@@ -1357,7 +1357,7 @@ html, body {
   gap: 14px;
   padding: 5px 52px 5px 0;
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: clamp(1.25rem, 3.5vw, 1.85rem);
   font-weight: 700;
   letter-spacing: -0.035em;
@@ -1374,7 +1374,7 @@ html, body {
   right: 4px;
   color: var(--bauhaus-orange);
   content: counter(erp-menu, decimal-leading-zero);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.76rem;
   font-weight: 600;
   letter-spacing: 0;
@@ -1403,7 +1403,7 @@ html, body {
   background: transparent;
   color: var(--bauhaus-ink);
   cursor: pointer;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.1em;

@@ -16,9 +16,9 @@
   --bauhaus-orange: #ec4d25;
   --bauhaus-green: #3fe112;
   min-height: 100vh;
-  background: var(--bauhaus-paper);
+  background: transparent;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
 .barber-discovery-page *,
@@ -46,7 +46,7 @@
   gap: 9px;
   min-width: 0;
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: clamp(0.8rem, 1vw, 0.95rem);
   font-weight: 700;
   letter-spacing: 0.07em;
@@ -72,7 +72,7 @@
 
 .discovery-nav nav a {
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.84rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -91,48 +91,72 @@
   color: var(--bauhaus-orange);
 }
 
-.discovery-nav nav .discovery-login {
-  padding: 10px 15px;
-  border: 2px solid var(--bauhaus-ink);
-  background: var(--bauhaus-cyan);
-  font-family: "Chillax", "Arial", sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.discovery-nav nav .discovery-login:hover {
-  border-color: var(--bauhaus-ink);
-  background: var(--bauhaus-orange);
-  color: #ffffff;
-  box-shadow: 3px 3px 0 var(--bauhaus-cyan);
-  transform: translateY(-1px);
-}
-
 .discovery-hero {
   position: relative;
   display: flex;
-  min-height: 390px;
+  min-height: clamp(350px, 32vw, 560px);
   align-items: center;
   overflow: hidden;
   border-bottom: 4px solid var(--bauhaus-ink);
-  background: linear-gradient(
-    90deg,
-    var(--bauhaus-cyan-light) 0%,
-    #81e4e9 48%,
-    var(--bauhaus-cyan) 100%
-  );
+  background: var(--brand-gradient);
 }
 
 .discovery-hero-layout {
-  width: min(1120px, calc(100% - 48px));
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  width: 100%;
+  min-height: inherit;
   margin: 0 auto;
+}
+
+.discovery-hero-media {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+}
+
+.discovery-hero-media::before {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: clamp(140px, 22vw, 320px);
+  background: linear-gradient(
+    90deg,
+    #81e4e9 0%,
+    rgba(129, 228, 233, 0.94) 12%,
+    rgba(129, 228, 233, 0.62) 38%,
+    rgba(129, 228, 233, 0.2) 72%,
+    rgba(129, 228, 233, 0) 100%
+  );
+  content: "";
+  pointer-events: none;
+}
+
+.discovery-hero-video {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .discovery-hero-content {
   position: relative;
-  z-index: 2;
-  padding: 55px 0 62px;
+  z-index: 1;
+  grid-column: 1;
+  padding: clamp(38px, 4vw, 62px) 24px clamp(42px, 4vw, 62px)
+    max(24px, calc((100vw - 1120px) / 2));
 }
 
 .discovery-eyebrow {
@@ -158,11 +182,11 @@
 }
 
 .discovery-hero h1 {
-  max-width: 680px;
+  max-width: 100%;
   margin: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
-  font-size: clamp(3.2rem, 7.5vw, 6.7rem);
+  font-family: var(--font-body);
+  font-size: clamp(2.8rem, 5.2vw, 5.75rem);
   font-weight: 400;
   letter-spacing: -0.035em;
   line-height: 0.84;
@@ -186,7 +210,7 @@
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -235,7 +259,7 @@
 .discovery-section-heading h2 {
   margin: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: clamp(1.8rem, 4vw, 2.8rem);
   font-weight: 400;
   letter-spacing: -0.025em;
@@ -255,7 +279,7 @@
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-cyan-light);
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.62rem;
   font-weight: 850;
   text-transform: uppercase;
@@ -303,7 +327,7 @@
 }
 
 .discovery-search input::placeholder {
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.62rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -334,7 +358,7 @@
   background: var(--bauhaus-cyan-light);
   color: var(--bauhaus-ink);
   font: inherit;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.88rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -389,7 +413,7 @@
   display: grid;
   place-items: center;
   color: var(--bauhaus-cyan);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 5rem;
 }
 
@@ -408,7 +432,7 @@
   overflow: hidden;
   margin: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: 1.05rem;
   font-weight: 400;
   letter-spacing: 0;
@@ -462,7 +486,7 @@
   color: var(--bauhaus-ink);
   cursor: pointer;
   font: inherit;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -495,7 +519,7 @@
 
 .discovery-state strong {
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1.08rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -515,7 +539,7 @@
   color: var(--bauhaus-ink);
   cursor: pointer;
   font: inherit;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -550,7 +574,7 @@
 .discovery-footer a {
   margin-left: auto;
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -582,13 +606,46 @@
 }
 
 @media (max-width: 760px) {
-  /* Ajustes de la portada y el ancho del catálogo en tabletas. */
-  .discovery-hero {
-    min-height: 350px;
+  /* En pantallas angostas, conserva el video sin comprimir el texto. */
+  .discovery-hero-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+  }
+
+  .discovery-hero-content {
+    width: 100%;
+    padding: 42px clamp(22px, 6vw, 48px) 24px;
+  }
+
+  .discovery-hero-media {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+
+  .discovery-hero-media::before {
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    height: clamp(56px, 14vw, 110px);
+    background: linear-gradient(
+      180deg,
+      #81e4e9 0%,
+      rgba(129, 228, 233, 0.72) 24%,
+      rgba(129, 228, 233, 0.24) 68%,
+      rgba(129, 228, 233, 0) 100%
+    );
   }
 
   .discovery-hero h1 {
-    font-size: clamp(2.8rem, 7.5vw, 4.8rem);
+    font-size: clamp(2.8rem, 9vw, 4.8rem);
   }
 
   .discovery-listing {
@@ -621,21 +678,8 @@
     font-size: 0.7rem;
   }
 
-  .discovery-nav nav .discovery-login {
-    padding: 8px 9px;
-  }
-
-  .discovery-hero {
-    min-height: 370px;
-  }
-
-  .discovery-hero-layout {
-    width: calc(100% - 42px);
-  }
-
   .discovery-hero-content {
-    width: 100%;
-    padding: 38px 0;
+    padding: 38px 21px 24px;
   }
 
   .discovery-hero h1 {
@@ -788,4 +832,5 @@
   .discovery-card-footer button {
     transition: none;
   }
+
 }
