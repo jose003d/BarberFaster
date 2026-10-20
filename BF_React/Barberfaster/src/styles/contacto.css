@@ -1,261 +1,206 @@
-:root {
-  --color-principal: #0d0d0d;
-  --color-secundario: #1c1c1c;
-  --color-terciario: #262626;
+@import './index.css';
 
-  --color-naranja: #ff7a1a;
-  --color-naranja-claro: #ff9d4d;
-  --color-naranja-hover: #e0650a;
-
-  --color-gris-claro: #d3d3d3;
-  --color-gris-medio: #9a9a9a;
-  --color-blanco: #ffffff;
-
-  --gradiente-naranja: linear-gradient(
-    to right,
-    var(--color-naranja),
-    var(--color-naranja-claro)
-  );
-  --gradiente-oscuro: linear-gradient(to right, #141414, #1f1f1f);
-
-  --sombra-suave: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --sombra-media: 0 8px 20px rgba(0, 0, 0, 0.5);
-  --sombra-fuerte: 0 8px 25px rgba(0, 0, 0, 0.55);
-
-  --transicion-rapida: 0.3s;
-  --transicion-media: 0.5s;
-
-  --borde-redondeado: 12px;
-  --borde-redondeado-suave: 8px;
-  --borde-redondeado-medio: 10px;
-}
-
-body {
-  font-family: "Montserrat", sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
-  background-color: var(--color-principal);
-  color: var(--color-blanco);
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: var(--color-naranja);
-}
-
-p {
-  color: var(--color-gris-claro);
-}
-
-/* Navbar */
-.custom-navbar {
-  background: var(--gradiente-oscuro);
-  border-bottom: 1px solid var(--color-terciario);
-}
-
-.navbar-brand {
-  font-weight: 600;
-  font-size: 1.2rem;
-  color: var(--color-naranja);
-  transition: color var(--transicion-rapida);
-}
-
-.navbar-brand:hover {
-  color: var(--color-naranja-claro);
-}
-
-.nav-link {
-  color: var(--color-blanco) !important;
+/* =========================================================
+   HERO DE CONTACTO (Color Azul Sólido)
+   ========================================================= */
+.contact-hero-section {
+  border-bottom: 4px solid var(--bauhaus-ink);
+  background-color: var(--bauhaus-cyan-light); /* Azul base de la página sin gradiente */
   position: relative;
-  margin-left: 0.8rem;
-  font-size: 0.9rem;
+  overflow: hidden;
 }
 
-.nav-link::after {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: -4px;
-  left: 0;
-  background-color: var(--color-naranja);
-  transition: width var(--transicion-rapida);
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.custom-navbar .form-control {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--color-blanco);
-}
-
-.custom-navbar .form-control::placeholder {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.custom-navbar .form-control:focus {
-  background-color: rgba(255, 255, 255, 0.15);
-  border-color: var(--color-naranja);
-  box-shadow: 0 0 0 0.25rem rgba(255, 122, 26, 0.25);
-  color: var(--color-blanco);
-}
-
-/* Botones */
-.custom-btn {
-  background: var(--gradiente-naranja);
-  color: var(--color-principal);
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 30px;
-  font-weight: 600;
-  transition: all var(--transicion-rapida);
-}
-
-.custom-btn:hover {
-  background: var(--color-naranja-hover);
-  color: var(--color-blanco);
-}
-
-/* Footer */
-.custom-footer {
-  background: var(--color-secundario);
-  color: var(--color-blanco);
-  border-top: 1px solid var(--color-terciario);
-}
-
-.custom-footer a {
-  color: var(--color-naranja);
-  text-decoration: none;
-}
-
-.custom-footer a:hover {
-  color: var(--color-naranja-claro);
-}
-
-/* Hero de contacto */
-.contact-hero {
-  background: var(--gradiente-naranja);
-  padding: 4rem 1rem;
-  text-align: center;
-}
-
-.contact-hero h1 {
-  color: var(--color-blanco);
-  font-weight: 700;
-  font-size: 2.75rem;
-  margin-bottom: 0.5rem;
-}
-
-.contact-hero p {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 1.1rem;
-  margin-bottom: 0;
-}
-
-/* Tarjetas de información de contacto */
-.contact-info-card {
-  background-color: var(--color-secundario);
-  border: 1px solid var(--color-terciario);
-  border-radius: var(--borde-redondeado);
-  padding: 2rem 1.5rem;
-  text-align: center;
-  height: 100%;
-  transition:
-    transform var(--transicion-rapida),
-    box-shadow var(--transicion-rapida);
-}
-
-.contact-info-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--sombra-media);
-  border-color: var(--color-naranja);
-}
-
-.contact-icon-circle {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background-color: rgba(255, 122, 26, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1rem;
-  font-size: 1.5rem;
-  color: var(--color-naranja);
-}
-
-.contact-info-title {
-  color: var(--color-blanco);
-  font-weight: 600;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-}
-
-.contact-info-text {
-  color: var(--color-gris-claro);
-  font-size: 0.95rem;
-  margin-bottom: 0;
-  line-height: 1.5;
-}
-
-/* Formulario de contacto */
+/* =========================================================
+   FORMULARIO Y SEPARADOR (Referencia Imagen)
+   ========================================================= */
 .contact-form-wrap {
-  background-color: var(--color-secundario);
-  border: 1px solid var(--color-terciario);
-  border-radius: var(--borde-redondeado);
-  padding: 2.5rem 2rem;
+  background-color: var(--bauhaus-paper);
+  border: var(--borde-grueso);
+  box-shadow: 8px 8px 0 var(--bauhaus-cyan);
+  padding: 3rem 2.5rem;
   max-width: 800px;
   margin: 0 auto;
 }
 
-.contact-form-title {
-  color: var(--color-blanco);
+.contact-form-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.form-section-title {
+  font-family: "Satoshi", "Arial", sans-serif;
+  font-size: 2.2rem;
   font-weight: 700;
-  text-align: center;
-  margin-bottom: 2rem;
+  color: var(--bauhaus-ink);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
 }
 
-.contact-label {
-  color: var(--color-naranja);
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-  display: inline-block;
+/* Línea naranja que cubre más espacio como un separador */
+.title-orange-separator {
+  width: 80%; /* Expande la línea horizontalmente a lo ancho del contenedor */
+  height: 5px;
+  background-color: var(--bauhaus-orange);
+  margin-top: 0.5rem;
+  border-radius: 2px;
 }
 
-.contact-input {
-  background-color: var(--color-principal);
-  border: 1px solid var(--color-terciario);
-  color: var(--color-blanco);
-  border-radius: var(--borde-redondeado-suave);
-  padding: 0.65rem 0.9rem;
+/* =========================================================
+   GRUPO DE INPUT PARA TELÉFONO (Replicado de Login)
+   ========================================================= */
+.phone-input-group {
+  display: flex;
+  border: var(--borde-grueso);
+  background-color: var(--bauhaus-paper);
+  transition: outline 0.1s ease;
 }
 
-.contact-input::placeholder {
-  color: var(--color-gris-medio);
+.phone-input-group:focus-within {
+  outline: 3px solid var(--bauhaus-cyan);
+  outline-offset: -3px;
 }
 
-.contact-input:focus {
-  background-color: var(--color-principal);
-  border-color: var(--color-naranja);
-  box-shadow: 0 0 0 0.25rem rgba(255, 122, 26, 0.25);
-  color: var(--color-blanco);
+.phone-prefix {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  font-weight: 800;
+  color: var(--bauhaus-ink);
+  border-right: var(--borde-grueso);
+  background-color: var(--bauhaus-neutral);
+  font-family: "Chillax", "Arial", sans-serif;
 }
 
+.phone-input-field {
+  border: none !important;
+  flex-grow: 1;
+}
+
+.phone-input-field:focus {
+  outline: none !important;
+}
+
+/* =========================================================
+   BOTONES Y ALERTAS
+   ========================================================= */
 .contact-submit-btn {
-  width: 100%;
+  background: var(--bauhaus-cyan);
+  color: var(--bauhaus-ink);
+  border: var(--borde-grueso);
+  font-family: "Chillax", "Arial", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   padding: 0.85rem;
-  font-size: 1.05rem;
+  transition: transform var(--transicion-rapida), box-shadow var(--transicion-rapida), background 0.15s ease;
+}
+
+.contact-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--bauhaus-ink);
+  background: var(--bauhaus-orange) !important; /* Fuerza naranja en hover si está activo */
+  color: #fff !important;
+}
+
+.contact-submit-btn:disabled {
+  box-shadow: none;
+  border-color: #cdcdcf;
+}
+
+.brutalist-success-alert {
+  background-color: var(--bauhaus-cyan-light);
+  border: var(--borde-grueso);
+  border-left: 8px solid var(--bauhaus-green);
+  padding: 1rem;
+  color: var(--bauhaus-ink);
+  font-family: "Satoshi", "Arial", sans-serif;
+  font-size: 0.95rem;
+  box-shadow: 3px 3px 0 var(--bauhaus-ink);
+  text-align: center;
 }
 
 @media (max-width: 768px) {
-  .contact-hero h1 {
-    font-size: 2rem;
+  .contact-form-wrap {
+    padding: 2rem 1.25rem;
+  }
+  .title-orange-separator {
+    width: 100%; /* En móviles cubre todo el ancho */
+  }
+}
+
+/* =========================================================
+   NOTIFICACIÓN STICKY / TOAST (TOP-RIGHT)
+   ========================================================= */
+.brutalist-toast-notification {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  max-width: 400px;
+  width: calc(100% - 48px);
+  background-color: var(--bauhaus-paper);
+  border: var(--borde-grueso);
+  border-left: 8px solid var(--bauhaus-green);
+  padding: 1.2rem 1.5rem;
+  color: var(--bauhaus-ink);
+  box-shadow: 6px 6px 0 var(--bauhaus-ink);
+  font-family: "Satoshi", "Arial", sans-serif;
+}
+
+.toast-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--bauhaus-ink);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.5rem;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.toast-close-btn:hover {
+  color: var(--bauhaus-orange);
+}
+
+/* Animaciones de Entrada y Salida */
+.toast-slide-in {
+  animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast-slide-out {
+  animation: toastSlideOut 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .brutalist-toast-notification {
+    top: 16px;
+    right: 16px;
+    width: calc(100% - 32px);
   }
 }

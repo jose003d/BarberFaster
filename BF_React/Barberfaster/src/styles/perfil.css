@@ -1,554 +1,136 @@
-:root {
-  --color-principal: #0d0d0d;
-  --color-secundario: #1c1c1c;
-  --color-terciario: #262626;
-  --color-naranja: #ff7a1a;
-  --color-naranja-claro: #ff9d4d;
-  --color-naranja-hover: #e0650a;
-  --color-gris-claro: #d3d3d3;
-  --color-gris-medio: #9a9a9a;
-  --color-blanco: #ffffff;
-  --gradiente-naranja: linear-gradient(to right, #ff7a1a, #ff9d4d);
-  --borde-redondeado: 12px;
-  --borde-redondeado-suave: 8px;
-  --transicion-rapida: 0.3s;
-}
+@import './index.css';
 
-/* ══════════════════════════════════════ */
-/* Sección de información del usuario     */
-/* ══════════════════════════════════════ */
-.perfil-info-section {
-  margin-bottom: 3rem;
-}
-
-.perfil-card {
-  background: var(--color-secundario);
-  border: 1px solid var(--color-terciario);
-  border-radius: var(--borde-redondeado);
-  padding: 2rem;
+/* =========================================================
+   NAVEGACIÓN LATERAL (SIDEBAR)
+   ========================================================= */
+.perfil-nav-list {
   display: flex;
-  align-items: center;
-  gap: 2rem;
-  transition: border-color var(--transicion-rapida);
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.perfil-card:hover {
-  border-color: #333;
+.perfil-nav-link {
+  display: block;
+  padding: 0.8rem 1rem;
+  color: var(--bauhaus-ink);
+  font-family: "Satoshi", "Arial", sans-serif;
+  font-weight: 700;
+  text-decoration: none;
+  border-left: 4px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.perfil-avatar {
-  flex-shrink: 0;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: rgba(255, 122, 26, 0.1);
+.perfil-nav-link:hover {
+  background-color: var(--bauhaus-cyan-light);
+  border-left-color: var(--bauhaus-orange);
+  color: var(--bauhaus-orange);
+}
+
+/* =========================================================
+   CAJA VACÍA DE CITAS (CLICKABLE)
+   ========================================================= */
+.brutalist-empty-box {
+  background-color: var(--bauhaus-neutral);
+  border: var(--borde-grueso) dashed var(--bauhaus-gray);
+  cursor: pointer;
+  transition: border-color var(--transicion-rapida), transform var(--transicion-rapida), box-shadow var(--transicion-rapida);
+}
+
+.brutalist-empty-box:hover {
+  border-color: var(--bauhaus-ink);
+  border-style: solid;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0 var(--bauhaus-cyan);
+}
+
+/* =========================================================
+   TARJETAS DE CITAS (GRID)
+   ========================================================= */
+.cita-brutalist-card {
+  background-color: var(--bauhaus-paper);
+  border: var(--borde-grueso);
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 4px 0 var(--bauhaus-ink);
+  transition: transform var(--transicion-rapida);
+}
+
+.cita-brutalist-card:hover {
+  transform: translateY(-2px);
+}
+
+.cita-barberia {
+  font-family: "Chillax", "Arial", sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--bauhaus-cyan);
+  text-transform: uppercase;
+}
+
+.cita-divider {
+  width: 100%;
+  height: 2px;
+  background-color: var(--bauhaus-ink);
+  margin: 0.5rem 0;
+}
+
+/* Estados / Badges Neo-Brutalistas */
+.cita-badge {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-family: "Satoshi", "Arial", sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  border: 2px solid var(--bauhaus-ink);
+}
+
+.cita-badge--pendiente { background-color: #ffde59; color: var(--bauhaus-ink); }
+.cita-badge--aprobada  { background-color: var(--bauhaus-cyan-light); color: var(--bauhaus-ink); }
+.cita-badge--pagada    { background-color: var(--bauhaus-green); color: var(--bauhaus-paper); }
+.cita-badge--cancelada { background-color: #ffcccc; color: #c31818; }
+.cita-badge--realizada { background-color: var(--bauhaus-neutral); color: var(--bauhaus-ink); }
+
+/* =========================================================
+   SECCIÓN DE DATOS PERSONALES
+   ========================================================= */
+.perfil-avatar-box {
+  width: 80px;
+  height: 80px;
+  background-color: var(--bauhaus-cyan);
+  border: var(--borde-grueso);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3.5rem;
-  color: var(--color-naranja);
-}
-
-.perfil-data {
-  flex: 1;
-  min-width: 0;
-}
-
-.perfil-data-row {
-  margin-bottom: 1rem;
-}
-
-.perfil-data-row:last-child {
-  margin-bottom: 0;
+  font-size: 2.5rem;
+  color: var(--bauhaus-ink);
+  box-shadow: 3px 3px 0 var(--bauhaus-orange);
 }
 
 .perfil-data-label {
   display: block;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--color-gris-medio);
+  font-family: "Chillax", "Arial", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--bauhaus-cyan);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  margin-bottom: 0.2rem;
 }
 
 .perfil-data-value {
-  color: var(--color-blanco);
-  font-size: 1.05rem;
-  font-weight: 600;
-}
-
-/* ── Editar usuario ── */
-.perfil-username-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.perfil-edit-btn {
-  background: none;
-  border: 1px solid var(--color-terciario);
-  color: var(--color-gris-medio);
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all var(--transicion-rapida);
-  flex-shrink: 0;
-}
-
-.perfil-edit-btn:hover {
-  border-color: var(--color-naranja);
-  color: var(--color-naranja);
-}
-
-.perfil-username-edit {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.perfil-username-input {
-  background: var(--color-principal) !important;
-  border: 1px solid var(--color-terciario) !important;
-  color: var(--color-blanco) !important;
-  border-radius: var(--borde-redondeado-suave) !important;
-  padding: 0.45rem 0.75rem !important;
-  font-size: 0.95rem !important;
-  max-width: 220px;
-  transition: border-color var(--transicion-rapida);
-}
-
-.perfil-username-input:focus {
-  border-color: var(--color-naranja) !important;
-  box-shadow: 0 0 0 0.2rem rgba(255, 122, 26, 0.2) !important;
-}
-
-.perfil-save-btn,
-.perfil-cancel-edit-btn {
-  background: none;
-  border: 1px solid var(--color-terciario);
-  color: var(--color-gris-medio);
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all var(--transicion-rapida);
-  flex-shrink: 0;
-}
-
-.perfil-save-btn:hover {
-  border-color: #22c55e;
-  color: #22c55e;
-  background: rgba(34, 197, 94, 0.1);
-}
-
-.perfil-cancel-edit-btn:hover {
-  border-color: #e05555;
-  color: #e05555;
-  background: rgba(224, 85, 85, 0.1);
-}
-
-/* ══════════════════════════════════════ */
-/* Tarjetas de citas                     */
-/* ══════════════════════════════════════ */
-.perfil-no-citas {
-  padding: 3rem 1rem;
-  color: var(--color-gris-medio);
-}
-
-.perfil-no-citas i {
-  font-size: 2.5rem;
   display: block;
-  margin-bottom: 1rem;
-  color: #444;
-}
-
-.cita-card {
-  background: var(--color-secundario);
-  border: 1px solid var(--color-terciario);
-  border-radius: var(--borde-redondeado);
-  padding: 1.5rem;
-  transition:
-    border-color var(--transicion-rapida),
-    transform var(--transicion-rapida);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.cita-card:hover {
-  border-color: #3a3a3a;
-  transform: translateY(-2px);
-}
-
-.cita-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.75rem;
-  gap: 12px;
-}
-
-.cita-barberia {
-  color: var(--color-naranja);
-  font-weight: 700;
-  font-size: 1.05rem;
-  margin: 0;
-  line-height: 1.3;
-}
-
-.cita-fecha {
-  color: var(--color-gris-medio);
-  font-size: 0.82rem;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.cita-status {
-  margin-bottom: 0.75rem;
-}
-
-.cita-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.cita-badge--pendiente {
-  background: rgba(234, 179, 8, 0.15);
-  color: #eab308;
-}
-
-.cita-badge--aprobada {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
-}
-
-.cita-badge--pagada {
-  background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
-}
-
-.cita-badge--cancelada {
-  background: rgba(107, 114, 128, 0.15);
-  color: #6b7280;
-}
-
-.cita-barbero-row {
-  display: flex;
-  justify-content: space-between;
-  color: var(--color-gris-claro);
-  font-size: 0.88rem;
-  gap: 8px;
-}
-
-.cita-barbero-row i {
-  color: var(--color-gris-medio);
-  margin-right: 5px;
-}
-
-.cita-divider {
-  height: 1px;
-  background: var(--color-terciario);
-  margin: 0.85rem 0;
-}
-
-.cita-servicios {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.cita-servicio {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.88rem;
-  color: var(--color-gris-claro);
-}
-
-.cita-total {
-  display: flex;
-  justify-content: space-between;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--color-blanco);
-}
-
-.cita-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: auto;
-  padding-top: 1rem;
-}
-
-.cita-btn-pagar {
-  flex: 1;
-  background: var(--gradiente-naranja);
-  color: #0d0d0d;
-  border: none;
-  padding: 0.6rem 1rem;
-  border-radius: 30px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  transition: all var(--transicion-rapida);
-}
-
-.cita-btn-pagar:hover {
-  background: var(--color-naranja-hover);
-  color: #fff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 122, 26, 0.3);
-}
-
-.cita-btn-cancelar {
-  flex: 0 0 auto;
-  background: transparent;
-  color: var(--color-gris-medio);
-  border: 1px solid var(--color-terciario);
-  padding: 0.6rem 1.2rem;
-  border-radius: 30px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  transition: all var(--transicion-rapida);
-}
-
-.cita-btn-cancelar:hover {
-  border-color: #e05555;
-  color: #e05555;
-  background: rgba(224, 85, 85, 0.08);
-}
-
-.cita-btn-disabled {
-  flex: 1;
-  background: var(--color-terciario);
-  color: var(--color-gris-medio);
-  border: none;
-  padding: 0.6rem 1rem;
-  border-radius: 30px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-/* ══════════════════════════════════════ */
-/* Modal de pago                         */
-/* ══════════════════════════════════════ */
-.perfil-modal {
-  background: var(--color-secundario);
-  border: 1px solid var(--color-terciario);
-  border-radius: var(--borde-redondeado);
-  color: var(--color-blanco);
-}
-
-.perfil-modal-header {
-  background: var(--color-terciario);
-  border-bottom: 1px solid var(--color-terciario);
-  border-radius: var(--borde-redondeado) var(--borde-redondeado) 0 0;
-}
-
-.perfil-modal-footer {
-  border-top: 1px solid var(--color-terciario);
-}
-
-.perfil-modal-close {
-  background: transparent;
-  color: var(--color-gris-medio);
-  border: 1px solid var(--color-terciario);
-  border-radius: 30px;
-  padding: 0.5rem 1.5rem;
-  font-weight: 600;
-  font-size: 0.88rem;
-  transition: all var(--transicion-rapida);
-}
-
-.perfil-modal-close:hover {
-  border-color: var(--color-gris-medio);
-  color: var(--color-blanco);
-}
-
-.pago-barberia {
-  color: var(--color-naranja);
-  font-weight: 700;
+  font-family: "Satoshi", "Arial", sans-serif;
   font-size: 1.1rem;
-  margin-bottom: 1.25rem;
+  color: var(--bauhaus-ink);
 }
 
-.pago-total-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.85rem 1rem;
-  background: var(--color-terciario);
-  border-radius: var(--borde-redondeado-suave);
-  margin-bottom: 1.25rem;
-}
-
-.pago-total-row span {
-  color: var(--color-gris-claro);
-  font-size: 0.92rem;
-}
-
-.pago-total-row strong {
-  color: var(--color-naranja);
-  font-size: 1.2rem;
-}
-
-.pago-methods {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 1.25rem;
-}
-
-.pago-method {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 0.85rem 1rem;
-  background: var(--color-principal);
-  border: 1px solid var(--color-terciario);
-  border-radius: var(--borde-redondeado-suave);
-}
-
-.pago-method i {
-  font-size: 1.3rem;
-  color: var(--color-naranja);
-  flex-shrink: 0;
-  width: 24px;
-  text-align: center;
-}
-
-.pago-method strong {
-  display: block;
-  color: var(--color-blanco);
-  font-size: 0.9rem;
-}
-
-.pago-method span {
-  display: block;
-  color: var(--color-gris-medio);
-  font-size: 0.82rem;
-}
-
-.pago-method--off {
-  opacity: 0.4;
-}
-
-.pago-method--off i {
-  color: var(--color-gris-medio);
-}
-
-.pago-note {
-  color: var(--color-gris-medio);
-  font-size: 0.82rem;
-  line-height: 1.5;
-  margin: 0;
-  padding: 0.75rem;
-  background: rgba(255, 122, 26, 0.06);
-  border-radius: var(--borde-redondeado-suave);
-  border-left: 3px solid var(--color-naranja);
-}
-
-/* ── Modal de cancelación ── */
-.perfil-cancel-icon {
-  font-size: 2.5rem;
-  color: #eab308;
-}
-
-.perfil-confirm-cancel {
-  background: rgba(224, 85, 85, 0.15);
-  color: #e05555;
-  border: 1px solid rgba(224, 85, 85, 0.3);
-  border-radius: 30px;
-  padding: 0.5rem 1.5rem;
-  font-weight: 600;
-  font-size: 0.88rem;
-  transition: all var(--transicion-rapida);
-}
-
-.perfil-confirm-cancel:hover {
-  background: #e05555;
-  color: #fff;
-  border-color: #e05555;
-}
-
-/* ══════════════════════════════════════ */
-/* Mensaje barbero                       */
-/* ══════════════════════════════════════ */
-.perfil-barbero-msg .perfil-card {
-  flex-direction: column;
-  text-align: center;
-  padding: 3rem 2rem;
-}
-
-.perfil-barbero-icon {
-  font-size: 2.5rem;
-  color: var(--color-naranja);
-  margin-bottom: 1rem;
-}
-
-.perfil-barbero-msg h3 {
-  color: var(--color-naranja);
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-}
-
-.perfil-barbero-msg p {
-  color: var(--color-gris-medio);
-  margin: 0;
-}
-
-/* ══════════════════════════════════════ */
-/* Responsive                            */
-/* ══════════════════════════════════════ */
-@media (max-width: 576px) {
-  .perfil-card {
-    flex-direction: column;
+@media (max-width: 991px) {
+  .perfil-avatar-box {
+    margin: 0 auto;
+  }
+  .perfil-info-grid {
     text-align: center;
-  }
-
-  .perfil-avatar {
-    width: 80px;
-    height: 80px;
-    font-size: 2.8rem;
-  }
-
-  .perfil-username-wrap {
-    justify-content: center;
-  }
-
-  .perfil-username-edit {
-    justify-content: center;
-  }
-
-  .cita-card-header {
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .cita-barbero-row {
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .cita-actions {
-    flex-direction: column;
-  }
-
-  .cita-btn-cancelar {
-    text-align: center;
-    justify-content: center;
+    width: 100%;
   }
 }

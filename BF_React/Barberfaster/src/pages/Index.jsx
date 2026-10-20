@@ -11,9 +11,8 @@ import '../styles/index.css';
 
 // Importar Componentes Específicos
 import Hero from '../components/index_components/Hero';
-import InfoIntro from '../components/index_components/InfoIntro';
-import Services from '../components/index_components/Services';
-import Testimonials from '../components/index_components/Testimonials';
+import BarberiasGrid from "../components/index_components/BarberiasGrid";
+import Beneficios from "../components/index_components/Beneficios";
 
 const Index = () => {
   useEffect(() => {
@@ -28,9 +27,10 @@ const Index = () => {
       <Navbar />
       <main>
         <Hero />
-        <InfoIntro />
-        <Services />
-        <Testimonials />
+        <div id="catalogo-barberias" style={{ padding: "3rem 0" }}>
+          <BarberiasGrid />
+        </div>
+        <Beneficios />
       </main>
       <Footer />
     </>

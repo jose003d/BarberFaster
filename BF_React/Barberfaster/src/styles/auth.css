@@ -1,19 +1,17 @@
 /* ══════════════════════════════════════ */
-/* Botón "Iniciar sesión" en navbar      */
+/* Botón "Iniciar sesión" en navbar       */
 /* ══════════════════════════════════════ */
 .nav-login-btn {
-  background: var(
-    --gradiente-naranja,
-    linear-gradient(to right, #ff7a1a, #ff9d4d)
-  );
-  color: #0d0d0d;
-  border: none;
-  padding: 0.45rem 1.2rem;
-  border-radius: 30px;
-  font-weight: 600;
-  font-size: 0.85rem;
+  background: var(--bauhaus-orange);
+  color: #ffffff;
+  border: var(--borde-grueso);
+  padding: 0.6rem 1.4rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-family: "Chillax", "Arial", sans-serif;
+  text-transform: uppercase;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: transform var(--transicion-rapida), box-shadow var(--transicion-rapida), background 0.15s ease;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -21,44 +19,46 @@
 }
 
 .nav-login-btn:hover {
-  background: #e0650a;
-  color: #fff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 122, 26, 0.35);
+  background: var(--bauhaus-ink);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--bauhaus-cyan);
 }
 
 /* ══════════════════════════════════════ */
-/* Dropdown de usuario en navbar         */
+/* Dropdown de usuario en navbar          */
 /* ══════════════════════════════════════ */
 .nav-user-dropdown {
   position: relative;
 }
 
 .nav-user-btn {
-  background: #262626;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
-  padding: 0.4rem 0.9rem;
-  border-radius: 30px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  font-family: "Montserrat", sans-serif;
+  background: var(--bauhaus-paper);
+  border: var(--borde-grueso);
+  color: var(--bauhaus-ink);
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: "Chillax", "Arial", sans-serif;
+  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform var(--transicion-rapida), box-shadow var(--transicion-rapida), background 0.15s ease;
   white-space: nowrap;
 }
 
 .nav-user-btn:hover,
 .nav-user-btn--active {
-  border-color: #ff7a1a;
-  color: #ff7a1a;
+  background: var(--bauhaus-cyan);
+  color: var(--bauhaus-ink);
+  box-shadow: 3px 3px 0 var(--bauhaus-ink);
+  transform: translateY(-2px);
 }
 
 .nav-user-chevron {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   transition: transform 0.3s ease;
 }
 
@@ -67,7 +67,7 @@
 }
 
 .nav-user-name {
-  max-width: 120px;
+  max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -75,19 +75,19 @@
 /* ── Menú desplegable ── */
 .nav-user-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 12px);
   right: 0;
-  background: #1c1c1c;
-  border: 1px solid #333;
-  border-radius: 10px;
-  min-width: 180px;
-  padding: 6px 0;
+  background: var(--bauhaus-paper);
+  border: var(--borde-grueso);
+  min-width: 200px;
+  padding: 0;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-8px);
   transition: all 0.25s ease;
   z-index: 1100;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  /* Sombra sólida Neo-Brutalista */
+  box-shadow: 6px 6px 0 var(--bauhaus-ink);
 }
 
 .nav-user-menu--open {
@@ -99,60 +99,57 @@
 .nav-user-menu-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 10px 16px;
-  color: #d3d3d3;
+  padding: 0.85rem 1.2rem;
+  color: var(--bauhaus-ink);
   text-decoration: none;
-  font-size: 0.88rem;
-  font-weight: 500;
-  background: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  background: transparent;
   border: none;
+  border-bottom: 2px dashed var(--bauhaus-gray); /* Separador punteado característico */
   text-align: left;
   cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: "Montserrat", sans-serif;
+  transition: background 0.15s ease, color 0.15s ease;
+  font-family: "Satoshi", "Arial", sans-serif;
 }
 
 .nav-user-menu-item:hover {
-  background: #262626;
-  color: #ff7a1a;
+  background: var(--bauhaus-cyan-light);
+  color: var(--bauhaus-orange);
 }
 
 .nav-user-menu-item i {
-  font-size: 1rem;
+  font-size: 1.1rem;
   width: 20px;
   text-align: center;
   flex-shrink: 0;
 }
 
+/* Botón de cerrar sesión */
 .nav-user-logout {
-  color: #e05555;
-  border-top: 1px solid #333;
-  margin-top: 4px;
-  padding-top: 12px;
-  border-radius: 0 0 10px 10px;
+  color: #c31818;
+  border-top: var(--borde-grueso); /* Línea gruesa para aislar el cierre de sesión */
+  border-bottom: none;
 }
 
 .nav-user-logout:hover {
-  color: #ff6b6b;
-  background: rgba(224, 85, 85, 0.08);
+  color: #c31818;
+  background: #ffcccc; /* Fondo rojo claro de alerta */
 }
 
 /* ══════════════════════════════════════ */
-/* Responsive                            */
+/* Responsive                             */
 /* ══════════════════════════════════════ */
 @media (max-width: 991px) {
-  .nav-item.ms-lg-2 {
+  .nav-item.ms-lg-2,
+  .nav-item.ms-lg-3 {
     margin-left: 0 !important;
-    margin-top: 0.5rem;
+    margin-top: 1rem;
   }
 
-  .nav-login-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
+  .nav-login-btn,
   .nav-user-btn {
     width: 100%;
     justify-content: center;
@@ -164,12 +161,12 @@
     visibility: visible;
     transform: none;
     box-shadow: none;
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    padding: 0;
+    border: var(--borde-grueso);
+    border-top: none; /* Se fusiona con el botón en móviles */
+    background: var(--bauhaus-paper);
     display: none;
     min-width: 0;
+    margin-top: -2px; /* Sube un poco para ocultar el borde doble */
   }
 
   .nav-user-menu--open {
@@ -178,18 +175,5 @@
 
   .nav-user-menu-item {
     padding-left: 2rem;
-    border-radius: 8px;
-    margin-bottom: 2px;
-  }
-
-  .nav-user-logout {
-    border-top: none;
-    margin-top: 0;
-    padding-top: 10px;
-    border-radius: 8px;
-  }
-
-  .nav-user-name {
-    max-width: none;
   }
 }
