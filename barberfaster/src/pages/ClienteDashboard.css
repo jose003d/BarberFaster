@@ -1,0 +1,417 @@
+.client-profile-page {
+  min-height: 100vh;
+  color: var(--bauhaus-ink);
+  font-family: var(--font-body);
+}
+
+.client-profile-nav {
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 clamp(20px, 6vw, 88px);
+  border-bottom: 3px solid var(--bauhaus-ink);
+  background: var(--bauhaus-paper);
+}
+
+.client-profile-brand,
+.client-profile-nav nav a,
+.client-profile-nav nav button {
+  color: var(--bauhaus-ink);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.client-profile-brand {
+  font-family: var(--font-brand);
+  font-size: 1.05rem;
+}
+
+.client-profile-nav nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.client-profile-nav nav a,
+.client-profile-nav nav button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.client-profile-nav nav a:hover,
+.client-profile-nav nav button:hover {
+  color: var(--bauhaus-orange);
+}
+
+.client-profile-content {
+  width: min(1000px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: clamp(36px, 6vw, 72px) 0;
+}
+
+.client-auth-card {
+  width: min(100%, 500px);
+  margin: 16px auto;
+  padding: clamp(24px, 5vw, 42px);
+  border: 3px solid var(--bauhaus-ink);
+  background: var(--bauhaus-paper);
+  box-shadow: 8px 8px 0 var(--bauhaus-orange);
+}
+
+.client-profile-eyebrow {
+  margin: 0 0 10px;
+  color: var(--accent-dark);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.client-auth-card h1,
+.client-profile-heading h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.client-profile-intro {
+  margin: 14px 0 25px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.client-auth-card form {
+  display: grid;
+  gap: 16px;
+}
+
+.client-auth-card label,
+.client-appointment-actions label {
+  display: grid;
+  gap: 7px;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.client-auth-card input,
+.client-appointment-actions input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 2px solid var(--bauhaus-ink);
+  border-radius: 0;
+  background: #fff;
+  color: var(--bauhaus-ink);
+  font: inherit;
+}
+
+.client-phone-field {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  border: 2px solid var(--bauhaus-ink);
+  background: #fff;
+}
+
+.client-phone-field span {
+  padding: 0 12px;
+  color: var(--accent-dark);
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+
+.client-phone-field input {
+  min-height: 40px;
+  border: 0;
+  border-left: 2px solid var(--bauhaus-neutral);
+}
+
+.client-profile-submit,
+.client-profile-back,
+.client-reschedule-button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-orange);
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.client-profile-submit:disabled,
+.client-profile-resend:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.client-profile-resend {
+  min-height: 38px;
+  border: 0;
+  background: transparent;
+  color: var(--accent-dark);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+
+.client-profile-message {
+  margin: 14px 0;
+  padding: 12px 14px;
+  border: 2px solid currentColor;
+  font-weight: 600;
+}
+
+.client-profile-message.error {
+  color: #a22618;
+  background: #fff1ed;
+}
+
+.client-profile-message.success {
+  color: #147d47;
+  background: #ecfff4;
+}
+
+.client-profile-heading,
+.client-appointments-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.client-profile-heading > div > p:last-child {
+  margin-top: 8px;
+  color: var(--text-muted);
+}
+
+.client-details-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 26px 0 48px;
+  padding: 22px;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-paper);
+  box-shadow: 5px 5px 0 var(--bauhaus-cyan);
+}
+
+.client-details-card div {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.client-details-card span {
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.client-details-card strong {
+  overflow-wrap: anywhere;
+}
+
+.client-appointments-heading {
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.client-appointments-heading h2 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+  font-weight: 500;
+}
+
+.client-appointments-heading > span {
+  padding: 7px 10px;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-cyan);
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.client-appointment-list {
+  display: grid;
+  gap: 16px;
+}
+
+.client-appointment-card,
+.client-empty-state {
+  padding: clamp(18px, 3vw, 24px);
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-paper);
+}
+
+.client-appointment-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 0.8fr);
+  gap: 24px;
+}
+
+.client-appointment-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.client-appointment-title h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.client-appointment-info > p {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+}
+
+.client-appointment-info .client-appointment-date {
+  margin-top: 15px;
+  color: var(--bauhaus-ink);
+  font-weight: 700;
+}
+
+.client-appointment-status {
+  padding: 4px 7px;
+  border: 1px solid var(--bauhaus-ink);
+  font-family: var(--font-ui);
+  font-size: 0.64rem;
+  font-weight: 800;
+}
+
+.client-appointment-status.pending {
+  background: var(--bauhaus-cyan);
+}
+
+.client-appointment-status.other {
+  background: var(--bauhaus-neutral);
+}
+
+.client-appointment-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 12px;
+}
+
+.client-appointment-actions label {
+  font-size: 0.72rem;
+}
+
+.client-appointment-actions input {
+  min-height: 40px;
+  padding: 7px;
+  font-family: var(--font-body);
+}
+
+.client-appointment-buttons {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.client-reschedule-button,
+.client-cancel-button {
+  min-height: 40px;
+  padding: 8px;
+  font-size: 0.66rem;
+}
+
+.client-cancel-button {
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-paper);
+  color: var(--bauhaus-ink);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.client-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.client-empty-state a {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+
+@media (max-width: 650px) {
+  .client-profile-nav {
+    min-height: 62px;
+    padding-inline: 17px;
+  }
+
+  .client-profile-brand {
+    font-size: 0.9rem;
+  }
+
+  .client-profile-nav nav {
+    gap: 12px;
+  }
+
+  .client-profile-nav nav a,
+  .client-profile-nav nav button {
+    font-size: 0.68rem;
+  }
+
+  .client-profile-content {
+    width: calc(100% - 30px);
+    padding-top: 30px;
+  }
+
+  .client-profile-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .client-details-card {
+    grid-template-columns: 1fr;
+    margin-bottom: 36px;
+    padding: 17px;
+  }
+
+  .client-appointment-card {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 380px) {
+  .client-appointment-actions,
+  .client-appointment-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .client-appointment-buttons {
+    grid-column: auto;
+  }
+}

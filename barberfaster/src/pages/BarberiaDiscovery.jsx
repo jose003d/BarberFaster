@@ -70,6 +70,7 @@ function BarberiaDiscovery() {
         </Link>
         <nav aria-label="Navegación principal">
           <a href="#barberias">Barberías</a>
+          <Link to="/cliente">Mi perfil</Link>
           <Link className="discovery-login" to="/login">Ingresar</Link>
         </nav>
       </header>

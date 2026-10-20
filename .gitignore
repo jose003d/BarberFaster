@@ -1,0 +1,2 @@
+# Restore dependencies from the package manifests and lockfiles after cloning.
+node_modules/
