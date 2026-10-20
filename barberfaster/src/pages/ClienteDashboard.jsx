@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { buscarClientePorDni } from "../services/api";
 import "./ClienteDashboard.css";
 
 const BASE_URL = "/erpbarber/barberfaster/backend";
@@ -59,8 +60,10 @@ export default function ClienteDashboard() {
   const [token, setToken] = useState("");
   const [sesionExpiraEn, setSesionExpiraEn] = useState(null);
   const [cargando, setCargando] = useState(false);
+  const [buscandoCliente, setBuscandoCliente] = useState(false);
   const [error, setError] = useState("");
   const [aviso, setAviso] = useState("");
+  const dniActual = useRef("");
 
   const cargarDatosCliente = useCallback(async (sesion) => {
     setCargando(true);
@@ -102,6 +105,40 @@ export default function ClienteDashboard() {
     const sesionGuardada = localStorage.getItem("barberfaster_cliente_session");
     if (sesionGuardada) cargarDatosCliente(sesionGuardada);
   }, [cargarDatosCliente]);
+
+  const buscarDatosCliente = async () => {
+    const documento = dni.trim();
+    if (!documento) return;
+
+    setBuscandoCliente(true);
+    setError("");
+    setAviso("");
+    try {
+      const resultado = await buscarClientePorDni(documento);
+      if (dniActual.current.trim() !== documento) return;
+
+      if (!resultado.encontrado || !resultado.datos) {
+        setAviso("No encontramos ese documento. Completa tus datos para continuar.");
+        return;
+      }
+
+      const clienteExistente = resultado.datos;
+      const digitosTelefono = String(clienteExistente.telefono || "").replace(/\D/g, "");
+      const telefonoLocal = digitosTelefono.startsWith("57") && digitosTelefono.length > 10
+        ? digitosTelefono.slice(2)
+        : digitosTelefono;
+
+      setNombre(clienteExistente.nombre || "");
+      setTelefono(telefonoLocal);
+      setAviso("Encontramos tu perfil y completamos tus datos.");
+    } catch (lookupError) {
+      if (dniActual.current.trim() === documento) {
+        setError(lookupError.message || "No se pudieron consultar los datos del cliente.");
+      }
+    } finally {
+      if (dniActual.current.trim() === documento) setBuscandoCliente(false);
+    }
+  };
 
   useEffect(() => {
     if (!cliente || !sesionExpiraEn) return undefined;
@@ -258,7 +295,7 @@ export default function ClienteDashboard() {
       <header className="client-profile-nav">
         <Link to="/" className="client-profile-brand">BARBERFASTER</Link>
         <nav aria-label="Navegación de cliente">
-          <Link to="/">Barberías</Link>
+          <Link to="/" className="client-profile-nav-back">← Volver</Link>
           {cliente && <button type="button" onClick={cerrarSesion}>Cerrar sesión</button>}
         </nav>
       </header>
@@ -279,8 +316,23 @@ export default function ClienteDashboard() {
               </label>
               <label>
                 DNI / cédula
-                <input value={dni} onChange={(event) => setDni(event.target.value)} required maxLength={50} autoComplete="off" disabled={codigoEnviado} />
+                <input
+                  value={dni}
+                  onChange={(event) => {
+                    const nuevoDni = event.target.value;
+                    dniActual.current = nuevoDni;
+                    setDni(nuevoDni);
+                    setBuscandoCliente(false);
+                    setAviso("");
+                  }}
+                  onBlur={buscarDatosCliente}
+                  required
+                  maxLength={50}
+                  autoComplete="off"
+                  disabled={codigoEnviado}
+                />
               </label>
+              {buscandoCliente && <p className="client-profile-message" role="status">Consultando tus datos...</p>}
               <label>
                 Teléfono asociado a la cuenta
                 <div className="client-phone-field">
@@ -314,7 +366,7 @@ export default function ClienteDashboard() {
               )}
               {error && <p className="client-profile-message error" role="alert">{error}</p>}
               {aviso && <p className="client-profile-message success" role="status">{aviso}</p>}
-              <button className="client-profile-submit" type="submit" disabled={cargando}>
+              <button className="client-profile-submit" type="submit" disabled={cargando || buscandoCliente}>
                 {cargando ? "Procesando..." : codigoEnviado ? "Verificar y entrar" : "Enviar código por WhatsApp"}
               </button>
               {codigoEnviado && (

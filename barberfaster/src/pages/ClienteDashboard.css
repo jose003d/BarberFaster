@@ -27,8 +27,8 @@
 }
 
 .client-profile-brand {
-  font-family: var(--font-brand);
-  font-size: 1.05rem;
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
+  letter-spacing: 0.07em;
 }
 
 .client-profile-nav nav {
@@ -45,9 +45,21 @@
   font-size: 0.8rem;
 }
 
+.client-profile-nav nav .client-profile-nav-back {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-cyan);
+  font-size: 0.75rem;
+}
+
 .client-profile-nav nav a:hover,
 .client-profile-nav nav button:hover {
   color: var(--bauhaus-orange);
+}
+
+.client-profile-nav nav .client-profile-nav-back:hover {
+  background: var(--bauhaus-paper);
 }
 
 .client-profile-content {
@@ -371,7 +383,7 @@
   }
 
   .client-profile-brand {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
   }
 
   .client-profile-nav nav {
@@ -381,6 +393,12 @@
   .client-profile-nav nav a,
   .client-profile-nav nav button {
     font-size: 0.68rem;
+  }
+
+  .client-profile-nav nav .client-profile-nav-back {
+    min-height: 34px;
+    padding: 6px 8px;
+    font-size: 0.66rem;
   }
 
   .client-profile-content {
