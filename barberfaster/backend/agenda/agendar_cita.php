@@ -258,6 +258,13 @@ try {
     // Confirma definitivamente todos los INSERT realizados en la transacción.
     $pdo->commit();
 
+    $sesionCliente = null;
+    try {
+        $sesionCliente = crearSesionCliente($dni_cliente, $nombre_cliente, $telefono_cliente);
+    } catch (Throwable $e) {
+        error_log('La cita se creó, pero no se pudo iniciar la sesión del cliente: ' . $e->getMessage());
+    }
+
     // -------------------------------------------------------------------------
     // 8. Respuesta exitosa al frontend
     // -------------------------------------------------------------------------
@@ -269,7 +276,9 @@ try {
         "id_cita" => $id_cita,
         "hora_inicio" => $hora_inicio,
         "hora_fin" => $hora_fin,
-        "precio_total" => $precioTotal
+        "precio_total" => $precioTotal,
+        "sesion_cliente" => $sesionCliente,
+        "sesion_expira_en" => $sesionCliente !== null ? time() + 1800 : null
     ]);
 
 } catch (Exception $e) {

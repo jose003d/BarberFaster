@@ -2,6 +2,19 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Instalación del frontend
+
+Se requiere Node.js 20.19 o superior. No se sube `node_modules` a Git: npm lo descarga automáticamente usando el manifiesto y el lockfile incluidos.
+
+En Windows, ejecuta `setup.bat` desde esta carpeta para instalar todas las dependencias. También puedes hacerlo desde una terminal:
+
+```bash
+npm ci
+npm run dev
+```
+
+`npm ci` instala las versiones fijadas en `package-lock.json`; no hace falta instalar los paquetes uno por uno. `node_modules` permanece excluido por `.gitignore`.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
@@ -34,6 +47,12 @@ Endpoints activos:
 La API guarda el OTP temporalmente en un archivo JSON del sistema durante 5 minutos y envía mensajes a través de `https://api.wuapi.dev/v1/messages` usando un bearer token (`WUAPI_API_KEY`) y el `WUAPI_ACCOUNT_ID` en el cuerpo de la solicitud.
 
 El formulario de reservas solicita y verifica el código por WhatsApp antes de permitir confirmar una cita. La reserva vuelve a validar en el backend que el teléfono coincida con el código y requiere un ticket de un solo uso, válido por 10 minutos. El código OTP no se devuelve en la respuesta de envío.
+
+## Perfil del cliente
+
+El enlace **Mi perfil** de la portada lleva a `/cliente`. El cliente ingresa su nombre, DNI y teléfono registrado, y confirma un código OTP enviado por WhatsApp. Tras verificarlo, recibe una sesión temporal de 30 minutos; el backend valida esa sesión y que los datos correspondan al registro del cliente antes de devolver su perfil o sus citas.
+
+Desde el perfil puede cancelar o cambiar la fecha y hora de citas pendientes o confirmadas. La reprogramación mantiene el barbero y los servicios originales, y el servidor valida duración, horario de atención, que la cita aún no haya pasado y que el nuevo turno no esté ocupado.
 
 ## Fotos de barberos
 

@@ -1,28 +1,36 @@
 <?php
-// backend/citas/listar_cliente.php
-// Este archivo devuelve todas las citas de un cliente con información asociada.
-// Incluye nombre de la barbería, nombre del barbero y servicios contratados.
 
-// Permite peticiones desde el frontend.
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
+declare(strict_types=1);
 
-// Conexión a la base de datos.
 require_once '../config/database.php';
+require_once '../verificacion/comun.php';
 
-// Obtiene el DNI del cliente desde la URL, por ejemplo: ?dni_cliente=12345678
-$dni_cliente = $_GET['dni_cliente'] ?? null;
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Content-Type: application/json; charset=UTF-8');
 
-// Valida que el DNI venga en la petición.
-if (!$dni_cliente) {
-    echo json_encode(["status" => "error", "mensaje" => "El DNI del cliente es obligatorio."]);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
     exit();
+}
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    responder(405, false, 'Método no permitido.');
 }
 
 try {
-    // Consulta las citas del cliente con joins a barberías, barberos y servicios.
+    $cliente = obtenerClienteAutenticado($pdo);
+} catch (Throwable $e) {
+    error_log('Error al validar sesión para listar citas: ' . $e->getMessage());
+    responder(500, false, 'No se pudieron cargar las citas.');
+}
+if ($cliente === false) {
+    responder(401, false, 'La sesión venció o los datos no coinciden. Verifica nuevamente tu WhatsApp.');
+}
+
+try {
     $stmt = $pdo->prepare("
-        SELECT 
+        SELECT
             c.id_cita,
             c.id_barberia,
             b.nombre AS nombre_barberia,
@@ -44,15 +52,9 @@ try {
         GROUP BY c.id_cita
         ORDER BY c.fecha DESC, c.hora_inicio DESC
     ");
-    $stmt->execute([$dni_cliente]);
-    $citas = $stmt->fetchAll();
-
-    // Respuesta con la lista de citas.
-    echo json_encode([
-        "status" => "success",
-        "datos" => $citas
-    ]);
-} catch (Exception $e) {
-    // Si ocurre un error, lo retorna como JSON.
-    echo json_encode(["status" => "error", "mensaje" => "Error al listar las citas del cliente: " . $e->getMessage()]);
+    $stmt->execute([$cliente['dni']]);
+    responder(200, true, 'Citas del cliente cargadas.', ['datos' => $stmt->fetchAll()]);
+} catch (Throwable $e) {
+    error_log('Error al listar las citas del cliente: ' . $e->getMessage());
+    responder(500, false, 'No se pudieron cargar las citas.');
 }

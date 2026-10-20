@@ -162,6 +162,92 @@ function consumirTicketVerificacion(array $ticketBloqueado): bool
     return $eliminado;
 }
 
+function crearSesionCliente(string $dni, string $nombre, string $telefono, int $ttlSegundos = 1800): string
+{
+    $token = bin2hex(random_bytes(32));
+    $ruta = rutaSesionCliente($token);
+    $datos = [
+        'dni' => trim($dni),
+        'nombre' => trim($nombre),
+        'telefono' => normalizarTelefono($telefono),
+        'expira_en' => time() + $ttlSegundos,
+    ];
+
+    $bytes = file_put_contents($ruta, json_encode($datos, JSON_UNESCAPED_UNICODE), LOCK_EX);
+    if ($bytes === false) {
+        throw new RuntimeException('No se pudo guardar la sesión del cliente.');
+    }
+
+    return $token;
+}
+
+function rutaSesionCliente(string $token): string
+{
+    return sys_get_temp_dir() . '/barberfaster_cliente_' . hash('sha256', $token) . '.json';
+}
+
+function leerSesionCliente(): array|false
+{
+    $cabecera = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+    if ($cabecera === '' && function_exists('getallheaders')) {
+        $cabeceras = getallheaders();
+        $cabecera = $cabeceras['Authorization'] ?? $cabeceras['authorization'] ?? '';
+    }
+    if (!is_string($cabecera) || preg_match('/^Bearer ([a-f0-9]{64})$/', $cabecera, $coincidencias) !== 1) {
+        return false;
+    }
+
+    $ruta = rutaSesionCliente($coincidencias[1]);
+    $contenido = @file_get_contents($ruta);
+    if (!is_string($contenido)) {
+        return false;
+    }
+
+    $sesion = json_decode($contenido, true);
+    if (
+        !is_array($sesion) ||
+        !isset($sesion['dni'], $sesion['nombre'], $sesion['telefono'], $sesion['expira_en']) ||
+        (int)$sesion['expira_en'] < time()
+    ) {
+        if (is_file($ruta)) {
+            unlink($ruta);
+        }
+        return false;
+    }
+
+    return $sesion;
+}
+
+function obtenerClienteAutenticado(PDO $pdo): array|false
+{
+    $sesion = leerSesionCliente();
+    if ($sesion === false) {
+        return false;
+    }
+
+    $stmt = $pdo->prepare('SELECT dni, nombre, telefono FROM clientes WHERE dni = ?');
+    $stmt->execute([$sesion['dni']]);
+    $cliente = $stmt->fetch();
+    $nombreCliente = trim((string)($cliente['nombre'] ?? ''));
+    $nombreSesion = trim((string)$sesion['nombre']);
+    if (function_exists('mb_strtolower')) {
+        $nombreCliente = mb_strtolower($nombreCliente, 'UTF-8');
+        $nombreSesion = mb_strtolower($nombreSesion, 'UTF-8');
+    } else {
+        $nombreCliente = strtolower($nombreCliente);
+        $nombreSesion = strtolower($nombreSesion);
+    }
+    if (
+        !$cliente ||
+        normalizarTelefono((string)($cliente['telefono'] ?? '')) !== $sesion['telefono'] ||
+        $nombreCliente !== $nombreSesion
+    ) {
+        return false;
+    }
+
+    return $cliente;
+}
+
 // Libera un ticket bloqueado sin consumirlo.
 function liberarTicketVerificacion(array $ticketBloqueado): void
 {
@@ -288,7 +374,7 @@ function leerOtpDesdeTelefono(string $telefono): ?array
 }
 
 // Persiste OTP, expiración e intentos iniciales en el almacenamiento temporal.
-function guardarOtp(string $telefono, string $codigo, int $ttlSegundos = 300): void
+function guardarOtp(string $telefono, string $codigo, int $ttlSegundos = 300, array $contexto = []): void
 {
     $ruta = rutaArchivoOtp($telefono);
     $datos = [
@@ -298,6 +384,9 @@ function guardarOtp(string $telefono, string $codigo, int $ttlSegundos = 300): v
         'intentos' => 0,
         'creado_en' => time(),
     ];
+    if ($contexto !== []) {
+        $datos['contexto'] = $contexto;
+    }
 
     $bytes = file_put_contents($ruta, json_encode($datos, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
     if ($bytes === false) {

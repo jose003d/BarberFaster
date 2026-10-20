@@ -41,20 +41,27 @@
 
 .discovery-brand {
   display: inline-flex;
+  flex: 0 1 auto;
   align-items: center;
-  gap: 0;
+  gap: 9px;
+  min-width: 0;
   color: var(--bauhaus-ink);
   font-family: "Chillax", "Arial", sans-serif;
-  font-size: clamp(1rem, 1.45vw, 1.3rem);
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   line-height: 1;
   text-decoration: none;
-  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.discovery-brand > span:last-child > span {
-  font-weight: 400;
+.discovery-brand img {
+  display: block;
+  width: 42px;
+  height: 34px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  object-position: left center;
 }
 
 .discovery-nav nav {
@@ -109,14 +116,22 @@
   align-items: center;
   overflow: hidden;
   border-bottom: 4px solid var(--bauhaus-ink);
-  background: var(--bauhaus-cyan-light);
+  background: linear-gradient(
+    90deg,
+    var(--bauhaus-cyan-light) 0%,
+    #81e4e9 48%,
+    var(--bauhaus-cyan) 100%
+  );
+}
+
+.discovery-hero-layout {
+  width: min(1120px, calc(100% - 48px));
+  margin: 0 auto;
 }
 
 .discovery-hero-content {
   position: relative;
   z-index: 2;
-  width: min(840px, calc(100% - 48px));
-  margin: 0 auto;
   padding: 55px 0 62px;
 }
 
@@ -589,7 +604,13 @@
   }
 
   .discovery-brand {
-    font-size: 1.08rem;
+    gap: 7px;
+    font-size: 0.72rem;
+  }
+
+  .discovery-brand img {
+    width: 34px;
+    height: 30px;
   }
 
   .discovery-nav nav {
@@ -608,8 +629,12 @@
     min-height: 370px;
   }
 
-  .discovery-hero-content {
+  .discovery-hero-layout {
     width: calc(100% - 42px);
+  }
+
+  .discovery-hero-content {
+    width: 100%;
     padding: 38px 0;
   }
 
@@ -700,7 +725,7 @@
   }
 
   .discovery-hero-content {
-    width: calc(100% - 32px);
+    width: 100%;
   }
 
   .discovery-hero h1 {
