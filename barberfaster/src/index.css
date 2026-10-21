@@ -1,4 +1,4 @@
-/* Fuentes locales disponibles para la identidad visual de la aplicación. */
+/* Las tres familias tipográficas únicas de la identidad visual. */
 @font-face {
   font-family: "Satoshi";
   src: url("./assets/fonts/Satoshi-Variable.ttf") format("truetype");
@@ -10,14 +10,6 @@
 @font-face {
   font-family: "Baumans";
   src: url("./assets/fonts/Baumans-Regular.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Alba";
-  src: url("./assets/fonts/Alba-Regular.ttf") format("truetype");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -73,7 +65,11 @@
 
 :root {
   /* Tipografía, paleta Bauhaus y tokens reutilizables de interfaz. */
-  font-family: "Satoshi", "Arial", sans-serif;
+  --font-body: "Satoshi", sans-serif;
+  --font-ui: "Chillax", sans-serif;
+  --font-brand: "Baumans", sans-serif;
+
+  font-family: var(--font-body);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -87,6 +83,12 @@
   --bauhaus-cyan-light: #dff7f6;
   --bauhaus-orange: #ec4d25;
   --bauhaus-green: #3fe112;
+  --brand-gradient: linear-gradient(
+    90deg,
+    var(--bauhaus-cyan-light) 0%,
+    #81e4e9 48%,
+    var(--bauhaus-cyan) 100%
+  );
 
   --text: var(--bauhaus-ink);
   --text-muted: #65666a;
@@ -99,7 +101,7 @@
   --radius-sm: 2px;
 
   color: var(--text);
-  background: var(--bg);
+  background: var(--brand-gradient);
 }
 
 /* Normalización de cajas, dimensiones base y fuentes para controles nativos. */
@@ -115,7 +117,9 @@ body {
 }
 
 body {
-  font-family: "Satoshi", "Arial", sans-serif;
+  min-height: 100vh;
+  background: var(--brand-gradient);
+  font-family: var(--font-body);
 }
 
 button,
@@ -138,7 +142,7 @@ button,
 .dash-card button,
 .search-input,
 .filter-select {
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   letter-spacing: 0.02em;
 }
 
@@ -157,7 +161,7 @@ select,
 textarea,
 input::placeholder,
 textarea::placeholder {
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   letter-spacing: 0.01em;
 }
 
@@ -177,7 +181,7 @@ h2,
 h3,
 h4 {
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-weight: 700;
 }
 
