@@ -16,7 +16,32 @@ $solo_activas = $_GET['activas'] ?? 'true';
 
 try {
     // Consulta base para traer todas las barberías.
-    $sql = "SELECT id_barberia, nombre, direccion, ciudad, telefono, estado, foto FROM barberias";
+    $sql = "
+        SELECT
+            barberias.id_barberia,
+            barberias.nombre,
+            barberias.direccion,
+            barberias.ciudad,
+            barberias.telefono,
+            barberias.estado,
+            barberias.foto,
+            (
+                SELECT AVG(r.calificacion)
+                FROM barberos b
+                INNER JOIN citas c ON c.id_barbero = b.id_barbero
+                INNER JOIN resenas r ON r.id_cita = c.id_cita
+                WHERE b.id_barberia = barberias.id_barberia
+                  AND b.estado = 'ACTIVO'
+            ) AS calificacion_promedio,
+            (
+                SELECT COUNT(r.id_resena)
+                FROM barberos b
+                INNER JOIN citas c ON c.id_barbero = b.id_barbero
+                INNER JOIN resenas r ON r.id_cita = c.id_cita
+                WHERE b.id_barberia = barberias.id_barberia
+                  AND b.estado = 'ACTIVO'
+            ) AS cantidad_calificaciones
+        FROM barberias";
     
     // Si se pide solo activas, agrega filtro por estado = ACTIVA.
     if ($solo_activas === 'true') {

@@ -1,9 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
-import Login from './pages/Login'; // ✅ Correcto (sin llaves)
+import Login from './pages/Login';
 import MagneticButtons from "./components/MagneticButtons";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Barberias from "./pages/Barberias";
+import Barberos from "./pages/Barberos";
 import Usuarios from "./pages/Usuarios";
 import Clientes from "./pages/Clientes";
 import Profile from "./pages/Profile";
@@ -38,7 +39,10 @@ function PublicRoute({ children }) {
 function RoleRoute({ role, children }) {
   const isAuthenticated = localStorage.getItem("erpbarber_auth") === "true";
   const user = JSON.parse(localStorage.getItem("user") || "null");
-  if (!isAuthenticated || !user || user.rol !== role) return <Navigate to="/login" replace />;
+  // Permite navegar el perfil seleccionado mientras el acceso de barbero siga en modo demo.
+  const isSelectedBarberDemo = role === "barbero" && Boolean(localStorage.getItem("barbero_demo_sesion"));
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if ((!user || user.rol !== role) && !isSelectedBarberDemo) return <Navigate to="/dashboard" replace />;
   return children;
 }
 
@@ -56,14 +60,15 @@ function App() {
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/reservar" element={<Agenda reservaPublica />} />
           <Route path="/dashboard" element={<AdminRoute><DashboardLayout><Dashboard /></DashboardLayout></AdminRoute>} />
-          <Route path="/barberias" element={<AdminRoute><DashboardLayout><Barberias /></DashboardLayout></AdminRoute>} />
+          <Route path="/personal" element={<AdminRoute><DashboardLayout><Barberos /></DashboardLayout></AdminRoute>} />
+          <Route path="/barberias" element={<RoleRoute role="superadmin"><DashboardLayout><Barberias /></DashboardLayout></RoleRoute>} />
           <Route path="/usuarios" element={<AdminRoute><DashboardLayout><Usuarios /></DashboardLayout></AdminRoute>} />
-          <Route path="/clientes" element={<AdminRoute><DashboardLayout><Clientes /></DashboardLayout></AdminRoute>} />
+          <Route path="/clientes" element={<RoleRoute role="superadmin"><DashboardLayout><Clientes /></DashboardLayout></RoleRoute>} />
           <Route path="/perfil" element={<DashboardLayout><Profile /></DashboardLayout>} />
           <Route path="/agenda" element={<AdminRoute><DashboardLayout><Agenda /></DashboardLayout></AdminRoute>} />
           <Route path="/superadmin" element={<RoleRoute role="superadmin"><DashboardLayout><SuperadminDashboard /></DashboardLayout></RoleRoute>} />
           <Route path="/superadmin/clientes" element={<RoleRoute role="superadmin"><DashboardLayout><SuperadminClientes /></DashboardLayout></RoleRoute>} />
-          <Route path="/admin" element={<RoleRoute role="admin"><DashboardLayout><AdminDashboard /></DashboardLayout></RoleRoute>} />
+          <Route path="/admin" element={<RoleRoute role="superadmin"><DashboardLayout><AdminDashboard /></DashboardLayout></RoleRoute>} />
           <Route path="/barbero" element={<RoleRoute role="barbero"><DashboardLayout><BarberoWorkspace /></DashboardLayout></RoleRoute>} />
           <Route path="/cliente" element={<ClienteDashboard />} />
         </Routes>

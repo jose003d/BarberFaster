@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-require_once '../config/database.php';
-require_once '../agenda/horarios_utils.php';
-require_once '../verificacion/comun.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../agenda/utilidades_horario.php';
+require_once __DIR__ . '/../verificacion/comun.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -65,7 +65,7 @@ try {
     }
 
     $stmtHorario = $pdo->prepare("
-        SELECT hora_apertura, hora_cierre
+        SELECT hora_apertura, hora_cierre, dias_trabajo
         FROM barberias
         WHERE id_barberia = ?
     ");
@@ -103,6 +103,13 @@ try {
         $cierreMinutos <= $aperturaMinutos
     ) {
         throw new RuntimeException('La fecha o la hora seleccionada no son válidas.', 422);
+    }
+
+    // Evita mover una cita a un día en que la barbería no atiende.
+    $diasSemana = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
+    $diaReserva = $diasSemana[(int)$fechaValidada->format('N') - 1];
+    if (!in_array($diaReserva, explode(',', (string)$horario['dias_trabajo']), true)) {
+        throw new RuntimeException("La barbería no recibe reservas los días $diaReserva.", 422);
     }
 
     $finMinutos = $inicioMinutos + $duracion;

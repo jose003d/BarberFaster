@@ -22,6 +22,10 @@ $data = json_decode(file_get_contents("php://input"), true);
 // Extrae los campos requeridos.
 $id_barberia  = $data['id_barberia'] ?? null;
 $nombre       = $data['nombre'] ?? null;
+$apellido     = $data['apellido'] ?? '';
+$email        = $data['email'] ?? '';
+$telefono     = $data['telefono'] ?? '';
+$documento    = $data['documento'] ?? '';
 $especialidad = $data['especialidad'] ?? null;
 
 // Valida que la barbería y el nombre sean obligatorios.
@@ -31,12 +35,12 @@ if (!$id_barberia || !$nombre) {
 }
 
 try {
-    // Inserta el nuevo barbero con estado ACTIVO por defecto.
+    // Guarda los datos personales y profesionales del nuevo barbero.
     $stmt = $pdo->prepare("
-        INSERT INTO barberos (id_barberia, nombre, especialidad, estado)
-        VALUES (?, ?, ?, 'ACTIVO')
+        INSERT INTO barberos (id_barberia, nombre, apellido, email, telefono, documento, especialidad, estado)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'ACTIVO')
     ");
-    $stmt->execute([$id_barberia, $nombre, $especialidad]);
+    $stmt->execute([$id_barberia, $nombre, $apellido, $email, $telefono, $documento, $especialidad]);
 
     // Devuelve respuesta de éxito y el ID generado.
     echo json_encode([
@@ -44,7 +48,8 @@ try {
         "mensaje" => "Barbero registrado correctamente.",
         "id_barbero" => $pdo->lastInsertId()
     ]);
-} catch (Exception $e) {
-    // Si falla la inserción, devuelve el error.
-    echo json_encode(["status" => "error", "mensaje" => "Error al registrar barbero: " . $e->getMessage()]);
+} catch (Throwable $e) {
+    error_log('Error al registrar los datos del barbero: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["status" => "error", "mensaje" => "Error al registrar los datos del barbero."]);
 }

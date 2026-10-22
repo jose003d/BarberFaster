@@ -29,6 +29,8 @@ if ($sesion === false || $cliente === false) {
     responder(401, false, 'La sesión venció o los datos no coinciden. Verifica nuevamente tu WhatsApp.');
 }
 
+$cliente['nombre'] = $sesion['nombre'];
+
 responder(200, true, 'Perfil del cliente cargado.', [
     'cliente' => $cliente,
     'sesion_expira_en' => (int)$sesion['expira_en'],

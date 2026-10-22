@@ -1,4 +1,6 @@
 import React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
 
 // Presenta estados de espera/vacío y permite seleccionar un horario disponible.
 export default function TimeSlotGrid({ slots, selectedTime, onSelect, isLoading }) {
@@ -27,10 +29,17 @@ export default function TimeSlotGrid({ slots, selectedTime, onSelect, isLoading 
             type="button"
             className={`time-slot-button${selected ? " selected" : ""}`}
             aria-pressed={selected}
+            aria-label={`${slot.hora_inicio.slice(0, 5)} hasta ${slot.hora_fin.slice(0, 5)}${selected ? ", horario seleccionado" : ""}`}
             onClick={() => onSelect(slot.hora_inicio.slice(0, 5))}
           >
             <span>{slot.hora_inicio.slice(0, 5)}</span>
             <small>Hasta {slot.hora_fin.slice(0, 5)}</small>
+            {selected && (
+              <span className="time-slot-selected-indicator" aria-hidden="true">
+                <FontAwesomeIcon icon={faCheck} />
+                <span>Elegido</span>
+              </span>
+            )}
           </button>
         );
       })}

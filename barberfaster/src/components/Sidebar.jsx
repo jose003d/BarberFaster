@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import logoBarberFaster from "../assets/logo-barberfaster.png";
 import {
   faScissors,
   faUsers,
@@ -15,12 +16,17 @@ import {
 function Sidebar() {
   // La sesión demo determina si se presentan las opciones del barbero o del administrador.
   const navigate = useNavigate();
+  const location = useLocation();
   const [barberoActivo, setBarberoActivo] = useState(() => Boolean(localStorage.getItem("barbero_demo_sesion")));
+  const [usuarioRol, setUsuarioRol] = useState(() => JSON.parse(localStorage.getItem("user") || "null")?.rol || null);
   const [menuAbierto, setMenuAbierto] = useState(false);
 
   // Escucha cambios de rol y sincroniza el estado del menú con la sesión.
   useEffect(() => {
-    const syncRole = () => setBarberoActivo(Boolean(localStorage.getItem("barbero_demo_sesion")));
+    const syncRole = () => {
+      setBarberoActivo(Boolean(localStorage.getItem("barbero_demo_sesion")));
+      setUsuarioRol(JSON.parse(localStorage.getItem("user") || "null")?.rol || null);
+    };
     window.addEventListener("barberfaster-role-change", syncRole);
     window.addEventListener("storage", syncRole);
     return () => {
@@ -46,14 +52,25 @@ function Sidebar() {
     };
   }, [menuAbierto]);
 
-  // Borra la sesión local, notifica el cambio de rol y vuelve al inicio de sesión.
+  // Cerrar el modo demo del barbero vuelve al selector; el logout admin limpia todo.
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("erpbarber_auth");
-    localStorage.removeItem("barbero_demo_sesion");
+    if (barberoActivo) {
+      localStorage.removeItem("barbero_demo_sesion");
+    } else {
+      localStorage.removeItem("user");
+      localStorage.removeItem("erpbarber_auth");
+    }
     window.dispatchEvent(new Event("barberfaster-role-change"));
     setMenuAbierto(false);
-    navigate("/login", { replace: true });
+    navigate(
+      barberoActivo ? "/perfil" : "/",
+      barberoActivo
+        ? {
+            replace: true,
+            state: { returnTo: `${location.pathname}${location.search}${location.hash}` },
+          }
+        : { replace: true }
+    );
   };
 
   // Construye las opciones de navegación apropiadas al rol activo.
@@ -62,15 +79,25 @@ function Sidebar() {
         { label: "Workspace", to: "/barbero", icon: faGaugeHigh },
         { label: "Mi perfil", to: "/perfil", icon: faUserTie }
       ]
-    : [
-        { label: "Dashboard local", to: "/dashboard", icon: faGaugeHigh },
+    : usuarioRol === "superadmin"
+      ? [
+        { label: "Métricas", to: "/dashboard?section=metricas", icon: faGaugeHigh, section: "metricas" },
         { label: "Superadmin", to: "/superadmin", icon: faScissors },
         { label: "Barberías", to: "/barberias", icon: faScissors },
-        { label: "Personal", to: "/usuarios", icon: faUsers },
+        { label: "Personal", to: "/personal", icon: faUsers },
+        { label: "Usuarios", to: "/usuarios", icon: faUserGroup },
         { label: "Clientes", to: "/clientes", icon: faUserGroup },
-        { label: "Agenda", to: "/agenda", icon: faCalendarDays },
+        { label: "Agenda", to: "/dashboard?section=agenda", icon: faCalendarDays, section: "agenda" },
+        { label: "Perfil del establecimiento", to: "/dashboard?section=perfil", icon: faGaugeHigh, section: "perfil" },
         { label: "Perfil de barbero", to: "/perfil", icon: faUserTie }
-      ];
+      ]
+      : [
+          { label: "Métricas", to: "/dashboard?section=metricas", icon: faGaugeHigh, section: "metricas" },
+          { label: "Personal", to: "/personal", icon: faUsers },
+          { label: "Agenda", to: "/dashboard?section=agenda", icon: faCalendarDays, section: "agenda" },
+          { label: "Perfil del establecimiento", to: "/dashboard?section=perfil", icon: faGaugeHigh, section: "perfil" },
+          { label: "Perfil de barbero", to: "/perfil", icon: faUserTie }
+        ];
 
   // Renderiza la cabecera, el fondo interactivo y el panel de navegación móvil.
   return (
@@ -97,11 +124,10 @@ function Sidebar() {
           onClick={() => setMenuAbierto(false)}
         >
           <img
-            src="/erpbarber/barberfaster/backend/uploads/logo.png"
-            alt=""
+            src={logoBarberFaster}
+            alt="BarberFaster"
             className="staggered-menu-logo"
           />
-          <span>BarberFaster</span>
         </NavLink>
       </header>
 
@@ -128,7 +154,7 @@ function Sidebar() {
             {barberoActivo ? "Modo barbero" : "Administración"}
           </p>
           <ol className="staggered-menu-list">
-            {menuItems.map(({ label, to, icon }, index) => (
+            {menuItems.map(({ label, to, icon, section }, index) => (
               <li
                 className="staggered-menu-item"
                 key={to}
@@ -136,8 +162,16 @@ function Sidebar() {
               >
                 <NavLink
                   to={to}
+                  state={to === "/perfil"
+                    ? { returnTo: `${location.pathname}${location.search}${location.hash}` }
+                    : undefined}
                   end
-                  className={({ isActive }) => `staggered-menu-link${isActive ? " active" : ""}`}
+                  className={({ isActive }) => {
+                    const activeSection = section
+                      ? location.pathname === "/dashboard" && location.search === `?section=${section}`
+                      : isActive;
+                    return `staggered-menu-link${activeSection ? " active" : ""}`;
+                  }}
                   tabIndex={menuAbierto ? 0 : -1}
                   onClick={() => setMenuAbierto(false)}
                 >

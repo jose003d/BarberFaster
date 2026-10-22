@@ -1,8 +1,12 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { buscarClientePorDni } from "../services/api";
+import PeekRating from "../components/PeekRating";
 import "./ClienteDashboard.css";
 
 const BASE_URL = "/erpbarber/barberfaster/backend";
+const CLIENT_SESSION_KEY = "barberfaster_cliente_session";
+const CLIENT_SESSION_EXPIRY_KEY = "barberfaster_cliente_session_expira_en";
 
 async function leerRespuesta(response) {
   const data = await response.json();
@@ -56,11 +60,15 @@ export default function ClienteDashboard() {
   const [cliente, setCliente] = useState(null);
   const [citas, setCitas] = useState([]);
   const [cambios, setCambios] = useState({});
+  const [calificaciones, setCalificaciones] = useState({});
+  const [calificandoCita, setCalificandoCita] = useState(null);
   const [token, setToken] = useState("");
   const [sesionExpiraEn, setSesionExpiraEn] = useState(null);
   const [cargando, setCargando] = useState(false);
+  const [buscandoCliente, setBuscandoCliente] = useState(false);
   const [error, setError] = useState("");
   const [aviso, setAviso] = useState("");
+  const dniActual = useRef("");
 
   const cargarDatosCliente = useCallback(async (sesion) => {
     setCargando(true);
@@ -74,24 +82,32 @@ export default function ClienteDashboard() {
       setCliente(perfil.cliente);
       setSesionExpiraEn(Number(perfil.sesion_expira_en));
       setCitas(historial.datos || []);
+      setCalificaciones(Object.fromEntries(
+        (historial.datos || [])
+          .filter((cita) => cita.calificacion)
+          .map((cita) => [cita.id_cita, Number(cita.calificacion)])
+      ));
       setCambios(
         Object.fromEntries((historial.datos || []).map((cita) => [
           cita.id_cita,
           { fecha: String(cita.fecha).slice(0, 10), hora: horaParaCampo(cita.hora_inicio) },
         ]))
       );
-      localStorage.setItem("barberfaster_cliente_session", sesion);
+      localStorage.setItem(CLIENT_SESSION_KEY, sesion);
+      localStorage.setItem(CLIENT_SESSION_EXPIRY_KEY, String(perfil.sesion_expira_en));
       setNombre("");
       setDni("");
       setTelefono("");
       setCodigo("");
       setCodigoEnviado(false);
     } catch (loadError) {
-      localStorage.removeItem("barberfaster_cliente_session");
+      localStorage.removeItem(CLIENT_SESSION_KEY);
+      localStorage.removeItem(CLIENT_SESSION_EXPIRY_KEY);
       setToken("");
       setCliente(null);
       setSesionExpiraEn(null);
       setCitas([]);
+      setCalificaciones({});
       setError(loadError.message || "No se pudo cargar el perfil del cliente.");
     } finally {
       setCargando(false);
@@ -99,15 +115,50 @@ export default function ClienteDashboard() {
   }, []);
 
   useEffect(() => {
-    const sesionGuardada = localStorage.getItem("barberfaster_cliente_session");
+    const sesionGuardada = localStorage.getItem(CLIENT_SESSION_KEY);
     if (sesionGuardada) cargarDatosCliente(sesionGuardada);
   }, [cargarDatosCliente]);
+
+  const buscarDatosCliente = async () => {
+    const documento = dni.trim();
+    if (!documento) return;
+
+    setBuscandoCliente(true);
+    setError("");
+    setAviso("");
+    try {
+      const resultado = await buscarClientePorDni(documento);
+      if (dniActual.current.trim() !== documento) return;
+
+      if (!resultado.encontrado || !resultado.datos) {
+        setAviso("No encontramos ese documento. Completa tus datos para continuar.");
+        return;
+      }
+
+      const clienteExistente = resultado.datos;
+      const digitosTelefono = String(clienteExistente.telefono || "").replace(/\D/g, "");
+      const telefonoLocal = digitosTelefono.startsWith("57") && digitosTelefono.length > 10
+        ? digitosTelefono.slice(2)
+        : digitosTelefono;
+
+      setNombre(clienteExistente.nombre || "");
+      setTelefono(telefonoLocal);
+      setAviso("Encontramos tu perfil y completamos tus datos.");
+    } catch (lookupError) {
+      if (dniActual.current.trim() === documento) {
+        setError(lookupError.message || "No se pudieron consultar los datos del cliente.");
+      }
+    } finally {
+      if (dniActual.current.trim() === documento) setBuscandoCliente(false);
+    }
+  };
 
   useEffect(() => {
     if (!cliente || !sesionExpiraEn) return undefined;
     const milisegundosRestantes = (sesionExpiraEn * 1000) - Date.now();
     const temporizador = window.setTimeout(() => {
-      localStorage.removeItem("barberfaster_cliente_session");
+      localStorage.removeItem(CLIENT_SESSION_KEY);
+      localStorage.removeItem(CLIENT_SESSION_EXPIRY_KEY);
       setToken("");
       setCliente(null);
       setSesionExpiraEn(null);
@@ -172,6 +223,10 @@ export default function ClienteDashboard() {
       if (!data.sesion_cliente) {
         throw new Error("No se pudo iniciar la sesión del cliente. Inténtalo nuevamente.");
       }
+      localStorage.setItem(CLIENT_SESSION_KEY, data.sesion_cliente);
+      if (data.sesion_expira_en) {
+        localStorage.setItem(CLIENT_SESSION_EXPIRY_KEY, String(data.sesion_expira_en));
+      }
       await cargarDatosCliente(data.sesion_cliente);
     } catch (requestError) {
       setError(requestError.message || "No se pudo verificar el código.");
@@ -181,12 +236,14 @@ export default function ClienteDashboard() {
   };
 
   const cerrarSesion = () => {
-    localStorage.removeItem("barberfaster_cliente_session");
+    localStorage.removeItem(CLIENT_SESSION_KEY);
+    localStorage.removeItem(CLIENT_SESSION_EXPIRY_KEY);
     setToken("");
     setCliente(null);
     setSesionExpiraEn(null);
     setCitas([]);
     setCambios({});
+    setCalificaciones({});
     setError("");
     setAviso("");
   };
@@ -196,6 +253,14 @@ export default function ClienteDashboard() {
       ...actuales,
       [idCita]: { ...actuales[idCita], [campo]: valor },
     }));
+  };
+
+  const descartarCambio = (idCita) => {
+    setCambios((actuales) => {
+      const siguientes = { ...actuales };
+      delete siguientes[idCita];
+      return siguientes;
+    });
   };
 
   const cancelarCita = async (idCita) => {
@@ -253,12 +318,49 @@ export default function ClienteDashboard() {
     }
   };
 
+  const calificarBarbero = async (event, idCita) => {
+    event.preventDefault();
+    setError("");
+    setAviso("");
+
+    const calificacion = Number(calificaciones[idCita]);
+    if (!Number.isInteger(calificacion) || calificacion < 1 || calificacion > 5) {
+      setError("Selecciona de 1 a 5 estrellas para calificar al barbero.");
+      return;
+    }
+
+    setCalificandoCita(idCita);
+    try {
+      const response = await fetch(`${BASE_URL}/resenas/crearr.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `******`,
+        },
+        body: JSON.stringify({
+          id_cita: idCita,
+          calificacion,
+          sesion_cliente: token,
+        }),
+      });
+      const data = await leerRespuesta(response);
+      setCitas((actuales) => actuales.map((cita) => (
+        cita.id_cita === idCita ? { ...cita, calificacion } : cita
+      )));
+      setAviso(data.mensaje || "Gracias por calificar a tu barbero.");
+    } catch (ratingError) {
+      setError(ratingError.message || "No se pudo guardar la calificación.");
+    } finally {
+      setCalificandoCita(null);
+    }
+  };
+
   return (
     <main className="client-profile-page">
       <header className="client-profile-nav">
         <Link to="/" className="client-profile-brand">BARBERFASTER</Link>
         <nav aria-label="Navegación de cliente">
-          <Link to="/">Barberías</Link>
+          <Link to="/" className="client-profile-nav-back">← Volver</Link>
           {cliente && <button type="button" onClick={cerrarSesion}>Cerrar sesión</button>}
         </nav>
       </header>
@@ -274,12 +376,27 @@ export default function ClienteDashboard() {
             </p>
             <form onSubmit={codigoEnviado ? verificarCodigo : solicitarCodigo}>
               <label>
+                DNI / cédula
+                <input
+                  value={dni}
+                  onChange={(event) => {
+                    const nuevoDni = event.target.value;
+                    dniActual.current = nuevoDni;
+                    setDni(nuevoDni);
+                    setBuscandoCliente(false);
+                    setAviso("");
+                  }}
+                  onBlur={buscarDatosCliente}
+                  required
+                  maxLength={50}
+                  autoComplete="off"
+                  disabled={codigoEnviado}
+                />
+              </label>
+              {buscandoCliente && <p className="client-profile-message" role="status">Consultando tus datos...</p>}
+              <label>
                 Nombre completo
                 <input value={nombre} onChange={(event) => setNombre(event.target.value)} required maxLength={200} autoComplete="name" disabled={codigoEnviado} />
-              </label>
-              <label>
-                DNI / cédula
-                <input value={dni} onChange={(event) => setDni(event.target.value)} required maxLength={50} autoComplete="off" disabled={codigoEnviado} />
               </label>
               <label>
                 Teléfono asociado a la cuenta
@@ -314,7 +431,7 @@ export default function ClienteDashboard() {
               )}
               {error && <p className="client-profile-message error" role="alert">{error}</p>}
               {aviso && <p className="client-profile-message success" role="status">{aviso}</p>}
-              <button className="client-profile-submit" type="submit" disabled={cargando}>
+              <button className="client-profile-submit" type="submit" disabled={cargando || buscandoCliente}>
                 {cargando ? "Procesando..." : codigoEnviado ? "Verificar y entrar" : "Enviar código por WhatsApp"}
               </button>
               {codigoEnviado && (
@@ -357,8 +474,8 @@ export default function ClienteDashboard() {
             {aviso && <p className="client-profile-message success" role="status">{aviso}</p>}
 
             <section className="client-details-card" aria-label="Datos del perfil">
-              <div><span>Nombre</span><strong>{cliente.nombre}</strong></div>
               <div><span>DNI / cédula</span><strong>{cliente.dni}</strong></div>
+              <div><span>Nombre</span><strong>{cliente.nombre}</strong></div>
               <div><span>Teléfono verificado</span><strong>{cliente.telefono}</strong></div>
             </section>
 
@@ -420,9 +537,65 @@ export default function ClienteDashboard() {
                             </label>
                             <div className="client-appointment-buttons">
                               <button className="client-reschedule-button" type="submit">Cambiar horario</button>
+                              <button className="client-discard-button" type="button" onClick={() => descartarCambio(cita.id_cita)}>
+                                Descartar cambios
+                              </button>
                               <button className="client-cancel-button" type="button" onClick={() => cancelarCita(cita.id_cita)}>Cancelar cita</button>
                             </div>
                           </form>
+                        )}
+                        {cita.estado === "COMPLETADA" && (
+                          cita.calificacion ? (
+                            <div className="client-rating-result" aria-label={`Calificaste al barbero con ${cita.calificacion} de 5 estrellas`}>
+                              <PeekRating
+                                value={Number(cita.calificacion)}
+                                count={5}
+                                shape="star"
+                                activeColor="#ec9b00"
+                                idleColor="#ec9b00"
+                                size={24}
+                                lift={0}
+                                showTip={false}
+                                readOnly
+                                ariaLabel={`Calificación de ${cita.calificacion} de 5 estrellas`}
+                              />
+                              <strong>Calificaste a {cita.nombre_barbero}</strong>
+                            </div>
+                          ) : (
+                            <form className="client-rating-form" onSubmit={(event) => calificarBarbero(event, cita.id_cita)}>
+                              <fieldset disabled={calificandoCita === cita.id_cita}>
+                                <legend>Califica a {cita.nombre_barbero}</legend>
+                                <PeekRating
+                                  value={Number(calificaciones[cita.id_cita] || 0)}
+                                  onChange={(calificacion) => setCalificaciones((actuales) => ({
+                                    ...actuales,
+                                    [cita.id_cita]: calificacion,
+                                  }))}
+                                  count={5}
+                                  shape="star"
+                                  labels={["Mala", "Regular", "Buena", "Muy buena", "Excelente"]}
+                                  activeColor="#ec9b00"
+                                  idleColor="#ec9b00"
+                                  size={32}
+                                  lift={7}
+                                  magnify={1.15}
+                                  riseDuration={320}
+                                  popScale={1.3}
+                                  showTip
+                                  allowClear
+                                  disabled={calificandoCita === cita.id_cita}
+                                  ariaLabel={`Califica a ${cita.nombre_barbero} de 1 a 5 estrellas`}
+                                />
+                              </fieldset>
+                              <button
+                                className="client-reschedule-button client-rating-submit"
+                                type="submit"
+                                disabled={calificandoCita === cita.id_cita || !calificaciones[cita.id_cita]}
+                              >
+                                {calificandoCita === cita.id_cita ? "Guardando..." : "Enviar calificación"}
+                              </button>
+                            </form>
+                          )
                         )}
                       </article>
                     );

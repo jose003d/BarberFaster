@@ -160,7 +160,7 @@ export const BarberiaModal = ({ isOpen, onClose, barberiaEditar, onSuccess }) =>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
             <button type="button" onClick={onClose} disabled={loading} style={{ padding: '10px 18px', background: '#e4e4e4', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}>Cancelar</button>
-            <button type="submit" disabled={loading} style={{ padding: '10px 20px', background: '#2bcfce', color: '#393939', border: '2px solid #393939', borderRadius: '2px', cursor: 'pointer', fontWeight: '600', fontFamily: '"Chillax", Arial, sans-serif' }}>
+            <button type="submit" disabled={loading} style={{ padding: '10px 20px', background: '#2bcfce', color: '#393939', border: '2px solid #393939', borderRadius: '2px', cursor: 'pointer', fontWeight: '600', fontFamily: 'var(--font-ui)' }}>
               {loading ? 'Guardando...' : (barberiaEditar ? 'Guardar Cambios' : 'Registrar')}
             </button>
           </div>

@@ -16,9 +16,9 @@
   --bauhaus-orange: #ec4d25;
   --bauhaus-green: #3fe112;
   min-height: 100vh;
-  background: var(--bauhaus-paper);
+  background: transparent;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
 .barber-discovery-page *,
@@ -30,11 +30,11 @@
 /* Navegación superior, marca y llamada principal de la portada. */
 .discovery-nav {
   display: flex;
-  min-height: 72px;
+  min-height: 96px;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 0 clamp(20px, 6vw, 88px);
+  padding: 0 clamp(12px, 2.5vw, 36px);
   border-bottom: 3px solid var(--bauhaus-ink);
   background: var(--bauhaus-paper);
 }
@@ -43,13 +43,9 @@
   display: inline-flex;
   flex: 0 1 auto;
   align-items: center;
-  gap: 9px;
   min-width: 0;
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
-  font-size: clamp(0.8rem, 1vw, 0.95rem);
-  font-weight: 700;
-  letter-spacing: 0.07em;
+  font-family: var(--font-ui);
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
@@ -57,11 +53,11 @@
 
 .discovery-brand img {
   display: block;
-  width: 42px;
-  height: 34px;
+  width: clamp(96px, 10vw, 116px);
+  height: auto;
+  max-height: 62px;
   flex: 0 0 auto;
   object-fit: contain;
-  object-position: left center;
 }
 
 .discovery-nav nav {
@@ -72,7 +68,7 @@
 
 .discovery-nav nav a {
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.84rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -91,48 +87,72 @@
   color: var(--bauhaus-orange);
 }
 
-.discovery-nav nav .discovery-login {
-  padding: 10px 15px;
-  border: 2px solid var(--bauhaus-ink);
-  background: var(--bauhaus-cyan);
-  font-family: "Chillax", "Arial", sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.discovery-nav nav .discovery-login:hover {
-  border-color: var(--bauhaus-ink);
-  background: var(--bauhaus-orange);
-  color: #ffffff;
-  box-shadow: 3px 3px 0 var(--bauhaus-cyan);
-  transform: translateY(-1px);
-}
-
 .discovery-hero {
   position: relative;
   display: flex;
-  min-height: 390px;
+  min-height: clamp(350px, 32vw, 560px);
   align-items: center;
   overflow: hidden;
   border-bottom: 4px solid var(--bauhaus-ink);
-  background: linear-gradient(
-    90deg,
-    var(--bauhaus-cyan-light) 0%,
-    #81e4e9 48%,
-    var(--bauhaus-cyan) 100%
-  );
+  background: var(--brand-gradient);
 }
 
 .discovery-hero-layout {
-  width: min(1120px, calc(100% - 48px));
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  width: 100%;
+  min-height: inherit;
   margin: 0 auto;
+}
+
+.discovery-hero-media {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+}
+
+.discovery-hero-media::before {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: clamp(140px, 22vw, 320px);
+  background: linear-gradient(
+    90deg,
+    #81e4e9 0%,
+    rgba(129, 228, 233, 0.94) 12%,
+    rgba(129, 228, 233, 0.62) 38%,
+    rgba(129, 228, 233, 0.2) 72%,
+    rgba(129, 228, 233, 0) 100%
+  );
+  content: "";
+  pointer-events: none;
+}
+
+.discovery-hero-video {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .discovery-hero-content {
   position: relative;
-  z-index: 2;
-  padding: 55px 0 62px;
+  z-index: 1;
+  grid-column: 1;
+  padding: clamp(38px, 4vw, 62px) 24px clamp(42px, 4vw, 62px)
+    max(24px, calc((100vw - 1120px) / 2));
 }
 
 .discovery-eyebrow {
@@ -158,11 +178,11 @@
 }
 
 .discovery-hero h1 {
-  max-width: 680px;
+  max-width: 100%;
   margin: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
-  font-size: clamp(3.2rem, 7.5vw, 6.7rem);
+  font-family: var(--font-body);
+  font-size: clamp(2.8rem, 5.2vw, 5.75rem);
   font-weight: 400;
   letter-spacing: -0.035em;
   line-height: 0.84;
@@ -186,7 +206,7 @@
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -235,7 +255,7 @@
 .discovery-section-heading h2 {
   margin: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: clamp(1.8rem, 4vw, 2.8rem);
   font-weight: 400;
   letter-spacing: -0.025em;
@@ -255,7 +275,7 @@
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-cyan-light);
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.62rem;
   font-weight: 850;
   text-transform: uppercase;
@@ -303,7 +323,7 @@
 }
 
 .discovery-search input::placeholder {
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.62rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -334,7 +354,7 @@
   background: var(--bauhaus-cyan-light);
   color: var(--bauhaus-ink);
   font: inherit;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.88rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -383,13 +403,297 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  animation: discovery-photo-fade 450ms ease;
+}
+
+.discovery-details-button {
+  padding: 9px 10px;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-paper);
+  color: var(--bauhaus-ink);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.discovery-details-button:hover {
+  background: var(--bauhaus-cyan-light);
+}
+
+.discovery-detail-backdrop {
+  position: fixed;
+  z-index: 3000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: clamp(12px, 3vw, 32px);
+  background: rgba(19, 26, 27, 0.68);
+  backdrop-filter: blur(4px);
+  animation: discovery-detail-backdrop-in 180ms ease-out;
+}
+
+.discovery-detail-modal {
+  position: relative;
+  width: min(960px, 100%);
+  max-height: min(90vh, 820px);
+  overflow-y: auto;
+  padding: clamp(20px, 3vw, 32px);
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-paper);
+  box-shadow: 7px 7px 0 var(--bauhaus-cyan);
+  animation: discovery-detail-modal-in 220ms ease-out;
+}
+
+.discovery-detail-close {
+  position: absolute;
+  z-index: 2;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-cyan);
+  color: var(--bauhaus-ink);
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.discovery-detail-heading {
+  padding-right: 42px;
+  margin-bottom: 20px;
+}
+
+.discovery-detail-heading .discovery-eyebrow {
+  margin-bottom: 8px;
+}
+
+.discovery-detail-heading h2 {
+  margin: 0;
+  color: var(--bauhaus-ink);
+  font-size: clamp(1.45rem, 3vw, 2rem);
+}
+
+.discovery-detail-heading > p:last-child {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.discovery-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+  gap: 22px;
+}
+
+.discovery-detail-main,
+.discovery-detail-map {
+  min-width: 0;
+}
+
+.discovery-detail-photo {
+  display: grid;
+  min-height: 220px;
+  aspect-ratio: 16 / 8;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-cyan-light);
+  color: var(--bauhaus-cyan);
+  font-size: 4rem;
+}
+
+.discovery-detail-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.discovery-detail-facts {
+  display: grid;
+  gap: 9px;
+  padding: 14px 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.discovery-detail-facts p {
+  margin: 0;
+  color: var(--bauhaus-ink);
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+.discovery-detail-facts a {
+  width: fit-content;
+  color: var(--bauhaus-ink);
+  font-weight: 700;
+  text-decoration-color: var(--bauhaus-cyan);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.discovery-detail-barbers h3,
+.discovery-detail-map h3 {
+  margin: 0 0 10px;
+  color: var(--bauhaus-ink);
+  font-family: var(--font-ui);
+  font-size: 0.83rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.discovery-detail-barbers > p,
+.discovery-detail-map > p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.discovery-detail-barber-list {
+  display: grid;
+  gap: 8px;
+}
+
+.discovery-detail-barber {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid var(--bauhaus-neutral);
+  background: #fff;
+}
+
+.discovery-detail-barber > img,
+.discovery-detail-barber-placeholder {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--bauhaus-ink);
+  background: var(--bauhaus-cyan-light);
+  color: var(--bauhaus-ink);
+  object-fit: cover;
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+
+.discovery-detail-barber > div {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 3px;
+}
+
+.discovery-detail-barber strong,
+.discovery-detail-barber > div span {
+  overflow: hidden;
+  color: var(--bauhaus-ink);
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discovery-detail-barber > div span {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.discovery-detail-barber .discovery-detail-barber-rating {
+  flex: 0 0 auto;
+  color: #9b5b00;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.discovery-detail-barber-rating .svg-inline--fa {
+  margin-right: 3px;
+}
+
+.discovery-detail-map iframe {
+  display: block;
+  width: 100%;
+  min-height: 300px;
+  height: calc(100% - 26px);
+  border: 2px solid var(--bauhaus-ink);
+}
+
+.discovery-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 18px;
+  margin-top: 20px;
+  border-top: 2px solid var(--bauhaus-ink);
+}
+
+.discovery-detail-actions button,
+.discovery-detail-status button {
+  min-height: 44px;
+  padding: 10px 15px;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-cyan);
+  color: var(--bauhaus-ink);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 0.77rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.discovery-detail-status {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.discovery-detail-status.error {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  color: #a83217;
+}
+
+@keyframes discovery-detail-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes discovery-detail-modal-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.discovery-photo-error {
+  margin: 12px 0;
+  color: #a83217;
+  font-size: 0.85rem;
+}
+
+@keyframes discovery-photo-fade {
+  from {
+    opacity: 0.55;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .discovery-card-placeholder {
   display: grid;
   place-items: center;
   color: var(--bauhaus-cyan);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 5rem;
 }
 
@@ -408,7 +712,7 @@
   overflow: hidden;
   margin: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: 1.05rem;
   font-weight: 400;
   letter-spacing: 0;
@@ -416,13 +720,19 @@
   white-space: nowrap;
 }
 
-.discovery-open-indicator {
-  width: 11px;
-  height: 11px;
+.discovery-rating {
+  display: inline-flex;
   flex: 0 0 auto;
-  border: 2px solid var(--bauhaus-ink);
-  border-radius: 50%;
-  background: var(--bauhaus-green);
+  align-items: center;
+  gap: 4px;
+  color: #9b5b00;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.discovery-rating svg {
+  width: 17px;
+  height: 17px;
 }
 
 .discovery-card-location {
@@ -431,6 +741,19 @@
   color: #59595e;
   font-size: 0.82rem;
   line-height: 1.45;
+}
+
+.discovery-card-phone {
+  display: inline-block;
+  max-width: 100%;
+  margin: -5px 0 12px;
+  overflow: hidden;
+  color: #515156;
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .discovery-card-footer {
@@ -462,7 +785,7 @@
   color: var(--bauhaus-ink);
   cursor: pointer;
   font: inherit;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -495,7 +818,7 @@
 
 .discovery-state strong {
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1.08rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -515,7 +838,7 @@
   color: var(--bauhaus-ink);
   cursor: pointer;
   font: inherit;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -550,7 +873,7 @@
 .discovery-footer a {
   margin-left: auto;
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -582,13 +905,55 @@
 }
 
 @media (max-width: 760px) {
-  /* Ajustes de la portada y el ancho del catálogo en tabletas. */
+  /* En pantallas angostas, conserva el video sin comprimir el texto. */
   .discovery-hero {
-    min-height: 350px;
+    background: linear-gradient(
+      180deg,
+      var(--bauhaus-cyan-light) 0%,
+      #81e4e9 48%,
+      var(--bauhaus-cyan) 100%
+    );
+  }
+
+  .discovery-hero-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+  }
+
+  .discovery-hero-content {
+    width: 100%;
+    padding: 42px clamp(22px, 6vw, 48px) 24px;
+  }
+
+  .discovery-hero-media {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+
+  .discovery-hero-media::before {
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    height: clamp(56px, 14vw, 110px);
+    background: linear-gradient(
+      180deg,
+      #81e4e9 0%,
+      rgba(129, 228, 233, 0.72) 24%,
+      rgba(129, 228, 233, 0.24) 68%,
+      rgba(129, 228, 233, 0) 100%
+    );
   }
 
   .discovery-hero h1 {
-    font-size: clamp(2.8rem, 7.5vw, 4.8rem);
+    font-size: clamp(2.8rem, 9vw, 4.8rem);
   }
 
   .discovery-listing {
@@ -599,18 +964,17 @@
 @media (max-width: 560px) {
   /* Reorganiza navegación, filtros, tarjetas y pie de página en móviles. */
   .discovery-nav {
-    min-height: 62px;
-    padding-inline: 17px;
+    min-height: 84px;
+    padding-inline: 12px;
   }
 
   .discovery-brand {
-    gap: 7px;
-    font-size: 0.72rem;
+    max-width: 48%;
   }
 
   .discovery-brand img {
-    width: 34px;
-    height: 30px;
+    width: clamp(88px, 23vw, 106px);
+    max-height: 56px;
   }
 
   .discovery-nav nav {
@@ -621,21 +985,8 @@
     font-size: 0.7rem;
   }
 
-  .discovery-nav nav .discovery-login {
-    padding: 8px 9px;
-  }
-
-  .discovery-hero {
-    min-height: 370px;
-  }
-
-  .discovery-hero-layout {
-    width: calc(100% - 42px);
-  }
-
   .discovery-hero-content {
-    width: 100%;
-    padding: 38px 0;
+    padding: 38px 21px 24px;
   }
 
   .discovery-hero h1 {
@@ -767,7 +1118,27 @@
     flex-wrap: wrap;
   }
 
-  .discovery-card-footer a {
+  .discovery-detail-backdrop {
+    place-items: start center;
+  }
+
+  .discovery-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .discovery-detail-photo {
+    min-height: 170px;
+  }
+
+  .discovery-detail-map iframe {
+    min-height: 240px;
+  }
+
+  .discovery-detail-actions button {
+    width: 100%;
+  }
+
+  .discovery-card-phone {
     max-width: 100%;
   }
 
@@ -785,7 +1156,15 @@
   /* Desactiva desplazamientos y transiciones en modo de movimiento reducido. */
   .discovery-card,
   .discovery-hero-link,
-  .discovery-card-footer button {
+  .discovery-card-footer button,
+  .discovery-card-image img {
     transition: none;
+    animation: none;
   }
+
+  .discovery-detail-backdrop,
+  .discovery-detail-modal {
+    animation: none;
+  }
+
 }

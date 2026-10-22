@@ -2,7 +2,7 @@ import { useState } from "react";
 import Barberias from "./Barberias";
 import Clientes from "./Clientes";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAddressBook, faBuilding, faChartLine } from "@fortawesome/free-solid-svg-icons";
+import { faAddressBook, faBuilding, faChartLine, faClipboardList } from "@fortawesome/free-solid-svg-icons";
 
 const tabConfig = [
   {
@@ -22,6 +22,12 @@ const tabConfig = [
     label: "Barberías",
     icon: faBuilding,
     description: "Gestión de locales activos"
+  },
+  {
+    id: "solicitudes",
+    label: "Solicitudes",
+    icon: faClipboardList,
+    description: "Solicitudes para registrar barberías"
   }
 ];
 
@@ -99,6 +105,17 @@ export default function SuperadminDashboard() {
         {activeTab === "barberias" && (
           <section className="panel">
             <Barberias />
+          </section>
+        )}
+
+        {activeTab === "solicitudes" && (
+          <section className="panel">
+            <div className="section-heading">
+              <h3>Solicitudes para registrar barberías</h3>
+            </div>
+            <p className="page-description">
+              En este apartado aparecerán las solicitudes enviadas desde el acceso para negocios para que puedas revisarlas.
+            </p>
           </section>
         )}
       </div>

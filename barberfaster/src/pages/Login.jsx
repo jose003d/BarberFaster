@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { loginUsuario } from "../services/api";
+import logoBarberFaster from "../assets/logo-barberfaster.png";
 
 // Desactivar cuando se quiera volver a validar las credenciales contra el backend.
 const TEMPORARY_LOGIN_BYPASS = true;
@@ -50,7 +52,7 @@ export default function Login({ onLoginSuccess }) {
   return (
     <main className="login-page">
       <section className="login-card" aria-labelledby="login-title">
-        <div className="login-brand-mark" aria-hidden="true">BF</div>
+        <img className="login-brand-logo" src={logoBarberFaster} alt="BarberFaster" />
         <p className="login-kicker">BarberFaster · Administración</p>
         <h1 id="login-title">Bienvenido</h1>
         <p className="login-description">Inicia sesión en tu panel administrativo.</p>
@@ -85,6 +87,9 @@ export default function Login({ onLoginSuccess }) {
           <button type="submit" disabled={loading} className="login-btn">
             {loading ? "Validando acceso..." : "Iniciar sesión"}
           </button>
+          <Link className="login-back-link" to="/">
+            ← Volver a la página principal
+          </Link>
         </form>
       </section>
     </main>

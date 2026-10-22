@@ -233,7 +233,7 @@ export async function desactivarServicio(idServicio, nuevoEstado = "INACTIVO") {
 // ============================================================
 
 export async function buscarClientePorDni(dni) {
-  const response = await fetch(`${BASE_URL}/clientes/buscar.php?dni=${dni}`);
+  const response = await fetch(`${BASE_URL}/clientes/buscar.php?dni=${encodeURIComponent(dni)}`);
   return handleResponse(response);
 }
 

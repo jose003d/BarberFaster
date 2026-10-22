@@ -56,6 +56,15 @@
   transform: translateY(-1px) !important;
 }
 
+#root .time-slot-button.selected:not(:disabled),
+#root .time-slot-button.selected:not(:disabled):hover {
+  border: 3px solid var(--bauhaus-ink) !important;
+  background: var(--bauhaus-orange) !important;
+  color: var(--bauhaus-ink) !important;
+  box-shadow: 4px 4px 0 var(--bauhaus-orange) !important;
+  transform: translate(-2px, -2px) !important;
+}
+
 /* Desactiva el movimiento para usuarios que prefieren reducir animaciones. */
 @media (prefers-reduced-motion: reduce) {
   #root :is(

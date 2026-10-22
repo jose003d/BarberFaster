@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './ProfileCard.css';
 
 const initialsFromName = (name) =>
@@ -16,6 +16,8 @@ export default function ProfileCard({
   title = 'Especialista en barbería',
   contactText = 'Elegir barbero',
   avatarUrl = '',
+  rating,
+  ratingCount = 0,
   showUserInfo = true,
   enableTilt = true,
   onContactClick,
@@ -26,6 +28,11 @@ export default function ProfileCard({
   const wrapperRef = useRef(null);
   const [avatarError, setAvatarError] = useState(false);
   const cardName = name || 'Barbero';
+
+  // Reintenta cargar la imagen cuando cambia su URL después de una actualización.
+  useEffect(() => {
+    setAvatarError(false);
+  }, [avatarUrl]);
 
   // Ajusta inclinación, brillo y reflejo según la posición del cursor.
   const handlePointerMove = (event) => {
@@ -82,11 +89,31 @@ export default function ProfileCard({
             {showUserInfo && (
               <div className="pc-user-info">
                 <div className="pc-user-details">
-                  {avatarUrl && !avatarError && (
+                  {rating !== undefined ? (
+                    <div
+                      className="pc-mini-rating"
+                      aria-label={ratingCount > 0 ? `Promedio de ${rating} de 5 estrellas` : 'Sin calificaciones'}
+                      title={ratingCount > 0 ? `${ratingCount} calificaciones` : 'Sin calificaciones'}
+                    >
+                      <svg
+                        className="pc-rating-star"
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
+                      </svg>
+                      <span>{ratingCount > 0 ? Number(rating).toFixed(1) : '—'}</span>
+                    </div>
+                  ) : avatarUrl && !avatarError ? (
                     <div className="pc-mini-avatar" aria-hidden="true">
                       <img src={avatarUrl} alt="" loading="lazy" />
                     </div>
-                  )}
+                  ) : null}
                   <div className="pc-user-text">
                     <span className="pc-name">{cardName}</span>
                     <span className="pc-specialty">{title || 'Especialista en barbería'}</span>

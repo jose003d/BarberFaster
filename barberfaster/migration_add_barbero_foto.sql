@@ -1,2 +1,0 @@
-ALTER TABLE barberos
-  ADD COLUMN foto VARCHAR(255) NULL;

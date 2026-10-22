@@ -74,14 +74,59 @@ if (!hash_equals((string) ($otp['codigo'] ?? ''), $codigoIngresado)) {
     responder(401, false, 'El código ingresado es incorrecto.');
 }
 
+if (is_array($contextoOtp) && isset($contextoOtp['dni_cliente'], $contextoOtp['nombre_cliente'])) {
+    if ($dniCliente === '' || $nombreCliente === '') {
+        responder(400, false, 'Faltan el DNI y el nombre del cliente.');
+    }
+
+    $nombreOtp = trim((string)$contextoOtp['nombre_cliente']);
+    $nombreSolicitado = trim($nombreCliente);
+    if (function_exists('mb_strtolower')) {
+        $nombreCoincide = mb_strtolower($nombreOtp, 'UTF-8') === mb_strtolower($nombreSolicitado, 'UTF-8');
+    } else {
+        $nombreCoincide = strtolower($nombreOtp) === strtolower($nombreSolicitado);
+    }
+    if (!hash_equals((string)$contextoOtp['dni_cliente'], $dniCliente) || !$nombreCoincide) {
+        responder(403, false, 'Los datos cambiaron después de solicitar el código. Solicita uno nuevo.');
+    }
+
+    try {
+        require_once __DIR__ . '/../config/database.php';
+        $pdo->beginTransaction();
+        $stmtCliente = $pdo->prepare('SELECT telefono FROM clientes WHERE dni = ? FOR UPDATE');
+        $stmtCliente->execute([$dniCliente]);
+        $cliente = $stmtCliente->fetch();
+        if (!$cliente || normalizarTelefono((string)$cliente['telefono']) !== $telefonoNormalizado) {
+            $pdo->rollBack();
+            responder(403, false, 'El DNI o el teléfono ya no coinciden con el registro del cliente.');
+        }
+
+        $stmtActualizarNombre = $pdo->prepare('UPDATE clientes SET nombre = ? WHERE dni = ?');
+        $stmtActualizarNombre->execute([trim((string)$contextoOtp['nombre_cliente']), $dniCliente]);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        if (isset($pdo) && $pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        error_log('Error al actualizar el nombre al iniciar sesión del cliente: ' . $e->getMessage());
+        responder(500, false, 'No se pudo actualizar el nombre del perfil.');
+    }
+}
+
 try {
     // Emite un ticket de un solo uso asociado al teléfono ya comprobado.
     $ticket = crearTicketVerificacionTelefono($telefonoNormalizado);
     $sesionCliente = null;
-    if (is_array($contextoOtp) && $dniCliente !== '' && $nombreCliente !== '') {
+    if ($dniCliente !== '' && $nombreCliente !== '') {
+        $dniSesion = is_array($contextoOtp)
+            ? (string)$contextoOtp['dni_cliente']
+            : $dniCliente;
+        $nombreSesion = is_array($contextoOtp)
+            ? (string)$contextoOtp['nombre_cliente']
+            : $nombreCliente;
         $sesionCliente = crearSesionCliente(
-            (string)$contextoOtp['dni_cliente'],
-            (string)$contextoOtp['nombre_cliente'],
+            $dniSesion,
+            $nombreSesion,
             $telefonoNormalizado
         );
     }

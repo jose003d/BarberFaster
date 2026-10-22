@@ -78,6 +78,20 @@ try {
     $numDia = date('w', strtotime($fecha));
     $diaNombre = $diasSemana[$numDia];
 
+    // Comprueba primero los días de apertura del local antes del horario individual del barbero.
+    $stmtDiasBarberia = $pdo->prepare("
+        SELECT barberias.dias_trabajo
+        FROM barberos
+        INNER JOIN barberias ON barberias.id_barberia = barberos.id_barberia
+        WHERE barberos.id_barbero = ?
+    ");
+    $stmtDiasBarberia->execute([$id_barbero]);
+    $diasTrabajoBarberia = $stmtDiasBarberia->fetchColumn();
+    if ($diasTrabajoBarberia === false || !in_array($diaNombre, explode(',', (string)$diasTrabajoBarberia), true)) {
+        echo json_encode(["disponible" => false, "mensaje" => "La barbería no recibe reservas el día $diaNombre."]);
+        exit();
+    }
+
     // Busca la hora de apertura y cierre configurada para ese barbero y día.
     $stmtHorario = $pdo->prepare("SELECT hora_inicio, hora_fin FROM barbero_horarios WHERE id_barbero = ? AND dia_semana = ?");
     $stmtHorario->execute([$id_barbero, $diaNombre]);

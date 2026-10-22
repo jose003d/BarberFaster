@@ -1,171 +1,165 @@
-CREATE DATABASE IF NOT EXISTS barberfaster CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS barberfaster
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_general_ci;
 USE barberfaster;
 
-SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS resenas;
-DROP TABLE IF EXISTS citas;
-DROP TABLE IF EXISTS eventos;
-DROP TABLE IF EXISTS barberos_has_especialidades;
-DROP TABLE IF EXISTS especialidades;
-DROP TABLE IF EXISTS tarifas;
-DROP TABLE IF EXISTS servicios;
-DROP TABLE IF EXISTS validaciones;
-DROP TABLE IF EXISTS clientes;
-DROP TABLE IF EXISTS barberos;
-DROP TABLE IF EXISTS barberias;
-DROP TABLE IF EXISTS usuarios;
-SET FOREIGN_KEY_CHECKS = 1;
-
-CREATE TABLE usuarios (
-  id_usuario INT UNSIGNED NOT NULL AUTO_INCREMENT,
+-- Esquema exportado de la base local. No elimina tablas ni incluye registros.
+CREATE TABLE IF NOT EXISTS barberias (
+  id_barberia INT NOT NULL AUTO_INCREMENT,
   nombre VARCHAR(100) NOT NULL,
-  apellido VARCHAR(100) NULL,
-  email VARCHAR(150) NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  telefono VARCHAR(30) NULL,
-  documento VARCHAR(50) NULL,
-  rol ENUM('superadmin', 'admin', 'barbero') NOT NULL DEFAULT 'barbero',
-  estado TINYINT(1) NOT NULL DEFAULT 1,
-  foto VARCHAR(255) NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id_usuario),
-  UNIQUE KEY uq_usuarios_email (email),
-  UNIQUE KEY uq_usuarios_documento (documento)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  direccion VARCHAR(150) NOT NULL,
+  ciudad VARCHAR(80) NOT NULL,
+  telefono VARCHAR(20) NOT NULL,
+  estado ENUM('ACTIVA', 'INACTIVA') NOT NULL DEFAULT 'ACTIVA',
+  foto VARCHAR(255) DEFAULT NULL,
+  hora_apertura TIME NOT NULL DEFAULT '08:00:00',
+  hora_cierre TIME NOT NULL DEFAULT '19:00:00',
+  -- Lista de días semanales en que la barbería recibe reservas.
+  dias_trabajo VARCHAR(100) NOT NULL DEFAULT 'LUNES,MARTES,MIERCOLES,JUEVES,VIERNES,SABADO,DOMINGO',
+  descripcion TEXT DEFAULT NULL,
+  url_mapa TEXT DEFAULT NULL,
+  PRIMARY KEY (id_barberia)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE barberias (
-  id_barberia INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  id_usuario_admin INT UNSIGNED NOT NULL,
-  nombre VARCHAR(150) NOT NULL,
-  direccion VARCHAR(255) NULL,
-  descripcion TEXT NULL,
-  logo_url VARCHAR(255) NULL,
-  datos_contacto JSON NULL,
-  estado TINYINT(1) NOT NULL DEFAULT 1,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id_barberia),
-  KEY idx_barberias_admin (id_usuario_admin),
-  CONSTRAINT fk_barberias_admin FOREIGN KEY (id_usuario_admin) REFERENCES usuarios (id_usuario) ON UPDATE CASCADE ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE barberos (
-  id_barbero INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  id_barberia INT UNSIGNED NOT NULL,
-  id_usuario INT UNSIGNED NULL,
-  nombre VARCHAR(150) NOT NULL,
-  foto VARCHAR(255) NULL,
-  perfil TEXT NULL,
-  estado TINYINT(1) NOT NULL DEFAULT 1,
-  PRIMARY KEY (id_barbero),
-  UNIQUE KEY uq_barbero_usuario (id_usuario),
-  KEY idx_barberos_barberia (id_barberia),
-  CONSTRAINT fk_barberos_barberia FOREIGN KEY (id_barberia) REFERENCES barberias (id_barberia) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_barberos_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario) ON UPDATE CASCADE ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE clientes (
-  dni VARCHAR(50) NOT NULL,
-  nombre VARCHAR(100) NOT NULL,
-  apellido VARCHAR(100) NULL,
-  telefono VARCHAR(30) NULL,
-  correo VARCHAR(150) NULL,
-  estado TINYINT(1) NOT NULL DEFAULT 1,
-  PRIMARY KEY (dni)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE servicios (
-  id_servicio INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  id_barberia INT UNSIGNED NOT NULL,
-  nombre VARCHAR(150) NOT NULL,
-  duracion_estimada SMALLINT UNSIGNED NOT NULL,
-  estado TINYINT(1) NOT NULL DEFAULT 1,
-  PRIMARY KEY (id_servicio),
-  KEY idx_servicios_barberia (id_barberia),
-  CONSTRAINT fk_servicios_barberia FOREIGN KEY (id_barberia) REFERENCES barberias (id_barberia) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE tarifas (
-  id_tarifa INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  id_servicio INT UNSIGNED NOT NULL,
-  id_barberia INT UNSIGNED NOT NULL,
-  precio DECIMAL(12,2) NOT NULL,
-  PRIMARY KEY (id_tarifa),
-  UNIQUE KEY uq_tarifa_servicio_barberia (id_servicio, id_barberia),
-  CONSTRAINT fk_tarifas_servicio FOREIGN KEY (id_servicio) REFERENCES servicios (id_servicio) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_tarifas_barberia FOREIGN KEY (id_barberia) REFERENCES barberias (id_barberia) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE especialidades (
-  id_especialidad INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  nombre VARCHAR(100) NOT NULL,
-  PRIMARY KEY (id_especialidad),
-  UNIQUE KEY uq_especialidad_nombre (nombre)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE barberos_has_especialidades (
-  id_barbero INT UNSIGNED NOT NULL,
-  id_especialidad INT UNSIGNED NOT NULL,
-  PRIMARY KEY (id_barbero, id_especialidad),
-  CONSTRAINT fk_bhe_barbero FOREIGN KEY (id_barbero) REFERENCES barberos (id_barbero) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_bhe_especialidad FOREIGN KEY (id_especialidad) REFERENCES especialidades (id_especialidad) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE eventos (
-  id_evento INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  id_barbero INT UNSIGNED NOT NULL,
-  id_barberia INT UNSIGNED NOT NULL,
-  start_datetime DATETIME NOT NULL,
-  end_datetime DATETIME NOT NULL,
-  estado_disponibilidad ENUM('DISPONIBLE', 'BLOQUEADO', 'RESERVADO') NOT NULL DEFAULT 'DISPONIBLE',
-  PRIMARY KEY (id_evento),
-  KEY idx_eventos_barbero_horario (id_barbero, start_datetime, end_datetime),
-  KEY idx_eventos_barberia (id_barberia),
-  CONSTRAINT fk_eventos_barbero FOREIGN KEY (id_barbero) REFERENCES barberos (id_barbero) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_eventos_barberia FOREIGN KEY (id_barberia) REFERENCES barberias (id_barberia) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT chk_eventos_rango CHECK (end_datetime > start_datetime)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE citas (
-  id_cita INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  id_evento INT UNSIGNED NOT NULL,
-  id_servicio INT UNSIGNED NOT NULL,
-  dni_cliente VARCHAR(50) NOT NULL,
-  id_barbero INT UNSIGNED NOT NULL,
-  estado ENUM('PENDIENTE', 'CONFIRMADA', 'COMPLETADA', 'CANCELADA') NOT NULL DEFAULT 'PENDIENTE',
-  observaciones TEXT NULL,
+CREATE TABLE IF NOT EXISTS barberia_fotos (
+  id_foto INT NOT NULL AUTO_INCREMENT,
+  id_barberia INT NOT NULL,
+  foto_datos MEDIUMBLOB NOT NULL,
+  foto_mime VARCHAR(50) NOT NULL,
   fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id_foto),
+  KEY idx_barberia_fotos_barberia (id_barberia),
+  CONSTRAINT fk_barberia_fotos_barberia FOREIGN KEY (id_barberia)
+    REFERENCES barberias (id_barberia)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS clientes (
+  dni VARCHAR(20) NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  telefono VARCHAR(20) NOT NULL,
+  email VARCHAR(120) DEFAULT NULL,
+  creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (dni)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS barberos (
+  id_barbero INT NOT NULL AUTO_INCREMENT,
+  id_barberia INT NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  apellido VARCHAR(100) NOT NULL DEFAULT '',
+  email VARCHAR(120) NOT NULL DEFAULT '',
+  telefono VARCHAR(20) NOT NULL DEFAULT '',
+  documento VARCHAR(30) NOT NULL DEFAULT '',
+  especialidad VARCHAR(100) DEFAULT NULL,
+  foto VARCHAR(255) DEFAULT NULL,
+  foto_datos MEDIUMBLOB DEFAULT NULL,
+  foto_mime VARCHAR(50) DEFAULT NULL,
+  estado ENUM('ACTIVO', 'INACTIVO') NOT NULL DEFAULT 'ACTIVO',
+  PRIMARY KEY (id_barbero),
+  KEY fk_barberos_barberias (id_barberia),
+  CONSTRAINT fk_barberos_barberias FOREIGN KEY (id_barberia)
+    REFERENCES barberias (id_barberia)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS servicios (
+  id_servicio INT NOT NULL AUTO_INCREMENT,
+  id_barberia INT NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  descripcion TEXT DEFAULT NULL,
+  duracion_minutos INT NOT NULL DEFAULT 30,
+  precio DECIMAL(10,2) NOT NULL,
+  estado ENUM('ACTIVO', 'INACTIVO') NOT NULL DEFAULT 'ACTIVO',
+  PRIMARY KEY (id_servicio),
+  KEY fk_servicios_barberias (id_barberia),
+  CONSTRAINT fk_servicios_barberias FOREIGN KEY (id_barberia)
+    REFERENCES barberias (id_barberia)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS citas (
+  id_cita INT NOT NULL AUTO_INCREMENT,
+  id_barberia INT NOT NULL,
+  id_barbero INT NOT NULL,
+  dni_cliente VARCHAR(20) NOT NULL,
+  fecha DATE NOT NULL,
+  hora_inicio TIME NOT NULL,
+  hora_fin TIME NOT NULL,
+  precio_total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  estado ENUM('PENDIENTE', 'CONFIRMADA', 'COMPLETADA', 'CANCELADA')
+    NOT NULL DEFAULT 'PENDIENTE',
+  notas TEXT DEFAULT NULL,
+  creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (id_cita),
-  UNIQUE KEY uq_cita_evento (id_evento),
-  KEY idx_citas_cliente (dni_cliente),
-  KEY idx_citas_barbero (id_barbero),
-  CONSTRAINT fk_citas_evento FOREIGN KEY (id_evento) REFERENCES eventos (id_evento) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_citas_servicio FOREIGN KEY (id_servicio) REFERENCES servicios (id_servicio) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_citas_cliente FOREIGN KEY (dni_cliente) REFERENCES clientes (dni) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_citas_barbero FOREIGN KEY (id_barbero) REFERENCES barberos (id_barbero) ON UPDATE CASCADE ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  KEY fk_citas_barberias (id_barberia),
+  KEY fk_citas_barberos (id_barbero),
+  KEY fk_citas_clientes (dni_cliente),
+  CONSTRAINT fk_citas_barberias FOREIGN KEY (id_barberia)
+    REFERENCES barberias (id_barberia)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_citas_barberos FOREIGN KEY (id_barbero)
+    REFERENCES barberos (id_barbero)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_citas_clientes FOREIGN KEY (dni_cliente)
+    REFERENCES clientes (dni)
+    ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE validaciones (
-  id_validacion INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  dni_cliente VARCHAR(50) NOT NULL,
-  codigo VARCHAR(20) NOT NULL,
-  estado ENUM('PENDIENTE', 'VERIFICADO', 'EXPIRADO') NOT NULL DEFAULT 'PENDIENTE',
-  creado_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  valido_hasta DATETIME NOT NULL,
-  PRIMARY KEY (id_validacion),
-  KEY idx_validaciones_cliente_codigo (dni_cliente, codigo),
-  CONSTRAINT fk_validaciones_cliente FOREIGN KEY (dni_cliente) REFERENCES clientes (dni) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS barbero_horarios (
+  id_horario INT NOT NULL AUTO_INCREMENT,
+  id_barbero INT NOT NULL,
+  dia_semana ENUM('LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO') NOT NULL,
+  hora_inicio TIME NOT NULL,
+  hora_fin TIME NOT NULL,
+  PRIMARY KEY (id_horario),
+  UNIQUE KEY uk_barbero_dia (id_barbero, dia_semana),
+  CONSTRAINT fk_horarios_barberos FOREIGN KEY (id_barbero)
+    REFERENCES barberos (id_barbero)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE resenas (
-  id_resena INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  id_cita INT UNSIGNED NOT NULL,
-  dni_cliente VARCHAR(50) NOT NULL,
+CREATE TABLE IF NOT EXISTS barbero_servicios (
+  id_barbero INT NOT NULL,
+  id_servicio INT NOT NULL,
+  PRIMARY KEY (id_barbero, id_servicio),
+  KEY id_servicio (id_servicio),
+  CONSTRAINT barbero_servicios_ibfk_1 FOREIGN KEY (id_barbero)
+    REFERENCES barberos (id_barbero)
+    ON DELETE CASCADE,
+  CONSTRAINT barbero_servicios_ibfk_2 FOREIGN KEY (id_servicio)
+    REFERENCES servicios (id_servicio)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS cita_servicios (
+  id_cita INT NOT NULL,
+  id_servicio INT NOT NULL,
+  precio_historico DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (id_cita, id_servicio),
+  KEY fk_cs_servicios (id_servicio),
+  CONSTRAINT fk_cs_citas FOREIGN KEY (id_cita)
+    REFERENCES citas (id_cita)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_cs_servicios FOREIGN KEY (id_servicio)
+    REFERENCES servicios (id_servicio)
+    ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS resenas (
+  id_resena INT NOT NULL AUTO_INCREMENT,
+  id_cita INT NOT NULL,
+  dni_cliente VARCHAR(20) NOT NULL,
   calificacion TINYINT UNSIGNED NOT NULL,
-  comentario TEXT NULL,
   fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id_resena),
-  UNIQUE KEY uq_resena_cita (id_cita),
-  CONSTRAINT fk_resenas_cita FOREIGN KEY (id_cita) REFERENCES citas (id_cita) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_resenas_cliente FOREIGN KEY (dni_cliente) REFERENCES clientes (dni) ON UPDATE CASCADE ON DELETE RESTRICT,
+  UNIQUE KEY uq_resenas_cita (id_cita),
+  KEY idx_resenas_cliente (dni_cliente),
+  CONSTRAINT fk_resenas_cita FOREIGN KEY (id_cita)
+    REFERENCES citas (id_cita)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_resenas_cliente FOREIGN KEY (dni_cliente)
+    REFERENCES clientes (dni)
+    ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT chk_resenas_calificacion CHECK (calificacion BETWEEN 1 AND 5)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

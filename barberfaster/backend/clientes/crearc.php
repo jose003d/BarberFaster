@@ -16,7 +16,6 @@ $data = json_decode(file_get_contents("php://input"), true);
 $dni      = $data['dni'] ?? null;
 $nombre   = $data['nombre'] ?? null;
 $telefono = $data['telefono'] ?? null;
-$email    = $data['email'] ?? null;
 
 if (!$dni || !$nombre || !$telefono) {
     echo json_encode(["status" => "error", "mensaje" => "DNI, nombre y teléfono son obligatorios."]);
@@ -26,14 +25,13 @@ if (!$dni || !$nombre || !$telefono) {
 try {
     // Registra o actualiza los datos si el DNI ya existía
     $stmt = $pdo->prepare("
-        INSERT INTO clientes (dni, nombre, telefono, email)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO clientes (dni, nombre, telefono)
+        VALUES (?, ?, ?)
         ON DUPLICATE KEY UPDATE 
             nombre = VALUES(nombre),
-            telefono = VALUES(telefono),
-            email = VALUES(email)
+            telefono = VALUES(telefono)
     ");
-    $stmt->execute([$dni, $nombre, $telefono, $email]);
+    $stmt->execute([$dni, $nombre, $telefono]);
 
     echo json_encode([
         "status" => "success",

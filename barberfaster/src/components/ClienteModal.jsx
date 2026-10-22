@@ -214,7 +214,7 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
             <button 
               type="submit" 
               disabled={loading} 
-              style={{ padding: '10px 20px', background: 'var(--bauhaus-cyan)', color: 'var(--bauhaus-ink)', border: '2px solid var(--bauhaus-ink)', borderRadius: '2px', cursor: 'pointer', fontWeight: '600', fontFamily: '"Chillax", Arial, sans-serif', fontSize: '0.95rem', transition: 'background 0.2s' }}
+              style={{ padding: '10px 20px', background: 'var(--bauhaus-cyan)', color: 'var(--bauhaus-ink)', border: '2px solid var(--bauhaus-ink)', borderRadius: '2px', cursor: 'pointer', fontWeight: '600', fontFamily: 'var(--font-ui)', fontSize: '0.95rem', transition: 'background 0.2s' }}
             >
               {loading ? 'Guardando...' : (clienteEditar ? 'Guardar Cambios' : 'Registrar')}
             </button>

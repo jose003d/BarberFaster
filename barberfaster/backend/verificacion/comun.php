@@ -186,12 +186,15 @@ function rutaSesionCliente(string $token): string
     return sys_get_temp_dir() . '/barberfaster_cliente_' . hash('sha256', $token) . '.json';
 }
 
-function leerSesionCliente(): array|false
+function leerSesionCliente(?string $tokenAlternativo = null): array|false
 {
     $cabecera = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
     if ($cabecera === '' && function_exists('getallheaders')) {
         $cabeceras = getallheaders();
         $cabecera = $cabeceras['Authorization'] ?? $cabeceras['authorization'] ?? '';
+    }
+    if (is_string($tokenAlternativo) && preg_match('/^[a-f0-9]{64}$/i', $tokenAlternativo) === 1) {
+        $cabecera = 'Bearer ' . $tokenAlternativo;
     }
     if (!is_string($cabecera) || preg_match('/^Bearer ([a-f0-9]{64})$/', $cabecera, $coincidencias) !== 1) {
         return false;
@@ -218,9 +221,9 @@ function leerSesionCliente(): array|false
     return $sesion;
 }
 
-function obtenerClienteAutenticado(PDO $pdo): array|false
+function obtenerClienteAutenticado(PDO $pdo, ?string $tokenAlternativo = null): array|false
 {
-    $sesion = leerSesionCliente();
+    $sesion = leerSesionCliente($tokenAlternativo);
     if ($sesion === false) {
         return false;
     }
@@ -228,22 +231,12 @@ function obtenerClienteAutenticado(PDO $pdo): array|false
     $stmt = $pdo->prepare('SELECT dni, nombre, telefono FROM clientes WHERE dni = ?');
     $stmt->execute([$sesion['dni']]);
     $cliente = $stmt->fetch();
-    $nombreCliente = trim((string)($cliente['nombre'] ?? ''));
-    $nombreSesion = trim((string)$sesion['nombre']);
-    if (function_exists('mb_strtolower')) {
-        $nombreCliente = mb_strtolower($nombreCliente, 'UTF-8');
-        $nombreSesion = mb_strtolower($nombreSesion, 'UTF-8');
-    } else {
-        $nombreCliente = strtolower($nombreCliente);
-        $nombreSesion = strtolower($nombreSesion);
-    }
-    if (
-        !$cliente ||
-        normalizarTelefono((string)($cliente['telefono'] ?? '')) !== $sesion['telefono'] ||
-        $nombreCliente !== $nombreSesion
-    ) {
+    if (!$cliente) {
         return false;
     }
+
+    $cliente['nombre'] = $sesion['nombre'];
+    $cliente['telefono'] = $sesion['telefono'];
 
     return $cliente;
 }

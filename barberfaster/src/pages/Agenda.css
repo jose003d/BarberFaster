@@ -4,7 +4,7 @@
   max-width: 920px;
   margin: 0 auto;
   padding: 20px 20px 40px;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   box-sizing: border-box;
 }
 
@@ -12,13 +12,32 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-height: 42px;
   margin-bottom: 18px;
+  padding: 0 13px;
+  border: 2px solid var(--bauhaus-ink);
+  border-radius: 2px;
+  background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
-  font-size: 0.96rem;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
-  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.booking-back-link:hover {
+  background: var(--bauhaus-orange);
+  color: #ffffff;
+  box-shadow: 3px 3px 0 var(--bauhaus-cyan);
+  transform: translateY(-1px);
+}
+
+.booking-back-link:focus-visible {
+  outline: 3px solid var(--bauhaus-ink);
+  outline-offset: 3px;
 }
 
 .agenda-header {
@@ -30,32 +49,34 @@
 }
 
 .agenda-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
+  display: block;
+  width: 112px;
+  height: auto;
+  max-height: 64px;
   margin-bottom: 12px;
-  border: 2px solid var(--bauhaus-ink);
-  background: rgba(255, 255, 255, 0.5);
-  box-shadow: 4px 4px 0 var(--bauhaus-cyan);
-  font-size: 2rem;
+  object-fit: contain;
 }
 
 .agenda-header h1 {
   margin: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: clamp(2.4rem, 5vw, 4rem);
   line-height: 0.95;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   font-weight: 700;
+}
+
+.agenda-brand-name {
+  font-family: inherit;
+  letter-spacing: 0;
 }
 
 .agenda-header p {
   margin-top: 12px;
   color: #4b5563;
   font-size: 1.1rem;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
 .agenda-step.active {
@@ -66,7 +87,7 @@
   padding: 14px 20px;
   border-radius: 2px;
   margin-bottom: 20px;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   letter-spacing: 0.03em;
   text-align: center;
@@ -75,6 +96,14 @@
 
 .agenda-mensaje.success { background: #d1fae5; color: #065f46; }
 .agenda-mensaje.error   { background: #fee2e2; color: #991b1b; }
+
+@media (min-width: 769px) {
+  .booking-back-link {
+    display: flex;
+    width: fit-content;
+    margin-left: auto;
+  }
+}
 
 /* Cabecera y distribución de calendario frente a horarios disponibles. */
 .agenda-layout {
@@ -110,7 +139,7 @@
 .agenda-panel-header h2 {
   margin: 0;
   color: #111827;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: 1.25rem;
 }
 
@@ -133,8 +162,54 @@
   outline-offset: 3px;
 }
 
+.booking-service-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid var(--bauhaus-ink);
+  border-radius: 2px;
+  background: #fff;
+  color: var(--bauhaus-ink);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.booking-service-option.is-selected {
+  background: var(--bauhaus-cyan-light);
+}
+
+.booking-service-option:hover {
+  box-shadow: 4px 4px 0 var(--bauhaus-orange);
+  transform: translateY(-2px);
+}
+
+.booking-service-details {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.booking-service-option:focus-within {
+  outline: 3px solid var(--bauhaus-cyan);
+  outline-offset: 3px;
+}
+
+.booking-service-option input[type="checkbox"] {
+  flex: 0 0 auto;
+  accent-color: var(--bauhaus-cyan);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .barber-profile-grid .pc-card {
+    transform: none;
+  }
+
+  .booking-service-option {
+    transition: none;
+  }
+
+  .booking-service-option:hover {
     transform: none;
   }
 }
@@ -195,7 +270,7 @@
 .selected-day-heading h3 {
   margin: 0 0 4px;
   color: #111827;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   text-transform: capitalize;
 }
 
@@ -217,7 +292,7 @@
   border: 2px solid var(--bauhaus-ink);
   background: #fff;
   box-shadow: 4px 4px 0 var(--bauhaus-cyan);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
 .booking-selection-summary {
@@ -240,7 +315,7 @@
   display: block;
   margin-bottom: 5px;
   color: #55595a;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -249,7 +324,7 @@
 .booking-selection-heading h2 {
   margin: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: clamp(1.2rem, 2.6vw, 1.65rem);
   line-height: 1.15;
 }
@@ -273,8 +348,12 @@
   font-weight: 700;
 }
 
-.booking-selected-service > span {
+.booking-selected-service > .svg-inline--fa {
   color: #147d7d;
+}
+
+.booking-confirmation-summary .svg-inline--fa {
+  margin-right: 5px;
 }
 
 .booking-selection-totals {
@@ -293,7 +372,7 @@
 
 .booking-selection-totals small {
   color: #55595a;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -323,7 +402,7 @@
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.7rem;
   font-weight: 800;
 }
@@ -331,7 +410,7 @@
 .booking-column-heading h3 {
   margin: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: 1.05rem;
   font-weight: 700;
 }
@@ -345,7 +424,7 @@
 
 .booking-column-heading .booking-selected-date {
   color: #147d7d;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.74rem;
   font-weight: 700;
   text-transform: capitalize;
@@ -369,7 +448,7 @@
   border-radius: 0;
   background: transparent;
   box-shadow: none;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
 .booking-calendar-panel .react-datepicker__month-container {
@@ -387,7 +466,7 @@
 .booking-calendar-panel .react-datepicker__current-month {
   margin-bottom: 10px;
   color: #fff;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -404,7 +483,7 @@
   width: calc(100% / 7);
   margin: 0;
   color: var(--bauhaus-cyan) !important;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -424,7 +503,7 @@
   border: 1px solid transparent;
   border-radius: 0;
   color: var(--bauhaus-ink);
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
 }
@@ -486,7 +565,7 @@
 
 .booking-selected-time span {
   color: #55595a;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.67rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -495,7 +574,7 @@
 
 .booking-selected-time strong {
   color: var(--bauhaus-ink);
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.93rem;
 }
 
@@ -511,8 +590,9 @@
 }
 
 .time-slot-button {
+  position: relative;
   display: flex;
-  min-height: 64px;
+  min-height: 74px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -524,7 +604,7 @@
   color: var(--bauhaus-ink);
   cursor: pointer;
   font: inherit;
-  font-family: "Chillax", "Arial", sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   letter-spacing: 0.02em;
   transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
@@ -544,16 +624,39 @@
 }
 
 .time-slot-button.selected {
+  border: 3px solid var(--bauhaus-ink);
+  background: var(--bauhaus-orange);
+  background-color: var(--bauhaus-orange);
+  color: var(--bauhaus-ink);
+  box-shadow: 4px 4px 0 var(--bauhaus-orange);
+  transform: translate(-2px, -2px);
+}
+
+.time-slot-button.selected:hover {
   border-color: var(--bauhaus-ink);
   background: var(--bauhaus-orange);
+  background-color: var(--bauhaus-orange);
   color: var(--bauhaus-ink);
-  box-shadow: 3px 3px 0 var(--bauhaus-ink);
+  box-shadow: 4px 4px 0 var(--bauhaus-orange);
+  transform: translate(-2px, -2px);
 }
 
 .time-slot-button small {
   color: inherit;
   font-size: 0.75rem;
   font-weight: 700;
+}
+
+.time-slot-selected-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .time-slot-message,
@@ -688,7 +791,7 @@
   display: grid;
   gap: 6px;
   color: #374151;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
   font-weight: 600;
 }
 
@@ -701,7 +804,7 @@
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font: inherit;
-  font-family: "Satoshi", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
 .phone-input-group {
@@ -791,12 +894,13 @@
 
 .agenda-modal {
   background: #fff;
-  border-radius: 12px;
-  padding: 28px;
-  width: 90%;
+  border-radius: 2px;
+  padding: clamp(20px, 5vw, 28px);
+  width: min(480px, calc(100% - 32px));
   max-width: 480px;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.22);
   animation: slideUp 0.3s ease;
 }
 
@@ -808,19 +912,45 @@
 
 .modal-heading {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 18px;
 }
 
 .modal-close {
-  border: 0;
-  background: transparent;
-  color: #6b7280;
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  padding: 0;
+  border: 2px solid var(--bauhaus-ink);
+  border-radius: 2px;
+  background: var(--bauhaus-cyan);
+  color: var(--bauhaus-ink);
   cursor: pointer;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   line-height: 1;
+}
+
+.booking-confirmation-summary {
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 2px;
+  background: #f9fafb;
+}
+
+.booking-confirmation-summary p {
+  margin: 0 0 4px;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.booking-confirmation-summary p:last-child {
+  margin-bottom: 0;
+  color: #16a34a;
+  font-weight: 700;
 }
 
 .agenda-modal .form-group {
@@ -839,7 +969,19 @@
 .agenda-modal .form-group input,
 .agenda-modal .form-group textarea {
   border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border-radius: 2px;
+}
+
+.agenda-modal .phone-country-code {
+  border-radius: 2px 0 0 2px;
+}
+
+.agenda-modal .phone-input-group input {
+  border-radius: 0 2px 2px 0;
+}
+
+.agenda-modal .phone-verification-button {
+  border-radius: 2px;
 }
 
 .agenda-modal .modal-actions {
@@ -847,6 +989,48 @@
   gap: 12px;
   justify-content: flex-end;
   margin-top: 20px;
+}
+
+.agenda-modal .modal-actions button {
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 2px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+
+.agenda-modal .modal-actions .booking-cancel-button {
+  background: var(--bauhaus-cyan);
+  color: var(--bauhaus-ink);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.agenda-modal .modal-actions .booking-confirm-button {
+  background: var(--bauhaus-cyan);
+  color: #393939;
+  font-weight: 800;
+}
+
+.agenda-modal .modal-actions .booking-confirm-button:disabled {
+  background: #e5e5e7;
+  cursor: not-allowed;
+}
+
+.agenda-modal .form-group > .phone-verification-button {
+  width: 100%;
+  text-transform: uppercase;
+}
+
+@media (max-width: 480px) {
+  .agenda-modal .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .agenda-modal .modal-actions button {
+    width: 100%;
+  }
 }
 
 /* Date Picker Adaptado */

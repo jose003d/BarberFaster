@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarDays, faClock, faMoneyBillWave, faScissors } from '@fortawesome/free-solid-svg-icons';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import es from 'date-fns/locale/es';
@@ -8,8 +10,11 @@ import ProfileCard from '../components/ProfileCard';
 import Stepper, { Step } from '../components/Stepper';
 import TimeSlotGrid from './TimeSlotGrid';
 import { getAvailableTimeSlots } from './timeSlotUtils';
+import logoBarberFaster from '../assets/logo-barberfaster.png';
 
 const BASE_URL = '/erpbarber/barberfaster/backend';
+const CLIENT_SESSION_KEY = 'barberfaster_cliente_session';
+const CLIENT_SESSION_EXPIRY_KEY = 'barberfaster_cliente_session_expira_en';
 
 registerLocale('es', es);
 
@@ -55,15 +60,20 @@ const formatearFechaLocal = (date) => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
+// El orden coincide con Date.getDay(): domingo es 0 y sábado es 6.
+const DIAS_SEMANA = ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
+
 const obtenerUrlFotoBarbero = (foto) => {
   if (!foto) return '';
   if (/^https?:\/\//i.test(foto)) return foto;
+  if (/^\/.*\/backend\/barberos\/foto\.php(?:\?|$)/i.test(foto)) return foto;
   const ruta = foto.replace(/^\/+/, '').replace(/^uploads\//, '');
   return `${BASE_URL}/uploads/${ruta.split('/').map(encodeURIComponent).join('/')}`;
 };
 
 export default function Agenda({ reservaPublica = false }) {
   // Estado del flujo, personal, servicios, disponibilidad, fecha y datos del cliente.
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [pasoActual, setPasoActual] = useState(1);
 
@@ -78,7 +88,8 @@ export default function Agenda({ reservaPublica = false }) {
   // Horario configurado de la barbería
   const [horarioBarberia, setHorarioBarberia] = useState({
     apertura: '08:00',
-    cierre: '19:00'
+    cierre: '19:00',
+    diasTrabajo: DIAS_SEMANA,
   });
   const [horarioCargado, setHorarioCargado] = useState(false);
   const [errorHorario, setErrorHorario] = useState('');
@@ -103,6 +114,18 @@ export default function Agenda({ reservaPublica = false }) {
   const [codigoEnviado, setCodigoEnviado] = useState(false);
   const [verificandoTelefono, setVerificandoTelefono] = useState(false);
   const [mensajeVerificacion, setMensajeVerificacion] = useState(null);
+  const [validandoSesionCliente, setValidandoSesionCliente] = useState(
+    () => Boolean(localStorage.getItem(CLIENT_SESSION_KEY))
+  );
+
+  const invalidarVerificacionCliente = () => {
+    setTelefonoVerificado(null);
+    setCodigoEnviado(false);
+    setCodigoTelefono('');
+    setMensajeVerificacion(null);
+    localStorage.removeItem(CLIENT_SESSION_KEY);
+    localStorage.removeItem(CLIENT_SESSION_EXPIRY_KEY);
+  };
 
   const [mensaje, setMensaje] = useState(null);
   const idBarberiaEnlace = searchParams.get('barberia');
@@ -111,6 +134,65 @@ export default function Agenda({ reservaPublica = false }) {
     idBarberiaEnlace && /^\d+$/.test(idBarberiaEnlace) && Number(idBarberiaEnlace) > 0
   );
   const [nombreBarberia, setNombreBarberia] = useState('');
+
+  // Reutiliza una sesión de cliente ya validada desde el perfil o una reserva previa.
+  useEffect(() => {
+    const token = localStorage.getItem(CLIENT_SESSION_KEY);
+    if (!token) {
+      setValidandoSesionCliente(false);
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    fetch(`${BASE_URL}/clientes/perfil.php`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: controller.signal,
+      cache: 'no-store',
+    })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok || data.status !== 'success' || !data.cliente) {
+          const error = new Error(data.mensaje || 'No se pudo validar la sesión del cliente.');
+          error.status = response.status;
+          throw error;
+        }
+        if (controller.signal.aborted) return;
+
+        const telefonoCompleto = String(data.cliente.telefono || '').replace(/\D/g, '');
+        const telefonoNacional = telefonoCompleto.startsWith('57') && telefonoCompleto.length > 10
+          ? telefonoCompleto.slice(2)
+          : telefonoCompleto;
+        setDniCliente(data.cliente.dni || '');
+        setNombreCliente(data.cliente.nombre || '');
+        setTelefonoCliente(telefonoNacional);
+        setTelefonoVerificado({ numero: telefonoNacional, ticket: null, sesion: true });
+        setMensajeVerificacion({
+          tipo: 'success',
+          texto: 'Sesión activa: no necesitas verificar el teléfono nuevamente.',
+        });
+        localStorage.setItem(CLIENT_SESSION_EXPIRY_KEY, String(data.sesion_expira_en));
+      })
+      .catch((error) => {
+        if (error.name === 'AbortError') return;
+        const sesionVencida = error.status === 401;
+        if (sesionVencida) {
+          localStorage.removeItem(CLIENT_SESSION_KEY);
+          localStorage.removeItem(CLIENT_SESSION_EXPIRY_KEY);
+        }
+        setTelefonoVerificado(null);
+        setMensajeVerificacion({
+          tipo: 'error',
+          texto: sesionVencida
+            ? 'La sesión del cliente venció. Verifica nuevamente tu teléfono por WhatsApp.'
+            : 'No se pudo validar la sesión. Ingresa tus datos y verifica tu teléfono por WhatsApp para continuar.',
+        });
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setValidandoSesionCliente(false);
+      });
+
+    return () => controller.abort();
+  }, []);
 
   // ==========================================
   // FUNCIONES AUXILIARES
@@ -172,24 +254,50 @@ export default function Agenda({ reservaPublica = false }) {
         const apertura = data.data.hora_apertura?.substring(0, 5);
         const cierre = data.data.hora_cierre?.substring(0, 5);
         if (!apertura || !cierre) throw new Error('El horario de atención no está configurado.');
-        setHorarioBarberia({ apertura, cierre });
+        const diasTrabajo = Array.isArray(data.data.dias_trabajo) ? data.data.dias_trabajo : DIAS_SEMANA;
+        setHorarioBarberia({ apertura, cierre, diasTrabajo });
+        // Si hoy no se trabaja, inicia la reserva en el próximo día permitido.
+        const fechaActual = new Date(`${fechaSeleccionada}T12:00:00`);
+        if (!diasTrabajo.includes(DIAS_SEMANA[fechaActual.getDay()])) {
+          for (let diasAdelante = 1; diasAdelante <= 7; diasAdelante += 1) {
+            const siguienteFecha = new Date(fechaActual);
+            siguienteFecha.setDate(fechaActual.getDate() + diasAdelante);
+            if (diasTrabajo.includes(DIAS_SEMANA[siguienteFecha.getDay()])) {
+              setFechaObjeto(siguienteFecha);
+              setFechaSeleccionada(formatearFechaLocal(siguienteFecha));
+              break;
+            }
+          }
+        }
       })
       .catch((error) => setErrorHorario(error.message || 'No se pudo cargar el horario de atención.'))
       .finally(() => setHorarioCargado(true));
   }, []);
 
   // Carga los barberos registrados para la barbería seleccionada.
-  useEffect(() => {
+  const cargarBarberos = useCallback(() => {
     const idBarberia = obtenerBarberiaActivaId();
-    if (!idBarberia) return;
-    fetch(`${BASE_URL}/barberos/listar_barberos.php?id_barberia=${encodeURIComponent(idBarberia)}`)
+    if (!idBarberia) return Promise.resolve();
+    return fetch(`${BASE_URL}/barberos/listar_barberos.php?id_barberia=${encodeURIComponent(idBarberia)}`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         const lista = Array.isArray(data) ? data : data.barberos || data.datos || [];
         setBarberos(lista);
+        setBarberoSeleccionado((current) => (
+          current
+            ? lista.find((barbero) => String(barbero.id_barbero || barbero.id) === String(current.id_barbero || current.id)) || current
+            : current
+        ));
       })
       .catch(() => setMensaje({ tipo: 'error', texto: 'No se pudieron cargar los barberos.' }));
   }, []);
+
+  // Refresca las tarjetas si la foto del barbero cambia mientras Agenda está abierta.
+  useEffect(() => {
+    cargarBarberos();
+    window.addEventListener('barberfaster-profile-photo-updated', cargarBarberos);
+    return () => window.removeEventListener('barberfaster-profile-photo-updated', cargarBarberos);
+  }, [cargarBarberos]);
 
   // Selecciona un profesional, consulta sus servicios y avanza al segundo paso.
   const seleccionarBarberoYAvanzar = (b) => {
@@ -342,6 +450,11 @@ export default function Agenda({ reservaPublica = false }) {
 
   // Envía un código de verificación al teléfono antes de aceptar la reserva.
   const solicitarCodigoTelefono = async () => {
+    if (!dniCliente.trim() || !nombreCliente.trim()) {
+      setMensajeVerificacion({ tipo: 'error', texto: 'Ingresa tu nombre y documento antes de verificar el teléfono.' });
+      return;
+    }
+
     if (!/^\d{10}$/.test(telefonoCliente)) {
       setMensajeVerificacion({ tipo: 'error', texto: 'Ingresa un celular colombiano de 10 dígitos.' });
       return;
@@ -384,13 +497,28 @@ export default function Agenda({ reservaPublica = false }) {
       const response = await fetch(`${BASE_URL}/verificacion/verificar.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telefono: `+57${telefonoCliente}`, codigo: codigoTelefono }),
+        body: JSON.stringify({
+          telefono: `+57${telefonoCliente}`,
+          codigo: codigoTelefono,
+          dni_cliente: dniCliente.trim(),
+          nombre_cliente: nombreCliente.trim(),
+        }),
       });
       const data = await leerRespuestaJson(response);
       if (!response.ok || data.status !== 'success' || !data.ticket_verificacion) {
         throw new Error(data.mensaje || 'No se pudo verificar el código.');
       }
-      setTelefonoVerificado({ numero: telefonoCliente, ticket: data.ticket_verificacion });
+      if (data.sesion_cliente) {
+        localStorage.setItem(CLIENT_SESSION_KEY, data.sesion_cliente);
+        if (data.sesion_expira_en) {
+          localStorage.setItem(CLIENT_SESSION_EXPIRY_KEY, String(data.sesion_expira_en));
+        }
+      }
+      setTelefonoVerificado({
+        numero: telefonoCliente,
+        ticket: data.ticket_verificacion,
+        sesion: Boolean(data.sesion_cliente),
+      });
       setMensajeVerificacion({ tipo: 'success', texto: 'Teléfono verificado. Ya puedes confirmar la cita.' });
     } catch (error) {
       setTelefonoVerificado(null);
@@ -419,6 +547,17 @@ export default function Agenda({ reservaPublica = false }) {
       return;
     }
 
+    const tokenSesion = telefonoVerificado.sesion
+      ? localStorage.getItem(CLIENT_SESSION_KEY)
+      : null;
+    if (telefonoVerificado.sesion && !tokenSesion) {
+      setTelefonoVerificado(null);
+      setMensajeVerificacion({
+        tipo: 'error',
+        texto: 'No encontramos tu sesión activa. Verifica nuevamente tu teléfono por WhatsApp.',
+      });
+      return;
+    }
     const payload = {
       id_barberia: obtenerBarberiaActivaId(),
       id_barbero: barberoSeleccionado.id_barbero || barberoSeleccionado.id,
@@ -434,24 +573,46 @@ export default function Agenda({ reservaPublica = false }) {
 
     fetch(`${BASE_URL}/agenda/agendar_cita.php`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(tokenSesion ? { Authorization: `Bearer ${tokenSesion}` } : {}),
+      },
       body: JSON.stringify(payload),
     })
-      .then((res) => res.json())
-      .then((resData) => {
+      .then(async (response) => ({
+        httpStatus: response.status,
+        data: await response.json(),
+      }))
+      .then(({ httpStatus, data: resData }) => {
         if (resData.success || resData.status === 'success') {
+          let sesionActiva = tokenSesion;
+          if (resData.sesion_cliente) {
+            localStorage.setItem(CLIENT_SESSION_KEY, resData.sesion_cliente);
+            if (resData.sesion_expira_en) {
+              localStorage.setItem(CLIENT_SESSION_EXPIRY_KEY, String(resData.sesion_expira_en));
+            }
+            sesionActiva = resData.sesion_cliente;
+          }
           setMensaje({ tipo: 'success', texto: '¡Cita agendada exitosamente!' });
           setMostrarModalCita(false);
-          setDniCliente('');
-          setNombreCliente('');
-          setTelefonoCliente('');
           setCodigoTelefono('');
-          setTelefonoVerificado(null);
           setCodigoEnviado(false);
           setMensajeVerificacion(null);
+          setTelefonoVerificado(sesionActiva
+            ? { numero: telefonoCliente, ticket: null, sesion: true }
+            : null);
           
           cargarCitasOcupadas();
         } else {
+          if (tokenSesion && httpStatus === 403) {
+            localStorage.removeItem(CLIENT_SESSION_KEY);
+            localStorage.removeItem(CLIENT_SESSION_EXPIRY_KEY);
+            setTelefonoVerificado(null);
+            setMensajeVerificacion({
+              tipo: 'error',
+              texto: 'La sesión venció. Verifica nuevamente tu teléfono por WhatsApp.',
+            });
+          }
           setMensaje({ tipo: 'error', texto: resData.error || resData.mensaje || 'Error al agendar cita.' });
         }
       })
@@ -462,13 +623,13 @@ export default function Agenda({ reservaPublica = false }) {
   return (
     <div className="agenda-page">
       {esReservaPublica && (
-        <Link className="booking-back-link" to="/">
-          ← Cambiar barbería{nombreBarberia ? ` · ${nombreBarberia}` : ''}
-        </Link>
+        <button className="booking-back-link" type="button" onClick={() => navigate('/')}>
+          ← Cambiar barbería
+        </button>
       )}
       <div className="agenda-header">
-        <div className="agenda-brand-mark" aria-hidden="true">📅</div>
-        <h1>Agenda BarberFaster</h1>
+        <img className="agenda-brand-mark" src={logoBarberFaster} alt="BarberFaster" />
+        <h1>Agenda <span className="agenda-brand-name">{nombreBarberia || 'BarberFaster'}</span></h1>
         <p>Reserva tu cita rápida en 3 sencillos pasos</p>
       </div>
 
@@ -514,10 +675,12 @@ export default function Agenda({ reservaPublica = false }) {
               <ProfileCard
                 key={b.id_barbero || b.id}
                 className={String(barberoSeleccionado?.id_barbero || barberoSeleccionado?.id) === String(b.id_barbero || b.id) ? 'selected' : ''}
-                name={b.nombre || b.nombre_barbero}
+                name={[b.nombre || b.nombre_barbero, b.apellido].filter(Boolean).join(' ')}
                 title={b.especialidad || 'Especialista en barbería'}
                 contactText="Elegir"
                 avatarUrl={obtenerUrlFotoBarbero(b.foto)}
+                rating={Number(b.calificacion_promedio)}
+                ratingCount={Number(b.cantidad_calificaciones)}
                 onContactClick={() => seleccionarBarberoYAvanzar(b)}
               />
             ))}
@@ -548,17 +711,7 @@ export default function Agenda({ reservaPublica = false }) {
                 return (
                   <label
                     key={idStr}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      padding: '16px',
-                      border: `2px solid ${estaChequeado ? '#393939' : '#e5e5e7'}`,
-                      background: estaChequeado ? 'var(--bauhaus-cyan-light)' : '#fff',
-                      borderRadius: '2px',
-                      cursor: 'pointer',
-                      fontSize: '1rem'
-                    }}
+                    className={`booking-service-option${estaChequeado ? ' is-selected' : ''}`}
                   >
                     <input
                       type="checkbox"
@@ -567,7 +720,7 @@ export default function Agenda({ reservaPublica = false }) {
                     />
                     <div>
                       <strong>{s.nombre}</strong>
-                      <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>{s.duracion_minutos || 30} min · ${s.precio}</div>
+                      <div className="booking-service-details">{s.duracion_minutos || 30} min · ${s.precio}</div>
                     </div>
                   </label>
                 );
@@ -599,7 +752,7 @@ export default function Agenda({ reservaPublica = false }) {
               <div className="booking-selected-services" aria-label="Servicios seleccionados">
                 {serviciosElegidos.map((servicio) => (
                   <span className="booking-selected-service" key={servicio.id_servicio || servicio.id}>
-                    <span aria-hidden="true">✂</span>
+                    <FontAwesomeIcon icon={faScissors} aria-hidden="true" />
                     {servicio.nombre}
                   </span>
                 ))}
@@ -620,12 +773,14 @@ export default function Agenda({ reservaPublica = false }) {
                   </div>
                 </div>
                 <div className="date-picker-wrapper booking-calendar-panel">
+                  {/* Impide elegir fechas que la barbería configuró como cerradas. */}
                   <DatePicker
                     selected={fechaObjeto}
                     onChange={handleFechaChange}
                     inline
                     locale="es"
                     minDate={new Date()}
+                    filterDate={(date) => horarioBarberia.diasTrabajo.includes(DIAS_SEMANA[date.getDay()])}
                     calendarClassName="booking-inline-calendar"
                   />
                 </div>
@@ -684,30 +839,65 @@ export default function Agenda({ reservaPublica = false }) {
           <div className="agenda-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-heading">
               <h3>Confirmar Cita con {barberoSeleccionado?.nombre}</h3>
-              <button className="modal-close" onClick={() => setMostrarModalCita(false)}>&times;</button>
+              <button
+                className="modal-close"
+                type="button"
+                onClick={() => setMostrarModalCita(false)}
+                aria-label="Cerrar"
+              >
+                &times;
+              </button>
             </div>
 
-            <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>
-              <p style={{ margin: '0 0 4px 0', fontSize: '0.9rem', color: '#374151' }}>
-                📅 <strong>{formatearFechaCabecera(fechaSeleccionada)}</strong>
+            <div className="booking-confirmation-summary">
+              <p>
+                <FontAwesomeIcon icon={faCalendarDays} aria-hidden="true" />{" "}
+                <strong>{formatearFechaCabecera(fechaSeleccionada)}</strong>
               </p>
-              <p style={{ margin: '0 0 4px 0', fontSize: '0.9rem', color: '#374151' }}>
-                ⏰ <strong>{formatearHoraLimpiaStr(estadoDisponibilidad.horaInicioStr)} a {formatearHoraLimpiaStr(estadoDisponibilidad.horaFinStr)}</strong> ({duracionTotalMinutos} min)
+              <p>
+                <FontAwesomeIcon icon={faClock} aria-hidden="true" />{" "}
+                <strong>{formatearHoraLimpiaStr(estadoDisponibilidad.horaInicioStr)} a {formatearHoraLimpiaStr(estadoDisponibilidad.horaFinStr)}</strong> ({duracionTotalMinutos} min)
               </p>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#16a34a', fontWeight: 'bold' }}>
-                💰 Total a pagar: ${precioTotal}
+              <p>
+                <FontAwesomeIcon icon={faMoneyBillWave} aria-hidden="true" />{" "}
+                Total a pagar: ${precioTotal}
               </p>
             </div>
 
             <form onSubmit={handleAgendarCita} className="appointment-form">
+              {validandoSesionCliente && (
+                <p className="phone-verification-status" role="status">
+                  Validando tu sesión de cliente...
+                </p>
+              )}
               <div className="form-group">
                 <label>Documento (DNI / Cédula):</label>
-                <input type="text" placeholder="Ej. 1001234567" value={dniCliente} onChange={(e) => setDniCliente(e.target.value)} required />
+                <input
+                  type="text"
+                  placeholder="Ej. 1001234567"
+                  value={dniCliente}
+                  onChange={(e) => {
+                    setDniCliente(e.target.value);
+                    invalidarVerificacionCliente();
+                  }}
+                  required
+                  disabled={validandoSesionCliente}
+                />
               </div>
 
               <div className="form-group">
                 <label>Nombre Completo:</label>
-                <input type="text" placeholder="Tu nombre y apellido" value={nombreCliente} onChange={(e) => setNombreCliente(e.target.value)} required />
+                <input
+                  type="text"
+                  placeholder="Tu nombre y apellido"
+                  value={nombreCliente}
+                  onChange={(e) => {
+                    setNombreCliente(e.target.value);
+                    invalidarVerificacionCliente();
+                  }}
+                  required
+                  disabled={validandoSesionCliente}
+                />
               </div>
 
               <div className="form-group">
@@ -727,15 +917,10 @@ export default function Agenda({ reservaPublica = false }) {
                       if (digits.startsWith('57') && digits.length > 10) digits = digits.slice(2);
                       const numero = digits.slice(0, 10);
                       setTelefonoCliente(numero);
-                      if (numero !== telefonoVerificado?.numero) {
-                        setTelefonoVerificado(null);
-                        setCodigoEnviado(false);
-                        setCodigoTelefono('');
-                        setMensajeVerificacion(null);
-                      }
+                      if (numero !== telefonoVerificado?.numero) invalidarVerificacionCliente();
                     }}
                     required
-                    disabled={verificandoTelefono}
+                    disabled={verificandoTelefono || validandoSesionCliente}
                   />
                 </div>
                 {telefonoVerificado?.numero === telefonoCliente ? (
@@ -747,7 +932,7 @@ export default function Agenda({ reservaPublica = false }) {
                     type="button"
                     className="phone-verification-button"
                     onClick={solicitarCodigoTelefono}
-                    disabled={verificandoTelefono || telefonoCliente.length !== 10}
+                    disabled={verificandoTelefono || validandoSesionCliente || telefonoCliente.length !== 10}
                   >
                     {verificandoTelefono ? 'Procesando...' : codigoEnviado ? 'Enviar otro código' : 'Enviar código por WhatsApp'}
                   </button>
@@ -768,12 +953,13 @@ export default function Agenda({ reservaPublica = false }) {
                       value={codigoTelefono}
                       onChange={(e) => setCodigoTelefono(e.target.value.replace(/\D/g, '').slice(0, 6))}
                       required
+                      disabled={validandoSesionCliente}
                     />
                     <button
                       type="button"
                       className="phone-verification-button"
                       onClick={verificarCodigoTelefono}
-                      disabled={verificandoTelefono || codigoTelefono.length !== 6}
+                      disabled={verificandoTelefono || validandoSesionCliente || codigoTelefono.length !== 6}
                     >
                       {verificandoTelefono ? 'Verificando...' : 'Verificar'}
                     </button>
@@ -787,19 +973,17 @@ export default function Agenda({ reservaPublica = false }) {
               )}
 
               <div className="modal-actions">
-                <button type="button" onClick={() => setMostrarModalCita(false)} style={{ padding: '10px 16px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Cancelar</button>
+                <button
+                  className="booking-cancel-button"
+                  type="button"
+                  onClick={() => setMostrarModalCita(false)}
+                >
+                  Cancelar
+                </button>
                 <button
                   type="submit"
-                  disabled={!telefonoVerificado || telefonoVerificado.numero !== telefonoCliente || verificandoTelefono}
-                  style={{
-                    padding: '10px 16px',
-                    background: telefonoVerificado?.numero === telefonoCliente ? 'var(--bauhaus-cyan)' : '#e5e5e7',
-                    color: '#393939',
-                    fontWeight: 'bold',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: telefonoVerificado?.numero === telefonoCliente ? 'pointer' : 'not-allowed'
-                  }}
+                  className="booking-confirm-button"
+                  disabled={validandoSesionCliente || !telefonoVerificado || telefonoVerificado.numero !== telefonoCliente || verificandoTelefono}
                 >
                   Confirmar Cita
                 </button>

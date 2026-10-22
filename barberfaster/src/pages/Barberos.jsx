@@ -3,8 +3,52 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrashCan, faScissors, faPlus, faBan } from "@fortawesome/free-solid-svg-icons";
 import ConfirmModal from "../components/ConfirmModal";
 import { desactivarServicio } from "../services/api";
+import "./Barberos.css";
 
 const BASE_URL = "/erpbarber/barberfaster/backend";
+const EMPTY_BARBER_FORM = {
+  nombre: "",
+  apellido: "",
+  email: "",
+  telefono: "",
+  documento: "",
+  especialidad: "",
+};
+
+function BarberosModal({ title, onClose, children }) {
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="barberos-modal-backdrop"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section className="barberos-modal" role="dialog" aria-modal="true" aria-label={title}>
+        <header className="barberos-modal-header">
+          <h3>{title}</h3>
+          <button type="button" className="barberos-modal-close" onClick={onClose} aria-label="Cerrar">
+            ×
+          </button>
+        </header>
+        {children}
+      </section>
+    </div>
+  );
+}
 
 // Gestiona barberos y catálogo de servicios para la barbería activa.
 function Barberos() {
@@ -25,7 +69,7 @@ function Barberos() {
   const [confirmModal, setConfirmModal] = useState({ open: false, item: null });
 
   // Formularios
-  const [formBarbero, setFormBarbero] = useState({ nombre: "", especialidad: "" });
+  const [formBarbero, setFormBarbero] = useState(EMPTY_BARBER_FORM);
   const [formServicio, setFormServicio] = useState({ nombre: "", precio: "", duracion_minutos: 30, descripcion: "" });
 
   // Obtiene los registros del local activo al entrar al módulo.
@@ -236,7 +280,9 @@ function Barberos() {
   return (
     <div className="page-section">
       {successMessage && <p className="status success">{successMessage}</p>}
-      {fetchError && <p className="status error">{fetchError}</p>}
+      {fetchError && !isModalBarberoOpen && !isModalServicioOpen && modalGestion !== "servicios" && (
+        <p className="status error">{fetchError}</p>
+      )}
 
       <ConfirmModal
         isOpen={confirmModal.open}
@@ -254,7 +300,7 @@ function Barberos() {
           <h2>Gestión de Personal</h2>
           <p className="page-description">Barberos registrados en este local.</p>
         </div>
-        <button className="btn" onClick={() => { setBarberoSeleccionado(null); setFormBarbero({ nombre: "", especialidad: "" }); setIsModalBarberoOpen(true); }}>
+        <button className="btn" onClick={() => { setBarberoSeleccionado(null); setFormBarbero({ ...EMPTY_BARBER_FORM }); setIsModalBarberoOpen(true); }}>
           + Agregar barbero
         </button>
       </div>
@@ -278,14 +324,14 @@ function Barberos() {
               barberos.map((b) => (
                 <tr key={b.id_barbero}>
                   <td>{b.id_barbero}</td>
-                  <td>{b.nombre}</td>
+                  <td>{[b.nombre, b.apellido].filter(Boolean).join(" ")}</td>
                   <td>{b.especialidad || "Sin especialidad"}</td>
                   <td className="table-actions-cell">
                     <div className="table-actions">
                     <button className="btn-secondary" onClick={() => abrirGestionServicios(b)} title="Asignar Servicios del Catálogo">
                       <FontAwesomeIcon icon={faScissors} /> Servicios
                     </button>
-                    <button className="btn-secondary table-action-icon" onClick={() => { setBarberoSeleccionado(b); setFormBarbero({ nombre: b.nombre, especialidad: b.especialidad }); setIsModalBarberoOpen(true); }} title="Editar Barbero">
+                    <button className="btn-secondary table-action-icon" onClick={() => { setBarberoSeleccionado(b); setFormBarbero({ ...EMPTY_BARBER_FORM, ...b }); setIsModalBarberoOpen(true); }} title="Editar Barbero">
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
                     <button className="btn-secondary table-action-icon" onClick={() => setConfirmModal({ open: true, item: b })} title="Eliminar Barbero">
@@ -353,12 +399,31 @@ function Barberos() {
 
       {/* MODAL 1: REGISTRAR / EDITAR BARBERO */}
       {isModalBarberoOpen && (
-        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "16px", padding: "24px", margin: "20px 0", boxShadow: "0 8px 18px rgba(0,0,0,0.05)" }}>
-          <h3 style={{ marginTop: 0 }}>{barberoSeleccionado ? "Editar Barbero" : "Registrar Barbero"}</h3>
+        <BarberosModal
+          title={barberoSeleccionado ? "Editar Barbero" : "Registrar Barbero"}
+          onClose={() => setIsModalBarberoOpen(false)}
+        >
+          {fetchError && <p className="status error">{fetchError}</p>}
           <form onSubmit={guardarBarbero}>
             <div className="form-group" style={{ marginBottom: "12px" }}>
               <label>Nombre:</label>
               <input type="text" value={formBarbero.nombre} onChange={(e) => setFormBarbero({ ...formBarbero, nombre: e.target.value })} required />
+            </div>
+            <div className="form-group" style={{ marginBottom: "12px" }}>
+              <label>Apellido:</label>
+              <input type="text" value={formBarbero.apellido} onChange={(e) => setFormBarbero({ ...formBarbero, apellido: e.target.value })} />
+            </div>
+            <div className="form-group" style={{ marginBottom: "12px" }}>
+              <label>Correo electrónico:</label>
+              <input type="email" value={formBarbero.email} onChange={(e) => setFormBarbero({ ...formBarbero, email: e.target.value })} />
+            </div>
+            <div className="form-group" style={{ marginBottom: "12px" }}>
+              <label>Teléfono:</label>
+              <input type="tel" value={formBarbero.telefono} onChange={(e) => setFormBarbero({ ...formBarbero, telefono: e.target.value })} />
+            </div>
+            <div className="form-group" style={{ marginBottom: "12px" }}>
+              <label>Documento:</label>
+              <input type="text" value={formBarbero.documento} onChange={(e) => setFormBarbero({ ...formBarbero, documento: e.target.value })} />
             </div>
             <div className="form-group" style={{ marginBottom: "12px" }}>
               <label>Especialidad:</label>
@@ -369,15 +434,18 @@ function Barberos() {
               <button type="submit" className="btn">Guardar Barbero</button>
             </div>
           </form>
-        </div>
+        </BarberosModal>
       )}
 
       {/* MODAL 2: CREAR SERVICIO PARA EL CATÁLOGO */}
       {isModalServicioOpen && (
-        <div style={{ background: "#fff", color: "var(--bauhaus-ink)", border: "2px solid var(--bauhaus-ink)", borderRadius: "2px", padding: "24px", margin: "20px 0", boxShadow: "5px 5px 0 var(--bauhaus-cyan)" }}>
-          <h3 style={{ marginTop: 0 }}>{formServicio.id_servicio ? "Editar Servicio del Catálogo" : "Nuevo Servicio para el Catálogo"}</h3>
+        <BarberosModal
+          title={formServicio.id_servicio ? "Editar Servicio del Catálogo" : "Nuevo Servicio para el Catálogo"}
+          onClose={() => setIsModalServicioOpen(false)}
+        >
+          {fetchError && <p className="status error">{fetchError}</p>}
           <form onSubmit={guardarServicioCatalogo}>
-            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+            <div className="barberos-service-form-grid">
               <div>
                 <label style={{ fontSize: "0.85rem", color: "var(--bauhaus-ink)" }}>Nombre del Servicio</label>
                 <input type="text" value={formServicio.nombre} onChange={(e) => setFormServicio({ ...formServicio, nombre: e.target.value })} placeholder="Ej. Corte y Barba" required style={{ width: "100%", padding: "8px", background: "#fff", border: "1px solid var(--bauhaus-gray)", color: "var(--bauhaus-ink)", borderRadius: "2px" }} />
@@ -391,27 +459,30 @@ function Barberos() {
                 <input type="number" value={formServicio.duracion_minutos} onChange={(e) => setFormServicio({ ...formServicio, duracion_minutos: e.target.value })} required style={{ width: "100%", padding: "8px", background: "#fff", border: "1px solid var(--bauhaus-gray)", color: "var(--bauhaus-ink)", borderRadius: "2px" }} />
               </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+            <div className="barberos-modal-actions">
               <button type="button" className="btn-secondary" onClick={() => setIsModalServicioOpen(false)}>Cancelar</button>
               <button type="submit" className="btn">{formServicio.id_servicio ? "Guardar cambios" : "Guardar en Catálogo"}</button>
             </div>
           </form>
-        </div>
+        </BarberosModal>
       )}
 
       {/* MODAL 3: ASIGNAR SERVICIOS A BARBERO (CHECKBOXES) */}
       {modalGestion === "servicios" && barberoSeleccionado && (
-        <div style={{ background: "#fff", color: "var(--bauhaus-ink)", border: "2px solid var(--bauhaus-ink)", borderRadius: "2px", padding: "24px", margin: "20px 0", boxShadow: "5px 5px 0 var(--bauhaus-cyan)" }}>
-          <h3 style={{ marginTop: 0 }}>Asignar Servicios a {barberoSeleccionado.nombre}</h3>
+        <BarberosModal
+          title={`Asignar servicios a ${barberoSeleccionado.nombre}`}
+          onClose={() => setModalGestion(null)}
+        >
+          {fetchError && <p className="status error">{fetchError}</p>}
           <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Marca las casillas de los servicios que este barbero puede realizar:</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "12px", margin: "20px 0" }}>
+          <div className="barberos-assignment-grid">
             {serviciosCatalogo.length === 0 ? (
               <p style={{ color: "var(--text-muted)" }}>No hay servicios en el catálogo para asignar.</p>
             ) : (
               serviciosCatalogo.map((serv) => {
                 const estaAsignado = serviciosSeleccionados.includes(serv.id_servicio);
                 return (
-                  <label key={serv.id_servicio} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px", background: estaAsignado ? "var(--bauhaus-cyan-light)" : "#fafafa", color: "var(--bauhaus-ink)", borderRadius: "2px", cursor: "pointer", border: estaAsignado ? "1px solid var(--bauhaus-ink)" : "1px solid var(--bauhaus-gray)" }}>
+                  <label key={serv.id_servicio} className={`barberos-assignment-option${estaAsignado ? " is-selected" : ""}`}>
                     <input
                       type="checkbox"
                       checked={estaAsignado}
@@ -420,20 +491,20 @@ function Barberos() {
                         else setServiciosSeleccionados(serviciosSeleccionados.filter(id => id !== serv.id_servicio));
                       }}
                     />
-                    <div>
+                    <div className="barberos-assignment-details">
                       <strong>{serv.nombre}</strong>
-                      <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>${serv.precio} · {serv.duracion_minutos} min</div>
+                      <div>${serv.precio} · {serv.duracion_minutos} min</div>
                     </div>
                   </label>
                 );
               })
             )}
           </div>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+          <div className="barberos-modal-actions">
             <button className="btn-secondary" onClick={() => setModalGestion(null)}>Cancelar</button>
             <button className="btn" onClick={guardarAsignacionesServicios}>Guardar Asignaciones</button>
           </div>
-        </div>
+        </BarberosModal>
       )}
     </div>
   );

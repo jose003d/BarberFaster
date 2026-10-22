@@ -34,7 +34,7 @@ if ($dniCliente !== '' || $nombreCliente !== '') {
 
     try {
         require_once __DIR__ . '/../config/database.php';
-        $stmt = $pdo->prepare('SELECT nombre, telefono FROM clientes WHERE dni = ?');
+        $stmt = $pdo->prepare('SELECT telefono FROM clientes WHERE dni = ?');
         $stmt->execute([$dniCliente]);
         $cliente = $stmt->fetch();
     } catch (Throwable $e) {
@@ -42,25 +42,11 @@ if ($dniCliente !== '' || $nombreCliente !== '') {
         responder(500, false, 'No se pudieron validar los datos del cliente.');
     }
 
-    $nombreRegistrado = trim((string)($cliente['nombre'] ?? ''));
-    $nombreIngresado = trim($nombreCliente);
-    if (function_exists('mb_strtolower')) {
-        $nombreRegistrado = mb_strtolower($nombreRegistrado, 'UTF-8');
-        $nombreIngresado = mb_strtolower($nombreIngresado, 'UTF-8');
-    } else {
-        $nombreRegistrado = strtolower($nombreRegistrado);
-        $nombreIngresado = strtolower($nombreIngresado);
+    if (!$cliente || normalizarTelefono((string)$cliente['telefono']) !== $telefonoNormalizado) {
+        responder(422, false, 'El DNI y el teléfono deben coincidir con los datos registrados en tu perfil.');
     }
 
-    if (
-        !$cliente ||
-        $nombreRegistrado !== $nombreIngresado ||
-        normalizarTelefono((string)($cliente['telefono'] ?? '')) !== $telefonoNormalizado
-    ) {
-        responder(422, false, 'El nombre, DNI y teléfono deben coincidir con los datos registrados en tu perfil.');
-    }
-
-    $contexto = ['dni_cliente' => $dniCliente, 'nombre_cliente' => trim($cliente['nombre'])];
+    $contexto = ['dni_cliente' => $dniCliente, 'nombre_cliente' => $nombreCliente];
 }
 
 try {

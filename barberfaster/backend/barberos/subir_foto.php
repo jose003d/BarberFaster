@@ -1,12 +1,13 @@
 <?php
 
-// Recibe una foto de barbero, valida el archivo y actualiza su ruta en la base.
+// Recibe una foto de barbero, valida su contenido y guarda sus bytes en MySQL.
 
 // Define la respuesta JSON y limita este endpoint a la carga de imágenes por POST.
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset=UTF-8");
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 
 // Atiende preflight CORS y rechaza métodos distintos de POST.
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -56,65 +57,52 @@ $tiposPermitidos = [
     'image/png' => 'png',
     'image/webp' => 'webp',
 ];
-// Verifica el tipo real del archivo y confirma que el barbero exista.
+// Detecta el formato real y confirma que el archivo sea una imagen decodificable.
 $finfo = new finfo(FILEINFO_MIME_TYPE);
 $tipoMime = $finfo->file($archivo['tmp_name']);
-if (!isset($tiposPermitidos[$tipoMime])) {
+if (!isset($tiposPermitidos[$tipoMime]) || !getimagesize($archivo['tmp_name'])) {
     http_response_code(415);
     echo json_encode(["status" => "error", "mensaje" => "Usa una imagen JPG, PNG o WebP."]);
     exit();
 }
 
-$consulta = $pdo->prepare("SELECT foto FROM barberos WHERE id_barbero = ?");
+$consulta = $pdo->prepare("SELECT id_barbero FROM barberos WHERE id_barbero = ?");
 $consulta->execute([$idBarbero]);
-$barbero = $consulta->fetch(PDO::FETCH_ASSOC);
-if (!$barbero) {
+if (!$consulta->fetchColumn()) {
     http_response_code(404);
     echo json_encode(["status" => "error", "mensaje" => "No se encontró el barbero seleccionado."]);
     exit();
 }
 
-$directorio = __DIR__ . '/../uploads/barberos';
-// Genera un nombre aleatorio, guarda el archivo y registra su ruta relativa.
-if (!is_dir($directorio) && !mkdir($directorio, 0755, true) && !is_dir($directorio)) {
+// Lee los bytes antes de guardar y reporta si el archivo temporal no está disponible.
+$contenidoFoto = file_get_contents($archivo['tmp_name']);
+if ($contenidoFoto === false) {
     http_response_code(500);
-    echo json_encode(["status" => "error", "mensaje" => "No se pudo preparar el almacenamiento de fotos."]);
-    exit();
-}
-
-$nombreArchivo = bin2hex(random_bytes(16)) . '.' . $tiposPermitidos[$tipoMime];
-$rutaArchivo = $directorio . DIRECTORY_SEPARATOR . $nombreArchivo;
-$rutaGuardada = 'barberos/' . $nombreArchivo;
-
-if (!move_uploaded_file($archivo['tmp_name'], $rutaArchivo)) {
-    http_response_code(500);
-    echo json_encode(["status" => "error", "mensaje" => "No se pudo guardar la foto."]);
+    echo json_encode(["status" => "error", "mensaje" => "No se pudo leer la foto subida."]);
     exit();
 }
 
 try {
-    // Actualiza la foto y elimina la anterior solo si es un archivo gestionado.
-    $actualizar = $pdo->prepare("UPDATE barberos SET foto = ? WHERE id_barbero = ?");
-    $actualizar->execute([$rutaGuardada, $idBarbero]);
+    // Guarda el archivo binario y su MIME; la columna foto conserva rutas antiguas.
+    $actualizar = $pdo->prepare("
+        UPDATE barberos
+        SET foto_datos = :foto_datos, foto_mime = :foto_mime
+        WHERE id_barbero = :id_barbero
+    ");
+    $actualizar->bindValue(':foto_datos', $contenidoFoto, PDO::PARAM_LOB);
+    $actualizar->bindValue(':foto_mime', $tipoMime, PDO::PARAM_STR);
+    $actualizar->bindValue(':id_barbero', $idBarbero, PDO::PARAM_INT);
+    $actualizar->execute();
 
-    $fotoAnterior = $barbero['foto'] ?? '';
-    if (preg_match('/^barberos\/[a-f0-9]{32}\.(jpg|png|webp)$/', $fotoAnterior)) {
-        $rutaAnterior = $directorio . DIRECTORY_SEPARATOR . basename($fotoAnterior);
-        if (is_file($rutaAnterior) && !unlink($rutaAnterior)) {
-            error_log('No se pudo eliminar la foto anterior del barbero ' . $idBarbero . '.');
-        }
-    }
+    $urlFoto = '/erpbarber/barberfaster/backend/barberos/foto.php?id_barbero='
+        . $idBarbero . '&v=' . time();
 
     echo json_encode([
         "status" => "success",
         "mensaje" => "Foto actualizada correctamente.",
-        "foto" => $rutaGuardada,
+        "foto" => $urlFoto,
     ]);
 } catch (Throwable $error) {
-    // Limpia el archivo nuevo si la actualización de base de datos falla.
-    if (is_file($rutaArchivo)) {
-        unlink($rutaArchivo);
-    }
     error_log('Error al guardar la foto del barbero: ' . $error->getMessage());
     http_response_code(500);
     echo json_encode(["status" => "error", "mensaje" => "No se pudo guardar la foto del barbero."]);

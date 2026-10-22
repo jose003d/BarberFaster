@@ -13,7 +13,7 @@ if (!$dni) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT dni, nombre, telefono, email FROM clientes WHERE dni = ?");
+    $stmt = $pdo->prepare("SELECT dni, nombre, telefono FROM clientes WHERE dni = ?");
     $stmt->execute([$dni]);
     $cliente = $stmt->fetch();
 

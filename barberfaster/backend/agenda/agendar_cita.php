@@ -4,15 +4,16 @@
 // -----------------------------------------------------------------------------
 // Permite que el frontend realice peticiones desde otro origen o puerto.
 header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 // Indica que el endpoint acepta peticiones cuyo cuerpo se envía como JSON.
-header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 // Todas las respuestas de este archivo tendrán formato JSON y codificación UTF-8.
 header("Content-Type: application/json; charset=UTF-8");
 
 // Carga la conexión PDO a la base de datos.
-require_once '../config/database.php';
-require_once 'horarios_utils.php';
-require_once '../verificacion/comun.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/utilidades_horario.php';
+require_once __DIR__ . '/../verificacion/comun.php';
 
 // Los navegadores suelen enviar OPTIONS antes de una petición POST (preflight).
 // Se responde correctamente sin intentar crear una cita.
@@ -73,11 +74,60 @@ if (!telefonoValido($telefono_cliente)) {
     exit();
 }
 
-$ticketBloqueado = bloquearTicketVerificacion($telefono_cliente, $ticket_verificacion);
-if ($ticketBloqueado === false) {
-    http_response_code(403);
-    echo json_encode(["status" => "error", "mensaje" => "Verifica nuevamente tu teléfono antes de reservar."]);
+try {
+    $sesionClienteActiva = leerSesionCliente();
+    $clienteAutenticado = $sesionClienteActiva === false
+        ? false
+        : obtenerClienteAutenticado($pdo);
+} catch (Throwable $e) {
+    error_log('Error al validar sesión de cliente para reservar: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(["status" => "error", "mensaje" => "No se pudo validar la sesión del cliente."]);
     exit();
+}
+$ticketBloqueado = null;
+
+if ($sesionClienteActiva !== false) {
+    $nombreSesion = trim((string)$sesionClienteActiva['nombre']);
+    $nombreSolicitado = trim($nombre_cliente);
+    if (function_exists('mb_strtolower')) {
+        $nombreSesion = mb_strtolower($nombreSesion, 'UTF-8');
+        $nombreSolicitado = mb_strtolower($nombreSolicitado, 'UTF-8');
+    } else {
+        $nombreSesion = strtolower($nombreSesion);
+        $nombreSolicitado = strtolower($nombreSolicitado);
+    }
+
+    if (
+        !hash_equals((string)$sesionClienteActiva['dni'], $dni_cliente) ||
+        normalizarTelefono((string)$sesionClienteActiva['telefono']) !== $telefono_cliente ||
+        $nombreSesion !== $nombreSolicitado
+    ) {
+        http_response_code(403);
+        echo json_encode(["status" => "error", "mensaje" => "Los datos de la reserva no coinciden con la sesión activa del cliente."]);
+        exit();
+    }
+
+    if ($clienteAutenticado === false) {
+        $stmtClienteExistente = $pdo->prepare('SELECT 1 FROM clientes WHERE dni = ?');
+        $stmtClienteExistente->execute([$dni_cliente]);
+        if ($stmtClienteExistente->fetchColumn()) {
+            http_response_code(403);
+            echo json_encode(["status" => "error", "mensaje" => "La sesión venció o los datos del cliente cambiaron. Verifica nuevamente tu WhatsApp."]);
+            exit();
+        }
+    }
+    if ($ticket_verificacion !== '') {
+        $ticket = bloquearTicketVerificacion($telefono_cliente, $ticket_verificacion);
+        $ticketBloqueado = $ticket === false ? null : $ticket;
+    }
+} else {
+    $ticketBloqueado = bloquearTicketVerificacion($telefono_cliente, $ticket_verificacion);
+    if ($ticketBloqueado === false) {
+        http_response_code(403);
+        echo json_encode(["status" => "error", "mensaje" => "Verifica nuevamente tu teléfono antes de reservar."]);
+        exit();
+    }
 }
 
 $serviciosValidos = [];
@@ -90,7 +140,9 @@ foreach ($servicios as $idServicio) {
 $servicios = array_values(array_unique($serviciosValidos));
 
 if (empty($servicios)) {
-    liberarTicketVerificacion($ticketBloqueado);
+    if ($ticketBloqueado !== null) {
+        liberarTicketVerificacion($ticketBloqueado);
+    }
     http_response_code(400);
     echo json_encode(["status" => "error", "mensaje" => "Selecciona al menos un servicio válido."]);
     exit();
@@ -116,7 +168,7 @@ try {
     }
 
     $stmtHorario = $pdo->prepare("
-        SELECT hora_apertura, hora_cierre
+        SELECT hora_apertura, hora_cierre, dias_trabajo
         FROM barberias
         WHERE id_barberia = :id_barberia
     ");
@@ -173,6 +225,13 @@ try {
         $fechaValidada->format('Y-m-d') !== $fecha
     ) {
         throw new RuntimeException("La fecha o la hora de la reserva no es válida.", 422);
+    }
+
+    // La reserva solo puede continuar si la fecha corresponde a un día abierto del local.
+    $diasSemana = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
+    $diaReserva = $diasSemana[(int)$fechaValidada->format('N') - 1];
+    if (!in_array($diaReserva, explode(',', (string)$horarioBarberia['dias_trabajo']), true)) {
+        throw new RuntimeException("La barbería no recibe reservas los días $diaReserva.", 422);
     }
 
     $finMinutos = $inicioMinutos + $duracionTotal;
@@ -249,20 +308,24 @@ try {
     }
 
     // El ticket se consume al reservar y queda ligado al teléfono validado.
-    $ticketConsumido = consumirTicketVerificacion($ticketBloqueado);
-    $ticketBloqueado = null;
-    if (!$ticketConsumido) {
-        throw new RuntimeException("No se pudo confirmar la verificación del teléfono.", 500);
+    if ($ticketBloqueado !== null) {
+        $ticketConsumido = consumirTicketVerificacion($ticketBloqueado);
+        $ticketBloqueado = null;
+        if (!$ticketConsumido) {
+            throw new RuntimeException("No se pudo confirmar la verificación del teléfono.", 500);
+        }
     }
 
     // Confirma definitivamente todos los INSERT realizados en la transacción.
     $pdo->commit();
 
     $sesionCliente = null;
-    try {
-        $sesionCliente = crearSesionCliente($dni_cliente, $nombre_cliente, $telefono_cliente);
-    } catch (Throwable $e) {
-        error_log('La cita se creó, pero no se pudo iniciar la sesión del cliente: ' . $e->getMessage());
+    if ($sesionClienteActiva === false) {
+        try {
+            $sesionCliente = crearSesionCliente($dni_cliente, $nombre_cliente, $telefono_cliente);
+        } catch (Throwable $e) {
+            error_log('La cita se creó, pero no se pudo iniciar la sesión del cliente: ' . $e->getMessage());
+        }
     }
 
     // -------------------------------------------------------------------------

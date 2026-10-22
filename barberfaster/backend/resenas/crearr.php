@@ -1,71 +1,80 @@
 <?php
-// backend/resenas/crearr.php
-// Este archivo guarda una reseña para una cita completada.
-// La calificación se guarda en el campo notas de la cita con un formato legible.
 
-// Permite peticiones desde el frontend.
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json; charset=UTF-8");
+declare(strict_types=1);
 
-// Conexión a la base de datos.
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../verificacion/comun.php';
 
-// Responde a peticiones OPTIONS antes de continuar.
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Content-Type: application/json; charset=UTF-8');
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
+    http_response_code(204);
     exit();
 }
-
-// Lee el JSON del body.
-$data = json_decode(file_get_contents("php://input"), true);
-
-// Extrae los valores enviados por el cliente.
-$id_cita      = $data['id_cita'] ?? null;
-$calificacion = $data['calificacion'] ?? null; // Número entero de 1 a 5
-$comentario   = $data['comentario'] ?? null;
-
-// Validación: la cita y la calificación son obligatorias.
-if (!$id_cita || !$calificacion) {
-    echo json_encode(["status" => "error", "mensaje" => "El ID de la cita y la calificación son obligatorios."]);
-    exit();
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    responder(405, false, 'Método no permitido.');
 }
 
-// La calificación debe estar entre 1 y 5.
-if ($calificacion < 1 || $calificacion > 5) {
-    echo json_encode(["status" => "error", "mensaje" => "La calificación debe estar entre 1 y 5 estrellas."]);
-    exit();
+$datos = obtenerJsonBody();
+$tokenSesion = isset($datos['sesion_cliente']) && is_string($datos['sesion_cliente'])
+    ? $datos['sesion_cliente']
+    : null;
+
+try {
+    $cliente = obtenerClienteAutenticado($pdo, $tokenSesion);
+} catch (Throwable $e) {
+    error_log('Error al validar sesión para calificar cita: ' . $e->getMessage());
+    responder(500, false, 'No se pudo validar la sesión del cliente.');
+}
+if ($cliente === false) {
+    responder(401, false, 'La sesión venció o los datos no coinciden. Verifica nuevamente tu WhatsApp.');
+}
+
+$idCita = filter_var($datos['id_cita'] ?? null, FILTER_VALIDATE_INT);
+$calificacion = filter_var($datos['calificacion'] ?? null, FILTER_VALIDATE_INT);
+if ($idCita === false || $idCita < 1 || $calificacion === false || $calificacion < 1 || $calificacion > 5) {
+    responder(400, false, 'Selecciona una cita y una calificación de 1 a 5 estrellas.');
 }
 
 try {
-    // Verifica que la cita exista y esté marcada como COMPLETADA.
-    $stmtCheck = $pdo->prepare("SELECT estado FROM citas WHERE id_cita = ?");
-    $stmtCheck->execute([$id_cita]);
-    $cita = $stmtCheck->fetch();
+    $pdo->beginTransaction();
 
-    if (!$cita) {
-        echo json_encode(["status" => "error", "mensaje" => "La cita especificada no existe."]);
-        exit();
+    $stmtCita = $pdo->prepare("
+        SELECT id_cita
+        FROM citas
+        WHERE id_cita = ? AND dni_cliente = ? AND estado = 'COMPLETADA'
+        FOR UPDATE
+    ");
+    $stmtCita->execute([$idCita, $cliente['dni']]);
+    if (!$stmtCita->fetchColumn()) {
+        $pdo->rollBack();
+        responder(404, false, 'Solo puedes calificar una cita completada que te pertenezca.');
     }
 
-    if ($cita['estado'] !== 'COMPLETADA') {
-        echo json_encode(["status" => "error", "mensaje" => "Solo se pueden calificar citas completadas."]);
-        exit();
+    $stmtResena = $pdo->prepare("
+        INSERT INTO resenas (id_cita, dni_cliente, calificacion)
+        VALUES (?, ?, ?)
+    ");
+    $stmtResena->execute([$idCita, $cliente['dni'], $calificacion]);
+    $pdo->commit();
+
+    responder(201, true, 'Gracias por calificar a tu barbero.');
+} catch (PDOException $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
     }
-
-    // Prepara el texto de la reseña con la calificación y comentario.
-    $resenaTexto = "[Calificación: $calificacion/5] " . ($comentario ? $comentario : "");
-
-    // Guarda la reseña en el campo notas de la cita.
-    $stmt = $pdo->prepare("UPDATE citas SET notas = ? WHERE id_cita = ?");
-    $stmt->execute([$resenaTexto, $id_cita]);
-
-    // Respuesta exitosa.
-    echo json_encode([
-        "status" => "success",
-        "mensaje" => "Reseña guardada exitosamente."
-    ]);
-} catch (Exception $e) {
-    // Si ocurre un error, lo devuelve en JSON.
-    echo json_encode(["status" => "error", "mensaje" => "Error al guardar la reseña: " . $e->getMessage()]);
+    if ((int)($e->errorInfo[1] ?? 0) === 1062) {
+        responder(409, false, 'Esta cita ya tiene una calificación.');
+    }
+    error_log('Error de base de datos al guardar calificación: ' . $e->getMessage());
+    responder(500, false, 'No se pudo guardar la calificación.');
+} catch (Throwable $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    error_log('Error al guardar calificación: ' . $e->getMessage());
+    responder(500, false, 'No se pudo guardar la calificación.');
 }

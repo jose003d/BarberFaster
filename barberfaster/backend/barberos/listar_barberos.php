@@ -6,6 +6,7 @@
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 
 // Responde a peticiones OPTIONS para evitar errores de CORS.
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -22,9 +23,32 @@ $id_barberia = $_GET['id_barberia'] ?? $_POST['id_barberia'] ?? 1;
 try {
     // Consulta solo los barberos activos de la barbería seleccionada.
     $stmt = $pdo->prepare("
-        SELECT id_barbero, id_barberia, nombre, especialidad, estado, foto
-        FROM barberos
-        WHERE id_barberia = ? AND estado = 'ACTIVO'
+        SELECT
+            b.id_barbero,
+            b.id_barberia,
+            b.nombre,
+            b.apellido,
+            b.email,
+            b.telefono,
+            b.documento,
+            b.especialidad,
+            b.estado,
+            CASE
+                WHEN b.foto_datos IS NOT NULL THEN CONCAT(
+                    '/erpbarber/barberfaster/backend/barberos/foto.php?id_barbero=',
+                    b.id_barbero,
+                    '&v=',
+                    UNIX_TIMESTAMP()
+                )
+                ELSE b.foto
+            END AS foto,
+            COALESCE(AVG(r.calificacion), 0) AS calificacion_promedio,
+            COUNT(r.id_resena) AS cantidad_calificaciones
+        FROM barberos b
+        LEFT JOIN citas c ON c.id_barbero = b.id_barbero
+        LEFT JOIN resenas r ON r.id_cita = c.id_cita
+        WHERE b.id_barberia = ? AND b.estado = 'ACTIVO'
+        GROUP BY b.id_barbero
     ");
     $stmt->execute([$id_barberia]);
     $barberos = $stmt->fetchAll(PDO::FETCH_ASSOC);

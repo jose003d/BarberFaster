@@ -27,8 +27,8 @@
 }
 
 .client-profile-brand {
-  font-family: var(--font-brand);
-  font-size: 1.05rem;
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
+  letter-spacing: 0.07em;
 }
 
 .client-profile-nav nav {
@@ -45,9 +45,31 @@
   font-size: 0.8rem;
 }
 
+.client-profile-nav nav .client-profile-nav-back,
+.client-profile-nav nav button {
+  display: inline-flex;
+  width: 122px;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 8px;
+  border: 2px solid var(--bauhaus-ink) !important;
+  background: var(--bauhaus-cyan) !important;
+  font-size: 0.72rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .client-profile-nav nav a:hover,
 .client-profile-nav nav button:hover {
   color: var(--bauhaus-orange);
+}
+
+.client-profile-nav nav .client-profile-nav-back:hover,
+.client-profile-nav nav button:hover {
+  background: var(--bauhaus-orange) !important;
+  color: #fff;
 }
 
 .client-profile-content {
@@ -139,7 +161,8 @@
 
 .client-profile-submit,
 .client-profile-back,
-.client-reschedule-button {
+.client-reschedule-button,
+.client-discard-button {
   display: inline-flex;
   min-height: 44px;
   align-items: center;
@@ -330,11 +353,12 @@
 .client-appointment-buttons {
   display: grid;
   grid-column: 1 / -1;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
 .client-reschedule-button,
+.client-discard-button,
 .client-cancel-button {
   min-height: 40px;
   padding: 8px;
@@ -345,11 +369,93 @@
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-paper);
   color: var(--bauhaus-ink);
-  cursor: pointer;
+}
+
+.client-discard-button {
+  border: 2px solid var(--bauhaus-ink);
+  background: #e8e8e8;
+  color: var(--bauhaus-ink);
+}
+
+.client-rating-form,
+.client-rating-result {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--bauhaus-gray);
+}
+
+.client-rating-form {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  align-items: end;
+  column-gap: 12px;
+  row-gap: 8px;
+}
+
+.client-rating-form fieldset {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.client-rating-form legend {
+  margin: 0;
   font-family: var(--font-ui);
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+#root .client-profile-page .client-rating-form .peek-rating .peek-rating__row > .peek-rating__star,
+#root .client-profile-page .client-rating-form .peek-rating .peek-rating__row > .peek-rating__star:hover,
+#root .client-profile-page .client-rating-form .peek-rating .peek-rating__row > .peek-rating__star:active,
+#root .client-profile-page .client-rating-form .peek-rating .peek-rating__row > .peek-rating__star:disabled {
+  appearance: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  background-color: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  translate: none !important;
+}
+
+#root .client-profile-page .client-rating-form .peek-rating .peek-rating__row > .peek-rating__star:focus-visible {
+  background: none !important;
+  box-shadow: none !important;
+  outline: 2px solid var(--bauhaus-orange);
+  outline-offset: 2px;
+}
+
+.client-rating-submit {
+  align-self: end;
+}
+
+.client-rating-result {
+  color: var(--bauhaus-ink);
+}
+
+.client-rating-result .peek-rating {
+  color: #ec9b00;
+}
+
+.client-rating-result strong {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+}
+
+.client-rating-submit {
+  width: fit-content;
+  min-height: 40px;
+  font-size: 0.68rem;
 }
 
 .client-empty-state {
@@ -371,7 +477,7 @@
   }
 
   .client-profile-brand {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
   }
 
   .client-profile-nav nav {
@@ -381,6 +487,14 @@
   .client-profile-nav nav a,
   .client-profile-nav nav button {
     font-size: 0.68rem;
+  }
+
+  .client-profile-nav nav .client-profile-nav-back,
+  .client-profile-nav nav button {
+    width: 112px;
+    min-height: 36px;
+    padding-inline: 6px;
+    font-size: 0.64rem;
   }
 
   .client-profile-content {
@@ -402,6 +516,29 @@
   .client-appointment-card {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+
+  .client-rating-result {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 420px) {
+  .client-rating-form {
+    grid-template-columns: minmax(0, 1fr) max-content;
+    column-gap: 6px;
+  }
+
+  .client-rating-form .peek-rating {
+    --pr-size: 25px !important;
+    --pr-gap: 3px !important;
+    --pr-room: 28px !important;
+  }
+
+  .client-rating-submit {
+    padding: 6px !important;
+    font-size: 0.58rem;
   }
 }
 

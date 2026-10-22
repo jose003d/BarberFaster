@@ -50,13 +50,45 @@ El formulario de reservas solicita y verifica el código por WhatsApp antes de p
 
 ## Perfil del cliente
 
-El enlace **Mi perfil** de la portada lleva a `/cliente`. El cliente ingresa su nombre, DNI y teléfono registrado, y confirma un código OTP enviado por WhatsApp. Tras verificarlo, recibe una sesión temporal de 30 minutos; el backend valida esa sesión y que los datos correspondan al registro del cliente antes de devolver su perfil o sus citas.
+El enlace **Mi perfil** de la portada lleva a `/cliente`. El cliente ingresa su nombre, DNI y teléfono registrado, y confirma un código OTP enviado por WhatsApp. El DNI identifica el registro y no se modifica en este flujo. Al completar el OTP, si el DNI y el teléfono coinciden con un cliente existente, se actualiza el nombre de ese mismo registro y se inicia una sesión temporal de 30 minutos. El backend valida el token, el DNI y el teléfono antes de devolver su perfil o sus citas.
+
+Mientras esa sesión esté vigente, Agenda reutiliza los datos del perfil y permite reservar sin solicitar otro código. Si la reserva comienza sin una sesión activa, conserva la verificación OTP y crea la sesión al completar la cita.
 
 Desde el perfil puede cancelar o cambiar la fecha y hora de citas pendientes o confirmadas. La reprogramación mantiene el barbero y los servicios originales, y el servidor valida duración, horario de atención, que la cita aún no haya pasado y que el nuevo turno no esté ocupado.
 
+Después de que una cita se marca como completada, el cliente puede calificar una vez al barbero con 1 a 5 estrellas desde su perfil, sin comentarios. Para bases existentes, crea la tabla `resenas` con la definición incluida en `restore_database.sql`; las instalaciones nuevas ya la crean con ese archivo.
+
+## Perfil y citas del barbero
+
+El perfil del barbero permite actualizar sus datos y consultar las citas próximas y el historial. La lista se actualiza cada 15 segundos mediante consultas HTTP periódicas; no es un WebSocket. Las acciones para cancelar, reagendar o completar desde el perfil permanecen desactivadas hasta contar con autenticación de barbero validada en el servidor.
+
+Al consultar las citas, el servidor marca como completadas las citas pendientes o confirmadas cuyo horario ya terminó. El perfil consulta cada 15 segundos; si permanece cerrado, las citas vencidas se actualizan cuando vuelva a consultarse. Las canceladas no se modifican y no hace falta configurar tareas de Windows.
+
+El endpoint de consulta no devuelve DNI ni teléfono, pero todavía no valida una sesión de barbero en el servidor. La edición de perfil y la carga de foto usan endpoints existentes que tampoco validan esa sesión. No expongas el panel a Internet hasta implementar la autenticación real; el modo de acceso actual es de demostración.
+
 ## Fotos de barberos
 
-Las fotos de perfil se guardan en `backend/uploads/barberos` y se aceptan imágenes JPG, PNG y WebP de hasta 5 MB. Para bases de datos existentes, ejecuta una vez `migration_add_barbero_foto.sql`; las instalaciones nuevas incluyen la columna `foto` en `restore_database.sql`.
+Las fotos se suben como archivos JPG, PNG o WebP de hasta 5 MB y sus bytes y MIME se guardan en `barberos.foto_datos` y `barberos.foto_mime` (MEDIUMBLOB). El endpoint `backend/barberos/foto.php` las sirve al flujo de Agenda. La columna `foto` se conserva para rutas antiguas. El SQL actualizado ya incluye las columnas necesarias para el almacenamiento binario.
+
+## Galería de fotos de barberías
+
+Desde el perfil del establecimiento se pueden guardar hasta 8 fotos JPG, PNG o WebP, de hasta 5 MB cada una, como archivos binarios en la tabla `barberia_fotos`. Las imágenes se alternan automáticamente en las tarjetas de barbería del inicio. En bases existentes, crea la tabla `barberia_fotos` con la definición incluida en `restore_database.sql`.
+
+En el inicio, al pasar el cursor sobre una barbería o pulsar **Ver detalles**, se muestra su información pública, sus barberos activos y el mapa configurado.
+
+El formulario completo del barbero guarda nombre, apellido, correo, teléfono, documento y especialidad. El SQL actualizado ya incluye esos campos en la tabla `barberos`.
+
+`restore_database.sql` contiene únicamente la estructura exportada de la base local, sin registros y sin eliminar tablas existentes. Está pensado para una base vacía; `CREATE TABLE IF NOT EXISTS` no actualiza automáticamente tablas que ya tengan otra estructura.
+
+Para habilitar la selección de días laborables en una base existente, ejecuta una sola vez este cambio sobre la base `barberfaster`:
+
+```sql
+ALTER TABLE barberias
+  ADD COLUMN dias_trabajo VARCHAR(100) NOT NULL
+  DEFAULT 'LUNES,MARTES,MIERCOLES,JUEVES,VIERNES,SABADO,DOMINGO';
+```
+
+No ejecutes el cambio si la columna ya existe. Las instalaciones nuevas incluyen `barberias.dias_trabajo` en `restore_database.sql`.
 
 ## Expanding the ESLint configuration
 
