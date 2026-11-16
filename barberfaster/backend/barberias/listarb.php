@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // backend/barberias/listarb.php
 // Este archivo consulta todas las barberías y las devuelve en formato JSON.
 // Se usa para cargar la lista en el frontend, normalmente en tablas o cards.

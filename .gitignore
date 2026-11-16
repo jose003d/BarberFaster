@@ -1,2 +1,5 @@
 # Restore dependencies from the package manifests and lockfiles after cloning.
 node_modules/
+
+# Archivos con credenciales para subir a mano al servidor (nunca a Git)
+hostinger-privado/
