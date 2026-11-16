@@ -1,12 +1,20 @@
 # Despliegue de BarberFaster (barberfaster.site)
 
 ```text
-XAMPP (local)  ──git push main──▶  GitHub  ──GitHub Actions (FTP)──▶  Hostinger
+XAMPP (local) ──push main──▶ GitHub Actions (npm run build)
+                                   │ publica el sitio armado
+                                   ▼
+                             rama "hostinger" ──Git de Hostinger──▶ public_html
 ```
 
-Trabajas y pruebas en tu computador. Al hacer `git push` a `main`, GitHub compila el
-frontend y sube **frontend + backend PHP** a Hostinger. No hay que compilar ni subir
-nada a mano.
+Trabajas y pruebas en tu computador. Al hacer `git push` a `main`, GitHub Actions
+compila el frontend y publica **frontend compilado + backend PHP** en la rama
+`hostinger`, ya con la estructura de `public_html`. La integración Git de Hostinger
+despliega esa rama. No hay que compilar ni subir nada a mano.
+
+> **Importante:** Hostinger **no** ejecuta `npm run build`. Si desplegara `main`,
+> publicaría el código fuente (`barberfaster/src`, `package.json`, SQL…) y no el sitio.
+> Por eso en hPanel la rama configurada debe ser `hostinger`, nunca `main`.
 
 ## Dónde vive el sitio
 
@@ -53,39 +61,45 @@ repositorio, que ya **no** lleva la contraseña escrita: la lee de
 
 Este archivo **no** está en Git y el despliegue nunca lo sobrescribe ni lo borra.
 
-### 2. Cuenta FTP
-
-hPanel → **Archivos → Cuentas FTP**. Anota el **host FTP**, el **usuario** y la
-**contraseña**. Mira también la columna **Directorio** de la cuenta: indica en qué
-carpeta "aterriza" el FTP.
-
-### 3. Secretos y variables en GitHub
-
-En el repositorio → **Settings → Secrets and variables → Actions**:
-
-| Pestaña   | Nombre           | Valor                                                         |
-|-----------|------------------|---------------------------------------------------------------|
-| Secrets   | `FTP_SERVER`     | Host FTP                                                      |
-| Secrets   | `FTP_USERNAME`   | Usuario FTP                                                   |
-| Secrets   | `FTP_PASSWORD`   | Contraseña FTP                                                |
-| Variables | `FTP_SERVER_DIR` | Ruta de `public_html` vista desde el FTP (termina en `/`)     |
-| Variables | `FTP_PROTOCOL`   | (opcional) `ftp` por defecto, o `ftps`                        |
-
-Valores de `FTP_SERVER_DIR` según el **Directorio** de la cuenta FTP:
-
-- Si el directorio es `public_html` del dominio → `./`
-- Si es la carpeta del usuario (`/home/u…`) → `domains/barberfaster.site/public_html/`
-- Si no pones nada → `public_html/`
-
-### 4. Primer despliegue
+### 2. Primer push (crea la rama `hostinger`)
 
 ```bash
 git push origin main
 ```
 
-El progreso se ve en la pestaña **Actions** del repositorio. También se puede lanzar
-a mano con **Run workflow**. Los archivos viejos del servidor (por ejemplo
-`assets/index-BVI9vft4.js`) no se borran; quedan sin uso.
+En la pestaña **Actions** del repositorio espera a que termine "Desplegar en
+Hostinger". Al terminar existe la rama `hostinger` con este contenido en la raíz:
+`index.html`, `assets/`, `fonts/`, `.htaccess`, `erpbarber/barberfaster/backend/`.
+
+### 3. Configurar Git en hPanel
+
+hPanel → **Avanzado → GIT**:
+
+1. Si ya hay un repositorio conectado con la rama `main`, **bórralo** de la lista
+   (esto no borra archivos).
+2. Respalda en tu PC, desde el Administrador de archivos:
+   - `public_html/erpbarber/barberfaster/backend/config/config.local.php`
+     (o los datos de MySQL del `database.php` actual)
+   - `public_html/erpbarber/barberfaster/backend/uploads/` y `.../public/`
+3. Hostinger solo clona en una carpeta **vacía**: vacía `public_html`.
+4. Crea el repositorio en GIT:
+   - Repositorio: `https://github.com/jose003d/BarberFaster.git`
+   - Rama: **`hostinger`**
+   - Directorio: vacío (= `public_html`)
+5. Pulsa **Deploy**, luego **Auto Deployment** y copia la URL del webhook en GitHub →
+   **Settings → Webhooks → Add webhook** (Content type `application/json`, evento *push*).
+6. Vuelve a subir `config.local.php` y las carpetas `uploads/`/`public/` a su lugar.
+   Git no los toca: no están versionados en la rama.
+
+Desde ahí cada push a `main` → Actions compila → actualiza `hostinger` → el webhook
+hace que Hostinger publique.
+
+### FTP (alternativa opcional)
+
+Si prefieres no usar la integración Git, crea los secretos `FTP_SERVER`,
+`FTP_USERNAME`, `FTP_PASSWORD` (y la variable `FTP_SERVER_DIR`) en GitHub →
+**Settings → Secrets and variables → Actions**; el workflow subirá además por FTP.
+No uses los dos métodos a la vez sobre la misma carpeta.
 
 ## Trabajo diario en local
 

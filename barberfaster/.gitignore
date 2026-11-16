@@ -36,3 +36,6 @@ backend/public/*
 backend/config/config.local.php
 .env.local
 .env.*.local
+
+# Paquete para subir a mano a Hostinger
+frontend-hostinger.zip

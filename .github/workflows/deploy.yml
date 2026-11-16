@@ -1,9 +1,15 @@
 name: Desplegar en Hostinger
 
-# Cada push a main que cambie barberfaster/ compila el frontend y sube el sitio
-# a Hostinger (barberfaster.site, Single Web Hosting) por FTP con esta estructura:
+# Cada push a main que cambie barberfaster/ compila el frontend y arma el sitio
+# listo para publicar con esta estructura:
 #   public_html/                                  <- frontend compilado
 #   public_html/erpbarber/barberfaster/backend/   <- API PHP
+#
+# Ese resultado se publica en la rama "hostinger". La integración Git de
+# Hostinger (hPanel > Avanzado > GIT) despliega ESA rama en public_html.
+# main nunca se despliega directo: contiene código fuente que Hostinger no compila.
+#
+# Opcional: si existen los secretos FTP_*, además se sube por FTP.
 on:
   push:
     branches:
@@ -14,11 +20,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: deploy-hostinger
   cancel-in-progress: false
+
+env:
+  RAMA_DESPLIEGUE: hostinger
 
 jobs:
   deploy:
@@ -26,21 +35,6 @@ jobs:
     steps:
       - name: Descargar el repositorio
         uses: actions/checkout@v4
-
-      - name: Revisar que los secretos de FTP existan
-        env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        run: |
-          faltan=""
-          [ -z "$FTP_SERVER" ] && faltan="$faltan FTP_SERVER"
-          [ -z "$FTP_USERNAME" ] && faltan="$faltan FTP_USERNAME"
-          [ -z "$FTP_PASSWORD" ] && faltan="$faltan FTP_PASSWORD"
-          if [ -n "$faltan" ]; then
-            echo "::error::Faltan secretos en GitHub (Settings > Secrets and variables > Actions):$faltan"
-            exit 1
-          fi
 
       - name: Instalar Node.js
         uses: actions/setup-node@v4
@@ -63,19 +57,73 @@ jobs:
         run: |
           mkdir -p deploy
           cp -r barberfaster/build/. deploy/
+          test -f deploy/index.html || { echo "::error::El build no generó index.html"; exit 1; }
           # Backend sin credenciales ni fotos subidas por usuarios, en la misma
-          # ruta que usa el sitio publicado: /erpbarber/barberfaster/backend
+          # ruta que usa el frontend: /erpbarber/barberfaster/backend
           BACKEND=deploy/erpbarber/barberfaster/backend
           mkdir -p "$BACKEND"
-          rsync -a             --exclude 'config/config.local.php'             --exclude 'uploads/*'             --exclude 'public/*'             barberfaster/backend/ "$BACKEND/"
+          rsync -a \
+            --exclude 'config/config.local.php' \
+            --exclude 'uploads/*' \
+            --exclude 'public/*' \
+            barberfaster/backend/ "$BACKEND/"
           # Carpetas de subida (con index.html para que no se listen)
           for d in uploads public; do
             mkdir -p "$BACKEND/$d"
             echo '' > "$BACKEND/$d/index.html"
           done
+          cp barberfaster/backend/uploads/logo.png "$BACKEND/uploads/"
+          # Los archivos que solo viven en el servidor no se versionan en la rama
+          cat > deploy/.gitignore <<'EOF'
+          erpbarber/barberfaster/backend/config/config.local.php
+          erpbarber/barberfaster/backend/uploads/*
+          !erpbarber/barberfaster/backend/uploads/index.html
+          !erpbarber/barberfaster/backend/uploads/logo.png
+          erpbarber/barberfaster/backend/public/*
+          !erpbarber/barberfaster/backend/public/index.html
+          EOF
+          sed -i 's/^ *//' deploy/.gitignore
           find deploy -maxdepth 4 -type d | sort
 
-      - name: Subir a Hostinger por FTP
+      - name: Publicar en la rama de despliegue
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          # Se conserva el historial de la rama (sin force-push) para que el
+          # "git pull" de Hostinger siempre sea un avance simple.
+          if git ls-remote --exit-code --heads "$REPO_URL" "$RAMA_DESPLIEGUE" >/dev/null; then
+            git clone --depth 1 --branch "$RAMA_DESPLIEGUE" "$REPO_URL" publicar
+          else
+            git init -b "$RAMA_DESPLIEGUE" publicar
+            git -C publicar remote add origin "$REPO_URL"
+          fi
+          rsync -a --delete --exclude '.git' deploy/ publicar/
+          cd publicar
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Sin cambios que publicar."
+          else
+            git commit -m "Despliegue de main ${GITHUB_SHA::7}"
+            git push origin "HEAD:$RAMA_DESPLIEGUE"
+          fi
+
+      - name: Revisar si hay FTP configurado
+        id: ftp
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          if [ -n "$FTP_SERVER" ] && [ -n "$FTP_USERNAME" ] && [ -n "$FTP_PASSWORD" ]; then
+            echo "usar=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Sin secretos FTP_*: el despliegue lo hace la integración Git de Hostinger."
+            echo "usar=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Subir a Hostinger por FTP (opcional)
+        if: steps.ftp.outputs.usar == 'true'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -84,5 +132,3 @@ jobs:
           protocol: ${{ vars.FTP_PROTOCOL || 'ftp' }}
           local-dir: ./deploy/
           server-dir: ${{ vars.FTP_SERVER_DIR || 'public_html/' }}
-          # Los archivos que solo existen en el servidor (fotos subidas,
-          # config.local.php) no se tocan: la acción solo borra lo que ella subió.

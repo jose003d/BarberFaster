@@ -2,6 +2,10 @@
 Options -Indexes
 DirectoryIndex index.html index.php
 
+# La integración Git de Hostinger deja .git/ y .gitignore en public_html:
+# nunca deben abrirse desde el navegador.
+RedirectMatch 404 /\.git
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
