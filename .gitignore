@@ -1,0 +1,6 @@
+erpbarber/barberfaster/backend/config/config.local.php
+erpbarber/barberfaster/backend/uploads/*
+!erpbarber/barberfaster/backend/uploads/index.html
+!erpbarber/barberfaster/backend/uploads/logo.png
+erpbarber/barberfaster/backend/public/*
+!erpbarber/barberfaster/backend/public/index.html
