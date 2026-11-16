@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../config/env.php';
+
 // Configura CORS, procesa JSON y centraliza utilidades de OTP, tickets y Wuapi.
 
 // Devuelve cabeceras CORS solo a orígenes permitidos y define el formato JSON.
@@ -53,7 +55,19 @@ function obtenerJsonBody(): array
 function obtenerTexto(array $datos, string $clave): string
 {
     $valor = $datos[$clave] ?? '';
-    return is_string($valor) ? trim($valor) : trim((string) $valor);
+    return is_string($valor) || is_numeric($valor)
+        ? trim((string) $valor)
+        : '';
+}
+
+function longitudCaracteres(string $texto): int
+{
+    if (function_exists('mb_strlen')) {
+        return mb_strlen($texto, 'UTF-8');
+    }
+
+    $longitud = preg_match_all('/./us', $texto);
+    return $longitud === false ? strlen($texto) : $longitud;
 }
 
 // Convierte formatos de teléfono a la representación internacional colombiana.
@@ -87,6 +101,10 @@ function normalizarTelefono(string $telefono): string
 // Acepta únicamente números que cumplen el patrón telefónico admitido.
 function telefonoValido(string $telefono): bool
 {
+    if (strlen($telefono) > 20) {
+        return false;
+    }
+
     $telefono = normalizarTelefono($telefono);
     return preg_match('/^57\d{9,10}$/', $telefono) === 1;
 }

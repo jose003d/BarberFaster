@@ -28,20 +28,29 @@ if (!is_array($data)) {
 $dni = isset($data['dni']) && is_scalar($data['dni']) ? trim((string)$data['dni']) : '';
 $nombre = isset($data['nombre']) && is_scalar($data['nombre']) ? trim((string)$data['nombre']) : '';
 $telefono = isset($data['telefono']) && is_scalar($data['telefono']) ? trim((string)$data['telefono']) : '';
+$correo = isset($data['correo']) && is_scalar($data['correo']) ? trim((string)$data['correo']) : '';
 
-if ($dni === '' || $nombre === '' || $telefono === '') {
-    http_response_code(400);
-    echo json_encode(["status" => "error", "mensaje" => "DNI, nombre y teléfono son obligatorios."]);
+if (
+    !preg_match('/^\d{1,10}$/', $dni)
+    || $nombre === ''
+    || strlen($nombre) > 100
+    || $telefono === ''
+    || strlen($telefono) > 20
+    || strlen($correo) > 120
+    || ($correo !== '' && !filter_var($correo, FILTER_VALIDATE_EMAIL))
+) {
+    http_response_code(422);
+    echo json_encode(["status" => "error", "mensaje" => "Revisa el DNI (máximo 10 dígitos), el nombre, el teléfono (máximo 20 caracteres) y el correo ingresados."]);
     exit();
 }
 
 try {
     $stmt = $pdo->prepare("
         UPDATE clientes
-        SET nombre = ?, telefono = ?
+        SET nombre = ?, telefono = ?, email = ?
         WHERE dni = ?
     ");
-    $stmt->execute([$nombre, $telefono, $dni]);
+    $stmt->execute([$nombre, $telefono, $correo !== '' ? $correo : null, $dni]);
 
     if ($stmt->rowCount() === 0) {
         $exists = $pdo->prepare("SELECT 1 FROM clientes WHERE dni = ?");

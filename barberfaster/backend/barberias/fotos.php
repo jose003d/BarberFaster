@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/auth.php';
 
 header('Access-Control-Allow-Origin: http://localhost:5173');
 header('Access-Control-Allow-Credentials: true');
@@ -32,19 +33,18 @@ if ($metodo === 'GET') {
     }
 
     try {
+        // URL de foto.php relativa a donde esté instalado el backend.
+        $urlFoto = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . '/foto.php?id_foto=';
         $sql = "
             SELECT
                 bf.id_foto,
                 bf.id_barberia,
-                CONCAT(
-                    '/erpbarber/barberfaster/backend/barberias/foto.php?id_foto=',
-                    bf.id_foto
-                ) AS foto
+                CONCAT(?, bf.id_foto) AS foto
             FROM barberia_fotos bf
             INNER JOIN barberias b ON b.id_barberia = bf.id_barberia
             WHERE 1 = 1
         ";
-        $parametros = [];
+        $parametros = [$urlFoto];
         if ($idBarberia !== null) {
             $sql .= ' AND bf.id_barberia = ?';
             $parametros[] = $idBarberia;
@@ -63,7 +63,15 @@ if ($metodo === 'GET') {
 }
 
 if ($metodo === 'POST') {
-    $idBarberia = filter_input(INPUT_POST, 'id_barberia', FILTER_VALIDATE_INT);
+    try {
+        $usuario = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    } catch (Throwable $error) {
+        error_log('Error al validar acceso a las fotos de barbería: ' . $error->getMessage());
+        responderFotos(500, ['status' => 'error', 'mensaje' => 'No se pudo validar el acceso.']);
+    }
+    $idBarberia = $usuario['rol'] === 'ADMINISTRADOR'
+        ? $usuario['id_barberia']
+        : filter_input(INPUT_POST, 'id_barberia', FILTER_VALIDATE_INT);
     if (!$idBarberia || $idBarberia < 1) {
         responderFotos(400, ['status' => 'error', 'mensaje' => 'Selecciona una barbería válida.']);
     }
@@ -158,7 +166,15 @@ if ($metodo === 'POST') {
 if ($metodo === 'DELETE') {
     $datos = json_decode(file_get_contents('php://input'), true);
     $idFoto = filter_var($datos['id_foto'] ?? null, FILTER_VALIDATE_INT);
-    $idBarberia = filter_var($datos['id_barberia'] ?? null, FILTER_VALIDATE_INT);
+    try {
+        $usuario = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    } catch (Throwable $error) {
+        error_log('Error al validar eliminación de fotos de barbería: ' . $error->getMessage());
+        responderFotos(500, ['status' => 'error', 'mensaje' => 'No se pudo validar el acceso.']);
+    }
+    $idBarberia = $usuario['rol'] === 'ADMINISTRADOR'
+        ? $usuario['id_barberia']
+        : filter_var($datos['id_barberia'] ?? null, FILTER_VALIDATE_INT);
     if (!$idFoto || $idFoto < 1 || !$idBarberia || $idBarberia < 1) {
         responderFotos(400, ['status' => 'error', 'mensaje' => 'Indica una foto y una barbería válidas.']);
     }

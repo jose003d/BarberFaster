@@ -1,0 +1,190 @@
+/* Las tres familias tipográficas únicas de la identidad visual. */
+@font-face {
+  font-family: "Satoshi";
+  src: url("../assets/fonts/Satoshi-Variable.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Baumans";
+  src: url("../assets/fonts/Baumans-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Chillax";
+  src: url("../assets/fonts/Chillax-Regular.otf") format("opentype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Chillax";
+  src: url("../assets/fonts/Chillax-Medium.otf") format("opentype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Chillax";
+  src: url("../assets/fonts/Chillax-Semibold.otf") format("opentype");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Chillax";
+  src: url("../assets/fonts/Chillax-Bold.otf") format("opentype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Chillax";
+  src: url("../assets/fonts/Chillax-Light.otf") format("opentype");
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Chillax";
+  src: url("../assets/fonts/Chillax-Extralight.otf") format("opentype");
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+}
+
+:root {
+  /* Tipografía, paleta Bauhaus y tokens reutilizables de interfaz. */
+  --font-body: "Satoshi", sans-serif;
+  --font-ui: "Chillax", sans-serif;
+  --font-brand: "Baumans", sans-serif;
+
+  font-family: var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --bauhaus-ink: #393939;
+  --bauhaus-paper: #fafafa;
+  --bauhaus-gray: #cdcdcf;
+  --bauhaus-neutral: #e5e5e7;
+  --bauhaus-cyan: #2bcfce;
+  --bauhaus-cyan-light: #dff7f6;
+  --bauhaus-orange: #ec4d25;
+  --bauhaus-green: #3fe112;
+  --brand-gradient: linear-gradient(
+    90deg,
+    var(--bauhaus-cyan-light) 0%,
+    #81e4e9 48%,
+    var(--bauhaus-cyan) 100%
+  );
+
+  --text: var(--bauhaus-ink);
+  --text-muted: #65666a;
+  --bg: var(--bauhaus-paper);
+  --border: var(--bauhaus-neutral);
+  --accent: var(--bauhaus-cyan);
+  --accent-dark: #147d7d;
+  --shadow: 0 12px 32px rgba(57, 57, 57, 0.08);
+  --radius: 3px;
+  --radius-sm: 2px;
+
+  color: var(--text);
+  background: var(--brand-gradient);
+}
+
+/* Normalización de cajas, dimensiones base y fuentes para controles nativos. */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--brand-gradient);
+  font-family: var(--font-body);
+}
+
+button,
+input,
+select,
+textarea,
+option {
+  font: inherit;
+}
+
+button,
+.btn,
+.btn-secondary,
+.nav-link,
+.day-chip,
+.profile-upload-btn,
+.time-slot-button,
+.modal-actions button,
+.login-btn,
+.dash-card button,
+.search-input,
+.filter-select {
+  font-family: var(--font-ui);
+  letter-spacing: 0.02em;
+}
+
+button,
+.btn,
+.btn-secondary {
+  text-transform: uppercase;
+}
+
+button {
+  color: inherit;
+}
+
+input,
+select,
+textarea,
+input::placeholder,
+textarea::placeholder {
+  font-family: var(--font-body);
+  letter-spacing: 0.01em;
+}
+
+/* Jerarquía y apariencia global de los elementos de contenido. */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  border: 0;
+  text-align: left;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--bauhaus-ink);
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+
+p {
+  margin: 0;
+}

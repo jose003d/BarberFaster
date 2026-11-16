@@ -45,25 +45,21 @@ try {
 
     $stmtBarberos = $pdo->prepare("
         SELECT
-            b.id_barbero,
-            b.nombre,
-            b.apellido,
-            b.especialidad,
-            CASE
-                WHEN b.foto_datos IS NOT NULL THEN CONCAT(
-                    '/erpbarber/barberfaster/backend/barberos/foto.php?id_barbero=',
-                    b.id_barbero
-                )
-                ELSE b.foto
-            END AS foto,
+            u.id_usuario AS id_barbero,
+            u.nombre_completo AS nombre,
+            '' AS apellido,
+            NULL AS especialidad,
+            NULL AS foto,
             COALESCE(AVG(r.calificacion), 0) AS calificacion_promedio,
             COUNT(r.id_resena) AS cantidad_calificaciones
-        FROM barberos b
-        LEFT JOIN citas c ON c.id_barbero = b.id_barbero
+        FROM usuarios u
+        LEFT JOIN citas c ON c.id_barbero = u.id_usuario
         LEFT JOIN resenas r ON r.id_cita = c.id_cita
-        WHERE b.id_barberia = ? AND b.estado = 'ACTIVO'
-        GROUP BY b.id_barbero
-        ORDER BY b.nombre, b.apellido
+        WHERE u.id_barberia = ?
+          AND u.rol = 'BARBERO'
+          AND u.estado = 'ACTIVO'
+        GROUP BY u.id_usuario, u.nombre_completo
+        ORDER BY u.nombre_completo
     ");
     $stmtBarberos->execute([$idBarberia]);
 

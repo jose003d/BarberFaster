@@ -54,9 +54,12 @@ try {
     }
 
     $stmtBarbero = $pdo->prepare("
-        SELECT id_barbero
-        FROM barberos
-        WHERE id_barbero = ? AND id_barberia = ?
+        SELECT id_usuario
+        FROM usuarios
+        WHERE id_usuario = ?
+          AND id_barberia = ?
+          AND rol = 'BARBERO'
+          AND estado = 'ACTIVO'
         FOR UPDATE
     ");
     $stmtBarbero->execute([$cita['id_barbero'], $cita['id_barberia']]);

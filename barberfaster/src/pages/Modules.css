@@ -1,2 +1,0 @@
-/* Distribución flexible de accesos rápidos entre módulos administrativos. */
-.module-links { display: flex; gap: .5rem; flex-wrap: wrap; }

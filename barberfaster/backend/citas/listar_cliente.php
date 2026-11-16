@@ -35,7 +35,7 @@ try {
             c.id_barberia,
             b.nombre AS nombre_barberia,
             c.id_barbero,
-            bar.nombre AS nombre_barbero,
+            bar.nombre_completo AS nombre_barbero,
             c.fecha,
             c.hora_inicio,
             c.hora_fin,
@@ -46,7 +46,8 @@ try {
             GROUP_CONCAT(s.nombre SEPARATOR ', ') AS servicios_nombres
         FROM citas c
         INNER JOIN barberias b ON c.id_barberia = b.id_barberia
-        INNER JOIN barberos bar ON c.id_barbero = bar.id_barbero
+        INNER JOIN usuarios bar
+            ON c.id_barbero = bar.id_usuario AND bar.rol = 'BARBERO'
         LEFT JOIN resenas r ON r.id_cita = c.id_cita
         LEFT JOIN cita_servicios cs ON c.id_cita = cs.id_cita
         LEFT JOIN servicios s ON cs.id_servicio = s.id_servicio

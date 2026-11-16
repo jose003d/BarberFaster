@@ -1,55 +1,81 @@
 <?php
-// backend/barberos/horario_barbero.php
-// Este archivo guarda el horario semanal de un barbero para un día específico.
-// Se usa para definir en qué rango de horas trabaja cada barbero en cada día.
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Content-Type: application/json; charset=UTF-8');
 
-// Permite peticiones desde el frontend (CORS).
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json; charset=UTF-8");
-
-// Conexión a la base de datos.
-require_once '../config/database.php';
-
-// Responde a una petición OPTIONS para evitar errores de CORS en navegador.
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
+    http_response_code(204);
     exit();
 }
 
-// Lee el JSON enviado desde el frontend en el body de la petición.
-$data = json_decode(file_get_contents("php://input"), true);
-
-// Extrae los datos del horario del barbero.
-$id_barbero  = $data['id_barbero'] ?? null;
-$dia_semana  = $data['dia_semana'] ?? null;  // LUNES, MARTES, etc.
-$hora_inicio = $data['hora_inicio'] ?? null;  // HH:MM:SS
-$hora_fin    = $data['hora_fin'] ?? null;     // HH:MM:SS
-
-// Valida que todos los campos del horario lleguen completos.
-if (!$id_barbero || !$dia_semana || !$hora_inicio || !$hora_fin) {
-    echo json_encode(["status" => "error", "mensaje" => "Todos los campos del horario son obligatorios."]);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'mensaje' => 'Método no permitido.']);
     exit();
 }
+
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/auth.php';
 
 try {
-    // Inserta el horario para ese dia del barbero.
-    // Si ya existe un registro para ese barbero y ese día, lo actualiza.
+    $sesion = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    $data = json_decode(file_get_contents('php://input'), true);
+    $idBarbero = filter_var(
+        is_array($data) ? ($data['id_barbero'] ?? null) : null,
+        FILTER_VALIDATE_INT
+    );
+    $dia = strtoupper(trim((string) ($data['dia_semana'] ?? '')));
+    $horaInicio = (string) ($data['hora_inicio'] ?? '');
+    $horaFin = (string) ($data['hora_fin'] ?? '');
+    $diasValidos = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
+
+    if (
+        !$idBarbero
+        || $idBarbero < 1
+        || !in_array($dia, $diasValidos, true)
+        || !preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/', $horaInicio)
+        || !preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/', $horaFin)
+        || $horaFin <= $horaInicio
+    ) {
+        http_response_code(422);
+        echo json_encode(['status' => 'error', 'mensaje' => 'Revisa el barbero, el día y el horario ingresados.']);
+        exit();
+    }
+
+    $stmtBarbero = $pdo->prepare("
+        SELECT id_barberia
+        FROM usuarios
+        WHERE id_usuario = :id_usuario AND rol = 'BARBERO'
+        LIMIT 1
+    ");
+    $stmtBarbero->execute([':id_usuario' => $idBarbero]);
+    $idBarberia = $stmtBarbero->fetchColumn();
+    if (
+        $idBarberia === false
+        || ($sesion['rol'] === 'ADMINISTRADOR' && (int) $idBarberia !== $sesion['id_barberia'])
+    ) {
+        http_response_code(404);
+        echo json_encode(['status' => 'error', 'mensaje' => 'No se encontró el barbero de esa barbería.']);
+        exit();
+    }
+
     $stmt = $pdo->prepare("
         INSERT INTO barbero_horarios (id_barbero, dia_semana, hora_inicio, hora_fin)
-        VALUES (?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE 
+        VALUES (:id_barbero, :dia_semana, :hora_inicio, :hora_fin)
+        ON DUPLICATE KEY UPDATE
             hora_inicio = VALUES(hora_inicio),
             hora_fin = VALUES(hora_fin)
     ");
-    $stmt->execute([$id_barbero, strtoupper($dia_semana), $hora_inicio, $hora_fin]);
-
-    // Si todo sale bien, devuelve éxito.
-    echo json_encode([
-        "status" => "success",
-        "mensaje" => "Horario del barbero actualizado correctamente."
+    $stmt->execute([
+        ':id_barbero' => $idBarbero,
+        ':dia_semana' => $dia,
+        ':hora_inicio' => strlen($horaInicio) === 5 ? $horaInicio . ':00' : $horaInicio,
+        ':hora_fin' => strlen($horaFin) === 5 ? $horaFin . ':00' : $horaFin,
     ]);
-} catch (Exception $e) {
-    // Si falla, devuelve el error.
-    echo json_encode(["status" => "error", "mensaje" => "Error al guardar horario: " . $e->getMessage()]);
+
+    echo json_encode(['status' => 'success', 'mensaje' => 'Horario del barbero actualizado correctamente.']);
+} catch (Throwable $error) {
+    error_log('Error al guardar el horario de un barbero: ' . $error->getMessage());
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'mensaje' => 'No se pudo guardar el horario.']);
 }

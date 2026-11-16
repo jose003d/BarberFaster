@@ -18,6 +18,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 // Importa la conexión PDO utilizada para consultar la base de datos.
 require_once '../config/database.php';
+require_once __DIR__ . '/../wompi/comun.php';
 
 // -----------------------------------------------------------------------------
 // 2. Lectura de los parámetros de consulta
@@ -37,6 +38,7 @@ if (!$id_barbero || !$fecha || !$hora_inicio || empty($servicios)) {
 }
 
 try {
+    wompiLiberarPagosVencidos($pdo);
     // -------------------------------------------------------------------------
     // 3. Calcular la duración total de los servicios
     // -------------------------------------------------------------------------
@@ -81,9 +83,11 @@ try {
     // Comprueba primero los días de apertura del local antes del horario individual del barbero.
     $stmtDiasBarberia = $pdo->prepare("
         SELECT barberias.dias_trabajo
-        FROM barberos
-        INNER JOIN barberias ON barberias.id_barberia = barberos.id_barberia
-        WHERE barberos.id_barbero = ?
+        FROM usuarios
+        INNER JOIN barberias ON barberias.id_barberia = usuarios.id_barberia
+        WHERE usuarios.id_usuario = ?
+          AND usuarios.rol = 'BARBERO'
+          AND usuarios.estado = 'ACTIVO'
     ");
     $stmtDiasBarberia->execute([$id_barbero]);
     $diasTrabajoBarberia = $stmtDiasBarberia->fetchColumn();

@@ -14,6 +14,7 @@ header("Content-Type: application/json; charset=UTF-8");
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/utilidades_horario.php';
 require_once __DIR__ . '/../verificacion/comun.php';
+require_once __DIR__ . '/../wompi/comun.php';
 
 // Los navegadores suelen enviar OPTIONS antes de una petición POST (preflight).
 // Se responde correctamente sin intentar crear una cita.
@@ -67,12 +68,30 @@ if (
     exit();
 }
 
-$telefono_cliente = normalizarTelefono($telefono_cliente);
+try {
+    wompiConfiguracion();
+} catch (Throwable $error) {
+    error_log('Wompi no está configurado para crear una reserva: ' . $error->getMessage());
+    http_response_code(503);
+    echo json_encode([
+        "status" => "error",
+        "mensaje" => "El pago en línea aún no está disponible. Inténtalo más tarde."
+    ]);
+    exit();
+}
+
+if (!preg_match('/^\d{1,10}$/', $dni_cliente)) {
+    http_response_code(422);
+    echo json_encode(["status" => "error", "mensaje" => "El DNI debe tener máximo 10 dígitos y solo puede contener números."]);
+    exit();
+}
+
 if (!telefonoValido($telefono_cliente)) {
     http_response_code(422);
     echo json_encode(["status" => "error", "mensaje" => "El número de teléfono no es válido."]);
     exit();
 }
+$telefono_cliente = normalizarTelefono($telefono_cliente);
 
 try {
     $sesionClienteActiva = leerSesionCliente();
@@ -149,14 +168,18 @@ if (empty($servicios)) {
 }
 
 try {
+    wompiLiberarPagosVencidos($pdo);
     $pdo->beginTransaction();
 
     // Bloquea la fila del barbero hasta terminar la transacción. Así, dos
     // reservas simultáneas del mismo barbero no pueden pasar juntas el chequeo.
     $stmtBarbero = $pdo->prepare("
-        SELECT id_barbero
-        FROM barberos
-        WHERE id_barbero = :id_barbero AND id_barberia = :id_barberia
+        SELECT id_usuario
+        FROM usuarios
+        WHERE id_usuario = :id_barbero
+          AND id_barberia = :id_barberia
+          AND rol = 'BARBERO'
+          AND estado = 'ACTIVO'
         FOR UPDATE
     ");
     $stmtBarbero->execute([
@@ -307,6 +330,12 @@ try {
         $stmtDetalle->execute([$id_cita, $s['id_servicio'], $s['precio']]);
     }
 
+    $montoCentavos = (int) round($precioTotal * 100);
+    if ($montoCentavos < 1) {
+        throw new RuntimeException("El total de la cita no es válido para procesar el pago.", 422);
+    }
+    $pago = wompiCrearReferencia($pdo, (int) $id_cita, (int) $id_barberia, $montoCentavos);
+
     // El ticket se consume al reservar y queda ligado al teléfono validado.
     if ($ticketBloqueado !== null) {
         $ticketConsumido = consumirTicketVerificacion($ticketBloqueado);
@@ -335,11 +364,12 @@ try {
     // resultado o actualizar la agenda sin repetir cálculos.
     echo json_encode([
         "status" => "success",
-        "mensaje" => "Cita agendada exitosamente.",
+        "mensaje" => "Completa el pago en los próximos 10 minutos para confirmar tu cita.",
         "id_cita" => $id_cita,
         "hora_inicio" => $hora_inicio,
         "hora_fin" => $hora_fin,
         "precio_total" => $precioTotal,
+        "pago" => $pago,
         "sesion_cliente" => $sesionCliente,
         "sesion_expira_en" => $sesionCliente !== null ? time() + 1800 : null
     ]);

@@ -1,8 +1,5 @@
 <?php
 // Devuelve las citas de un barbero para separar próximos turnos e historial.
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json; charset=UTF-8');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -16,24 +13,28 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit();
 }
 
-$idBarbero = filter_input(INPUT_GET, 'id_barbero', FILTER_VALIDATE_INT);
-if (!$idBarbero || $idBarbero < 1) {
-    http_response_code(400);
-    echo json_encode(['status' => 'error', 'mensaje' => 'Indica un barbero válido.']);
-    exit();
-}
-
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../wompi/comun.php';
 
 try {
-    // Al consultar el perfil, completa turnos vencidos y recupera pendientes
-    // aunque el panel hubiera permanecido cerrado; las cancelaciones se respetan.
+    $usuario = requerirRol($pdo, ['BARBERO']);
+    $idBarbero = $usuario['id_usuario'];
+
+    wompiLiberarPagosVencidos($pdo);
+
+    // Solo se completan citas confirmadas tras un pago aprobado.
     $ahora = new DateTimeImmutable('now', new DateTimeZone('America/Bogota'));
     $actualizarVencidas = $pdo->prepare("
         UPDATE citas
         SET estado = 'COMPLETADA'
         WHERE id_barbero = ?
-          AND estado IN ('PENDIENTE', 'CONFIRMADA')
+          AND estado = 'CONFIRMADA'
+          AND EXISTS (
+              SELECT 1
+              FROM wompi_pagos p
+              WHERE p.id_cita = citas.id_cita AND p.estado = 'APPROVED'
+          )
           AND CONCAT(fecha, ' ', hora_fin) <= ?
     ");
     $actualizarVencidas->execute([$idBarbero, $ahora->format('Y-m-d H:i:s')]);

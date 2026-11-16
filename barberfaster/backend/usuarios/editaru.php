@@ -1,61 +1,109 @@
 <?php
-// Este archivo actualiza los datos de un usuario existente.
-// Se usa para cambiar nombre, apellido, email, teléfono, documento y rol.
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Content-Type: application/json; charset=UTF-8');
 
-// Permite que el frontend pueda enviar la petición desde otro origen.
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/auth.php';
 
-// Responde a la petición OPTIONS antes del POST real.
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
+    http_response_code(204);
+    exit();
 }
 
-// Define la respuesta como JSON.
-header("Content-Type: application/json");
-require_once "../config/database.php";
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'mensaje' => 'Método no permitido.']);
+    exit();
+}
 
 try {
-    // Lee el JSON enviado desde el frontend.
-    $data = json_decode(file_get_contents("php://input"), true);
+    $sesion = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    $data = json_decode(file_get_contents('php://input'), true);
+    $idUsuario = filter_var($data['id_usuario'] ?? null, FILTER_VALIDATE_INT);
+    $nombre = trim((string) ($data['nombre_completo'] ?? $data['nombre'] ?? ''));
+    $telefono = trim((string) ($data['telefono'] ?? ''));
+    $correo = trim((string) ($data['correo'] ?? $data['email'] ?? ''));
 
-    // Validación: el ID y el nombre son obligatorios.
-    if (empty($data['id_usuario'])) {
-        echo json_encode(["success" => false, "error" => "ID requerido"]);
-        exit;
+    if (
+        !is_array($data)
+        || !$idUsuario
+        || $idUsuario < 1
+        || $nombre === ''
+        || strlen($nombre) > 150
+        || strlen($telefono) > 20
+        || $correo === ''
+        || strlen($correo) > 120
+        || !filter_var($correo, FILTER_VALIDATE_EMAIL)
+    ) {
+        http_response_code(422);
+        echo json_encode(['status' => 'error', 'mensaje' => 'Revisa los datos del usuario ingresados.']);
+        exit();
     }
-    if (empty($data['nombre'])) {
-        echo json_encode(["success" => false, "error" => "El nombre es obligatorio"]);
-        exit;
+
+    $stmtActual = $pdo->prepare("
+        SELECT id_usuario, id_barberia, rol
+        FROM usuarios
+        WHERE id_usuario = :id_usuario
+        LIMIT 1
+    ");
+    $stmtActual->execute([':id_usuario' => $idUsuario]);
+    $usuarioActual = $stmtActual->fetch();
+    if (
+        !$usuarioActual
+        || !in_array($usuarioActual['rol'], ['BARBERO', 'ADMINISTRADOR'], true)
+        || ($sesion['rol'] === 'ADMINISTRADOR'
+            && (
+                $usuarioActual['rol'] !== 'BARBERO'
+                || (int) $usuarioActual['id_barberia'] !== $sesion['id_barberia']
+            ))
+    ) {
+        responderErrorAuth(404, 'No se encontró el usuario que deseas editar.');
     }
 
-    // Actualiza los datos del usuario en la tabla usuarios.
-    $sql = "UPDATE usuarios SET
-                nombre    = :nombre,
-                apellido  = :apellido,
-                email     = :email,
-                telefono  = :telefono,
-                documento = :documento,
-                rol       = :rol
-            WHERE id_usuario = :id_usuario";
+    $stmtDuplicado = $pdo->prepare("
+        SELECT id_usuario
+        FROM usuarios
+        WHERE correo = :correo AND id_usuario <> :id_usuario
+        LIMIT 1
+    ");
+    $stmtDuplicado->execute([
+        ':correo' => $correo,
+        ':id_usuario' => $idUsuario,
+    ]);
+    if ($stmtDuplicado->fetchColumn()) {
+        http_response_code(409);
+        echo json_encode(['status' => 'error', 'mensaje' => 'El correo ya está registrado.']);
+        exit();
+    }
 
-    $stmt = $pdo->prepare($sql);
+    $stmt = $pdo->prepare("
+        UPDATE usuarios
+        SET nombre_completo = :nombre_completo,
+            telefono = :telefono,
+            correo = :correo
+        WHERE id_usuario = :id_usuario
+    ");
     $stmt->execute([
-        ':id_usuario' => $data['id_usuario'],
-        ':nombre'     => $data['nombre'],
-        ':apellido'   => $data['apellido']  ?? '',
-        ':email'      => $data['email']     ?? '',
-        ':telefono'   => $data['telefono']  ?? '',
-        ':documento'  => $data['documento'] ?? '',
-        ':rol'        => $data['rol']       ?? 'barbero',
+        ':nombre_completo' => $nombre,
+        ':telefono' => $telefono,
+        ':correo' => $correo,
+        ':id_usuario' => $idUsuario,
     ]);
 
-    // Responde con éxito.
-    echo json_encode(["success" => true, "message" => "Usuario actualizado"]);
+    echo json_encode(['status' => 'success', 'mensaje' => 'Usuario actualizado correctamente.']);
+} catch (PDOException $error) {
+    if ($error->getCode() === '23000') {
+        http_response_code(409);
+        echo json_encode(['status' => 'error', 'mensaje' => 'El correo ya está registrado.']);
+        exit();
+    }
 
-} catch (Exception $e) {
-    // Si sucede un error, lo devuelve en JSON.
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    error_log('Error al actualizar un usuario: ' . $error->getMessage());
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'mensaje' => 'No se pudo actualizar el usuario.']);
+} catch (Throwable $error) {
+    error_log('Error al actualizar un usuario: ' . $error->getMessage());
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'mensaje' => 'No se pudo actualizar el usuario.']);
 }

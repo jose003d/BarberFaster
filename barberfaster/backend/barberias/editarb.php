@@ -1,64 +1,73 @@
 <?php
-// ==========================
-// BLOQUE 1: Configuración de cabeceras y CORS
-// ==========================
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Content-Type: application/json; charset=UTF-8');
 
-// Respuesta inmediata para preflight OPTIONS
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/auth.php';
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
+    http_response_code(204);
+    exit();
 }
 
-header("Content-Type: application/json");
-require_once "../config/database.php";
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'mensaje' => 'Método no permitido.']);
+    exit();
+}
 
 try {
-    // ==========================
-    // BLOQUE 2: Recepción y validación de datos
-    // ==========================
-    $data = json_decode(file_get_contents("php://input"), true);
+    requerirRol($pdo, ['SUPERADMIN']);
+    $data = json_decode(file_get_contents('php://input'), true);
+    $idBarberia = filter_var(
+        is_array($data) ? ($data['id_barberia'] ?? null) : null,
+        FILTER_VALIDATE_INT
+    );
+    $nombre = trim((string) ($data['nombre'] ?? ''));
+    $direccion = trim((string) ($data['direccion'] ?? ''));
+    $ciudad = trim((string) ($data['ciudad'] ?? ''));
+    $telefono = trim((string) ($data['telefono'] ?? ''));
+    $estado = isset($data['estado'])
+        ? strtoupper(trim((string) $data['estado']))
+        : null;
 
-    if (empty($data['id_barberia'])) {
-        echo json_encode(["success" => false, "error" => "ID requerido"]);
-        exit;
+    if (
+        !$idBarberia
+        || $idBarberia < 1
+        || $nombre === ''
+        || strlen($nombre) > 100
+        || strlen($direccion) > 150
+        || strlen($ciudad) > 80
+        || strlen($telefono) > 20
+        || ($estado !== null && !in_array($estado, ['ACTIVA', 'INACTIVA'], true))
+    ) {
+        http_response_code(422);
+        echo json_encode(['status' => 'error', 'mensaje' => 'Revisa los datos de la barbería.']);
+        exit();
     }
-    if (empty($data['nombre'])) {
-        echo json_encode(["success" => false, "error" => "El nombre es obligatorio"]);
-        exit;
-    }
 
-    // ==========================
-    // BLOQUE 3: Actualización de datos en la base
-    // ==========================
-    $sql = "UPDATE barberias SET
-                nombre    = :nombre,
-                direccion = :direccion,
-                ciudad    = :ciudad,
-                telefono  = :telefono,
-                estado    = :estado
-            WHERE id_barberia = :id_barberia";
-
-    $stmt = $pdo->prepare($sql);
+    $stmt = $pdo->prepare("
+        UPDATE barberias
+        SET nombre = :nombre,
+            direccion = :direccion,
+            ciudad = :ciudad,
+            telefono = :telefono,
+            estado = COALESCE(:estado, estado)
+        WHERE id_barberia = :id_barberia
+    ");
     $stmt->execute([
-        ':id_barberia' => $data['id_barberia'],
-        ':nombre'      => $data['nombre'],
-        ':direccion'   => $data['direccion'] ?? '',
-        ':ciudad'      => $data['ciudad']    ?? '',
-        ':telefono'    => $data['telefono']  ?? '',
-        ':estado'      => $data['estado']    ?? 1,
+        ':id_barberia' => $idBarberia,
+        ':nombre' => $nombre,
+        ':direccion' => $direccion,
+        ':ciudad' => $ciudad,
+        ':telefono' => $telefono,
+        ':estado' => $estado,
     ]);
 
-    // ==========================
-    // BLOQUE 4: Respuesta en formato JSON
-    // ==========================
-    echo json_encode(["success" => true, "message" => "Barbería actualizada"]);
-
-} catch (Exception $e) {
-    // ==========================
-    // BLOQUE 5: Manejo de errores
-    // ==========================
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    echo json_encode(['status' => 'success', 'mensaje' => 'Barbería actualizada correctamente.']);
+} catch (Throwable $error) {
+    error_log('Error al actualizar una barbería: ' . $error->getMessage());
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'mensaje' => 'No se pudo actualizar la barbería.']);
 }

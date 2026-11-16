@@ -2,7 +2,11 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: '/erpbarber/barberfaster/',
+  // Ruta pública del sitio. Por defecto la raíz del dominio.
+  base: process.env.VITE_BASE || '/',
+  build: {
+    outDir: 'build',
+  },
   plugins: [react()],
   server: {
     proxy: {

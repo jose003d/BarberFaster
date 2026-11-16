@@ -23,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Importa la conexión a la base de datos.
 require_once '../config/database.php';
+require_once __DIR__ . '/../config/auth.php';
 
 // Convierte enlaces cortos de Google Maps a una URL que se puede insertar en un iframe.
 function convertirEnlaceMapaCompartido(string $url): string
@@ -193,8 +194,24 @@ if ($method === 'POST') {
         exit();
     }
 
+    try {
+        $usuario = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    } catch (Throwable $error) {
+        error_log('Error al validar acceso al perfil de barbería: ' . $error->getMessage());
+        http_response_code(500);
+        echo json_encode(["status" => "error", "mensaje" => "No se pudo validar el acceso."]);
+        exit();
+    }
+
     // Extrae los valores del request, con valores por defecto si faltan.
-    $id_barberia   = isset($data['id_barberia']) ? intval($data['id_barberia']) : 1;
+    $id_barberia = $usuario['rol'] === 'ADMINISTRADOR'
+        ? $usuario['id_barberia']
+        : filter_var($data['id_barberia'] ?? null, FILTER_VALIDATE_INT);
+    if (!$id_barberia || $id_barberia < 1) {
+        http_response_code(422);
+        echo json_encode(["status" => "error", "mensaje" => "Selecciona una barbería válida."]);
+        exit();
+    }
     $descripcion   = $data['descripcion'] ?? '';
     $direccion     = $data['direccion'] ?? '';
     $url_mapa      = trim((string)($data['url_mapa'] ?? ''));

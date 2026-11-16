@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Carga PDO y valida el identificador del barbero y el formato de fecha.
 require_once '../config/database.php';
+require_once __DIR__ . '/../wompi/comun.php';
 
 $id_barbero = filter_input(INPUT_GET, 'id_barbero', FILTER_VALIDATE_INT);
 $fecha = $_GET['fecha'] ?? '';
@@ -29,6 +30,7 @@ if (!$id_barbero || !$fechaValidada || $fechaValidada->format('Y-m-d') !== $fech
 }
 
 try {
+    wompiLiberarPagosVencidos($pdo);
     // Consulta las horas ocupadas ordenadas para calcular los turnos libres.
     $stmt = $pdo->prepare("
         SELECT hora_inicio, hora_fin

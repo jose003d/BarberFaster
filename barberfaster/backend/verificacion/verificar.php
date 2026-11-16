@@ -23,8 +23,17 @@ if ($telefono === '' || $codigoIngresado === '') {
 }
 
 $telefonoNormalizado = normalizarTelefono($telefono);
-if (!telefonoValido($telefonoNormalizado)) {
+if (!telefonoValido($telefono)) {
     responder(422, false, 'El número de teléfono no es válido.');
+}
+if (!preg_match('/^\d{6}$/', $codigoIngresado)) {
+    responder(422, false, 'El código debe tener 6 dígitos.');
+}
+if (($dniCliente === '') !== ($nombreCliente === '')) {
+    responder(400, false, 'Ingresa el DNI y el nombre del cliente.');
+}
+if (($dniCliente !== '' && !preg_match('/^\d{1,10}$/', $dniCliente)) || longitudCaracteres($nombreCliente) > 100) {
+    responder(422, false, 'El DNI debe tener máximo 10 dígitos y el nombre no puede superar 100 caracteres.');
 }
 
 $otp = leerOtpDesdeTelefono($telefonoNormalizado);

@@ -1,49 +1,77 @@
 <?php
-// -----------------------------------------------------------------------------
-// 1. Configuración de acceso y solicitudes CORS
-// -----------------------------------------------------------------------------
-// Permite que el frontend realice peticiones desde otro origen o puerto.
-header("Access-Control-Allow-Origin: *");
-// Indica los métodos HTTP permitidos por este endpoint.
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-// Indica las cabeceras que el frontend puede enviar.
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Content-Type: application/json; charset=UTF-8');
 
-// El navegador puede enviar una petición OPTIONS antes de la petición real
-// para comprobar si el servidor permite la comunicación (solicitud preflight).
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
+    http_response_code(204);
     exit();
 }
 
-// Carga la conexión PDO con la base de datos.
-require_once '../config/database.php';
-
-// -----------------------------------------------------------------------------
-// 2. Lectura de los filtros enviados por el frontend
-// -----------------------------------------------------------------------------
-// Los filtros se reciben mediante parámetros de la URL, por ejemplo:
-// listar_citas.php?id_barbero=3&fecha=2026-09-22
-$id_barbero  = $_GET['id_barbero'] ?? null;
-$id_barberia = $_GET['id_barberia'] ?? null;
-$fecha       = $_GET['fecha'] ?? null; // Opcional: formato YYYY-MM-DD
-
-// Es obligatorio indicar al menos un barbero o una barbería para evitar
-// devolver todas las citas de la base de datos sin ningún filtro.
-if (!$id_barbero && !$id_barberia) {
-    echo json_encode(["status" => "error", "mensaje" => "Se requiere ID de barbero o de barbería."]);
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'mensaje' => 'Método no permitido.']);
     exit();
+}
+
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/auth.php';
+
+$idBarbero = null;
+if (isset($_GET['id_barbero'])) {
+    $idBarbero = filter_var($_GET['id_barbero'], FILTER_VALIDATE_INT);
+    if (!$idBarbero || $idBarbero < 1) {
+        http_response_code(422);
+        echo json_encode(['status' => 'error', 'mensaje' => 'El barbero indicado no es válido.']);
+        exit();
+    }
+}
+
+$fecha = $_GET['fecha'] ?? null;
+if ($fecha !== null) {
+    $fechaValida = is_string($fecha) ? DateTime::createFromFormat('!Y-m-d', $fecha) : false;
+    if (!$fechaValida || $fechaValida->format('Y-m-d') !== $fecha) {
+        http_response_code(422);
+        echo json_encode(['status' => 'error', 'mensaje' => 'La fecha indicada no es válida.']);
+        exit();
+    }
 }
 
 try {
-    // -------------------------------------------------------------------------
-    // 3. Construcción de la consulta base
-    // -------------------------------------------------------------------------
-    // Se obtienen los datos de la cita, del cliente y los nombres de sus
-    // servicios. Los signos ? son parámetros preparados y ayudan a evitar
-    // inyecciones SQL.
+    $usuario = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    if ($usuario['rol'] === 'ADMINISTRADOR') {
+        $idBarberia = $usuario['id_barberia'];
+        if (!$idBarberia) {
+            responderErrorAuth(403, 'La cuenta administrativa no tiene una barbería asignada.');
+        }
+    } else {
+        $idBarberia = filter_var($_GET['id_barberia'] ?? null, FILTER_VALIDATE_INT);
+        if (!$idBarberia || $idBarberia < 1) {
+            if (!$idBarbero) {
+                http_response_code(422);
+                echo json_encode(['status' => 'error', 'mensaje' => 'Selecciona una barbería válida.']);
+                exit();
+            }
+
+            $stmtBarbero = $pdo->prepare("
+                SELECT id_barberia
+                FROM usuarios
+                WHERE id_usuario = :id_usuario AND rol = 'BARBERO'
+                LIMIT 1
+            ");
+            $stmtBarbero->execute([':id_usuario' => $idBarbero]);
+            $idBarberia = filter_var($stmtBarbero->fetchColumn(), FILTER_VALIDATE_INT);
+            if (!$idBarberia || $idBarberia < 1) {
+                http_response_code(404);
+                echo json_encode(['status' => 'error', 'mensaje' => 'No se encontró el barbero indicado.']);
+                exit();
+            }
+        }
+    }
+
     $sql = "
-        SELECT 
+        SELECT
             c.id_cita,
             c.id_barberia,
             c.id_barbero,
@@ -61,53 +89,26 @@ try {
         INNER JOIN clientes cl ON c.dni_cliente = cl.dni
         LEFT JOIN cita_servicios cs ON c.id_cita = cs.id_cita
         LEFT JOIN servicios s ON cs.id_servicio = s.id_servicio
-        WHERE 1=1
+        WHERE c.id_barberia = ?
     ";
+    $parametros = [$idBarberia];
 
-    // Contendrá los valores que sustituirán a los signos ? de la consulta.
-    // Se mantiene el mismo orden en que se agregan las condiciones SQL.
-    $params = [];
-
-    // Agrega el filtro por barbero únicamente si fue enviado.
-    if ($id_barbero) {
-        $sql .= " AND c.id_barbero = ?";
-        $params[] = $id_barbero;
+    if ($idBarbero) {
+        $sql .= ' AND c.id_barbero = ?';
+        $parametros[] = $idBarbero;
+    }
+    if ($fecha !== null) {
+        $sql .= ' AND c.fecha = ?';
+        $parametros[] = $fecha;
     }
 
-    // Agrega el filtro por barbería únicamente si fue enviado.
-    if ($id_barberia) {
-        $sql .= " AND c.id_barberia = ?";
-        $params[] = $id_barberia;
-    }
-
-    // Permite consultar solamente las citas de una fecha concreta.
-    if ($fecha) {
-        $sql .= " AND c.fecha = ?";
-        $params[] = $fecha;
-    }
-
-    // GROUP BY evita repetir una cita cuando tiene varios servicios.
-    // GROUP_CONCAT reúne los nombres de esos servicios en un solo texto.
-    // Finalmente, las citas se ordenan por fecha y hora de inicio.
-    $sql .= " GROUP BY c.id_cita ORDER BY c.fecha ASC, c.hora_inicio ASC";
-
-    // Prepara y ejecuta la consulta usando los filtros recopilados.
+    $sql .= ' GROUP BY c.id_cita ORDER BY c.fecha ASC, c.hora_inicio ASC';
     $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-    // Obtiene todas las filas como un arreglo asociativo.
-    $citas = $stmt->fetchAll();
+    $stmt->execute($parametros);
 
-    // -------------------------------------------------------------------------
-    // 4. Respuesta exitosa
-    // -------------------------------------------------------------------------
-    // Devuelve las citas en formato JSON para que el frontend pueda mostrarlas.
-    echo json_encode([
-        "status" => "success",
-        "datos" => $citas
-    ]);
-
-} catch (Exception $e) {
-    // Si ocurre un error durante la consulta, se devuelve una respuesta JSON
-    // indicando el problema en lugar de detenerse con un error HTML.
-    echo json_encode(["status" => "error", "mensaje" => "Error al obtener citas: " . $e->getMessage()]);
+    echo json_encode(['status' => 'success', 'datos' => $stmt->fetchAll()]);
+} catch (Throwable $error) {
+    error_log('Error al obtener citas de la barbería: ' . $error->getMessage());
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'mensaje' => 'No se pudieron cargar las citas.']);
 }

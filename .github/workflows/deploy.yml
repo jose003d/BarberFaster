@@ -1,0 +1,88 @@
+name: Desplegar en Hostinger
+
+# Cada push a main que cambie barberfaster/ compila el frontend y sube el sitio
+# a Hostinger (barberfaster.site, Single Web Hosting) por FTP con esta estructura:
+#   public_html/                                  <- frontend compilado
+#   public_html/erpbarber/barberfaster/backend/   <- API PHP
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "barberfaster/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-hostinger
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Revisar que los secretos de FTP existan
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          faltan=""
+          [ -z "$FTP_SERVER" ] && faltan="$faltan FTP_SERVER"
+          [ -z "$FTP_USERNAME" ] && faltan="$faltan FTP_USERNAME"
+          [ -z "$FTP_PASSWORD" ] && faltan="$faltan FTP_PASSWORD"
+          if [ -n "$faltan" ]; then
+            echo "::error::Faltan secretos en GitHub (Settings > Secrets and variables > Actions):$faltan"
+            exit 1
+          fi
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: barberfaster/package-lock.json
+
+      - name: Instalar dependencias
+        working-directory: barberfaster
+        run: npm ci
+
+      - name: Compilar el frontend
+        working-directory: barberfaster
+        env:
+          VITE_BASE: ${{ vars.VITE_BASE || '/' }}
+        run: npm run build
+
+      - name: Armar la carpeta a publicar
+        run: |
+          mkdir -p deploy
+          cp -r barberfaster/build/. deploy/
+          # Backend sin credenciales ni fotos subidas por usuarios, en la misma
+          # ruta que usa el sitio publicado: /erpbarber/barberfaster/backend
+          BACKEND=deploy/erpbarber/barberfaster/backend
+          mkdir -p "$BACKEND"
+          rsync -a             --exclude 'config/config.local.php'             --exclude 'uploads/*'             --exclude 'public/*'             barberfaster/backend/ "$BACKEND/"
+          # Carpetas de subida (con index.html para que no se listen)
+          for d in uploads public; do
+            mkdir -p "$BACKEND/$d"
+            echo '' > "$BACKEND/$d/index.html"
+          done
+          find deploy -maxdepth 4 -type d | sort
+
+      - name: Subir a Hostinger por FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftp' }}
+          local-dir: ./deploy/
+          server-dir: ${{ vars.FTP_SERVER_DIR || 'public_html/' }}
+          # Los archivos que solo existen en el servidor (fotos subidas,
+          # config.local.php) no se tocan: la acción solo borra lo que ella subió.

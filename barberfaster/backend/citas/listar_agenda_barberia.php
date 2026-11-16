@@ -37,26 +37,44 @@ if (isset($_GET['id_barbero'])) {
 }
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../wompi/comun.php';
 
 try {
+    $usuario = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    if ($usuario['rol'] === 'ADMINISTRADOR') {
+        $idBarberia = $usuario['id_barberia'];
+        if (!$idBarberia) {
+            responderErrorAuth(403, 'La cuenta administrativa no tiene una barbería asignada.');
+        }
+    }
+
     $ahora = new DateTimeImmutable('now', new DateTimeZone('America/Bogota'));
     $ahoraSql = $ahora->format('Y-m-d H:i:s');
 
-    // Actualiza turnos vencidos para que la agenda general refleje su estado real.
+    wompiLiberarPagosVencidos($pdo);
+
+    // Solo se completan citas que fueron confirmadas después del pago.
     $actualizarVencidas = $pdo->prepare("
         UPDATE citas
         SET estado = 'COMPLETADA'
         WHERE id_barberia = ?
-          AND estado IN ('PENDIENTE', 'CONFIRMADA')
+          AND estado = 'CONFIRMADA'
+          AND EXISTS (
+              SELECT 1
+              FROM wompi_pagos p
+              WHERE p.id_cita = citas.id_cita AND p.estado = 'APPROVED'
+          )
           AND CONCAT(fecha, ' ', hora_fin) <= ?
     ");
     $actualizarVencidas->execute([$idBarberia, $ahoraSql]);
 
     $stmtBarberia = $pdo->prepare("
-        SELECT id_barbero, nombre, apellido, especialidad
-        FROM barberos
-        WHERE id_barberia = ? AND estado = 'ACTIVO'
-        ORDER BY nombre, apellido
+        SELECT id_usuario AS id_barbero, nombre_completo AS nombre,
+               '' AS apellido, NULL AS especialidad
+        FROM usuarios
+        WHERE id_barberia = ? AND rol = 'BARBERO' AND estado = 'ACTIVO'
+        ORDER BY nombre_completo
     ");
     $stmtBarberia->execute([$idBarberia]);
     $barberos = $stmtBarberia->fetchAll(PDO::FETCH_ASSOC);
@@ -70,15 +88,16 @@ try {
             c.hora_fin,
             c.estado,
             cl.nombre AS nombre_cliente,
-            b.nombre AS nombre_barbero,
-            b.apellido AS apellido_barbero,
+            b.nombre_completo AS nombre_barbero,
+            '' AS apellido_barbero,
             GROUP_CONCAT(s.nombre ORDER BY s.nombre SEPARATOR ', ') AS servicios
         FROM citas c
-        INNER JOIN barberos b ON b.id_barbero = c.id_barbero
+        INNER JOIN usuarios b ON b.id_usuario = c.id_barbero
         INNER JOIN clientes cl ON cl.dni = c.dni_cliente
         LEFT JOIN cita_servicios cs ON cs.id_cita = c.id_cita
         LEFT JOIN servicios s ON s.id_servicio = cs.id_servicio
         WHERE c.id_barberia = ?
+          AND b.rol = 'BARBERO'
           AND b.estado = 'ACTIVO'
           AND c.estado IN ('PENDIENTE', 'CONFIRMADA')
           AND CONCAT(c.fecha, ' ', c.hora_fin) > ?
@@ -98,16 +117,17 @@ try {
                 c.hora_fin,
                 c.estado,
                 cl.nombre AS nombre_cliente,
-                b.nombre AS nombre_barbero,
-                b.apellido AS apellido_barbero,
+                b.nombre_completo AS nombre_barbero,
+                '' AS apellido_barbero,
                 GROUP_CONCAT(s.nombre ORDER BY s.nombre SEPARATOR ', ') AS servicios
             FROM citas c
-            INNER JOIN barberos b ON b.id_barbero = c.id_barbero
+            INNER JOIN usuarios b ON b.id_usuario = c.id_barbero
             INNER JOIN clientes cl ON cl.dni = c.dni_cliente
             LEFT JOIN cita_servicios cs ON cs.id_cita = c.id_cita
             LEFT JOIN servicios s ON s.id_servicio = cs.id_servicio
             WHERE c.id_barberia = ?
               AND c.id_barbero = ?
+              AND b.rol = 'BARBERO'
               AND (
                 c.estado IN ('COMPLETADA', 'CANCELADA')
                 OR (

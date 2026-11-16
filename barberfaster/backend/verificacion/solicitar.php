@@ -23,13 +23,16 @@ if ($telefono === '') {
 }
 
 $telefonoNormalizado = normalizarTelefono($telefono);
-if (!telefonoValido($telefonoNormalizado)) {
+if (!telefonoValido($telefono)) {
     responder(422, false, 'El número de teléfono no es válido. Usa formato internacional o celular colombiano.');
 }
 
 if ($dniCliente !== '' || $nombreCliente !== '') {
     if ($dniCliente === '' || $nombreCliente === '') {
         responder(400, false, 'Ingresa el nombre y el DNI de tu perfil.');
+    }
+    if (!preg_match('/^\d{1,10}$/', $dniCliente) || longitudCaracteres($nombreCliente) > 100) {
+        responder(422, false, 'El DNI debe tener máximo 10 dígitos y el nombre no puede superar 100 caracteres.');
     }
 
     try {

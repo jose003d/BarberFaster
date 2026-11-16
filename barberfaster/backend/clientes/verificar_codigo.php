@@ -21,7 +21,7 @@ if ($telefono === '' || $codigoIngresado === '') {
 }
 
 $telefonoNormalizado = normalizarTelefono($telefono);
-if (!telefonoValido($telefonoNormalizado)) {
+if (!telefonoValido($telefono)) {
     responder(422, false, 'El número de teléfono no es válido.');
 }
 

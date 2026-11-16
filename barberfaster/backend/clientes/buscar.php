@@ -5,10 +5,11 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once '../config/database.php';
 
-$dni = $_GET['dni'] ?? null;
+$dni = isset($_GET['dni']) && is_string($_GET['dni']) ? trim($_GET['dni']) : '';
 
-if (!$dni) {
-    echo json_encode(["status" => "error", "mensaje" => "El DNI es obligatorio."]);
+if (!preg_match('/^\d{1,10}$/', $dni)) {
+    http_response_code(422);
+    echo json_encode(["status" => "error", "mensaje" => "El DNI debe tener máximo 10 dígitos."]);
     exit();
 }
 

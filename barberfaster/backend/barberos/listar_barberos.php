@@ -1,65 +1,55 @@
 <?php
-// Este archivo devuelve los barberos activos de una barbería específica.
-// Se usa para cargar la lista de barberos en el frontend.
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Content-Type: application/json; charset=UTF-8');
 
-// Permite peticiones desde cualquier origen del frontend.
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-
-// Responde a peticiones OPTIONS para evitar errores de CORS.
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
+    http_response_code(204);
     exit();
 }
 
-// Conexión a la base de datos.
-require_once '../config/database.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'mensaje' => 'Método no permitido.']);
+    exit();
+}
 
-// Captura el id_barberia de forma flexible: GET, POST o por defecto 1.
-$id_barberia = $_GET['id_barberia'] ?? $_POST['id_barberia'] ?? 1;
+require_once __DIR__ . '/../config/database.php';
+
+$idBarberia = filter_var($_GET['id_barberia'] ?? 1, FILTER_VALIDATE_INT);
+if (!$idBarberia || $idBarberia < 1) {
+    http_response_code(422);
+    echo json_encode(['status' => 'error', 'mensaje' => 'La barbería indicada no es válida.']);
+    exit();
+}
 
 try {
-    // Consulta solo los barberos activos de la barbería seleccionada.
     $stmt = $pdo->prepare("
         SELECT
-            b.id_barbero,
-            b.id_barberia,
-            b.nombre,
-            b.apellido,
-            b.email,
-            b.telefono,
-            b.documento,
-            b.especialidad,
-            b.estado,
-            CASE
-                WHEN b.foto_datos IS NOT NULL THEN CONCAT(
-                    '/erpbarber/barberfaster/backend/barberos/foto.php?id_barbero=',
-                    b.id_barbero,
-                    '&v=',
-                    UNIX_TIMESTAMP()
-                )
-                ELSE b.foto
-            END AS foto,
+            u.id_usuario AS id_barbero,
+            u.id_barberia,
+            u.nombre_completo AS nombre,
+            '' AS apellido,
+            NULL AS especialidad,
+            NULL AS foto,
             COALESCE(AVG(r.calificacion), 0) AS calificacion_promedio,
             COUNT(r.id_resena) AS cantidad_calificaciones
-        FROM barberos b
-        LEFT JOIN citas c ON c.id_barbero = b.id_barbero
+        FROM usuarios u
+        LEFT JOIN citas c ON c.id_barbero = u.id_usuario
         LEFT JOIN resenas r ON r.id_cita = c.id_cita
-        WHERE b.id_barberia = ? AND b.estado = 'ACTIVO'
-        GROUP BY b.id_barbero
+        WHERE u.id_barberia = :id_barberia
+          AND u.rol = 'BARBERO'
+          AND u.estado = 'ACTIVO'
+        GROUP BY u.id_usuario, u.id_barberia, u.nombre_completo
+        ORDER BY u.nombre_completo ASC
     ");
-    $stmt->execute([$id_barberia]);
-    $barberos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->execute([':id_barberia' => $idBarberia]);
 
-    // Devuelve la lista de barberos como JSON.
-    echo json_encode($barberos);
-
-} catch (Exception $e) {
-    // En caso de error, devuelve un JSON con el mensaje.
-    echo json_encode([
-        "status" => "error",
-        "mensaje" => "Error al listar barberos: " . $e->getMessage()
-    ]);
+    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+} catch (Throwable $error) {
+    error_log('Error al listar el personal de una barbería: ' . $error->getMessage());
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'mensaje' => 'No se pudo cargar el personal de la barbería.']);
 }

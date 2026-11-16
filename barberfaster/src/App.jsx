@@ -1,82 +1,138 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import "./App.css";
-import Login from './pages/Login';
-import MagneticButtons from "./components/MagneticButtons";
-import DashboardLayout from "./layouts/DashboardLayout";
-import Barberias from "./pages/Barberias";
-import Barberos from "./pages/Barberos";
-import Usuarios from "./pages/Usuarios";
-import Clientes from "./pages/Clientes";
-import Profile from "./pages/Profile";
-import Agenda from "./pages/Agenda";
-import Dashboard from "./pages/Dashboard";
-import SuperadminDashboard from "./pages/SuperadminDashboard";
-import SuperadminClientes from "./pages/SuperadminClientes";
-import AdminDashboard from "./pages/AdminDashboard";
-import { BarberoWorkspace } from "./pages/BarberoWorkspace";
-import ClienteDashboard from "./pages/ClienteDashboard";
-import BarberiaDiscovery from "./pages/BarberiaDiscovery";
-
-// Guarda las rutas de cada tipo de sesión antes de renderizar sus pantallas.
-function ProtectedRoute({ children }) {
-  const isAuthenticated = localStorage.getItem("erpbarber_auth") === "true";
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
-}
-
-// Las rutas administrativas bloquean el acceso cuando hay una sesión demo de barbero.
-function AdminRoute({ children }) {
-  const isAuthenticated = localStorage.getItem("erpbarber_auth") === "true";
-  const isBarberoDemo = Boolean(localStorage.getItem("barbero_demo_sesion"));
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  return isBarberoDemo ? <Navigate to="/perfil" replace /> : children;
-}
-
-function PublicRoute({ children }) {
-  const isAuthenticated = localStorage.getItem("erpbarber_auth") === "true";
-  return isAuthenticated ? <Navigate to="/barberias" replace /> : children;
-}
-
-function RoleRoute({ role, children }) {
-  const isAuthenticated = localStorage.getItem("erpbarber_auth") === "true";
-  const user = JSON.parse(localStorage.getItem("user") || "null");
-  // Permite navegar el perfil seleccionado mientras el acceso de barbero siga en modo demo.
-  const isSelectedBarberDemo = role === "barbero" && Boolean(localStorage.getItem("barbero_demo_sesion"));
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if ((!user || user.rol !== role) && !isSelectedBarberDemo) return <Navigate to="/dashboard" replace />;
-  return children;
-}
+import "./styles/App.css";
+import Login from "./features/auth/pages/Login.jsx";
+import ProtectedRoute from "./features/auth/ProtectedRoute.jsx";
+import MagneticButtons from "./shared/components/MagneticButtons.jsx";
+import DashboardLayout from "./shared/layouts/DashboardLayout.jsx";
+import Barberias from "./features/barberias/pages/Barberias.jsx";
+import Barberos from "./features/barberos/pages/Barberos.jsx";
+import Usuarios from "./features/usuarios/pages/Usuarios.jsx";
+import Clientes from "./features/clientes/pages/Clientes.jsx";
+import Profile from "./features/auth/pages/Profile.jsx";
+import Agenda from "./features/agenda/pages/Agenda.jsx";
+import Dashboard from "./features/dashboard/pages/Dashboard.jsx";
+import SuperadminDashboard from "./features/superadmin/pages/SuperadminDashboard.jsx";
+import SuperadminClientes from "./features/superadmin/pages/SuperadminClientes.jsx";
+import AdminDashboard from "./features/dashboard/pages/AdminDashboard.jsx";
+import { BarberoWorkspace } from "./features/barberos/pages/BarberoWorkspace.jsx";
+import ClienteDashboard from "./features/clientes/pages/ClienteDashboard.jsx";
+import BarberiaDiscovery from "./features/barberias/pages/BarberiaDiscovery.jsx";
+import SolicitarBarberia from "./features/barberias/pages/SolicitarBarberia.jsx";
 
 function App() {
+  const administrativeRoles = ["SUPERADMIN", "ADMINISTRADOR"];
+
   return (
     <>
-      {/* Escucha el puntero una sola vez para animar todos los botones habilitados. */}
       <MagneticButtons />
-      <BrowserRouter basename="/erpbarber/barberfaster">
-        {/* Rutas públicas, de reserva y paneles restringidos por autenticación o rol. */}
+      <BrowserRouter>
         <Routes>
-          {/* Rutas públicas y paneles administrativos protegidos por rol activo. */}
           <Route path="/" element={<BarberiaDiscovery />} />
           <Route path="/seleccionar-barberia" element={<BarberiaDiscovery />} />
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/solicitar-barberia" element={<SolicitarBarberia />} />
+          <Route
+            path="/cambiar-contrasena"
+            element={
+              <ProtectedRoute roles={["ADMINISTRADOR", "BARBERO"]}>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/reservar" element={<Agenda reservaPublica />} />
-          <Route path="/dashboard" element={<AdminRoute><DashboardLayout><Dashboard /></DashboardLayout></AdminRoute>} />
-          <Route path="/personal" element={<AdminRoute><DashboardLayout><Barberos /></DashboardLayout></AdminRoute>} />
-          <Route path="/barberias" element={<RoleRoute role="superadmin"><DashboardLayout><Barberias /></DashboardLayout></RoleRoute>} />
-          <Route path="/usuarios" element={<AdminRoute><DashboardLayout><Usuarios /></DashboardLayout></AdminRoute>} />
-          <Route path="/clientes" element={<RoleRoute role="superadmin"><DashboardLayout><Clientes /></DashboardLayout></RoleRoute>} />
-          <Route path="/perfil" element={<DashboardLayout><Profile /></DashboardLayout>} />
-          <Route path="/agenda" element={<AdminRoute><DashboardLayout><Agenda /></DashboardLayout></AdminRoute>} />
-          <Route path="/superadmin" element={<RoleRoute role="superadmin"><DashboardLayout><SuperadminDashboard /></DashboardLayout></RoleRoute>} />
-          <Route path="/superadmin/clientes" element={<RoleRoute role="superadmin"><DashboardLayout><SuperadminClientes /></DashboardLayout></RoleRoute>} />
-          <Route path="/admin" element={<RoleRoute role="superadmin"><DashboardLayout><AdminDashboard /></DashboardLayout></RoleRoute>} />
-          <Route path="/barbero" element={<RoleRoute role="barbero"><DashboardLayout><BarberoWorkspace /></DashboardLayout></RoleRoute>} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute roles={administrativeRoles}>
+                <DashboardLayout><Dashboard /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/personal"
+            element={
+              <ProtectedRoute roles={administrativeRoles}>
+                <DashboardLayout><Barberos /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/barberias"
+            element={
+              <ProtectedRoute roles={["SUPERADMIN"]}>
+                <DashboardLayout><Barberias mostrarTodas /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/usuarios"
+            element={
+              <ProtectedRoute roles={administrativeRoles}>
+                <DashboardLayout><Usuarios /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/clientes"
+            element={
+              <ProtectedRoute roles={["SUPERADMIN"]}>
+                <DashboardLayout><Clientes /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/perfil"
+            element={
+              <ProtectedRoute roles={["ADMINISTRADOR", "BARBERO"]}>
+                <DashboardLayout><Profile /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agenda"
+            element={
+              <ProtectedRoute roles={administrativeRoles}>
+                <DashboardLayout><Agenda /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/superadmin"
+            element={
+              <ProtectedRoute roles={["SUPERADMIN"]}>
+                <DashboardLayout><SuperadminDashboard /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/superadmin/clientes"
+            element={
+              <ProtectedRoute roles={["SUPERADMIN"]}>
+                <DashboardLayout><SuperadminClientes /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute roles={["SUPERADMIN"]}>
+                <DashboardLayout><AdminDashboard /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/barbero"
+            element={
+              <ProtectedRoute roles={["BARBERO"]}>
+                <DashboardLayout><BarberoWorkspace /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
           <Route path="/cliente" element={<ClienteDashboard />} />
         </Routes>
       </BrowserRouter>
     </>
   );
 }
-
-
 
 export default App;

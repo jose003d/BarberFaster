@@ -1,40 +1,74 @@
 <?php
-// Este archivo alterna el estado de un usuario entre activo e inactivo.
-// Se usa para desactivar o reactivar un usuario sin eliminarlo físicamente.
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Content-Type: application/json; charset=UTF-8');
 
-// Permite que el frontend haga la petición desde otro origen.
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/auth.php';
 
-// Responde a una solicitud OPTIONS antes del POST real.
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
+    http_response_code(204);
+    exit();
 }
 
-// Define el tipo de respuesta como JSON.
-header("Content-Type: application/json");
-require_once "../config/database.php";
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'mensaje' => 'Método no permitido.']);
+    exit();
+}
 
 try {
-    // Lee el JSON enviado desde el frontend.
-    $data = json_decode(file_get_contents("php://input"), true);
-
-    // Valida que venga el ID del usuario.
-    if (empty($data['id_usuario'])) {
-        echo json_encode(["success" => false, "error" => "ID requerido"]);
-        exit;
+    $sesion = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    $data = json_decode(file_get_contents('php://input'), true);
+    $idUsuario = filter_var(
+        is_array($data) ? ($data['id_usuario'] ?? null) : null,
+        FILTER_VALIDATE_INT
+    );
+    if (!$idUsuario || $idUsuario < 1) {
+        http_response_code(422);
+        echo json_encode(['status' => 'error', 'mensaje' => 'Indica un usuario válido.']);
+        exit();
     }
 
-    // Invierte el estado del usuario: 1 -> 0 y 0 -> 1.
-    $sql = "UPDATE Usuarios SET estado = IF(estado = 1, 0, 1) WHERE id_usuario = :id_usuario";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([":id_usuario" => $data['id_usuario']]);
+    $stmtUsuario = $pdo->prepare("
+        SELECT id_usuario, id_barberia, rol, estado
+        FROM usuarios
+        WHERE id_usuario = :id_usuario
+        LIMIT 1
+    ");
+    $stmtUsuario->execute([':id_usuario' => $idUsuario]);
+    $usuario = $stmtUsuario->fetch();
 
-    // Respuesta exitosa.
-    echo json_encode(["success" => true, "message" => "Estado actualizado"]);
-} catch (Exception $e) {
-    // Si falla, devuelve el error.
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    if (
+        !$usuario
+        || !in_array($usuario['rol'], ['BARBERO', 'ADMINISTRADOR'], true)
+        || ($sesion['rol'] === 'ADMINISTRADOR'
+            && (
+                $usuario['rol'] !== 'BARBERO'
+                || (int) $usuario['id_barberia'] !== $sesion['id_barberia']
+            ))
+    ) {
+        responderErrorAuth(404, 'No se encontró el usuario que deseas actualizar.');
+    }
+
+    $nuevoEstado = $usuario['estado'] === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+    $stmt = $pdo->prepare("
+        UPDATE usuarios
+        SET estado = :estado
+        WHERE id_usuario = :id_usuario
+    ");
+    $stmt->execute([
+        ':estado' => $nuevoEstado,
+        ':id_usuario' => $idUsuario,
+    ]);
+
+    echo json_encode([
+        'status' => 'success',
+        'mensaje' => 'Estado actualizado correctamente.',
+        'estado' => $nuevoEstado,
+    ]);
+} catch (Throwable $error) {
+    error_log('Error al cambiar el estado de un usuario: ' . $error->getMessage());
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'mensaje' => 'No se pudo actualizar el estado del usuario.']);
 }
