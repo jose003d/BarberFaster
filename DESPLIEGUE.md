@@ -22,11 +22,12 @@ despliega esa rama. No hay que compilar ni subir nada a mano.
 - **Carpeta pública:** `domains/barberfaster.site/public_html`
 
 ```text
-public_html/
-├── index.html, assets/, fonts/, favicon.png    ← frontend compilado (React)
-├── .htaccess                                   ← rutas de React y HTTPS
-└── erpbarber/barberfaster/backend/             ← API PHP (la ruta que usa el frontend)
-    ├── config/config.local.php                 ← SOLO en el servidor (credenciales)
+domains/barberfaster.site/
+├── barberfaster-config.php                     ← credenciales (FUERA de public_html)
+└── public_html/
+    ├── index.html, assets/, fonts/, favicon.png    ← frontend compilado (React)
+    ├── .htaccess                                   ← rutas de React y HTTPS
+    └── erpbarber/barberfaster/backend/             ← API PHP (la ruta que usa el frontend)
     ├── cli/migrate.php                         ← ejecutor CLI de migraciones
     ├── migrations/automatic/                   ← migraciones nuevas protegidas
     └── uploads/                                ← fotos que suben los usuarios
@@ -46,22 +47,25 @@ La API se llama en `https://barberfaster.site/erpbarber/barberfaster/backend/...
 En hPanel → **Archivos → Copias de seguridad** (o el Administrador de archivos →
 comprimir), guarda una copia de `public_html` antes del primer despliegue.
 
-### 1. Crear `config.local.php` en el servidor ⚠️ antes del primer push
+### 1. Crear `barberfaster-config.php` en el servidor ⚠️ antes del primer push
 
-El despliegue reemplaza `backend/config/database.php` por la versión del
-repositorio, que ya **no** lleva la contraseña escrita: la lee de
-`config.local.php`. Si ese archivo no existe, el sitio pierde la conexión a MySQL.
+El backend lee la contraseña de MySQL y demás llaves de este archivo. Si no existe,
+el sitio pierde la conexión a MySQL.
 
-1. hPanel → **Administrador de archivos** →
-   `public_html/erpbarber/barberfaster/backend/config/`.
-2. Abre el `database.php` actual del servidor y copia el nombre de la base, el usuario
-   y la contraseña.
-   Si no está la contraseña, cámbiala en hPanel → **Bases de datos → Administración**.
-3. Crea en esa misma carpeta `config.local.php` con el contenido de
+> **Debe ir FUERA de `public_html`.** La integración Git de Hostinger deja
+> `public_html` idéntica a la rama `hostinger` en cada despliegue y **borra** lo que
+> no está en ella, aunque esté en `.gitignore`. Un `config.local.php` dentro de
+> `public_html/.../backend/config/` desaparece con cada push.
+
+1. hPanel → **Administrador de archivos** → `domains/barberfaster.site/`
+   (la carpeta que **contiene** a `public_html`, no la de adentro).
+2. Crea ahí `barberfaster-config.php` con el contenido de
    `barberfaster/backend/config/config.example.php`. Pon los datos de MySQL,
-   `PASSWORD_RESET_FROM` y las llaves de Wompi/Wuapi si las usas.
+   `SUPERADMIN_HOSTS`, `PASSWORD_RESET_FROM` y las llaves de Wompi/Wuapi si las usas.
+   Si no tienes la contraseña de MySQL, cámbiala en hPanel → **Bases de datos → Administración**.
 
-Este archivo **no** está en Git y el despliegue nunca lo sobrescribe ni lo borra.
+`backend/config/env.php` busca primero ese archivo y, si no existe, usa
+`backend/config/config.local.php` (útil en XAMPP).
 
 ### 2. Primer push (crea la rama `hostinger`)
 
@@ -90,8 +94,10 @@ hPanel → **Avanzado → GIT**:
    - Directorio: vacío (= `public_html`)
 5. Pulsa **Deploy**, luego **Auto Deployment** y copia la URL del webhook en GitHub →
    **Settings → Webhooks → Add webhook** (Content type `application/json`, evento *push*).
-6. Vuelve a subir `config.local.php` y las carpetas `uploads/`/`public/` a su lugar.
-   Git no los toca: no están versionados en la rama.
+6. Vuelve a subir las carpetas `uploads/`/`public/` a su lugar. La configuración va
+   en `domains/barberfaster.site/barberfaster-config.php` (paso 1), no aquí.
+   ⚠️ Revisa después de un despliegue que las fotos sigan ahí: si Hostinger borra
+   archivos no versionados, también afecta a `uploads/` y `public/`.
 
 Desde ahí cada push a `main` → Actions compila → actualiza `hostinger` → el webhook
 hace que Hostinger publique.
@@ -142,7 +148,7 @@ Reemplaza `USUARIO` por el usuario real de tu hosting. Usa la versión de PHP de
 sitio si hPanel te permite seleccionarla. El ejecutor procesa solo archivos nuevos
 de `backend/migrations/automatic/`, registra su versión y checksum en
 `barberfaster_schema_migrations`, y no vuelve a ejecutarlos. También bloquea el
-acceso web directo a los archivos SQL. El usuario MySQL de `config.local.php`
+acceso web directo a los archivos SQL. El usuario MySQL de `barberfaster-config.php`
 necesita permisos para crear tablas, consultar e insertar en la base de datos.
 
 Antes de activar el cron, haz una copia de seguridad desde hPanel → **Archivos →
@@ -154,11 +160,11 @@ no la copies a la carpeta automática sin confirmar primero si ya fue aplicada.
 
 | Síntoma                                      | Causa probable / solución                                                                              |
 |----------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| "No se pudo conectar a la base de datos"     | Falta o está mal `backend/config/config.local.php` en el servidor.                                     |
+| "No se pudo conectar a la base de datos"     | Falta o está mal `domains/barberfaster.site/barberfaster-config.php` (fuera de public_html).           |
 | 404 al recargar `/agenda` u otra ruta        | Falta `public_html/.htaccess` (viene en el despliegue).                                                 |
 | Un endpoint devuelve HTML en vez de JSON     | Ese `.php` no está en el servidor: revisa que esté en Git y que el workflow haya terminado bien.        |
 | Una barbería sin foto o con "—"              | No tiene fotos en `barberia_fotos` o no tiene reseñas; no es un error.                                  |
-| Pagos Wompi fallan                           | Faltan `WOMPI_*` en `config.local.php`.                                                                 |
+| Pagos Wompi fallan                           | Faltan `WOMPI_*` en `barberfaster-config.php`.                                                                 |
 | El panel SUPERADMIN no abre en barberfaster.site | Es intencional: solo funciona desde `localhost` (`esSolicitudLocal()` en `backend/Auth/common.php`). |
 
 Los errores de PHP se ven en hPanel → **Avanzado → Registros de errores**.

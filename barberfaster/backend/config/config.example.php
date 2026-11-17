@@ -1,7 +1,10 @@
 <?php
-// Copia este archivo como config.local.php en la misma carpeta y completa los
-// valores de cada entorno. config.local.php NO se sube a Git ni lo sobrescribe
-// el despliegue: en Hostinger créalo una sola vez desde el Administrador de archivos.
+// En Hostinger: copia este archivo como barberfaster-config.php en la carpeta del
+// dominio, FUERA de public_html (domains/barberfaster.site/barberfaster-config.php).
+// El despliegue por Git reemplaza public_html completo, así que un archivo dentro
+// de public_html se borra en cada despliegue; fuera de él nunca se toca.
+//
+// En XAMPP también puedes copiarlo como config.local.php en esta misma carpeta.
 //
 // En XAMPP no necesitas crearlo: si no existe se usan root sin contraseña y la
 // base "barberfaster".

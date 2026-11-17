@@ -1,14 +1,36 @@
 <?php
 // backend/config/env.php
-// Carga la configuración del servidor desde config.local.php (no se sube a Git)
-// y la expone como variables de entorno para que getenv() funcione igual en
-// XAMPP y en Hostinger.
+// Carga la configuración del servidor (no se sube a Git) y la expone como
+// variables de entorno para que getenv() funcione igual en XAMPP y en Hostinger.
+//
+// Orden de búsqueda (se usa el primero que exista):
+//   1. La ruta indicada en la variable de entorno BARBERFASTER_CONFIG.
+//   2. barberfaster-config.php FUERA de public_html, en la carpeta del dominio
+//      (domains/barberfaster.site/barberfaster-config.php en Hostinger). El
+//      despliegue por Git reemplaza public_html completo y borraría un archivo
+//      dentro de él; aquí no lo toca nunca.
+//   3. config.local.php en esta carpeta (XAMPP o instalaciones antiguas).
 
 if (!defined('BARBERFASTER_ENV_CARGADO')) {
     define('BARBERFASTER_ENV_CARGADO', true);
 
-    $archivoConfig = __DIR__ . '/config.local.php';
-    if (is_file($archivoConfig)) {
+    // Esta carpeta está en public_html/erpbarber/barberfaster/backend/config:
+    // cinco niveles arriba queda la carpeta del dominio, fuera de public_html.
+    $candidatos = array_filter([
+        getenv('BARBERFASTER_CONFIG') ?: null,
+        dirname(__DIR__, 5) . '/barberfaster-config.php',
+        __DIR__ . '/config.local.php',
+    ]);
+
+    $archivoConfig = null;
+    foreach ($candidatos as $candidato) {
+        if (@is_file($candidato)) {
+            $archivoConfig = $candidato;
+            break;
+        }
+    }
+
+    if ($archivoConfig !== null) {
         $config = require $archivoConfig;
         if (is_array($config)) {
             foreach ($config as $clave => $valor) {
