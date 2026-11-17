@@ -18,7 +18,8 @@ return [
 
     // Dominios donde se permite el login SUPERADMIN (separados por coma).
     // Sin definirlo, el SUPERADMIN solo entra desde este equipo (XAMPP).
-    // 'SUPERADMIN_HOSTS' => 'barbersuperadmin.tech,www.barbersuperadmin.tech',
+    // Incluye barberfaster.site para poder entrar al panel desde el logo del sitio público.
+    // 'SUPERADMIN_HOSTS' => 'barbersuperadmin.tech,www.barbersuperadmin.tech,barberfaster.site,www.barberfaster.site',
 
     // Correo remitente para recuperación de contraseña y aprobaciones.
     'PASSWORD_RESET_FROM' => 'no-reply@tudominio.com',

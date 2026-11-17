@@ -1,16 +1,26 @@
 import { BASE_URL, handleResponse } from "../../shared/services/api.js";
 
-// Dominios donde se publica el panel SUPERADMIN (VITE_SUPERADMIN_HOSTS, separados por coma).
-// En desarrollo también se permite localhost.
-const HOSTS_SUPERADMIN = (import.meta.env.VITE_SUPERADMIN_HOSTS || "")
+const leerHosts = (valor) => (valor || "")
   .split(",")
   .map((host) => host.trim().toLowerCase())
   .filter(Boolean);
 
-export const ES_HOST_SUPERADMIN = HOSTS_SUPERADMIN.includes(window.location.hostname.toLowerCase());
+const HOST_ACTUAL = window.location.hostname.toLowerCase();
 
+// Dominios dedicados al panel SUPERADMIN (VITE_SUPERADMIN_HOSTS, separados por coma):
+// en ellos la raíz "/" abre directamente el panel.
+const HOSTS_SUPERADMIN = leerHosts(import.meta.env.VITE_SUPERADMIN_HOSTS);
+
+// Dominios públicos donde el panel también funciona dentro de la app sin saltar
+// al dominio dedicado (VITE_SUPERADMIN_HOSTS_COMPARTIDOS). La raíz sigue siendo pública.
+const HOSTS_SUPERADMIN_COMPARTIDOS = leerHosts(import.meta.env.VITE_SUPERADMIN_HOSTS_COMPARTIDOS);
+
+export const ES_HOST_SUPERADMIN = HOSTS_SUPERADMIN.includes(HOST_ACTUAL);
+
+// En desarrollo también se permite localhost.
 export const SUPERADMIN_HABILITADO = ES_HOST_SUPERADMIN
-  || (import.meta.env.DEV && ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname));
+  || HOSTS_SUPERADMIN_COMPARTIDOS.includes(HOST_ACTUAL)
+  || (import.meta.env.DEV && ["localhost", "127.0.0.1", "[::1]"].includes(HOST_ACTUAL));
 
 // Abre el panel SUPERADMIN: en su dominio (o en local) navega dentro de la app;
 // en cualquier otro dominio salta al dominio del panel.
