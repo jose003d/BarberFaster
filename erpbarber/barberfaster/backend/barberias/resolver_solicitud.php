@@ -6,6 +6,7 @@ header('Content-Type: application/json; charset=UTF-8');
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/correo.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -138,48 +139,41 @@ try {
     ]);
     $pdo->commit();
 
+    // Enlace al login en el mismo dominio desde el que el SUPERADMIN aprobó (o APP_URL si se define).
+    $host = preg_replace('/[^a-z0-9.:-]/i', '', (string) ($_SERVER['HTTP_HOST'] ?? ''));
+    $urlLogin = rtrim(configValor('APP_URL') ?? ($host !== '' ? 'https://' . $host : ''), '/') . '/login';
+
+    $asunto = 'Tu barbería fue aprobada - Datos de acceso a BarberFaster';
+    $mensajeCorreo = implode("\n", [
+        "Hola {$solicitud['nombre_admin']},",
+        '',
+        "¡Bienvenido a BarberFaster! Tu solicitud fue aprobada y la barbería \"{$solicitud['nombre_barberia']}\" ya está activa.",
+        '',
+        'DATOS PARA INICIAR SESIÓN',
+        "Ingresa en: {$urlLogin}",
+        "Usuario: {$solicitud['documento_admin']} (también puedes usar tu correo {$solicitud['correo_admin']})",
+        "Contraseña temporal: {$contrasenaTemporal}",
+        '',
+        'Al iniciar sesión por primera vez, el sistema te pedirá cambiar esta contraseña temporal por una propia.',
+        'Después podrás administrar tu barbería: personal, servicios, agenda y perfil del establecimiento.',
+        '',
+        'DATOS DE TU BARBERÍA',
+        "Nombre: {$solicitud['nombre_barberia']}",
+        "Dirección: {$solicitud['direccion']}",
+        "Ciudad: {$solicitud['ciudad']}",
+        "Teléfono: {$solicitud['telefono_barberia']}",
+        '',
+        'Si no solicitaste esta barbería, ignora este mensaje y contacta al equipo de BarberFaster.',
+    ]);
+
     $correoEnviado = false;
-    $remitente = getenv('PASSWORD_RESET_FROM');
-    if (is_string($remitente) && filter_var($remitente, FILTER_VALIDATE_EMAIL)) {
-        $asunto = 'Datos de acceso de tu barberia - BarberFaster';
-        $mensajeCorreo = implode("\n", [
-            "Hola {$solicitud['nombre_admin']},",
-            '',
-            "Tu solicitud fue aprobada y la barberia {$solicitud['nombre_barberia']} ya esta activa en BarberFaster.",
-            '',
-            'Datos de tu barberia:',
-            "Nombre: {$solicitud['nombre_barberia']}",
-            "Direccion: {$solicitud['direccion']}",
-            "Ciudad: {$solicitud['ciudad']}",
-            "Telefono: {$solicitud['telefono_barberia']}",
-            '',
-            'Datos para iniciar sesion:',
-            "Correo: {$solicitud['correo_admin']}",
-            "Documento: {$solicitud['documento_admin']}",
-            "Contrasena temporal: {$contrasenaTemporal}",
-            '',
-            'Por seguridad, el sistema te pedira cambiar la contrasena temporal al iniciar sesion.',
-            'Si no solicitaste esta barberia, contacta al equipo de BarberFaster.',
-        ]);
-        $cabeceras = "From: BarberFaster <{$remitente}>\r\n"
-            . "Content-Type: text/plain; charset=UTF-8\r\n";
-
-        try {
-            $correoEnviado = mail(
-                $solicitud['correo_admin'],
-                $asunto,
-                $mensajeCorreo,
-                $cabeceras
-            );
-        } catch (Throwable $errorCorreo) {
-            error_log('No se pudo enviar el correo de acceso de la barberia aprobada: ' . $errorCorreo->getMessage());
-        }
-    } else {
-        error_log('PASSWORD_RESET_FROM no está configurado; no se envió el correo de acceso de la barbería.');
+    try {
+        $correoEnviado = enviarCorreo($solicitud['correo_admin'], $asunto, $mensajeCorreo);
+    } catch (Throwable $errorCorreo) {
+        error_log('Correo de acceso de barbería aprobada: ' . $errorCorreo->getMessage());
     }
-
     if (!$correoEnviado) {
-        error_log('PHP mail() no pudo enviar el correo de acceso a ' . $solicitud['correo_admin'] . '.');
+        error_log('No se pudo enviar el correo de acceso a ' . $solicitud['correo_admin'] . ' (revisa el log de "Correo").');
     }
 
     echo json_encode([
