@@ -5,6 +5,7 @@ header('Content-Type: application/json; charset=UTF-8');
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/common.php';
+require_once __DIR__ . '/../config/correo.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -34,9 +35,9 @@ if (
     responderErrorAuth(422, 'Ingresa un correo electrónico válido.');
 }
 
-$remitente = getenv('PASSWORD_RESET_FROM');
+$remitente = configValor('PASSWORD_RESET_FROM') ?? configValor('SMTP_USER');
 if (!is_string($remitente) || !filter_var($remitente, FILTER_VALIDATE_EMAIL)) {
-    error_log('PASSWORD_RESET_FROM no está configurado con un correo válido.');
+    error_log('PASSWORD_RESET_FROM / SMTP_USER no está configurado con un correo válido.');
     http_response_code(503);
     echo json_encode([
         'status' => 'error',
@@ -44,9 +45,6 @@ if (!is_string($remitente) || !filter_var($remitente, FILTER_VALIDATE_EMAIL)) {
     ], JSON_UNESCAPED_UNICODE);
     exit();
 }
-
-$cabeceras = "From: BarberFaster <{$remitente}>\r\n"
-    . "Content-Type: text/plain; charset=UTF-8\r\n";
 
 try {
     $stmt = $pdo->prepare("
@@ -107,7 +105,7 @@ try {
         . "El código vence en 15 minutos y solo puede usarse una vez. "
         . "Si no solicitaste este cambio, ignora este mensaje.";
 
-    if (!mail($usuario['correo'], $asunto, $mensaje, $cabeceras)) {
+    if (!enviarCorreo($usuario['correo'], $asunto, $mensaje)) {
         $stmt = $pdo->prepare("
             DELETE FROM recuperacion_contrasena
             WHERE id_usuario = :id_usuario AND codigo_hash = :codigo_hash
@@ -116,7 +114,7 @@ try {
             ':id_usuario' => $usuario['id_usuario'],
             ':codigo_hash' => $codigoHash,
         ]);
-        throw new RuntimeException('PHP mail() no pudo enviar el correo de recuperación.');
+        throw new RuntimeException('No se pudo enviar el correo de recuperación (revisa el log de "Correo").');
     }
 
     echo json_encode($respuestaGenerica, JSON_UNESCAPED_UNICODE);
