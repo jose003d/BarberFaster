@@ -112,7 +112,7 @@ export default function Login({ onLoginSuccess }) {
       return;
     }
     if (!validarContrasena(recuperacion.contrasena)) {
-      setError("La contraseña debe tener al menos 8 caracteres y no superar 72 bytes.");
+      setError("La contraseña debe tener al menos 8 caracteres y no superar 72 caracteres.");
       return;
     }
     if (recuperacion.contrasena !== recuperacion.confirmarContrasena) {

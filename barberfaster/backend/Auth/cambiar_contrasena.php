@@ -39,7 +39,7 @@ try {
         || longitudCampoAuth($contrasenaNueva) < 8
         || strlen($contrasenaNueva) > 72
     ) {
-        responderErrorAuth(422, 'La contraseña nueva debe tener al menos 8 caracteres y no superar 72 bytes.');
+        responderErrorAuth(422, 'La contraseña nueva debe tener al menos 8 caracteres y no superar 72 caracteres.');
     }
 
     $stmt = $pdo->prepare('SELECT password FROM usuarios WHERE id_usuario = :id_usuario LIMIT 1');

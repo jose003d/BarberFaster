@@ -35,7 +35,7 @@ if (
     || longitudCampoAuth($contrasenaNueva) < 8
     || strlen($contrasenaNueva) > 72
 ) {
-    responderErrorAuth(422, 'Revisa el correo, el código y la contraseña nueva. Debe tener al menos 8 caracteres y no superar 72 bytes.');
+    responderErrorAuth(422, 'Revisa el correo, el código y la contraseña nueva. Debe tener al menos 8 caracteres y no superar 72 caracteres.');
 }
 
 try {

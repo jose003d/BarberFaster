@@ -21,6 +21,8 @@ export default function Profile() {
     nueva: "",
     confirmar: "",
   });
+  // En "Mi perfil" el formulario queda oculto hasta que el usuario decide cambiar su contraseña.
+  const [mostrarFormulario, setMostrarFormulario] = useState(cambioObligatorio);
   const [actualizando, setActualizando] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
@@ -70,6 +72,7 @@ export default function Profile() {
       }
 
       setContrasenas({ actual: "", nueva: "", confirmar: "" });
+      setMostrarFormulario(false);
       setMensaje(respuesta.mensaje || "La contraseña se actualizó correctamente.");
     } catch (requestError) {
       setError(requestError.message || "No se pudo actualizar la contraseña.");
@@ -98,20 +101,29 @@ export default function Profile() {
               <div><dt>Nombre</dt><dd>{usuario.nombre_completo || usuario.nombre}</dd></div>
               <div><dt>Correo</dt><dd>{usuario.correo || usuario.email}</dd></div>
               <div><dt>Teléfono</dt><dd>{usuario.telefono || "No registrado"}</dd></div>
-              <div><dt>Rol</dt><dd>{usuario.rol}</dd></div>
-              {usuario.id_barberia && (
-                <div><dt>ID de barbería</dt><dd>{usuario.id_barberia}</dd></div>
-              )}
+              <div><dt>Rol</dt><dd>{usuario.rol === "ADMINISTRADOR" ? "Administrador" : usuario.rol === "BARBERO" ? "Barbero" : usuario.rol}</dd></div>
             </dl>
           </>
         )}
         <section className="password-change" aria-labelledby="password-change-title">
-          <h3 id="password-change-title">{cambioObligatorio ? "Crea tu contraseña" : "Actualizar contraseña"}</h3>
-          <p>
-            {cambioObligatorio
-              ? "Ingresa la contraseña temporal que te entregó el equipo y define una nueva de al menos 8 caracteres."
-              : "Confirma tu contraseña actual. La nueva debe tener al menos 8 caracteres y un máximo de 72 bytes."}
-          </p>
+          <h3 id="password-change-title">{cambioObligatorio ? "Crea tu contraseña" : "Contraseña"}</h3>
+          {cambioObligatorio && (
+            <p>Ingresa la contraseña temporal que recibiste por correo y define una nueva de al menos 8 caracteres.</p>
+          )}
+          {!mostrarFormulario && (
+            <button
+              className="login-btn"
+              type="button"
+              onClick={() => {
+                setMensaje("");
+                setError("");
+                setMostrarFormulario(true);
+              }}
+            >
+              Cambiar contraseña
+            </button>
+          )}
+          {mostrarFormulario && (
           <form className="password-change-form" onSubmit={actualizarContrasena}>
             <label className="login-field">
               {cambioObligatorio ? "Contraseña temporal" : "Contraseña actual"}
@@ -152,9 +164,24 @@ export default function Profile() {
               />
             </label>
             <button className="login-btn" type="submit" disabled={actualizando}>
-              {actualizando ? "Guardando..." : cambioObligatorio ? "Guardar contraseña nueva" : "Actualizar contraseña"}
+              {actualizando ? "Guardando..." : cambioObligatorio ? "Guardar y entrar al panel" : "Guardar contraseña nueva"}
             </button>
+            {!cambioObligatorio && (
+              <button
+                className="btn-secondary"
+                type="button"
+                disabled={actualizando}
+                onClick={() => {
+                  setContrasenas({ actual: "", nueva: "", confirmar: "" });
+                  setError("");
+                  setMostrarFormulario(false);
+                }}
+              >
+                Cancelar
+              </button>
+            )}
           </form>
+          )}
           {error && <p className="password-change-message error" role="alert">{error}</p>}
           {mensaje && <p className="password-change-message success" role="status">{mensaje}</p>}
         </section>
