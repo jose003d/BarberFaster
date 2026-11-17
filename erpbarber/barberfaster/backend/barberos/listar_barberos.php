@@ -31,6 +31,7 @@ try {
             u.id_usuario AS id_barbero,
             u.id_barberia,
             u.nombre_completo AS nombre,
+            u.rol = 'ADMINISTRADOR' AS es_administrador,
             '' AS apellido,
             NULL AS especialidad,
             NULL AS foto,
@@ -40,9 +41,9 @@ try {
         LEFT JOIN citas c ON c.id_barbero = u.id_usuario
         LEFT JOIN resenas r ON r.id_cita = c.id_cita
         WHERE u.id_barberia = :id_barberia
-          AND u.rol = 'BARBERO'
+          AND (u.rol = 'BARBERO' OR (u.rol = 'ADMINISTRADOR' AND u.atiende_clientes = 1))
           AND u.estado = 'ACTIVO'
-        GROUP BY u.id_usuario, u.id_barberia, u.nombre_completo
+        GROUP BY u.id_usuario, u.id_barberia, u.nombre_completo, u.rol
         ORDER BY u.nombre_completo ASC
     ");
     $stmt->execute([':id_barberia' => $idBarberia]);

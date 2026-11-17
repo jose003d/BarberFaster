@@ -35,7 +35,7 @@ try {
             (
                 SELECT COUNT(*)
                 FROM usuarios
-                WHERE id_barberia = ? AND rol = 'BARBERO' AND estado = 'ACTIVO'
+                WHERE id_barberia = ? AND (rol = 'BARBERO' OR (rol = 'ADMINISTRADOR' AND atiende_clientes = 1)) AND estado = 'ACTIVO'
             ) AS total_barberos,
             (SELECT COUNT(*) FROM servicios WHERE id_barberia = ? AND estado = 'ACTIVO') AS servicios_activos,
             5.0 AS calificacion_promedio

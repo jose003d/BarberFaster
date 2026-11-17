@@ -56,7 +56,7 @@ try {
         LEFT JOIN citas c ON c.id_barbero = u.id_usuario
         LEFT JOIN resenas r ON r.id_cita = c.id_cita
         WHERE u.id_barberia = ?
-          AND u.rol = 'BARBERO'
+          AND (u.rol = 'BARBERO' OR (u.rol = 'ADMINISTRADOR' AND u.atiende_clientes = 1))
           AND u.estado = 'ACTIVO'
         GROUP BY u.id_usuario, u.nombre_completo
         ORDER BY u.nombre_completo

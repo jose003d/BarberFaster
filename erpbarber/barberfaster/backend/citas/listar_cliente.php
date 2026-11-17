@@ -47,7 +47,7 @@ try {
         FROM citas c
         INNER JOIN barberias b ON c.id_barberia = b.id_barberia
         INNER JOIN usuarios bar
-            ON c.id_barbero = bar.id_usuario AND bar.rol = 'BARBERO'
+            ON c.id_barbero = bar.id_usuario AND (bar.rol = 'BARBERO' OR (bar.rol = 'ADMINISTRADOR' AND bar.atiende_clientes = 1))
         LEFT JOIN resenas r ON r.id_cita = c.id_cita
         LEFT JOIN cita_servicios cs ON c.id_cita = cs.id_cita
         LEFT JOIN servicios s ON cs.id_servicio = s.id_servicio
