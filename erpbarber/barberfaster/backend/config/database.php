@@ -21,6 +21,11 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=$charset", $user, $pass, $options);
 } catch (\PDOException $e) {
     error_log('Error de conexión a la base de datos: ' . $e->getMessage());
+    if (PHP_SAPI === 'cli') {
+        fwrite(STDERR, "No se pudo conectar a la base de datos. Revisa backend/config/config.local.php.\n");
+        exit(1);
+    }
+
     header('Content-Type: application/json; charset=UTF-8');
     http_response_code(500);
     echo json_encode([

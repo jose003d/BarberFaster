@@ -16,6 +16,10 @@ return [
     // Ruta donde vive el sitio. Déjalo en null para detectarla sola.
     // 'APP_BASE_PATH' => '/',
 
+    // Dominios donde se permite el login SUPERADMIN (separados por coma).
+    // Sin definirlo, el SUPERADMIN solo entra desde este equipo (XAMPP).
+    // 'SUPERADMIN_HOSTS' => 'barbersuperadmin.tech,www.barbersuperadmin.tech',
+
     // Correo remitente para recuperación de contraseña y aprobaciones.
     'PASSWORD_RESET_FROM' => 'no-reply@tudominio.com',
 
