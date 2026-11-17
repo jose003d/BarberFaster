@@ -75,6 +75,17 @@ function Barberos() {
   const [serviciosSeleccionados, setServiciosSeleccionados] = useState([]);
   const [confirmModal, setConfirmModal] = useState({ open: false, item: null });
 
+  // El administrador puede marcar que él también atiende clientes (aparece como barbero).
+  const esAdministrador = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "null")?.rol === "ADMINISTRADOR";
+    } catch {
+      return false;
+    }
+  })();
+  const [atiendeClientes, setAtiendeClientes] = useState(false);
+  const [guardandoAtiende, setGuardandoAtiende] = useState(false);
+
   // Formularios
   const [formBarbero, setFormBarbero] = useState(EMPTY_BARBER_FORM);
   const [formServicio, setFormServicio] = useState({ nombre: "", precio: "", duracion_minutos: 30, descripcion: "" });
@@ -94,13 +105,32 @@ function Barberos() {
       const listaUsuarios = await obtenerUsuarios(idBarberia);
       setBarberos(
         listaUsuarios
-          .filter((usuario) => usuario.rol === "BARBERO" && usuario.estado === "ACTIVO")
+          .filter((usuario) => usuario.estado === "ACTIVO" && (
+            usuario.rol === "BARBERO"
+            || (usuario.rol === "ADMINISTRADOR" && Number(usuario.atiende_clientes) === 1)
+          ))
           .map((usuario) => ({
             ...usuario,
             id_barbero: usuario.id_usuario,
             email: usuario.correo,
+            es_administrador: usuario.rol === "ADMINISTRADOR",
           }))
       );
+
+      if (esAdministrador) {
+        try {
+          const resAtiende = await fetch(`${BASE_URL}/barberos/atender_clientes.php`, {
+            credentials: "same-origin",
+            cache: "no-store",
+          });
+          const dataAtiende = await resAtiende.json();
+          if (resAtiende.ok && dataAtiende.status === "success") {
+            setAtiendeClientes(Boolean(dataAtiende.atiende_clientes));
+          }
+        } catch {
+          // Si falla, la casilla queda desmarcada; no bloquea el resto del módulo.
+        }
+      }
 
       // 2. Cargar Catálogo General de Servicios
       const resServicios = await fetch(`${BASE_URL}/servicios/listars.php?id_barberia=${idBarberia}`);
@@ -150,6 +180,32 @@ function Barberos() {
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (error) {
       setFetchError(error.message);
+    }
+  };
+
+  // Activa o desactiva que el administrador aparezca como barbero de su barbería.
+  const cambiarAtiendeClientes = async (valor) => {
+    setGuardandoAtiende(true);
+    setFetchError(null);
+    try {
+      const response = await fetch(`${BASE_URL}/barberos/atender_clientes.php`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ atiende_clientes: valor }),
+      });
+      const data = await response.json();
+      if (!response.ok || data.status !== "success") {
+        throw new Error(data.mensaje || "No se pudo guardar la opción.");
+      }
+      setAtiendeClientes(Boolean(data.atiende_clientes));
+      await cargarDatosIniciales();
+      setSuccessMessage(data.mensaje);
+      setTimeout(() => setSuccessMessage(null), 4000);
+    } catch (error) {
+      setFetchError(error.message);
+    } finally {
+      setGuardandoAtiende(false);
     }
   };
 
@@ -323,6 +379,21 @@ function Barberos() {
         </button>
       </div>
 
+      {esAdministrador && (
+        <label className="staff-self-toggle">
+          <input
+            type="checkbox"
+            checked={atiendeClientes}
+            disabled={guardandoAtiende || loading}
+            onChange={(event) => cambiarAtiendeClientes(event.target.checked)}
+          />
+          <span>
+            <strong>Yo también atiendo clientes</strong>
+            <small>Apareces en la lista de barberos para reservas con tu misma cuenta. Luego asígnate tus servicios.</small>
+          </span>
+        </label>
+      )}
+
       <div className="table-wrapper" style={{ marginBottom: "40px" }}>
         <table>
           <thead>
@@ -342,13 +413,14 @@ function Barberos() {
               barberos.map((b) => (
                 <tr key={b.id_barbero}>
                   <td>{b.id_barbero}</td>
-                  <td>{b.nombre}</td>
+                  <td>{b.nombre}{b.es_administrador && <span className="staff-admin-badge">Tú · administrador</span>}</td>
                   <td>{b.correo}</td>
                   <td className="table-actions-cell">
                     <div className="table-actions">
                     <button className="btn-secondary" onClick={() => abrirGestionServicios(b)} title="Asignar Servicios del Catálogo">
                       <FontAwesomeIcon icon={faScissors} /> Servicios
                     </button>
+                    {!b.es_administrador && (<>
                     <button className="btn-secondary table-action-icon" onClick={() => {
                       setBarberoSeleccionado(b);
                       setFormBarbero({
@@ -364,6 +436,7 @@ function Barberos() {
                     <button className="btn-secondary table-action-icon" onClick={() => setConfirmModal({ open: true, item: b })} title="Eliminar Barbero">
                       <FontAwesomeIcon icon={faTrashCan} />
                     </button>
+                    </>)}
                     </div>
                   </td>
                 </tr>

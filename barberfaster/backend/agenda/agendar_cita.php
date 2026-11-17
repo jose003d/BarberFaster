@@ -178,7 +178,7 @@ try {
         FROM usuarios
         WHERE id_usuario = :id_barbero
           AND id_barberia = :id_barberia
-          AND rol = 'BARBERO'
+          AND (rol = 'BARBERO' OR (rol = 'ADMINISTRADOR' AND atiende_clientes = 1))
           AND estado = 'ACTIVO'
         FOR UPDATE
     ");

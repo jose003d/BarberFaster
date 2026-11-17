@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   rol ENUM('SUPERADMIN', 'ADMINISTRADOR', 'BARBERO') NOT NULL,
   estado ENUM('ACTIVO', 'INACTIVO') NOT NULL DEFAULT 'ACTIVO',
   debe_cambiar_contrasena TINYINT(1) NOT NULL DEFAULT 0,
+  atiende_clientes TINYINT(1) NOT NULL DEFAULT 0,
   fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id_usuario),
   UNIQUE KEY uk_usuarios_documento (documento),

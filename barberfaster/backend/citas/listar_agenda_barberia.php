@@ -73,7 +73,7 @@ try {
         SELECT id_usuario AS id_barbero, nombre_completo AS nombre,
                '' AS apellido, NULL AS especialidad
         FROM usuarios
-        WHERE id_barberia = ? AND rol = 'BARBERO' AND estado = 'ACTIVO'
+        WHERE id_barberia = ? AND (rol = 'BARBERO' OR (rol = 'ADMINISTRADOR' AND atiende_clientes = 1)) AND estado = 'ACTIVO'
         ORDER BY nombre_completo
     ");
     $stmtBarberia->execute([$idBarberia]);
@@ -97,7 +97,7 @@ try {
         LEFT JOIN cita_servicios cs ON cs.id_cita = c.id_cita
         LEFT JOIN servicios s ON s.id_servicio = cs.id_servicio
         WHERE c.id_barberia = ?
-          AND b.rol = 'BARBERO'
+          AND (b.rol = 'BARBERO' OR (b.rol = 'ADMINISTRADOR' AND b.atiende_clientes = 1))
           AND b.estado = 'ACTIVO'
           AND c.estado IN ('PENDIENTE', 'CONFIRMADA')
           AND CONCAT(c.fecha, ' ', c.hora_fin) > ?
@@ -127,7 +127,7 @@ try {
             LEFT JOIN servicios s ON s.id_servicio = cs.id_servicio
             WHERE c.id_barberia = ?
               AND c.id_barbero = ?
-              AND b.rol = 'BARBERO'
+              AND (b.rol = 'BARBERO' OR (b.rol = 'ADMINISTRADOR' AND b.atiende_clientes = 1))
               AND (
                 c.estado IN ('COMPLETADA', 'CANCELADA')
                 OR (

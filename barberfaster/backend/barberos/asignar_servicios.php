@@ -41,7 +41,7 @@ try {
     $stmtBarbero = $pdo->prepare("
         SELECT id_barberia
         FROM usuarios
-        WHERE id_usuario = :id_usuario AND rol = 'BARBERO'
+        WHERE id_usuario = :id_usuario AND (rol = 'BARBERO' OR (rol = 'ADMINISTRADOR' AND atiende_clientes = 1))
         LIMIT 1
     ");
     $stmtBarbero->execute([':id_usuario' => $idBarbero]);

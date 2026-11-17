@@ -86,7 +86,7 @@ try {
         FROM usuarios
         INNER JOIN barberias ON barberias.id_barberia = usuarios.id_barberia
         WHERE usuarios.id_usuario = ?
-          AND usuarios.rol = 'BARBERO'
+          AND (usuarios.rol = 'BARBERO' OR (usuarios.rol = 'ADMINISTRADOR' AND usuarios.atiende_clientes = 1))
           AND usuarios.estado = 'ACTIVO'
     ");
     $stmtDiasBarberia->execute([$id_barbero]);
