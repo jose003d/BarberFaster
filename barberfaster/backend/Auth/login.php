@@ -71,8 +71,8 @@ try {
         responderErrorAuth(401, $mensajeGenerico);
     }
 
-    if ($usuario['rol'] === 'SUPERADMIN' && !esSolicitudLocal()) {
-        responderErrorAuth(403, 'El acceso SUPERADMIN solo está habilitado desde este equipo.');
+    if ($usuario['rol'] === 'SUPERADMIN' && !esAccesoSuperadminPermitido()) {
+        responderErrorAuth(403, 'El acceso SUPERADMIN no está habilitado en este dominio.');
     }
 
     iniciarSesionUsuario();

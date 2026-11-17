@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { irAlPanelSuperadmin } from "../../auth/auth.js";
 import { createPortal } from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPhone, faScissors, faStar } from "@fortawesome/free-solid-svg-icons";
@@ -175,9 +176,10 @@ function BarberiaDiscovery() {
     <main className="barber-discovery-page">
       {/* Navegación pública hacia el catálogo y el perfil del cliente. */}
       <header className="discovery-nav">
-        <Link className="discovery-brand" to="/" aria-label="BarberFaster, inicio">
-          <img src={logoBarberFaster} alt="BarberFaster" />
-        </Link>
+        {/* Acceso discreto al panel SUPERADMIN: sin cursor, enlace ni foco visibles. */}
+        <div className="discovery-brand" onClick={() => irAlPanelSuperadmin(navigate)}>
+          <img src={logoBarberFaster} alt="BarberFaster" draggable="false" />
+        </div>
         <nav aria-label="Navegación principal">
           <a href="#barberias">Barberías</a>
           <Link to="/cliente">Mi perfil</Link>

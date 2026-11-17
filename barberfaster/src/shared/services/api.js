@@ -62,6 +62,12 @@ export async function handleResponse(response) {
     throw new Error("El endpoint del backend devolvió una página HTML en lugar de datos. Verifica la ruta de la API.");
   }
 
+  // Cuerpo vacío con error HTTP: normalmente el proxy de Vite no alcanzó a Apache
+  // (XAMPP apagado) o PHP murió antes de responder.
+  if (!response.ok && cuerpoNormalizado === "") {
+    throw new Error(`No se pudo conectar con el backend (HTTP ${response.status}). Verifica que Apache y MySQL estén encendidos.`);
+  }
+
   let data;
   try {
     data = JSON.parse(text);

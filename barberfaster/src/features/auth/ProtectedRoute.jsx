@@ -1,26 +1,29 @@
 import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { BASE_URL, handleResponse } from "../../shared/services/api.js";
-import { PANEL_POR_ROL } from "./auth.js";
-
-const SUPERADMIN_LOCAL_HABILITADO = import.meta.env.DEV
-  && ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
+import { PANEL_POR_ROL, SUPERADMIN_HABILITADO } from "./auth.js";
 
 export default function ProtectedRoute({ children, roles }) {
   const location = useLocation();
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
 
+  // Las rutas exclusivas del SUPERADMIN no existen fuera de su dominio.
+  const soloSuperadmin = roles.length === 1 && roles[0] === "SUPERADMIN";
+  const rutaOculta = soloSuperadmin && !SUPERADMIN_HABILITADO;
+
   useEffect(() => {
     let activa = true;
 
-    if (roles.includes("SUPERADMIN") && !SUPERADMIN_LOCAL_HABILITADO) {
+    if (rutaOculta) {
       setCargando(false);
       return () => {
         activa = false;
       };
     }
 
+    // El backend decide si la sesión es válida en este dominio
+    // (un SUPERADMIN fuera de su dominio recibe una sesión vacía).
     fetch(`${BASE_URL}/Auth/sesion.php`, {
       credentials: "same-origin",
       cache: "no-store",
@@ -48,7 +51,7 @@ export default function ProtectedRoute({ children, roles }) {
     };
   }, []);
 
-  if (roles.includes("SUPERADMIN") && !SUPERADMIN_LOCAL_HABILITADO) {
+  if (rutaOculta) {
     return <Navigate to="/" replace />;
   }
 

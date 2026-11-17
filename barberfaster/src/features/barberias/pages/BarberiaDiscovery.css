@@ -51,10 +51,15 @@
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
+  cursor: default;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .discovery-brand img {
   display: block;
+  cursor: default;
+  pointer-events: none;
   width: clamp(96px, 10vw, 116px);
   height: auto;
   max-height: 62px;

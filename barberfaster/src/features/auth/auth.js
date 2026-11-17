@@ -1,5 +1,27 @@
 import { BASE_URL, handleResponse } from "../../shared/services/api.js";
 
+// Dominios donde se publica el panel SUPERADMIN (VITE_SUPERADMIN_HOSTS, separados por coma).
+// En desarrollo también se permite localhost.
+const HOSTS_SUPERADMIN = (import.meta.env.VITE_SUPERADMIN_HOSTS || "")
+  .split(",")
+  .map((host) => host.trim().toLowerCase())
+  .filter(Boolean);
+
+export const ES_HOST_SUPERADMIN = HOSTS_SUPERADMIN.includes(window.location.hostname.toLowerCase());
+
+export const SUPERADMIN_HABILITADO = ES_HOST_SUPERADMIN
+  || (import.meta.env.DEV && ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname));
+
+// Abre el panel SUPERADMIN: en su dominio (o en local) navega dentro de la app;
+// en cualquier otro dominio salta al dominio del panel.
+export function irAlPanelSuperadmin(navigate) {
+  if (SUPERADMIN_HABILITADO || HOSTS_SUPERADMIN.length === 0) {
+    navigate("/superadmin");
+    return;
+  }
+  window.location.assign(`https://${HOSTS_SUPERADMIN[0]}/superadmin`);
+}
+
 export const PANEL_POR_ROL = {
   SUPERADMIN: "/superadmin",
   ADMINISTRADOR: "/dashboard",

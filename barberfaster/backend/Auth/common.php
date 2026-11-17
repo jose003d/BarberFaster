@@ -41,6 +41,30 @@ function esSolicitudLocal(): bool
     return in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
 }
 
+// Dominios desde los que se permite entrar como SUPERADMIN (SUPERADMIN_HOSTS en
+// config.local.php, separados por coma). Ej.: "barbersuperadmin.tech,www.barbersuperadmin.tech".
+function hostsSuperadmin(): array
+{
+    $hosts = array_map(
+        static fn(string $host): string => strtolower(trim($host)),
+        explode(',', configValor('SUPERADMIN_HOSTS', '') ?? '')
+    );
+    return array_values(array_filter($hosts, static fn(string $host): bool => $host !== ''));
+}
+
+// Con SUPERADMIN_HOSTS definido solo se acepta el SUPERADMIN en esos dominios.
+// Sin definirlo (XAMPP), se mantiene el acceso únicamente desde este equipo.
+function esAccesoSuperadminPermitido(): bool
+{
+    $hosts = hostsSuperadmin();
+    if ($hosts === []) {
+        return esSolicitudLocal();
+    }
+
+    $host = strtolower((string) preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? ''));
+    return $host !== '' && in_array($host, $hosts, true);
+}
+
 function obtenerUsuarioSesion(PDO $pdo): ?array
 {
     iniciarSesionUsuario();
@@ -72,7 +96,7 @@ function obtenerUsuarioSesion(PDO $pdo): ?array
         return null;
     }
 
-    if ($usuario['rol'] === 'SUPERADMIN' && !esSolicitudLocal()) {
+    if ($usuario['rol'] === 'SUPERADMIN' && !esAccesoSuperadminPermitido()) {
         return null;
     }
 

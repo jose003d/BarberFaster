@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./styles/App.css";
 import Login from "./features/auth/pages/Login.jsx";
 import ProtectedRoute from "./features/auth/ProtectedRoute.jsx";
+import { ES_HOST_SUPERADMIN } from "./features/auth/auth.js";
 import MagneticButtons from "./shared/components/MagneticButtons.jsx";
 import DashboardLayout from "./shared/layouts/DashboardLayout.jsx";
 import Barberias from "./features/barberias/pages/Barberias.jsx";
@@ -27,7 +28,10 @@ function App() {
       <MagneticButtons />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<BarberiaDiscovery />} />
+          <Route
+            path="/"
+            element={ES_HOST_SUPERADMIN ? <Navigate to="/superadmin" replace /> : <BarberiaDiscovery />}
+          />
           <Route path="/seleccionar-barberia" element={<BarberiaDiscovery />} />
           <Route path="/login" element={<Login />} />
           <Route path="/solicitar-barberia" element={<SolicitarBarberia />} />

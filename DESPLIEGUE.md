@@ -27,6 +27,8 @@ public_html/
 ├── .htaccess                                   ← rutas de React y HTTPS
 └── erpbarber/barberfaster/backend/             ← API PHP (la ruta que usa el frontend)
     ├── config/config.local.php                 ← SOLO en el servidor (credenciales)
+    ├── cli/migrate.php                         ← ejecutor CLI de migraciones
+    ├── migrations/automatic/                   ← migraciones nuevas protegidas
     └── uploads/                                ← fotos que suben los usuarios
 ```
 
@@ -121,10 +123,32 @@ No uses los dos métodos a la vez sobre la misma carpeta.
 
 ### Cambios en la base de datos
 
-El despliegue **no** toca la base de datos. Si agregas una migración en
-`barberfaster/database/migrations/`, ejecútala una vez en el phpMyAdmin de Hostinger.
-Pendiente hoy: `20261116_estado_clientes.sql` (columna `estado` de clientes, necesaria
-para `clientes/desactivarc.php`).
+El despliegue no copia datos de XAMPP a producción. Las migraciones históricas en
+`barberfaster/database/migrations/` tampoco se ejecutan automáticamente.
+
+Para cambios futuros, agrega **un archivo por sentencia SQL** en
+`barberfaster/backend/migrations/automatic/`, por ejemplo
+`20261117120000_agregar_estado.sql`. No edites ni borres una migración que ya se
+aplicó; crea otra nueva. El workflow incluye esta carpeta en el despliegue.
+
+Para que Hostinger aplique esas migraciones, configura en hPanel → **Avanzado →
+Cron Jobs** una tarea que ejecute el script PHP CLI cada 5 minutos:
+
+```text
+php /home/USUARIO/domains/barberfaster.site/public_html/erpbarber/barberfaster/backend/cli/migrate.php
+```
+
+Reemplaza `USUARIO` por el usuario real de tu hosting. Usa la versión de PHP del
+sitio si hPanel te permite seleccionarla. El ejecutor procesa solo archivos nuevos
+de `backend/migrations/automatic/`, registra su versión y checksum en
+`barberfaster_schema_migrations`, y no vuelve a ejecutarlos. También bloquea el
+acceso web directo a los archivos SQL. El usuario MySQL de `config.local.php`
+necesita permisos para crear tablas, consultar e insertar en la base de datos.
+
+Antes de activar el cron, haz una copia de seguridad desde hPanel → **Archivos →
+Copias de seguridad** o **Bases de datos**. La migración histórica
+`20261116_estado_clientes.sql` sigue siendo manual y debe revisarse por separado;
+no la copies a la carpeta automática sin confirmar primero si ya fue aplicada.
 
 ## Si algo no carga en línea
 
