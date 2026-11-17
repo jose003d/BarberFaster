@@ -14,6 +14,7 @@ import { getAvailableTimeSlots } from '../utils/timeSlotUtils.js';
 import logoBarberFaster from '../../../assets/logo-barberfaster.png';
 
 import { BASE_URL } from '../../../shared/services/api.js';
+import { obtenerBarberiaActivaId as obtenerBarberiaActivaSesion } from '../../../shared/services/barberiaActiva.js';
 const CLIENT_SESSION_KEY = 'barberfaster_cliente_session';
 const CLIENT_SESSION_EXPIRY_KEY = 'barberfaster_cliente_session_expira_en';
 
@@ -228,17 +229,7 @@ export default function Agenda({ reservaPublica = false }) {
         ? Number(idBarberiaEnlace)
         : null;
     }
-    try {
-      const stored = localStorage.getItem("barberia_demo_admin");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        return parsed.id_barberia || parsed.id || 1;
-      }
-    } catch (e) {
-      const raw = localStorage.getItem("barberia_demo_admin");
-      if (raw && !isNaN(raw)) return Number(raw);
-    }
-    return 1;
+    return obtenerBarberiaActivaSesion();
   };
 
   // Carga el horario general y el nombre del local asociado a la reserva.

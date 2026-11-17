@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBuilding, faCalendarDays, faChartColumn } from "@fortawesome/free-solid-svg-icons";
 import { BASE_URL } from "../../../shared/services/api.js";
+import { obtenerBarberiaActivaId } from "../../../shared/services/barberiaActiva.js";
 import "./Dashboard.css";
 
 // Mantiene los días en el mismo formato que usa el backend y traduce las etiquetas visibles.
@@ -55,21 +56,6 @@ export default function Dashboard() {
   const [cargandoMapaPreview, setCargandoMapaPreview] = useState(false);
   const [errorMapaPreview, setErrorMapaPreview] = useState("");
   const fotosInputRef = useRef(null);
-
-  // Lee el identificador del local elegido en la sesión administrativa demo.
-  const obtenerBarberiaActivaId = () => {
-    try {
-      const stored = localStorage.getItem("barberia_demo_admin");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        return parsed.id_barberia || parsed.id || 1;
-      }
-    } catch (e) {
-      const raw = localStorage.getItem("barberia_demo_admin");
-      if (raw && !isNaN(raw)) return Number(raw);
-    }
-    return 1;
-  };
 
   useEffect(() => {
     cargarPerfilBarberia();

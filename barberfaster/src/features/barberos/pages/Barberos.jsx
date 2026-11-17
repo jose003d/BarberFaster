@@ -13,6 +13,7 @@ import {
 import "./Barberos.css";
 
 import { BASE_URL } from "../../../shared/services/api.js";
+import { obtenerBarberiaActivaId } from "../../../shared/services/barberiaActiva.js";
 const EMPTY_BARBER_FORM = {
   nombre_completo: "",
   correo: "",
@@ -83,20 +84,6 @@ function Barberos() {
     cargarDatosIniciales();
   }, []);
 
-  // El servidor ignora este valor para administradores y usa su barbería de sesión.
-  const obtenerBarberiaActivaId = () => {
-    try {
-      const stored = localStorage.getItem("barberia_demo_admin");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        return parsed.id_barberia || parsed.id || 1;
-      }
-    } catch (e) {
-      const raw = localStorage.getItem("barberia_demo_admin");
-      if (raw && !isNaN(raw)) return Number(raw);
-    }
-    return 1;
-  };
 
   // Carga el personal y el catálogo de servicios de la barbería seleccionada.
   const cargarDatosIniciales = async () => {
