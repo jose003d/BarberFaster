@@ -27,6 +27,14 @@ return [
     // Correo remitente para recuperación de contraseña y aprobaciones.
     'PASSWORD_RESET_FROM' => 'no-reply@tudominio.com',
 
+    // SMTP para enviar los códigos de recuperación (recomendado en Hostinger).
+    // Crea el buzón en hPanel > Correos y usa aquí su correo y contraseña.
+    // El correo sale desde SMTP_USER. Sin estas líneas se usa mail() de PHP.
+    // 'SMTP_HOST' => 'smtp.hostinger.com',
+    // 'SMTP_PORT' => '465',
+    // 'SMTP_USER' => 'no-reply@tudominio.com',
+    // 'SMTP_PASS' => 'contraseña-del-buzón',
+
     // Wompi (pagos)
     'WOMPI_ENV' => 'sandbox',
     'WOMPI_PUBLIC_KEY' => '',
