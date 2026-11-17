@@ -22,14 +22,10 @@ export const SUPERADMIN_HABILITADO = ES_HOST_SUPERADMIN
   || HOSTS_SUPERADMIN_COMPARTIDOS.includes(HOST_ACTUAL)
   || (import.meta.env.DEV && ["localhost", "127.0.0.1", "[::1]"].includes(HOST_ACTUAL));
 
-// Abre el panel SUPERADMIN: en su dominio (o en local) navega dentro de la app;
-// en cualquier otro dominio salta al dominio del panel.
+// Abre el panel SUPERADMIN siempre en el dominio actual (p. ej. barberfaster.site/superadmin),
+// sin redirigir nunca a otro dominio.
 export function irAlPanelSuperadmin(navigate) {
-  if (SUPERADMIN_HABILITADO || HOSTS_SUPERADMIN.length === 0) {
-    navigate("/superadmin");
-    return;
-  }
-  window.location.assign(`https://${HOSTS_SUPERADMIN[0]}/superadmin`);
+  navigate("/superadmin");
 }
 
 export const PANEL_POR_ROL = {
