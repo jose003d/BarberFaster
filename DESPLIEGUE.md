@@ -166,6 +166,6 @@ no la copies a la carpeta automática sin confirmar primero si ya fue aplicada.
 | Una barbería sin foto o con "—"              | No tiene fotos en `barberia_fotos` o no tiene reseñas; no es un error.                                  |
 | Pagos Wompi fallan                           | Faltan `WOMPI_*` en `barberfaster-config.php`.                                                                 |
 | No llega el código de recuperación         | Crea el buzón en hPanel → Correos y pon `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` en `barberfaster-config.php`. Revisa spam. |
-| El panel SUPERADMIN no abre en barberfaster.site | Es intencional: solo funciona desde `localhost` (`esSolicitudLocal()` en `backend/Auth/common.php`). |
+| El login SUPERADMIN falla en barberfaster.site | Falta `barberfaster.site,www.barberfaster.site` en `SUPERADMIN_HOSTS` de `barberfaster-config.php`. |
 
 Los errores de PHP se ven en hPanel → **Avanzado → Registros de errores**.
