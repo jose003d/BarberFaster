@@ -672,16 +672,18 @@ export default function Agenda({ reservaPublica = false }) {
 
   // Renderiza los tres pasos de reserva y el modal con los datos de confirmación.
   return (
-    <div className="agenda-page">
-      {esReservaPublica && (
-        <button className="booking-back-link" type="button" onClick={() => navigate('/')}>
-          ← Cambiar barbería
-        </button>
-      )}
-      <div className="agenda-header">
-        <img className="agenda-brand-mark" src={logoBarberFaster} alt="BarberFaster" />
-        <h1>Agenda <span className="agenda-brand-name">{nombreBarberia || 'BarberFaster'}</span></h1>
-        <p>Reserva tu cita rápida en 3 sencillos pasos</p>
+    <div className={`agenda-page${esReservaPublica ? ' agenda-page--fija' : ''}`}>
+      <div className="agenda-topbar">
+        {esReservaPublica && (
+          <button className="booking-back-link" type="button" onClick={() => navigate('/')}>
+            ← Cambiar barbería
+          </button>
+        )}
+        <div className="agenda-header">
+          <img className="agenda-brand-mark" src={logoBarberFaster} alt="BarberFaster" />
+          <h1>Agenda <span className="agenda-brand-name">{nombreBarberia || 'BarberFaster'}</span></h1>
+          <p>Reserva tu cita rápida en 3 sencillos pasos</p>
+        </div>
       </div>
 
       {mensaje && <div className={`agenda-mensaje ${mensaje.tipo}`}>{mensaje.texto}</div>}
