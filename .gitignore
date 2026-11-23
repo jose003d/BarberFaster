@@ -1,4 +1,5 @@
 erpbarber/barberfaster/backend/config/config.local.php
+erpbarber/barberfaster/backend/.env
 erpbarber/barberfaster/backend/uploads/*
 !erpbarber/barberfaster/backend/uploads/index.html
 !erpbarber/barberfaster/backend/uploads/logo.png
