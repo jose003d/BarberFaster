@@ -9,9 +9,9 @@ import {
   faUserGroup,
   faCalendarDays,
   faGaugeHigh,
+  faStore,
   faUserTie,
-  faRightFromBracket,
-  faXmark
+  faRightFromBracket
 } from "@fortawesome/free-solid-svg-icons";
 
 function obtenerRolGuardado() {
@@ -23,14 +23,14 @@ function obtenerRolGuardado() {
   }
 }
 
+// Barra de navegación superior fija: los enlaces del panel siempre visibles.
 function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [usuarioRol, setUsuarioRol] = useState(obtenerRolGuardado);
-  const [menuAbierto, setMenuAbierto] = useState(false);
   const [logoutError, setLogoutError] = useState("");
 
-  // Escucha cambios de rol y sincroniza el estado del menú con la sesión.
+  // Escucha cambios de rol y sincroniza el menú con la sesión.
   useEffect(() => {
     const syncRole = () => {
       setUsuarioRol(obtenerRolGuardado());
@@ -42,23 +42,6 @@ function Sidebar() {
       window.removeEventListener("storage", syncRole);
     };
   }, []);
-
-  // Bloquea el scroll y permite cerrar el menú con Escape mientras está abierto.
-  useEffect(() => {
-    if (!menuAbierto) return undefined;
-
-    const previousOverflow = document.body.style.overflow;
-    const closeOnEscape = (event) => {
-      if (event.key === "Escape") setMenuAbierto(false);
-    };
-
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [menuAbierto]);
 
   const handleLogout = async () => {
     setLogoutError("");
@@ -72,7 +55,6 @@ function Sidebar() {
     localStorage.removeItem("user");
     localStorage.removeItem("erpbarber_auth");
     window.dispatchEvent(new Event("barberfaster-role-change"));
-    setMenuAbierto(false);
     navigate("/login", { replace: true });
   };
 
@@ -91,14 +73,14 @@ function Sidebar() {
         { label: "Usuarios", to: "/usuarios", icon: faUserGroup },
         { label: "Clientes", to: "/clientes", icon: faUserGroup },
         { label: "Agenda", to: "/dashboard?section=agenda", icon: faCalendarDays, section: "agenda" },
-        { label: "Perfil del establecimiento", to: "/dashboard?section=perfil", icon: faGaugeHigh, section: "perfil" }
+        { label: "Establecimiento", to: "/dashboard?section=perfil", icon: faStore, section: "perfil" }
       ]
       : [
           { label: "Métricas", to: "/dashboard?section=metricas", icon: faGaugeHigh, section: "metricas" },
           { label: "Personal", to: "/personal", icon: faUsers },
           { label: "Usuarios", to: "/usuarios", icon: faUserGroup },
           { label: "Agenda", to: "/dashboard?section=agenda", icon: faCalendarDays, section: "agenda" },
-          { label: "Perfil del establecimiento", to: "/dashboard?section=perfil", icon: faGaugeHigh, section: "perfil" },
+          { label: "Establecimiento", to: "/dashboard?section=perfil", icon: faStore, section: "perfil" },
           { label: "Mi perfil", to: "/perfil", icon: faUserTie }
         ];
   const homePath = usuarioRol === "SUPERADMIN"
@@ -107,102 +89,49 @@ function Sidebar() {
       ? "/barbero"
       : "/dashboard";
 
-  // Renderiza la cabecera, el fondo interactivo y el panel de navegación móvil.
   return (
-    <aside className={`staggered-menu${menuAbierto ? " is-open" : ""}`} data-open={menuAbierto || undefined}>
-      <header className="staggered-menu-header">
-        <button
-          className="staggered-menu-toggle"
-          type="button"
-          aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={menuAbierto}
-          aria-controls="erp-staggered-menu-panel"
-          onClick={() => setMenuAbierto((open) => !open)}
-        >
-          <span className="staggered-menu-icon" aria-hidden="true">
-            {menuAbierto ? <FontAwesomeIcon icon={faXmark} /> : <><i /><i /></>}
-          </span>
-          <span>{menuAbierto ? "Cerrar" : "Menú"}</span>
-        </button>
-
-        <NavLink
-          className="staggered-menu-brand"
-          to={homePath}
-          aria-label="BarberFaster, inicio"
-          onClick={() => setMenuAbierto(false)}
-        >
-          <img
-            src={logoBarberFaster}
-            alt="BarberFaster"
-            className="staggered-menu-logo"
-          />
-        </NavLink>
-      </header>
-
-      <button
-        className="staggered-menu-backdrop"
-        type="button"
-        aria-label="Cerrar menú"
-        tabIndex={menuAbierto ? 0 : -1}
-        onClick={() => setMenuAbierto(false)}
-      />
-      <div className="staggered-menu-layers" aria-hidden="true">
-        <span />
-        <span />
-      </div>
+    <header className="top-nav">
+      <NavLink className="top-nav-brand" to={homePath} aria-label="BarberFaster, inicio">
+        <img src={logoBarberFaster} alt="BarberFaster" className="top-nav-logo" />
+      </NavLink>
 
       <nav
-        className="staggered-menu-panel"
-        id="erp-staggered-menu-panel"
+        className="top-nav-list-wrap"
         aria-label={usuarioRol === "BARBERO" ? "Menú de barbero" : "Menú de administración"}
-        aria-hidden={!menuAbierto}
+        style={{ display: "contents" }}
       >
-        <div className="staggered-menu-panel-inner">
-          <p className="staggered-menu-eyebrow">
-            {usuarioRol === "BARBERO" ? "Mi panel" : "Administración"}
-          </p>
-          <ol className="staggered-menu-list">
-            {menuItems.map(({ label, to, icon, section }, index) => (
-              <li
-                className="staggered-menu-item"
-                key={to}
-                style={{ "--menu-index": index }}
+        <ul className="top-nav-list">
+          {menuItems.map(({ label, to, icon, section }) => (
+            <li key={to}>
+              <NavLink
+                to={to}
+                state={to === "/perfil"
+                  ? { returnTo: `${location.pathname}${location.search}${location.hash}` }
+                  : undefined}
+                end
+                className={({ isActive }) => {
+                  const activeSection = section
+                    ? location.pathname === "/dashboard" && location.search === `?section=${section}`
+                    : isActive;
+                  return `top-nav-link${activeSection ? " active" : ""}`;
+                }}
               >
-                <NavLink
-                  to={to}
-                  state={to === "/perfil"
-                    ? { returnTo: `${location.pathname}${location.search}${location.hash}` }
-                    : undefined}
-                  end
-                  className={({ isActive }) => {
-                    const activeSection = section
-                      ? location.pathname === "/dashboard" && location.search === `?section=${section}`
-                      : isActive;
-                    return `staggered-menu-link${activeSection ? " active" : ""}`;
-                  }}
-                  tabIndex={menuAbierto ? 0 : -1}
-                  onClick={() => setMenuAbierto(false)}
-                >
-                  <FontAwesomeIcon icon={icon} aria-hidden="true" />
-                  <span>{label}</span>
-                </NavLink>
-              </li>
-            ))}
-          </ol>
-
-          <button
-            className="staggered-menu-logout"
-            type="button"
-            tabIndex={menuAbierto ? 0 : -1}
-            onClick={handleLogout}
-          >
-            <FontAwesomeIcon icon={faRightFromBracket} aria-hidden="true" />
-            <span>Cerrar sesión</span>
-          </button>
-          {logoutError && <p className="staggered-menu-error" role="alert">{logoutError}</p>}
-        </div>
+                <FontAwesomeIcon icon={icon} aria-hidden="true" />
+                <span>{label}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
       </nav>
-    </aside>
+
+      <div className="top-nav-actions">
+        <button className="top-nav-logout" type="button" onClick={handleLogout} aria-label="Cerrar sesión">
+          <FontAwesomeIcon icon={faRightFromBracket} aria-hidden="true" />
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+      {logoutError && <p className="top-nav-error" role="alert">{logoutError}</p>}
+    </header>
   );
 }
 
