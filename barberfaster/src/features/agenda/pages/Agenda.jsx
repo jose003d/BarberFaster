@@ -205,10 +205,9 @@ export default function Agenda({ reservaPublica = false }) {
   // ==========================================
   const formatearHoraLimpiaStr = (time24) => {
     if (!time24) return '';
+    // Formato de 12 horas igual al de la lista de turnos: "1:00 p.m.".
     const [hh, mm] = time24.split(':').map(Number);
-    const dateObj = new Date();
-    dateObj.setHours(hh, mm, 0, 0);
-    return dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+    return `${hh % 12 || 12}:${String(mm).padStart(2, '0')} ${hh < 12 ? 'a.m.' : 'p.m.'}`;
   };
 
   const formatearFechaCabecera = (strFecha) => {
@@ -870,10 +869,6 @@ export default function Agenda({ reservaPublica = false }) {
                     </p>
                   </div>
                 </div>
-                <p className="booking-availability-note">
-                  Los horarios reservados dejan de mostrarse y la disponibilidad se actualiza automáticamente.
-                </p>
-
                 {errorHorario ? (
                   <p className="time-slot-error" role="alert">{errorHorario}</p>
                 ) : errorOcupaciones ? (
