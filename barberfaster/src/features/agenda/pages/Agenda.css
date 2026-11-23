@@ -1261,8 +1261,13 @@
 .agenda-page--fija .booking-stepper {
   display: flex;
   min-height: 0;
-  flex: 1;
+  flex: 0 1 auto;
   flex-direction: column;
+}
+
+/* En pantallas altas el bloque (cabecera + pasos) se centra en vez de estirarse. */
+.agenda-page--fija {
+  justify-content: center;
 }
 
 .agenda-page--fija .booking-stepper-indicators {
@@ -1283,29 +1288,29 @@
   border-top: 1px solid var(--bauhaus-gray);
 }
 
-/* Paso 3 en computador: tarjeta de la cita, calendario y horas comparten el alto
-   disponible. Tarjeta y calendario arrancan arriba y terminan abajo, nivelados;
-   solo la lista de horas se desplaza. En pantallas muy bajas se usa el diseño apilado. */
+/* Paso 3 en computador. El tamaño lo marca el calendario: sus días se calculan con el
+   alto de la pantalla (con mínimo y máximo), la tarjeta de la cita se estira a esa misma
+   altura y la columna de horas se ajusta a ella y desplaza su lista. Así no se estira de
+   más en monitores altos ni se desborda en pantallas bajas. */
 @media (min-width: 900px) and (min-height: 540px) {
-  .agenda-page--fija .booking-stepper-content:has(.booking-schedule-card) {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  .agenda-page--fija {
+    --cal-day: clamp(28px, calc((100dvh - 440px) / 6), 56px);
+    max-width: clamp(1180px, 80vw, 1560px);
   }
 
-  .agenda-page--fija .booking-stepper-content:has(.booking-schedule-card) > .booking-step {
-    display: flex;
-    min-height: 0;
-    flex: 1;
-    flex-direction: column;
+  /* Mismo alto mínimo en los tres pasos para que el recuadro no cambie de tamaño
+     al avanzar; nunca más alto que la pantalla. */
+  .agenda-page--fija .booking-stepper {
+    min-height: min(calc(100dvh - 130px), calc(6 * var(--cal-day) + 340px));
+  }
+
+  .agenda-page--fija .booking-stepper-content:has(.booking-schedule-card) {
+    overflow-y: auto;
   }
 
   .agenda-page--fija .booking-schedule-card {
     display: grid;
-    min-height: 0;
-    flex: 1;
     grid-template-columns: minmax(190px, 0.72fr) minmax(0, 2.6fr);
-    grid-template-rows: minmax(0, 1fr);
     gap: clamp(14px, 1.8vw, 24px);
     align-items: stretch;
     padding: clamp(12px, 1.4vw, 18px);
@@ -1330,19 +1335,59 @@
   }
 
   .agenda-page--fija .booking-date-time-layout {
-    min-height: 0;
     grid-template-columns: minmax(250px, 1fr) minmax(0, 1.3fr);
-    grid-template-rows: minmax(0, 1fr);
     gap: clamp(14px, 1.8vw, 24px);
     align-items: stretch;
   }
 
-  .agenda-page--fija .booking-calendar-column,
+  /* Si la tarjeta de la cita resulta más alta, el calendario se estira para igualarla. */
+  .agenda-page--fija .booking-calendar-column {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+
+  .agenda-page--fija .booking-calendar-panel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .agenda-page--fija .booking-calendar-panel .react-datepicker,
+  .agenda-page--fija .booking-calendar-panel .react-datepicker__month-container,
+  .agenda-page--fija .booking-calendar-panel .react-datepicker__month-container > :not(.react-datepicker__header) {
+    display: flex;
+    width: 100%;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .agenda-page--fija .booking-calendar-panel .react-datepicker__month {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-around;
+    margin: 0;
+    padding: 6px 8px 8px;
+  }
+
+  .agenda-page--fija .booking-calendar-panel .react-datepicker__day {
+    height: var(--cal-day);
+    aspect-ratio: auto;
+    line-height: 1;
+  }
+
+  /* contain: size evita que la lista de horas agrande la fila: la columna toma el
+     alto que marca el calendario y solo la lista se desplaza. */
   .agenda-page--fija .booking-time-column {
     display: flex;
     min-width: 0;
     min-height: 0;
     flex-direction: column;
+    contain: size;
   }
 
   .agenda-page--fija .booking-time-column .booking-column-heading {
@@ -1351,64 +1396,6 @@
     margin-bottom: 10px;
   }
 
-  /* El calendario llena su columna y las semanas se reparten el alto. */
-  .agenda-page--fija .booking-calendar-panel {
-    display: flex;
-    min-height: 0;
-    flex: 1;
-    flex-direction: column;
-    max-width: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .agenda-page--fija .booking-calendar-panel .react-datepicker {
-    display: flex;
-    width: 100%;
-    min-height: 0;
-    flex: 1;
-    flex-direction: column;
-  }
-
-  .agenda-page--fija .booking-calendar-panel .react-datepicker__month-container {
-    display: flex;
-    min-height: 0;
-    flex: 1;
-    flex-direction: column;
-  }
-
-  /* react-datepicker envuelve el mes en un div sin clase. */
-  .agenda-page--fija .booking-calendar-panel .react-datepicker__month-container > :not(.react-datepicker__header) {
-    display: flex;
-    min-height: 0;
-    flex: 1;
-    flex-direction: column;
-  }
-
-  .agenda-page--fija .booking-calendar-panel .react-datepicker__month {
-    display: flex;
-    min-height: 0;
-    flex: 1;
-    flex-direction: column;
-    margin: 0;
-    padding: 6px 8px 8px;
-  }
-
-  .agenda-page--fija .booking-calendar-panel .react-datepicker__week {
-    min-height: 0;
-    flex: 1;
-    align-items: center;
-  }
-
-  .agenda-page--fija .booking-calendar-panel .react-datepicker__day {
-    height: 100%;
-    max-height: 46px;
-    min-height: 0;
-    aspect-ratio: auto;
-    line-height: 1;
-  }
-
-  /* Lo único que se desplaza es la lista de horas. */
   .agenda-page--fija .time-slot-grid {
     min-height: 0;
     flex: 1;
