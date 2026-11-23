@@ -35,11 +35,10 @@ try {
         SET estado = 'COMPLETADA'
         WHERE id_cita = :id_cita
           AND estado = 'CONFIRMADA'
-          AND EXISTS (
+          AND NOT EXISTS (
               SELECT 1
-              FROM wompi_pagos
-              WHERE wompi_pagos.id_cita = citas.id_cita
-                AND wompi_pagos.estado = 'APPROVED'
+              FROM wompi_pagos p
+              WHERE p.id_cita = citas.id_cita AND p.estado <> 'APPROVED'
           )
     ";
     $parametros = [':id_cita' => $idCita];
@@ -52,7 +51,7 @@ try {
     $stmt->execute($parametros);
     if ($stmt->rowCount() === 0) {
         http_response_code(404);
-        echo json_encode(['status' => 'error', 'mensaje' => 'La cita no existe, aún no está confirmada por un pago aprobado o pertenece a otra barbería.']);
+        echo json_encode(['status' => 'error', 'mensaje' => 'La cita no existe, aún no está confirmada o pertenece a otra barbería.']);
         exit();
     }
 

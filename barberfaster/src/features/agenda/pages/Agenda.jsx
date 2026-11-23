@@ -9,7 +9,7 @@ import './Agenda.css';
 import ProfileCard from '../components/ProfileCard.jsx';
 import Stepper, { Step } from '../components/Stepper.jsx';
 import TimeSlotGrid from '../components/TimeSlotGrid.jsx';
-import WompiCheckoutButton from '../components/WompiCheckoutButton.jsx';
+import WompiCheckoutButton, { construirUrlCheckoutWompi } from '../components/WompiCheckoutButton.jsx';
 import { getAvailableTimeSlots } from '../utils/timeSlotUtils.js';
 import logoBarberFaster from '../../../assets/logo-barberfaster.png';
 
@@ -132,6 +132,7 @@ export default function Agenda({ reservaPublica = false }) {
   const [mensaje, setMensaje] = useState(null);
   const [pagoPendiente, setPagoPendiente] = useState(null);
   const [procesandoReserva, setProcesandoReserva] = useState(false);
+  const [metodoPago, setMetodoPago] = useState('WOMPI');
   const [verificandoPago, setVerificandoPago] = useState(false);
   const idBarberiaEnlace = searchParams.get('barberia');
   const esReservaPublica = reservaPublica;
@@ -605,6 +606,7 @@ export default function Agenda({ reservaPublica = false }) {
       telefono_cliente: telefonoCliente ? `+57${telefonoCliente}` : '',
       ticket_verificacion: telefonoVerificado.ticket,
       notas: `${nombreCliente}${telefonoCliente ? ` - Teléfono: +57${telefonoCliente}` : ''}`,
+      metodo_pago: metodoPago,
     };
 
     setProcesandoReserva(true);
@@ -623,7 +625,9 @@ export default function Agenda({ reservaPublica = false }) {
         data: await response.json(),
       }))
       .then(({ httpStatus, data: resData }) => {
-        if ((resData.success || resData.status === 'success') && resData.pago) {
+        const reservaCreada = resData.success || resData.status === 'success';
+        const pagoEnLocal = reservaCreada && resData.metodo_pago === 'LOCAL';
+        if (reservaCreada && (resData.pago || pagoEnLocal)) {
           let sesionActiva = tokenSesion;
           if (resData.sesion_cliente) {
             localStorage.setItem(CLIENT_SESSION_KEY, resData.sesion_cliente);
@@ -632,8 +636,15 @@ export default function Agenda({ reservaPublica = false }) {
             }
             sesionActiva = resData.sesion_cliente;
           }
-          setPagoPendiente(resData.pago);
-          setMensaje({ tipo: 'warning', texto: 'Reserva pendiente de pago. Completa el pago para confirmar tu cita.' });
+          if (pagoEnLocal) {
+            setMensaje({
+              tipo: 'success',
+              texto: resData.mensaje || 'Tu cita quedó confirmada. Pagas en la barbería el día de tu cita.',
+            });
+          } else {
+            setPagoPendiente(resData.pago);
+            setMensaje({ tipo: 'warning', texto: 'Te estamos llevando a Wompi para completar el pago...' });
+          }
           setMostrarModalCita(false);
           setCodigoTelefono('');
           setCodigoEnviado(false);
@@ -643,6 +654,9 @@ export default function Agenda({ reservaPublica = false }) {
             : null);
           
           cargarCitasOcupadas();
+          if (!pagoEnLocal) {
+            window.location.assign(construirUrlCheckoutWompi(resData.pago));
+          }
         } else {
           if (tokenSesion && httpStatus === 403) {
             localStorage.removeItem(CLIENT_SESSION_KEY);
@@ -664,10 +678,6 @@ export default function Agenda({ reservaPublica = false }) {
       .catch(() => setMensaje({ tipo: 'error', texto: 'Error de conexión con el servidor.' }))
       .finally(() => setProcesandoReserva(false));
   };
-
-  const manejarErrorWompi = useCallback((texto) => {
-    setMensaje({ tipo: 'error', texto });
-  }, []);
 
   // Renderiza los tres pasos de reserva y el modal con los datos de confirmación.
   return (
@@ -700,8 +710,8 @@ export default function Agenda({ reservaPublica = false }) {
               }).format(Number(pagoPendiente.monto_centavos) / 100)}
             </strong>
           </p>
-          <p>El horario se retiene durante 10 minutos. La cita solo se confirma cuando Wompi apruebe el pago.</p>
-          <WompiCheckoutButton payment={pagoPendiente} onError={manejarErrorWompi} />
+          <p>Te estamos llevando a Wompi. Si no se abre en unos segundos, toca el botón.</p>
+          <WompiCheckoutButton payment={pagoPendiente} />
         </section>
       )}
 
@@ -1080,6 +1090,36 @@ export default function Agenda({ reservaPublica = false }) {
                 </p>
               )}
 
+              <fieldset className="payment-method-group">
+                <legend>¿Cómo quieres pagar?</legend>
+                <label className={`payment-method-option${metodoPago === 'WOMPI' ? ' is-selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="metodo_pago"
+                    value="WOMPI"
+                    checked={metodoPago === 'WOMPI'}
+                    onChange={() => setMetodoPago('WOMPI')}
+                  />
+                  <span>
+                    <strong>Pagar en línea con Wompi</strong>
+                    <small>Tarjeta, PSE o Nequi. Te llevamos a pagar al confirmar.</small>
+                  </span>
+                </label>
+                <label className={`payment-method-option${metodoPago === 'LOCAL' ? ' is-selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="metodo_pago"
+                    value="LOCAL"
+                    checked={metodoPago === 'LOCAL'}
+                    onChange={() => setMetodoPago('LOCAL')}
+                  />
+                  <span>
+                    <strong>Pagar en el local</strong>
+                    <small>Pagas en la barbería el día de tu cita.</small>
+                  </span>
+                </label>
+              </fieldset>
+
               <div className="modal-actions">
                 <button
                   className="booking-cancel-button"
@@ -1093,7 +1133,9 @@ export default function Agenda({ reservaPublica = false }) {
                   className="booking-confirm-button"
                   disabled={procesandoReserva || validandoSesionCliente || !telefonoVerificado || telefonoVerificado.numero !== telefonoCliente || verificandoTelefono}
                 >
-                  {procesandoReserva ? 'Procesando...' : 'Confirmar Cita'}
+                  {procesandoReserva
+                    ? 'Procesando...'
+                    : metodoPago === 'LOCAL' ? 'Confirmar cita' : 'Confirmar e ir a pagar'}
                 </button>
               </div>
             </form>

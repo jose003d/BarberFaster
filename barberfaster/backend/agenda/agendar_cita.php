@@ -47,6 +47,11 @@ $nombre_cliente = isset($data['nombre_cliente']) && is_scalar($data['nombre_clie
 $telefono_cliente = isset($data['telefono_cliente']) && is_scalar($data['telefono_cliente']) ? trim((string)$data['telefono_cliente']) : '';
 $ticket_verificacion = isset($data['ticket_verificacion']) && is_string($data['ticket_verificacion']) ? $data['ticket_verificacion'] : '';
 $notas       = isset($data['notas']) && is_scalar($data['notas']) ? (string)$data['notas'] : null;
+// WOMPI: el cliente paga en línea y la cita se confirma al aprobarse el pago.
+// LOCAL: el cliente paga en la barbería y la cita queda confirmada de una vez.
+$metodo_pago = isset($data['metodo_pago']) && is_string($data['metodo_pago'])
+    ? strtoupper(trim($data['metodo_pago']))
+    : 'WOMPI';
 
 // -----------------------------------------------------------------------------
 // 3. Validación de los datos mínimos obligatorios
@@ -61,23 +66,26 @@ if (
     !is_string($fecha) ||
     !is_string($hora_inicio) ||
     !is_array($servicios) ||
-    empty($servicios)
+    empty($servicios) ||
+    !in_array($metodo_pago, ['WOMPI', 'LOCAL'], true)
 ) {
     http_response_code(400);
     echo json_encode(["status" => "error", "mensaje" => "Faltan datos obligatorios para la reserva."]);
     exit();
 }
 
-try {
-    wompiConfiguracion();
-} catch (Throwable $error) {
-    error_log('Wompi no está configurado para crear una reserva: ' . $error->getMessage());
-    http_response_code(503);
-    echo json_encode([
-        "status" => "error",
-        "mensaje" => "El pago en línea aún no está disponible. Inténtalo más tarde."
-    ]);
-    exit();
+if ($metodo_pago === 'WOMPI') {
+    try {
+        wompiConfiguracion();
+    } catch (Throwable $error) {
+        error_log('Wompi no está configurado para crear una reserva: ' . $error->getMessage());
+        http_response_code(503);
+        echo json_encode([
+            "status" => "error",
+            "mensaje" => "El pago en línea aún no está disponible. Elige pagar en el local o inténtalo más tarde."
+        ]);
+        exit();
+    }
 }
 
 if (!preg_match('/^\d{1,10}$/', $dni_cliente)) {
@@ -315,12 +323,14 @@ try {
     ");
     $stmtCliente->execute([$dni_cliente, $nombre_cliente ?: 'Cliente de agenda', $telefono_cliente ?: null]);
 
-    // Inserta la cita principal con estado PENDIENTE y conserva el id generado.
+    // Con pago en línea la cita queda PENDIENTE hasta que Wompi apruebe el pago;
+    // con pago en el local queda CONFIRMADA de inmediato.
+    $estadoInicial = $metodo_pago === 'LOCAL' ? 'CONFIRMADA' : 'PENDIENTE';
     $stmtCita = $pdo->prepare("
         INSERT INTO citas (id_barberia, id_barbero, dni_cliente, fecha, hora_inicio, hora_fin, precio_total, estado, notas)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDIENTE', ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
-    $stmtCita->execute([$id_barberia, $id_barbero, $dni_cliente, $fecha, $hora_inicio, $hora_fin, $precioTotal, $notas]);
+    $stmtCita->execute([$id_barberia, $id_barbero, $dni_cliente, $fecha, $hora_inicio, $hora_fin, $precioTotal, $estadoInicial, $notas]);
     $id_cita = $pdo->lastInsertId();
 
     // Guarda cada servicio en la tabla intermedia y conserva su precio histórico.
@@ -330,11 +340,29 @@ try {
         $stmtDetalle->execute([$id_cita, $s['id_servicio'], $s['precio']]);
     }
 
-    $montoCentavos = (int) round($precioTotal * 100);
-    if ($montoCentavos < 1) {
-        throw new RuntimeException("El total de la cita no es válido para procesar el pago.", 422);
+    $pago = null;
+    if ($metodo_pago === 'WOMPI') {
+        $montoCentavos = (int) round($precioTotal * 100);
+        if ($montoCentavos < 1) {
+            throw new RuntimeException("El total de la cita no es válido para procesar el pago.", 422);
+        }
+        $pago = wompiCrearReferencia($pdo, (int) $id_cita, (int) $id_barberia, $montoCentavos);
+    } else {
+        wompiCrearNotificacion(
+            $pdo,
+            (int) $id_barberia,
+            (int) $id_cita,
+            'PAGO_EN_LOCAL',
+            sprintf(
+                'Nueva cita #%d de %s para el %s a las %s. Pagará $%s COP en el local.',
+                $id_cita,
+                $nombre_cliente ?: 'Cliente de agenda',
+                $fecha,
+                substr($hora_inicio, 0, 5),
+                number_format($precioTotal, 0, ',', '.')
+            )
+        );
     }
-    $pago = wompiCrearReferencia($pdo, (int) $id_cita, (int) $id_barberia, $montoCentavos);
 
     // El ticket se consume al reservar y queda ligado al teléfono validado.
     if ($ticketBloqueado !== null) {
@@ -364,7 +392,10 @@ try {
     // resultado o actualizar la agenda sin repetir cálculos.
     echo json_encode([
         "status" => "success",
-        "mensaje" => "Completa el pago en los próximos 10 minutos para confirmar tu cita.",
+        "mensaje" => $metodo_pago === 'LOCAL'
+            ? "Tu cita quedó confirmada. Pagas en la barbería el día de tu cita."
+            : "Completa el pago en los próximos 10 minutos para confirmar tu cita.",
+        "metodo_pago" => $metodo_pago,
         "id_cita" => $id_cita,
         "hora_inicio" => $hora_inicio,
         "hora_fin" => $hora_fin,

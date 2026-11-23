@@ -364,7 +364,7 @@ export default function Dashboard() {
       {usuarioEsAdministrador() && (
         <section className="dashboard-panel dashboard-payment-notifications" aria-labelledby="payment-notifications-title">
           <p className="dashboard-eyebrow">Actividad de pagos</p>
-          <h2 id="payment-notifications-title">Notificaciones de Wompi</h2>
+          <h2 id="payment-notifications-title">Notificaciones de reservas y pagos</h2>
           {errorNotificacionesPago ? (
             <p className="dashboard-message error" role="alert">{errorNotificacionesPago}</p>
           ) : notificacionesPago.length === 0 ? (

@@ -1,30 +1,31 @@
-import { useEffect, useRef } from "react";
+const WOMPI_CHECKOUT_URL = 'https://checkout.wompi.co/p/';
 
-export default function WompiCheckoutButton({ payment, onError }) {
-  const formRef = useRef(null);
+// Arma la URL del Web Checkout de Wompi con los datos firmados que entrega el backend.
+export function construirUrlCheckoutWompi(payment) {
+  const parametros = [
+    ['public-key', payment.llave_publica],
+    ['currency', payment.moneda],
+    ['amount-in-cents', String(payment.monto_centavos)],
+    ['reference', payment.referencia],
+    ['signature:integrity', payment.firma_integridad],
+    ['redirect-url', payment.url_redireccion],
+  ];
 
-  useEffect(() => {
-    if (!payment || !formRef.current) return undefined;
+  const query = parametros
+    .filter(([, valor]) => valor !== undefined && valor !== null && valor !== '')
+    .map(([clave, valor]) => `${clave}=${encodeURIComponent(valor)}`)
+    .join('&');
 
-    const form = formRef.current;
-    const script = document.createElement("script");
-    script.src = "https://checkout.wompi.co/widget.js";
-    script.async = true;
-    script.setAttribute("data-render", "button");
-    script.setAttribute("data-public-key", payment.llave_publica);
-    script.setAttribute("data-currency", payment.moneda);
-    script.setAttribute("data-amount-in-cents", String(payment.monto_centavos));
-    script.setAttribute("data-reference", payment.referencia);
-    script.setAttribute("data-signature:integrity", payment.firma_integridad);
-    script.setAttribute("data-redirect-url", payment.url_redireccion);
-    script.onerror = () => onError("No se pudo cargar el checkout de Wompi. Revisa tu conexión e inténtalo nuevamente.");
-    form.appendChild(script);
+  return `${WOMPI_CHECKOUT_URL}?${query}`;
+}
 
-    return () => {
-      script.onerror = null;
-      form.replaceChildren();
-    };
-  }, [payment, onError]);
+// Enlace de respaldo por si la redirección automática no se completa.
+export default function WompiCheckoutButton({ payment }) {
+  if (!payment) return null;
 
-  return <form ref={formRef} aria-label="Pago seguro con Wompi" />;
+  return (
+    <a className="agenda-wompi-link" href={construirUrlCheckoutWompi(payment)}>
+      Ir a pagar con Wompi
+    </a>
+  );
 }

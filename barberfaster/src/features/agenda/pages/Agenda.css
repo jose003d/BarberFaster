@@ -117,10 +117,20 @@
   line-height: 1.5;
 }
 
-.agenda-payment-panel form {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
+.agenda-wompi-link {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 12px 24px;
+  border: 2px solid var(--bauhaus-ink);
+  background: var(--bauhaus-cyan);
+  color: var(--bauhaus-ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.agenda-wompi-link:hover,
+.agenda-wompi-link:focus-visible {
+  box-shadow: 3px 3px 0 var(--bauhaus-ink);
 }
 
 .agenda-payment-status {
@@ -1021,6 +1031,52 @@
 
 .agenda-modal .phone-verification-button {
   border-radius: 2px;
+}
+
+.agenda-modal .payment-method-group {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.agenda-modal .payment-method-group legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.agenda-modal .payment-method-option {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border: 2px solid var(--bauhaus-gray);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.agenda-modal .payment-method-option.is-selected {
+  border-color: var(--bauhaus-ink);
+  background: var(--bauhaus-cyan-light);
+}
+
+.agenda-modal .payment-method-option input {
+  margin-top: 3px;
+  accent-color: var(--bauhaus-ink);
+}
+
+.agenda-modal .payment-method-option span {
+  display: grid;
+  gap: 2px;
+}
+
+.agenda-modal .payment-method-option small {
+  color: #4b5563;
+  line-height: 1.35;
 }
 
 .agenda-modal .modal-actions {
