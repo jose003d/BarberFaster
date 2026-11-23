@@ -1,6 +1,6 @@
 <?php
 // backend/config/database.php
-// Las credenciales salen de config.local.php (ver config.example.php).
+// Las credenciales salen del .env (ver backend/.env.example).
 // Sin ese archivo se usan los valores por defecto de XAMPP.
 
 require_once __DIR__ . '/env.php';
@@ -22,7 +22,7 @@ try {
 } catch (\PDOException $e) {
     error_log('Error de conexión a la base de datos: ' . $e->getMessage());
     if (PHP_SAPI === 'cli') {
-        fwrite(STDERR, "No se pudo conectar a la base de datos. Revisa backend/config/config.local.php.\n");
+        fwrite(STDERR, "No se pudo conectar a la base de datos. Revisa el archivo .env del servidor.\n");
         exit(1);
     }
 
@@ -30,7 +30,7 @@ try {
     http_response_code(500);
     echo json_encode([
         "status" => "error",
-        "mensaje" => "No se pudo conectar a la base de datos. Revisa backend/config/config.local.php."
+        "mensaje" => "No se pudo conectar a la base de datos. Revisa el archivo .env del servidor."
     ]);
     exit();
 }

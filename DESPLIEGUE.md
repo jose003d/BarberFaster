@@ -59,13 +59,15 @@ el sitio pierde la conexión a MySQL.
 
 1. hPanel → **Administrador de archivos** → `domains/barberfaster.site/`
    (la carpeta que **contiene** a `public_html`, no la de adentro).
-2. Crea ahí `barberfaster-config.php` con el contenido de
-   `barberfaster/backend/config/config.example.php`. Pon los datos de MySQL,
+2. Crea ahí un archivo `.env` con el contenido de
+   `barberfaster/backend/.env.example`. Pon los datos de MySQL,
    `SUPERADMIN_HOSTS`, `PASSWORD_RESET_FROM` y las llaves de Wompi/Wuapi si las usas.
    Si no tienes la contraseña de MySQL, cámbiala en hPanel → **Bases de datos → Administración**.
 
-`backend/config/env.php` busca primero ese archivo y, si no existe, usa
-`backend/config/config.local.php` (útil en XAMPP).
+`backend/config/env.php` lee, en este orden: `domains/barberfaster.site/.env`,
+`backend/.env` (XAMPP) y, por compatibilidad, el formato antiguo
+`barberfaster-config.php` / `config.local.php`. Si una clave está en varios, gana
+el `.env`. El `.env` nunca se sube a Git ni a la rama `hostinger`.
 
 ### 2. Primer push (crea la rama `hostinger`)
 

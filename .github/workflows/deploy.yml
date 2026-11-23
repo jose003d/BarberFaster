@@ -64,6 +64,7 @@ jobs:
           mkdir -p "$BACKEND"
           rsync -a \
             --exclude 'config/config.local.php' \
+            --exclude '.env' \
             --exclude 'uploads/*' \
             --exclude 'public/*' \
             barberfaster/backend/ "$BACKEND/"
@@ -76,6 +77,7 @@ jobs:
           # Los archivos que solo viven en el servidor no se versionan en la rama
           cat > deploy/.gitignore <<'EOF'
           erpbarber/barberfaster/backend/config/config.local.php
+          erpbarber/barberfaster/backend/.env
           erpbarber/barberfaster/backend/uploads/*
           !erpbarber/barberfaster/backend/uploads/index.html
           !erpbarber/barberfaster/backend/uploads/logo.png

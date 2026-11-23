@@ -34,6 +34,7 @@ backend/public/*
 
 # Configuración privada del servidor (credenciales)
 backend/config/config.local.php
+backend/.env
 .env.local
 .env.*.local
 
