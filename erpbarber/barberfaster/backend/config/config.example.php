@@ -35,13 +35,16 @@ return [
     // 'SMTP_USER' => 'no-reply@tudominio.com',
     // 'SMTP_PASS' => 'contraseña-del-buzón',
 
-    // Wompi (pagos)
+    // Wompi (pagos). Panel de Wompi > Desarrolladores > Llaves del API.
+    // 'sandbox' = pruebas (llaves pub_test_ / test_integrity_ / test_events_)
+    // 'production' = cobros reales (llaves pub_prod_ / prod_integrity_ / prod_events_)
     'WOMPI_ENV' => 'sandbox',
     'WOMPI_PUBLIC_KEY' => '',
     'WOMPI_INTEGRITY_SECRET' => '',
     'WOMPI_EVENTS_SECRET' => '',
-    'WOMPI_REDIRECT_URL' => 'https://tudominio.com/agenda',
+    'WOMPI_REDIRECT_URL' => 'https://tudominio.com/reservar',
 
-    // Wuapi (códigos de verificación por WhatsApp/SMS)
-    // 'WUAPI_API_KEY' => '',
+    // Wuapi (códigos de verificación por WhatsApp). Ambos valores son de la misma cuenta.
+    'WUAPI_ACCOUNT_ID' => '',
+    'WUAPI_API_KEY' => '',
 ];

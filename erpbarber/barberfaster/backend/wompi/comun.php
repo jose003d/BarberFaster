@@ -12,12 +12,32 @@ function wompiConfiguracion(): array
     $secretoEventos = getenv('WOMPI_EVENTS_SECRET');
     $urlRedireccion = getenv('WOMPI_REDIRECT_URL');
 
-    if ($ambiente !== 'sandbox') {
-        throw new RuntimeException('La integración Wompi está limitada al ambiente sandbox por ahora.');
+    // Cada ambiente exige sus propias llaves: así no se mezclan llaves de
+    // pruebas con cobros reales ni al revés.
+    $prefijosPorAmbiente = [
+        'sandbox' => ['llave' => 'pub_test_', 'integridad' => 'test_integrity_', 'eventos' => 'test_events_'],
+        'production' => ['llave' => 'pub_prod_', 'integridad' => 'prod_integrity_', 'eventos' => 'prod_events_'],
+    ];
+    if (!isset($prefijosPorAmbiente[$ambiente])) {
+        throw new RuntimeException('WOMPI_ENV debe ser "sandbox" o "production".');
     }
+    $prefijos = $prefijosPorAmbiente[$ambiente];
+
+    foreach (
+        [
+            'WOMPI_PUBLIC_KEY' => [$llavePublica, $prefijos['llave']],
+            'WOMPI_INTEGRITY_SECRET' => [$secretoIntegridad, $prefijos['integridad']],
+            'WOMPI_EVENTS_SECRET' => [$secretoEventos, $prefijos['eventos']],
+        ] as $nombre => [$valor, $prefijo]
+    ) {
+        if (is_string($valor) && $valor !== '' && !str_starts_with($valor, $prefijo)) {
+            throw new RuntimeException("{$nombre} no corresponde al ambiente {$ambiente} (debe empezar por {$prefijo}).");
+        }
+    }
+
     if (
         !is_string($llavePublica)
-        || !str_starts_with($llavePublica, 'pub_test_')
+        || $llavePublica === ''
         || !is_string($secretoIntegridad)
         || $secretoIntegridad === ''
         || !is_string($secretoEventos)
@@ -321,7 +341,11 @@ function wompiConsultarTransaccion(string $idTransaccion): array
         throw new RuntimeException('La extensión cURL de PHP debe estar habilitada para verificar pagos.');
     }
 
-    $url = 'https://sandbox.wompi.co/v1/transactions/' . rawurlencode($idTransaccion);
+    $config = wompiConfiguracion();
+    $baseApi = $config['ambiente'] === 'production'
+        ? 'https://production.wompi.co/v1'
+        : 'https://sandbox.wompi.co/v1';
+    $url = $baseApi . '/transactions/' . rawurlencode($idTransaccion);
     $curl = curl_init($url);
     curl_setopt_array($curl, [
         CURLOPT_RETURNTRANSFER => true,
