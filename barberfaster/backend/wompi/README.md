@@ -1,18 +1,21 @@
-# Configuración de Wompi en sandbox
+# Configuración de Wompi
 
-La integración solo permite el ambiente de pruebas (`sandbox`). No configures llaves de producción.
+La integración funciona en dos ambientes, elegidos con `WOMPI_ENV`:
 
-## Variables de entorno
+| `WOMPI_ENV`  | Uso            | Llave pública | Secreto de integridad | Secreto de eventos |
+|--------------|----------------|---------------|-----------------------|--------------------|
+| `sandbox`    | Pruebas        | `pub_test_…`  | `test_integrity_…`    | `test_events_…`    |
+| `production` | Cobros reales  | `pub_prod_…`  | `prod_integrity_…`    | `prod_events_…`    |
 
-Configura estas variables en el entorno de Apache/PHP, no en React, archivos versionados ni en el chat:
+El backend rechaza llaves que no correspondan al ambiente elegido, para no mezclar pruebas con cobros reales.
 
-- `WOMPI_ENV=sandbox`
-- `WOMPI_PUBLIC_KEY`: llave pública de pruebas con prefijo `pub_test_`.
-- `WOMPI_INTEGRITY_SECRET`: secreto de integridad de sandbox.
-- `WOMPI_EVENTS_SECRET`: secreto de eventos de sandbox.
+## Variables
+
+Van en `barberfaster-config.php` (en Hostinger, en `domains/barberfaster.site/`, fuera de `public_html`) o en `backend/config/config.local.php` en XAMPP. Nunca en React, archivos versionados ni en el chat:
+
+- `WOMPI_ENV`: `sandbox` o `production`.
+- `WOMPI_PUBLIC_KEY`, `WOMPI_INTEGRITY_SECRET`, `WOMPI_EVENTS_SECRET`: en el panel de Wompi → *Desarrolladores → Llaves del API*, del mismo ambiente.
 - `WOMPI_REDIRECT_URL`: URL pública de la aplicación que termina en `/reservar`.
-
-En Windows con XAMPP, las variables pueden declararse con `SetEnv` en la configuración de Apache y luego reiniciar Apache. No guardes los valores reales en este archivo.
 
 ## Base de datos
 
@@ -20,12 +23,19 @@ En una instalación existente, ejecuta una vez `database/migrations/20261109_wom
 
 ## Webhook
 
-Registra en el panel sandbox de Wompi este endpoint:
+Registra en el panel de Wompi, **en el mismo ambiente que las llaves**, la URL de eventos:
 
 `https://<dominio-publico>/erpbarber/barberfaster/backend/wompi/evento.php`
 
-Wompi requiere que el endpoint sea accesible desde internet mediante HTTPS. Para desarrollo local usa un túnel HTTPS temporal; el webhook no puede llegar directamente a `localhost`. Mantén también las llaves de sandbox al probar mediante el túnel.
+Wompi requiere que el endpoint sea accesible desde internet mediante HTTPS. Para desarrollo local usa un túnel HTTPS temporal con llaves de sandbox; el webhook no puede llegar directamente a `localhost`.
+
+## Paso a producción
+
+1. Con `sandbox`, haz una reserva completa y confirma que la cita queda confirmada tras el pago.
+2. Cambia `WOMPI_ENV` a `production` y reemplaza las tres llaves por las de producción.
+3. Registra la URL de eventos en la sección de producción del panel de Wompi.
+4. Haz un pago real de bajo valor y verifica que la cita se confirme.
 
 ## Flujo de pago
 
-El backend calcula el total desde los servicios guardados, reserva el horario durante 10 minutos y entrega al checkout solo la llave pública, referencia, total en centavos COP y firma de integridad. La cita se confirma exclusivamente después de verificar el estado `APPROVED` con Wompi. Los pagos pendientes no confirman la cita; un pago aprobado después de expirar genera una notificación para revisión, sin reactivar la reserva.
+El backend calcula el total desde los servicios guardados, reserva el horario durante 10 minutos y entrega al checkout solo la llave pública, referencia, total en centavos COP y firma de integridad. La cita se confirma exclusivamente después de verificar el estado `APPROVED` con Wompi (en `sandbox.wompi.co` o `production.wompi.co` según el ambiente). Los pagos pendientes no confirman la cita; un pago aprobado después de expirar genera una notificación para revisión, sin reactivar la reserva.

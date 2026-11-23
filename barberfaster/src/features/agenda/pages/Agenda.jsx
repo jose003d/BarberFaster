@@ -32,14 +32,14 @@ const leerRespuestaJson = async (response) => {
 
 const mensajeErrorCodigoWhatsapp = (data, status) => {
   if (data.codigo_error === 'credenciales_no_configuradas') {
-    return 'Wuapi no está configurado en Apache. Define WUAPI_ACCOUNT_ID y WUAPI_API_KEY y reinicia Apache.';
+    return 'El envío de códigos por WhatsApp no está disponible en este momento. Intenta más tarde o contacta a la barbería.';
   }
   if (data.codigo_error === 'curl_no_disponible') {
     return 'PHP no tiene habilitada la extensión cURL. Actívala en php.ini y reinicia Apache.';
   }
   if (data.codigo_error === 'error_proveedor') {
     if (data.http_code === 401 || data.http_code === 403) {
-      return 'Wuapi rechazó la autenticación. Revisa que WUAPI_API_KEY y WUAPI_ACCOUNT_ID correspondan a la misma cuenta y estén configurados en Apache.';
+      return 'No se pudo enviar el código por WhatsApp. Intenta más tarde o contacta a la barbería.';
     }
     if (data.http_code === 0) {
       return 'No se pudo conectar con Wuapi. Revisa la conexión del servidor a Internet.';
