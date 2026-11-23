@@ -3,6 +3,16 @@ import { Link } from "react-router-dom";
 import { buscarClientePorDni } from "../../../shared/services/api.js";
 import PeekRating from "../components/PeekRating.jsx";
 import "./ClienteDashboard.css";
+import {
+  codigoValido,
+  documentoValido,
+  limpiarCodigo,
+  limpiarDocumento,
+  MENSAJE_CODIGO_INVALIDO,
+  MENSAJE_DOCUMENTO_INVALIDO,
+  propsInputCodigo,
+  propsInputDocumento,
+} from "../../../shared/utils/validacionesColombia.js";
 
 import { BASE_URL } from "../../../shared/services/api.js";
 const CLIENT_SESSION_KEY = "barberfaster_cliente_session";
@@ -122,8 +132,8 @@ export default function ClienteDashboard() {
   const buscarDatosCliente = async () => {
     const documento = dni.trim();
     if (!documento) return;
-    if (!/^\d{1,10}$/.test(documento)) {
-      setError("Ingresa una cédula colombiana de máximo 10 dígitos.");
+    if (!documentoValido(documento)) {
+      setError(MENSAJE_DOCUMENTO_INVALIDO);
       return;
     }
 
@@ -176,8 +186,8 @@ export default function ClienteDashboard() {
     event.preventDefault();
     setError("");
     setAviso("");
-    if (!/^\d{1,10}$/.test(dni.trim())) {
-      setError("Ingresa una cédula colombiana de máximo 10 dígitos.");
+    if (!documentoValido(dni)) {
+      setError(MENSAJE_DOCUMENTO_INVALIDO);
       return;
     }
     if (!nombre.trim() || nombre.length > 100) {
@@ -214,8 +224,8 @@ export default function ClienteDashboard() {
     event.preventDefault();
     setError("");
     setAviso("");
-    if (!/^\d{6}$/.test(codigo)) {
-      setError("Ingresa el código de 6 dígitos que recibiste.");
+    if (!codigoValido(codigo)) {
+      setError(MENSAJE_CODIGO_INVALIDO);
       return;
     }
 
@@ -392,7 +402,7 @@ export default function ClienteDashboard() {
                 <input
                   value={dni}
                   onChange={(event) => {
-                    const nuevoDni = event.target.value.replace(/\D/g, "").slice(0, 10);
+                    const nuevoDni = limpiarDocumento(event.target.value);
                     dniActual.current = nuevoDni;
                     setDni(nuevoDni);
                     setBuscandoCliente(false);
@@ -400,11 +410,7 @@ export default function ClienteDashboard() {
                   }}
                   onBlur={buscarDatosCliente}
                   required
-                  inputMode="numeric"
-                  maxLength={10}
-                  pattern="[0-9]{1,10}"
-                  title="Ingresa una cédula colombiana de máximo 10 dígitos."
-                  autoComplete="off"
+                  {...propsInputDocumento}
                   disabled={codigoEnviado}
                 />
               </label>
@@ -435,11 +441,9 @@ export default function ClienteDashboard() {
                   Código de WhatsApp
                   <input
                     value={codigo}
-                    onChange={(event) => setCodigo(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                    onChange={(event) => setCodigo(limpiarCodigo(event.target.value))}
                     required
-                    maxLength={6}
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
+                    {...propsInputCodigo}
                     placeholder="000000"
                   />
                 </label>

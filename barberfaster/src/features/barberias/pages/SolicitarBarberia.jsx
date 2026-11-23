@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { BASE_URL, handleResponse } from "../../../shared/services/api.js";
+import { limpiarDocumento, propsInputDocumento } from "../../../shared/utils/validacionesColombia.js";
 
 const formularioInicial = {
   nombre_barberia: "",
@@ -77,7 +78,13 @@ export default function SolicitarBarberia() {
             <input name="nombre_admin" value={formulario.nombre_admin} onChange={actualizar} maxLength={150} required autoComplete="name" />
           </label>
           <label>Documento
-            <input name="documento_admin" value={formulario.documento_admin} onChange={actualizar} maxLength={30} required />
+            <input
+              name="documento_admin"
+              value={formulario.documento_admin}
+              onChange={(event) => setFormulario((actual) => ({ ...actual, documento_admin: limpiarDocumento(event.target.value) }))}
+              {...propsInputDocumento}
+              required
+            />
           </label>
           <div className="barber-request-form-row">
             <label>Teléfono de contacto

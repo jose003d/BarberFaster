@@ -7,6 +7,7 @@ import {
   solicitarRecuperacionContrasena,
 } from "../auth.js";
 import logoBarberFaster from "../../../assets/logo-barberfaster.png";
+import { limpiarCodigo, propsInputCodigo } from "../../../shared/utils/validacionesColombia.js";
 
 function validarContrasena(contrasena) {
   return Array.from(contrasena).length >= 8
@@ -256,12 +257,10 @@ export default function Login({ onLoginSuccess }) {
                 value={recuperacion.codigo}
                 onChange={(event) => setRecuperacion({
                   ...recuperacion,
-                  codigo: event.target.value.replace(/\D/g, "").slice(0, 6),
+                  codigo: limpiarCodigo(event.target.value),
                 })}
                 placeholder="000000"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
+                {...propsInputCodigo}
                 required
               />
             </label>

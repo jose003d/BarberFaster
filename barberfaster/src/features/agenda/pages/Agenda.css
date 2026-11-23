@@ -919,6 +919,16 @@
   color: #991b1b;
 }
 
+.agenda-modal .field-error {
+  color: #991b1b;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.agenda-modal .form-group input[aria-invalid="true"] {
+  border-color: #991b1b;
+}
+
 .calculated-end {
   display: flex;
   justify-content: space-between;

@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 // Carga helpers compartidos para datos, códigos, tickets y respuesta HTTP.
 require_once __DIR__ . '/comun.php';
+require_once __DIR__ . '/../config/validaciones.php';
 
 // Prepara CORS y procesa preflight antes de leer el cuerpo de la solicitud.
 setCorsHeaders();
@@ -26,14 +27,17 @@ $telefonoNormalizado = normalizarTelefono($telefono);
 if (!telefonoValido($telefono)) {
     responder(422, false, 'El número de teléfono no es válido.');
 }
-if (!preg_match('/^\d{6}$/', $codigoIngresado)) {
+if (!codigoVerificacionValido($codigoIngresado)) {
     responder(422, false, 'El código debe tener 6 dígitos.');
 }
 if (($dniCliente === '') !== ($nombreCliente === '')) {
     responder(400, false, 'Ingresa el DNI y el nombre del cliente.');
 }
-if (($dniCliente !== '' && !preg_match('/^\d{1,10}$/', $dniCliente)) || longitudCaracteres($nombreCliente) > 100) {
-    responder(422, false, 'El DNI debe tener máximo 10 dígitos y el nombre no puede superar 100 caracteres.');
+if ($dniCliente !== '' && !documentoColombiaValido($dniCliente)) {
+    responder(422, false, MENSAJE_DOCUMENTO_INVALIDO);
+}
+if (longitudCaracteres($nombreCliente) > 100) {
+    responder(422, false, 'El nombre no puede superar 100 caracteres.');
 }
 
 $otp = leerOtpDesdeTelefono($telefonoNormalizado);

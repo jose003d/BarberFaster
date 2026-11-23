@@ -15,6 +15,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/utilidades_horario.php';
 require_once __DIR__ . '/../verificacion/comun.php';
 require_once __DIR__ . '/../wompi/comun.php';
+require_once __DIR__ . '/../config/validaciones.php';
 
 // Los navegadores suelen enviar OPTIONS antes de una petición POST (preflight).
 // Se responde correctamente sin intentar crear una cita.
@@ -88,9 +89,9 @@ if ($metodo_pago === 'WOMPI') {
     }
 }
 
-if (!preg_match('/^\d{1,10}$/', $dni_cliente)) {
+if (!documentoColombiaValido($dni_cliente)) {
     http_response_code(422);
-    echo json_encode(["status" => "error", "mensaje" => "El DNI debe tener máximo 10 dígitos y solo puede contener números."]);
+    echo json_encode(["status" => "error", "mensaje" => MENSAJE_DOCUMENTO_INVALIDO]);
     exit();
 }
 

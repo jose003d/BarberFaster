@@ -10,6 +10,15 @@ import ProfileCard from '../components/ProfileCard.jsx';
 import Stepper, { Step } from '../components/Stepper.jsx';
 import TimeSlotGrid from '../components/TimeSlotGrid.jsx';
 import WompiCheckoutButton, { construirUrlCheckoutWompi } from '../components/WompiCheckoutButton.jsx';
+import {
+  codigoValido,
+  documentoValido,
+  limpiarCodigo,
+  limpiarDocumento,
+  MENSAJE_DOCUMENTO_INVALIDO,
+  propsInputCodigo,
+  propsInputDocumento,
+} from '../../../shared/utils/validacionesColombia.js';
 import { getAvailableTimeSlots } from '../utils/timeSlotUtils.js';
 import logoBarberFaster from '../../../assets/logo-barberfaster.png';
 
@@ -487,8 +496,12 @@ export default function Agenda({ reservaPublica = false }) {
 
   // Envía un código de verificación al teléfono antes de aceptar la reserva.
   const solicitarCodigoTelefono = async () => {
-    if (!/^\d{1,10}$/.test(dniCliente.trim()) || !nombreCliente.trim()) {
-      setMensajeVerificacion({ tipo: 'error', texto: 'Ingresa tu nombre y una cédula colombiana de máximo 10 dígitos antes de verificar el teléfono.' });
+    if (!documentoValido(dniCliente)) {
+      setMensajeVerificacion({ tipo: 'error', texto: MENSAJE_DOCUMENTO_INVALIDO });
+      return;
+    }
+    if (!nombreCliente.trim()) {
+      setMensajeVerificacion({ tipo: 'error', texto: 'Ingresa tu nombre antes de verificar el teléfono.' });
       return;
     }
 
@@ -569,8 +582,12 @@ export default function Agenda({ reservaPublica = false }) {
   const handleAgendarCita = (e) => {
     e.preventDefault();
 
-    if (!/^\d{1,10}$/.test(dniCliente.trim()) || !nombreCliente.trim()) {
-      setMensaje({ tipo: 'error', texto: 'Ingresa el nombre y una cédula colombiana de máximo 10 dígitos.' });
+    if (!documentoValido(dniCliente)) {
+      setMensajeVerificacion({ tipo: 'error', texto: MENSAJE_DOCUMENTO_INVALIDO });
+      return;
+    }
+    if (!nombreCliente.trim()) {
+      setMensaje({ tipo: 'error', texto: 'Ingresa tu nombre para reservar.' });
       return;
     }
 
@@ -991,16 +1008,17 @@ export default function Agenda({ reservaPublica = false }) {
                   placeholder="Ej. 1001234567"
                   value={dniCliente}
                   onChange={(e) => {
-                    setDniCliente(e.target.value.replace(/\D/g, '').slice(0, 10));
+                    setDniCliente(limpiarDocumento(e.target.value));
                     invalidarVerificacionCliente();
                   }}
-                  inputMode="numeric"
-                  maxLength={10}
-                  pattern="[0-9]{1,10}"
-                  title="Ingresa una cédula colombiana de máximo 10 dígitos."
+                  {...propsInputDocumento}
+                  aria-invalid={dniCliente !== '' && !documentoValido(dniCliente)}
                   required
                   disabled={validandoSesionCliente}
                 />
+                {dniCliente !== '' && !documentoValido(dniCliente) && (
+                  <small className="field-error" role="alert">{MENSAJE_DOCUMENTO_INVALIDO}</small>
+                )}
               </div>
 
               <div className="form-group">
@@ -1064,12 +1082,10 @@ export default function Agenda({ reservaPublica = false }) {
                     <input
                       id="codigo-verificacion"
                       type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={6}
+                      {...propsInputCodigo}
                       placeholder="000000"
                       value={codigoTelefono}
-                      onChange={(e) => setCodigoTelefono(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      onChange={(e) => setCodigoTelefono(limpiarCodigo(e.target.value))}
                       required
                       disabled={validandoSesionCliente}
                     />
@@ -1077,7 +1093,7 @@ export default function Agenda({ reservaPublica = false }) {
                       type="button"
                       className="phone-verification-button"
                       onClick={verificarCodigoTelefono}
-                      disabled={verificandoTelefono || validandoSesionCliente || codigoTelefono.length !== 6}
+                      disabled={verificandoTelefono || validandoSesionCliente || !codigoValido(codigoTelefono)}
                     >
                       {verificandoTelefono ? 'Verificando...' : 'Verificar'}
                     </button>

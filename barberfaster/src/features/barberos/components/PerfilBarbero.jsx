@@ -265,7 +265,7 @@ export default function PerfilBarbero({ barbero: initialBarbero, onLogout }) {
             <Field name="apellido" label="Apellido" value={form.apellido} onChange={updateForm} />
             <Field name="email" label="Correo electrónico" type="email" maxLength={120} value={form.email} onChange={updateForm} />
             <Field name="telefono" label="Teléfono" type="tel" maxLength={20} value={form.telefono} onChange={updateForm} />
-            <Field name="documento" label="Documento" value={form.documento} onChange={updateForm} />
+            <Field name="documento" label="Documento" value={form.documento} onChange={updateForm} readOnly title="El documento no se puede cambiar desde el perfil." />
             <Field name="especialidad" label="Especialidad" value={form.especialidad} onChange={updateForm} />
             <div className="modal-actions" style={{ gridColumn: "1 / -1" }}>
               <button className="btn-secondary" type="button" onClick={discardChanges} disabled={saving}>

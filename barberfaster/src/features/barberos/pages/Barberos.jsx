@@ -11,6 +11,7 @@ import {
   obtenerUsuarios,
 } from "../../../shared/services/api.js";
 import "./Barberos.css";
+import { limpiarDocumento, propsInputDocumento } from "../../../shared/utils/validacionesColombia.js";
 
 import { BASE_URL } from "../../../shared/services/api.js";
 import { obtenerBarberiaActivaId } from "../../../shared/services/barberiaActiva.js";
@@ -521,7 +522,7 @@ function Barberos() {
               <>
                 <div className="form-group" style={{ marginBottom: "12px" }}>
                   <label>Documento (será su contraseña inicial):</label>
-                  <input type="text" maxLength={30} value={formBarbero.documento} onChange={(e) => setFormBarbero({ ...formBarbero, documento: e.target.value })} required />
+                  <input type="text" {...propsInputDocumento} value={formBarbero.documento} onChange={(e) => setFormBarbero({ ...formBarbero, documento: limpiarDocumento(e.target.value) })} required />
                 </div>
               </>
             )}

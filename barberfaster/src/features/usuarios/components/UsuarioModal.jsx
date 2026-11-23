@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { crearUsuario, editarUsuario, obtenerBarberias } from "../../../shared/services/api.js";
+import { limpiarDocumento, propsInputDocumento } from "../../../shared/utils/validacionesColombia.js";
 
 function obtenerRolSesion() {
   try {
@@ -134,9 +135,9 @@ export const UsuarioModal = ({ isOpen, onClose, usuarioEditar, onSuccess }) => {
               Documento
               <input
                 type="text"
-                maxLength={30}
+                {...propsInputDocumento}
                 value={form.documento}
-                onChange={(event) => setForm({ ...form, documento: event.target.value })}
+                onChange={(event) => setForm({ ...form, documento: limpiarDocumento(event.target.value) })}
                 required
               />
             </label>

@@ -5,6 +5,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset=UTF-8");
 
 require_once '../config/database.php';
+require_once __DIR__ . '/../config/validaciones.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -24,7 +25,7 @@ $telefono = isset($data['telefono']) && is_scalar($data['telefono']) ? trim((str
 $correo   = isset($data['correo']) && is_scalar($data['correo']) ? trim((string)$data['correo']) : '';
 
 if (
-    !preg_match('/^\d{1,10}$/', $dni)
+    !documentoColombiaValido($dni)
     || $nombre === ''
     || $telefono === ''
     || strlen($telefono) > 20
@@ -33,7 +34,7 @@ if (
     || ($correo !== '' && !filter_var($correo, FILTER_VALIDATE_EMAIL))
 ) {
     http_response_code(422);
-    echo json_encode(["status" => "error", "mensaje" => "Revisa el DNI (máximo 10 dígitos), el nombre, el teléfono (máximo 20 caracteres) y el correo ingresados."]);
+    echo json_encode(["status" => "error", "mensaje" => "Revisa el documento (entre 6 y 10 dígitos, sin empezar por 0), el nombre, el teléfono (máximo 20 caracteres) y el correo ingresados."]);
     exit();
 }
 
