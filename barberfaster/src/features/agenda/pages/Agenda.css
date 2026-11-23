@@ -1283,14 +1283,10 @@
   border-top: 1px solid var(--bauhaus-gray);
 }
 
-/* En pantallas anchas el paso 3 ocupa todo el alto disponible: la tarjeta de la cita
-   y el calendario quedan nivelados y solo la lista de horas se desplaza. */
-@media (min-width: 1024px) {
-  .agenda-page--fija {
-    --booking-heading-height: 50px;
-    --booking-heading-gap: 10px;
-  }
-
+/* Paso 3 en computador: tarjeta de la cita, calendario y horas comparten el alto
+   disponible. Tarjeta y calendario arrancan arriba y terminan abajo, nivelados;
+   solo la lista de horas se desplaza. En pantallas muy bajas se usa el diseño apilado. */
+@media (min-width: 900px) and (min-height: 540px) {
   .agenda-page--fija .booking-stepper-content:has(.booking-schedule-card) {
     display: flex;
     flex-direction: column;
@@ -1308,25 +1304,24 @@
     display: grid;
     min-height: 0;
     flex: 1;
-    grid-template-columns: minmax(210px, 250px) minmax(0, 1fr);
+    grid-template-columns: minmax(190px, 0.72fr) minmax(0, 2.6fr);
     grid-template-rows: minmax(0, 1fr);
-    gap: 22px;
+    gap: clamp(14px, 1.8vw, 24px);
     align-items: stretch;
-    padding: 16px;
+    padding: clamp(12px, 1.4vw, 18px);
   }
 
-  /* Baja la tarjeta lo mismo que ocupan los títulos para que su borde superior
-     coincida con el del calendario, y la estira hasta el mismo borde inferior. */
   .agenda-page--fija .booking-selection-summary {
     grid-template-columns: 1fr;
     align-content: start;
-    gap: 18px;
-    margin: calc(var(--booking-heading-height) + var(--booking-heading-gap)) 0 0;
-    padding: 18px;
+    gap: 16px;
+    margin: 0;
+    padding: clamp(14px, 1.4vw, 20px);
   }
 
   .agenda-page--fija .booking-selection-totals {
     grid-row: auto;
+    flex-wrap: wrap;
   }
 
   .agenda-page--fija .booking-selection-totals > span:first-child {
@@ -1336,7 +1331,9 @@
 
   .agenda-page--fija .booking-date-time-layout {
     min-height: 0;
+    grid-template-columns: minmax(250px, 1fr) minmax(0, 1.3fr);
     grid-template-rows: minmax(0, 1fr);
+    gap: clamp(14px, 1.8vw, 24px);
     align-items: stretch;
   }
 
@@ -1348,16 +1345,13 @@
     flex-direction: column;
   }
 
-  /* Títulos fijos: "Elige el día" y "Elige la hora" no se desplazan. */
-  .agenda-page--fija .booking-column-heading {
-    height: var(--booking-heading-height);
+  .agenda-page--fija .booking-time-column .booking-column-heading {
     min-height: 0;
     flex: none;
-    margin-bottom: var(--booking-heading-gap);
-    overflow: hidden;
+    margin-bottom: 10px;
   }
 
-  /* El calendario crece para llenar la columna; las semanas se reparten el alto. */
+  /* El calendario llena su columna y las semanas se reparten el alto. */
   .agenda-page--fija .booking-calendar-panel {
     display: flex;
     min-height: 0;
@@ -1365,7 +1359,7 @@
     flex-direction: column;
     max-width: none;
     margin: 0;
-    padding: 10px;
+    padding: 0;
   }
 
   .agenda-page--fija .booking-calendar-panel .react-datepicker {
@@ -1396,17 +1390,22 @@
     min-height: 0;
     flex: 1;
     flex-direction: column;
+    margin: 0;
+    padding: 6px 8px 8px;
   }
 
   .agenda-page--fija .booking-calendar-panel .react-datepicker__week {
-    min-height: 26px;
+    min-height: 0;
     flex: 1;
-    align-items: stretch;
+    align-items: center;
   }
 
   .agenda-page--fija .booking-calendar-panel .react-datepicker__day {
-    height: auto;
-    max-height: 56px;
+    height: 100%;
+    max-height: 46px;
+    min-height: 0;
+    aspect-ratio: auto;
+    line-height: 1;
   }
 
   /* Lo único que se desplaza es la lista de horas. */
@@ -1420,7 +1419,91 @@
 
   .agenda-page--fija .booking-selected-time {
     flex: none;
-    margin-top: 12px;
+    margin-top: 10px;
+  }
+}
+
+/* Pantallas de poca altura (portátiles con zoom, ventanas pequeñas): menos aire vertical. */
+@media (max-height: 760px) {
+  .agenda-page--fija .booking-stepper-indicators {
+    padding-top: 10px;
+    padding-bottom: 24px;
+  }
+
+  .agenda-page--fija .booking-stepper-indicator-inner {
+    width: 30px;
+    height: 30px;
+  }
+
+  .agenda-page--fija .booking-stepper-footer {
+    padding-top: 10px;
+    padding-bottom: 12px;
+  }
+
+  .agenda-page--fija .booking-stepper-back,
+  .agenda-page--fija .booking-stepper-next {
+    min-height: 38px;
+    padding-block: 6px;
+  }
+}
+
+/* Celular y tablet: el contenido del paso se desplaza como una sola columna,
+   sin desplazamientos anidados; cabecera y botones siguen fijos. */
+@media (max-width: 899.98px), (max-height: 539.98px) {
+  .agenda-page--fija .booking-schedule-card {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .agenda-page--fija .booking-selection-summary {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px 14px;
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    box-shadow: 3px 3px 0 var(--bauhaus-orange);
+  }
+
+  .agenda-page--fija .booking-selection-heading h2 {
+    font-size: 1.15rem;
+  }
+
+  .agenda-page--fija .booking-selection-totals {
+    grid-row: auto;
+  }
+
+  .agenda-page--fija .booking-selection-totals > span {
+    min-width: 0;
+    padding: 2px 8px;
+  }
+
+  .agenda-page--fija .booking-selected-services {
+    grid-row: auto;
+  }
+
+  .agenda-page--fija .booking-date-time-layout {
+    gap: 18px;
+  }
+
+  .agenda-page--fija .booking-calendar-panel {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .agenda-page--fija .booking-calendar-panel .react-datepicker__month {
+    margin: 0;
+    padding: 6px 8px 8px;
+  }
+
+  .agenda-page--fija .booking-calendar-panel .react-datepicker__day {
+    height: 38px;
+    aspect-ratio: auto;
+  }
+
+  .agenda-page--fija .time-slot-grid {
+    max-height: none;
+    overflow: visible;
   }
 }
 
@@ -1453,5 +1536,89 @@
     min-height: 36px;
     padding: 0 10px;
     font-size: 0.72rem;
+  }
+}
+
+/* Cabecera del calendario: muestra el día elegido y las flechas para cambiar de mes. */
+.booking-calendar-panel .react-datepicker__header:has(.booking-calendar-header) {
+  padding: 0 0 6px;
+}
+
+.booking-calendar-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 10px 8px;
+}
+
+.booking-calendar-title {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  color: #fff;
+  font-family: var(--font-ui);
+  text-align: center;
+}
+
+.booking-calendar-title strong {
+  font-size: clamp(0.82rem, 1.1vw, 0.98rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.booking-calendar-title small {
+  color: var(--bauhaus-cyan);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.booking-calendar-panel .booking-calendar-nav {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  place-items: center;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.booking-calendar-panel .booking-calendar-nav:disabled {
+  border: 2px solid #6b6b6b;
+  background: transparent;
+  color: #6b6b6b;
+  cursor: not-allowed;
+}
+
+.booking-calendar-panel .booking-calendar-nav:focus-visible {
+  outline: 3px solid var(--bauhaus-orange);
+  outline-offset: 2px;
+}
+
+/* Paso 1 en la reserva pública: las tarjetas de barbero se ajustan al alto de la pantalla
+   para que la fila completa se vea sin desplazar en computador y no ocupen todo el celular. */
+.agenda-page--fija .barber-profile-grid .pc-card-shell {
+  height: clamp(200px, calc(100dvh - 300px), 330px);
+}
+
+@media (max-width: 600px) {
+  .agenda-page--fija .barber-profile-grid {
+    gap: 14px;
+  }
+
+  .agenda-page--fija .barber-profile-grid .pc-card-shell {
+    height: 220px;
+  }
+
+  .agenda-page--fija .barber-profile-grid .pc-avatar-placeholder span {
+    width: 88px;
+    height: 88px;
+    font-size: 2rem;
   }
 }

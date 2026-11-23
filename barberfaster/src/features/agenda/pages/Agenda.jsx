@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarDays, faClock, faMoneyBillWave, faScissors } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarDays, faChevronLeft, faChevronRight, faClock, faMoneyBillWave, faScissors } from '@fortawesome/free-solid-svg-icons';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import es from 'date-fns/locale/es';
@@ -837,13 +837,6 @@ export default function Agenda({ reservaPublica = false }) {
 
             <div className="booking-date-time-layout">
               <section className="booking-calendar-column" aria-label="Selecciona el día">
-                <div className="booking-column-heading">
-                  <span className="booking-column-number">01</span>
-                  <div>
-                    <h3>Elige el día</h3>
-                    <p className="booking-selected-date">{formatearFechaCabecera(fechaSeleccionada)}</p>
-                  </div>
-                </div>
                 <div className="date-picker-wrapper booking-calendar-panel">
                   {/* Impide elegir fechas que la barbería configuró como cerradas. */}
                   <DatePicker
@@ -854,6 +847,49 @@ export default function Agenda({ reservaPublica = false }) {
                     minDate={new Date()}
                     filterDate={(date) => horarioBarberia.diasTrabajo.includes(DIAS_SEMANA[date.getDay()])}
                     calendarClassName="booking-inline-calendar"
+                    renderCustomHeader={({
+                      monthDate,
+                      decreaseMonth,
+                      increaseMonth,
+                      prevMonthButtonDisabled,
+                      nextMonthButtonDisabled,
+                    }) => {
+                      // La cabecera muestra el día elegido; el mes solo aparece si se está viendo otro.
+                      const fechaTexto = formatearFechaCabecera(fechaSeleccionada);
+                      const viendoOtroMes = fechaObjeto
+                        && (monthDate.getMonth() !== fechaObjeto.getMonth()
+                          || monthDate.getFullYear() !== fechaObjeto.getFullYear());
+                      return (
+                        <div className="booking-calendar-header">
+                          <button
+                            type="button"
+                            className="booking-calendar-nav"
+                            onClick={decreaseMonth}
+                            disabled={prevMonthButtonDisabled}
+                            aria-label="Mes anterior"
+                          >
+                            <FontAwesomeIcon icon={faChevronLeft} aria-hidden="true" />
+                          </button>
+                          <div className="booking-calendar-title" aria-live="polite">
+                            <strong>{fechaTexto.charAt(0).toUpperCase() + fechaTexto.slice(1)}</strong>
+                            {viendoOtroMes && (
+                              <small>
+                                Viendo {monthDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+                              </small>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            className="booking-calendar-nav"
+                            onClick={increaseMonth}
+                            disabled={nextMonthButtonDisabled}
+                            aria-label="Mes siguiente"
+                          >
+                            <FontAwesomeIcon icon={faChevronRight} aria-hidden="true" />
+                          </button>
+                        </div>
+                      );
+                    }}
                   />
                 </div>
               </section>
