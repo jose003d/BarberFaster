@@ -35,13 +35,11 @@ return [
     // 'SMTP_USER' => 'no-reply@tudominio.com',
     // 'SMTP_PASS' => 'contraseña-del-buzón',
 
-    // Wompi (pagos). Panel de Wompi > Desarrolladores > Llaves del API.
-    // 'sandbox' = pruebas (llaves pub_test_ / test_integrity_ / test_events_)
-    // 'production' = cobros reales (llaves pub_prod_ / prod_integrity_ / prod_events_)
-    'WOMPI_ENV' => 'sandbox',
-    'WOMPI_PUBLIC_KEY' => '',
-    'WOMPI_INTEGRITY_SECRET' => '',
-    'WOMPI_EVENTS_SECRET' => '',
+    // Pagos en línea (Wompi). Cada barbería pega las llaves de SU cuenta en el
+    // panel (Pagos en línea). Aquí solo van la clave maestra que las cifra
+    // (32 bytes en base64: php -r "echo base64_encode(random_bytes(32));")
+    // y la URL de retorno.
+    'PAGOS_CLAVE_CIFRADO' => '',
     'WOMPI_REDIRECT_URL' => 'https://tudominio.com/reservar',
 
     // Wuapi (códigos de verificación por WhatsApp). Ambos valores son de la misma cuenta.
