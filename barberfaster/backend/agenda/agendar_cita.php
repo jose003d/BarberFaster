@@ -75,18 +75,15 @@ if (
     exit();
 }
 
-if ($metodo_pago === 'WOMPI') {
-    try {
-        wompiConfiguracion();
-    } catch (Throwable $error) {
-        error_log('Wompi no está configurado para crear una reserva: ' . $error->getMessage());
-        http_response_code(503);
-        echo json_encode([
-            "status" => "error",
-            "mensaje" => "El pago en línea aún no está disponible. Elige pagar en el local o inténtalo más tarde."
-        ]);
-        exit();
-    }
+// El pago en línea llega a la cuenta Wompi de la propia barbería; si no la ha
+// configurado (o la desactivó), solo puede reservar pagando en el local.
+if ($metodo_pago === 'WOMPI' && !wompiBarberiaAceptaPagosEnLinea($pdo, (int) $id_barberia)) {
+    http_response_code(409);
+    echo json_encode([
+        "status" => "error",
+        "mensaje" => "Esta barbería aún no recibe pagos en línea. Elige pagar en el local."
+    ]);
+    exit();
 }
 
 if (!documentoColombiaValido($dni_cliente)) {

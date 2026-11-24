@@ -2,8 +2,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { irAlPanelSuperadmin } from "../../auth/auth.js";
 import { createPortal } from "react-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPhone, faScissors, faStar } from "@fortawesome/free-solid-svg-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Calendar03Icon,
+  CallIcon,
+  Cancel01Icon,
+  CreditCardIcon,
+  Location01Icon,
+  ScissorIcon,
+  Search01Icon,
+  StarIcon,
+  WhatsappIcon,
+} from "@hugeicons/core-free-icons";
 import { obtenerBarberias } from "../../../shared/services/api.js";
 import BarberiaBenefits from "../components/BarberiaBenefits.jsx";
 import logoBarberFaster from "../../../assets/logo-barberfaster.png";
@@ -186,29 +196,97 @@ function BarberiaDiscovery() {
         </nav>
       </header>
 
-      {/* Mensaje de bienvenida y acceso directo al listado de locales. */}
+      {/* Portada: una ventana enmarcada con el video y la invitación a reservar,
+          cerrada por el titular grande en la banda petróleo. */}
       <section className="discovery-hero" aria-labelledby="discovery-title">
-        <div className="discovery-hero-layout">
-          <div className="discovery-hero-content">
-            <p className="discovery-eyebrow"><span>01</span> BARBERFASTER · RESERVA TU CITA</p>
-            <h1 id="discovery-title">Tu estilo.<br /><em>Tu lugar.</em></h1>
-            <p className="discovery-intro">
-              Encuentra una barbería cerca de ti y reserva tu próxima cita.
-            </p>
-            <a className="discovery-hero-link" href="#barberias">EXPLORAR LOCALES <span aria-hidden="true">↘</span></a>
+        <div className="hero-window">
+          <div className="hero-window-stage">
+            <div className="hero-window-media">
+              <video
+                className="discovery-hero-video"
+                src={heroVideo}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="metadata"
+                aria-hidden="true"
+              />
+              <span className="hero-window-tag">Barberías de Sonsón, Antioquia</span>
+            </div>
+            <div className="hero-window-copy">
+              <p className="hero-lead">Tu próximo corte, reservado en pocos pasos.</p>
+              <p className="discovery-intro">
+                Elige la barbería, el barbero y la hora que te sirva. Sin llamadas ni filas.
+              </p>
+              {/* Búsqueda real desde la portada: filtra el listado y baja hasta él. */}
+              <form
+                className="hero-search"
+                role="search"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  document.getElementById("barberias")?.scrollIntoView({ behavior: "smooth" });
+                }}
+              >
+                <label htmlFor="hero-busqueda">¿Qué barbería buscas?</label>
+                <div className="hero-search-row">
+                  <input
+                    id="hero-busqueda"
+                    type="search"
+                    value={busqueda}
+                    onChange={(event) => setBusqueda(event.target.value)}
+                    placeholder="Nombre o calle"
+                  />
+                  <button className="btn-primary" type="submit">Buscar</button>
+                </div>
+              </form>
+              <a className="hero-how" href="#pasos">¿Cómo funciona?</a>
+            </div>
           </div>
-          <div className="discovery-hero-media">
-            <video
-              className="discovery-hero-video"
-              src={heroVideo}
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="metadata"
-              aria-hidden="true"
-            />
+          <div className="hero-window-band">
+            <h1 id="discovery-title">
+              <span className="discovery-title-line">Tu estilo.</span>
+              <span className="discovery-title-line">Tu lugar.</span>
+            </h1>
           </div>
+        </div>
+      </section>
+
+      {/* Los tres pasos reales de una reserva, numerados con la tríada Bauhaus. */}
+      <section className="discovery-steps" id="pasos" aria-labelledby="discovery-steps-title">
+        <div className="discovery-steps-inner">
+          <div className="discovery-section-heading">
+            <div>
+              <h2 id="discovery-steps-title">Reserva en 3 pasos</h2>
+              <p>Sin crear una cuenta y desde tu teléfono.</p>
+            </div>
+          </div>
+          <ol>
+            <li>
+              <span className="step-shape step-shape--square" aria-hidden="true">1</span>
+              <div>
+                <strong>Elige tu barbería</strong>
+                <span>Mira fotos, dirección y quiénes atienden.</span>
+              </div>
+            </li>
+            <li>
+              <span className="step-shape step-shape--circle" aria-hidden="true">2</span>
+              <div>
+                <strong>Elige barbero y servicio</strong>
+                <span>Ves la duración y el precio antes de reservar.</span>
+              </div>
+            </li>
+            <li>
+              <span className="step-shape step-shape--triangle" aria-hidden="true">
+                <svg viewBox="0 0 84 84" focusable="false"><polygon points="42,4 81,80 3,80" /></svg>
+                <b>3</b>
+              </span>
+              <div>
+                <strong>Elige la hora y confirma</strong>
+                <span>Paga en línea o al llegar al local.</span>
+              </div>
+            </li>
+          </ol>
         </div>
       </section>
 
@@ -216,9 +294,8 @@ function BarberiaDiscovery() {
       <section className="discovery-listing" id="barberias" aria-labelledby="barber-list-title">
         <div className="discovery-section-heading">
           <div>
-            <p className="discovery-eyebrow"><span>02</span> ENCUENTRA TU BARBERÍA</p>
             <h2 id="barber-list-title">Barberías disponibles</h2>
-            <p>Selecciona un local para reservar tu cita.</p>
+            <p>Elige un local para ver sus barberos y reservar tu cita.</p>
           </div>
           {!cargando && !error && (
             <span className="discovery-result-count">
@@ -229,12 +306,12 @@ function BarberiaDiscovery() {
 
         <div className="discovery-filters">
           <label className="discovery-search">
-            <span aria-hidden="true">⌕</span>
+            <HugeiconsIcon icon={Search01Icon} size={22} strokeWidth={2} aria-hidden="true" />
             <input
               type="search"
               value={busqueda}
               onChange={(event) => setBusqueda(event.target.value)}
-              placeholder="Buscar por nombre, dirección o ciudad"
+              placeholder="Buscar barbería o dirección"
               aria-label="Buscar barberías"
             />
           </label>
@@ -263,7 +340,7 @@ function BarberiaDiscovery() {
           </div>
         ) : barberiasFiltradas.length === 0 ? (
           <div className="discovery-state">
-            <FontAwesomeIcon className="discovery-empty-icon" icon={faScissors} aria-hidden="true" />
+            <HugeiconsIcon className="discovery-empty-icon" icon={ScissorIcon} size={22} strokeWidth={2} aria-hidden="true" />
             <strong>{barberias.length ? "No encontramos coincidencias" : "Pronto habrá barberías disponibles"}</strong>
             <span>{barberias.length ? "Prueba con otro nombre o ciudad." : "Vuelve pronto para encontrar tu próximo estilo."}</span>
             {barberias.length > 0 && (
@@ -297,7 +374,7 @@ function BarberiaDiscovery() {
                       />
                     ) : (
                       <span className="discovery-card-placeholder" aria-hidden="true">
-                        <FontAwesomeIcon icon={faScissors} />
+                        <HugeiconsIcon icon={ScissorIcon} size={22} strokeWidth={2} />
                       </span>
                     )}
                   </div>
@@ -314,28 +391,19 @@ function BarberiaDiscovery() {
                           ? `${barberia.cantidad_calificaciones} calificaciones de sus barberos`
                           : "Sin calificaciones"}
                       >
-                        <svg
-                          aria-hidden="true"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
-                        </svg>
+                        <HugeiconsIcon icon={StarIcon} size={20} strokeWidth={2.2} aria-hidden="true" />
                         <span>{Number(barberia.cantidad_calificaciones) > 0
                           ? Number(barberia.calificacion_promedio).toFixed(1)
-                          : "—"}</span>
+                          : "Nuevo"}</span>
                       </span>
                     </div>
                     <p className="discovery-card-location">
-                      {[barberia.ciudad, barberia.direccion].filter(Boolean).join(" · ") || "Ubicación por confirmar"}
+                      <HugeiconsIcon icon={Location01Icon} size={22} strokeWidth={2} aria-hidden="true" />
+                      <span>{[barberia.direccion, barberia.ciudad].filter(Boolean).join(", ") || "Ubicación por confirmar"}</span>
                     </p>
                     {barberia.telefono && (
                       <a className="discovery-card-phone" href={`tel:${barberia.telefono}`}>
-                        <FontAwesomeIcon icon={faPhone} aria-hidden="true" /> {barberia.telefono}
+                        <HugeiconsIcon icon={CallIcon} size={22} strokeWidth={2} aria-hidden="true" /> {barberia.telefono}
                       </a>
                     )}
                     <div className="discovery-card-footer">
@@ -347,8 +415,8 @@ function BarberiaDiscovery() {
                       >
                         Ver detalles
                       </button>
-                      <button type="button" onClick={() => reservarEnBarberia(barberia)}>
-                        Reservar <span aria-hidden="true">→</span>
+                      <button className="btn-primary" type="button" onClick={() => reservarEnBarberia(barberia)}>
+                        Reservar cita
                       </button>
                     </div>
                   </div>
@@ -378,7 +446,7 @@ function BarberiaDiscovery() {
               onClick={() => setBarberiaDetalleId(null)}
               aria-label="Cerrar detalles de barbería"
             >
-              ×
+              <HugeiconsIcon icon={Cancel01Icon} size={22} strokeWidth={2} aria-hidden="true" />
             </button>
             {cargandoDetalle && !detalleActivo ? (
               <p className="discovery-detail-status" role="status">Cargando información de la barbería...</p>
@@ -396,12 +464,11 @@ function BarberiaDiscovery() {
             ) : detalleActivo && (
               <>
                 <div className="discovery-detail-heading">
-                  <p className="discovery-eyebrow">Conoce el establecimiento</p>
                   <h2 id="discovery-detail-title">{detalleActivo.barberia.nombre}</h2>
                   <p>
                     {[detalleActivo.barberia.ciudad, detalleActivo.barberia.direccion]
                       .filter(Boolean)
-                      .join(" · ") || "Ubicación por confirmar"}
+                      .join(", ") || "Ubicación por confirmar"}
                   </p>
                 </div>
                 <div className="discovery-detail-layout">
@@ -410,7 +477,7 @@ function BarberiaDiscovery() {
                       {fotoDetalle ? (
                         <img src={fotoDetalle} alt={`Barbería ${detalleActivo.barberia.nombre}`} />
                       ) : (
-                        <FontAwesomeIcon icon={faScissors} aria-hidden="true" />
+                        <HugeiconsIcon icon={ScissorIcon} size={22} strokeWidth={2} aria-hidden="true" />
                       )}
                     </div>
                     <div className="discovery-detail-facts">
@@ -419,7 +486,7 @@ function BarberiaDiscovery() {
                       )}
                       {detalleActivo.barberia.telefono && (
                         <a href={`tel:${detalleActivo.barberia.telefono}`}>
-                          <FontAwesomeIcon icon={faPhone} aria-hidden="true" /> {detalleActivo.barberia.telefono}
+                          <HugeiconsIcon icon={CallIcon} size={22} strokeWidth={2} aria-hidden="true" /> {detalleActivo.barberia.telefono}
                         </a>
                       )}
                       {(detalleActivo.barberia.hora_apertura || detalleActivo.barberia.hora_cierre) && (
@@ -459,7 +526,7 @@ function BarberiaDiscovery() {
                                 </div>
                                 {Number(barbero.cantidad_calificaciones) > 0 && (
                                   <span className="discovery-detail-barber-rating">
-                                    <FontAwesomeIcon icon={faStar} aria-hidden="true" />{" "}
+                                    <HugeiconsIcon icon={StarIcon} size={22} strokeWidth={2} aria-hidden="true" />{" "}
                                     {Number(barbero.calificacion_promedio).toFixed(1)}
                                   </span>
                                 )}
@@ -485,8 +552,8 @@ function BarberiaDiscovery() {
                   </div>
                 </div>
                 <div className="discovery-detail-actions">
-                  <button type="button" onClick={() => reservarEnBarberia(barberiaActiva)}>
-                    Reservar en esta barbería <span aria-hidden="true">→</span>
+                  <button className="btn-primary" type="button" onClick={() => reservarEnBarberia(barberiaActiva)}>
+                    Reservar en esta barbería
                   </button>
                 </div>
               </>
@@ -496,11 +563,46 @@ function BarberiaDiscovery() {
         document.body
       )}
 
+      <section className="discovery-trust" aria-labelledby="discovery-trust-title">
+        <div className="discovery-trust-inner">
+          <div className="discovery-section-heading">
+            <div>
+              <h2 id="discovery-trust-title">Reserva con confianza</h2>
+              <p>Lo que pasa después de tocar «Reservar».</p>
+            </div>
+          </div>
+          <ul>
+            <li>
+              <span className="trust-icon" aria-hidden="true"><HugeiconsIcon icon={WhatsappIcon} size={22} strokeWidth={2} /></span>
+              <div>
+                <strong>Verificamos tu número por WhatsApp</strong>
+                <span>Te llega un código; así la cita queda a tu nombre.</span>
+              </div>
+            </li>
+            <li>
+              <span className="trust-icon" aria-hidden="true"><HugeiconsIcon icon={CreditCardIcon} size={22} strokeWidth={2} /></span>
+              <div>
+                <strong>Pagas como prefieras</strong>
+                <span>En línea con Wompi o directamente en el local.</span>
+              </div>
+            </li>
+            <li>
+              <span className="trust-icon" aria-hidden="true"><HugeiconsIcon icon={Calendar03Icon} size={22} strokeWidth={2} /></span>
+              <div>
+                <strong>Cambias o cancelas tu cita</strong>
+                <span>Desde «Mi perfil», cuando lo necesites.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
+
       <BarberiaBenefits />
 
       {/* Acceso al área de negocios; el panel superadmin no se publica aquí. */}
       <footer className="discovery-footer">
-        <span>BARBERFASTER · Tu estilo, a tu tiempo.</span>
+        <img src={logoBarberFaster} alt="BarberFaster" width="112" height="60" draggable="false" />
+        <span>Tu estilo, a tu tiempo.</span>
         <Link to="/login">Acceso para negocios</Link>
       </footer>
     </main>

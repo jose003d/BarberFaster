@@ -19,12 +19,12 @@
 
 .dashboard-eyebrow {
   margin: 0 0 8px;
-  color: #147d7d;
+  color: var(--bf-blue-ink);
   font-family: var(--font-ui);
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .dashboard-header h1 {
@@ -68,7 +68,7 @@
   padding: clamp(20px, 3vw, 32px);
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-paper);
-  box-shadow: 5px 5px 0 var(--bauhaus-cyan);
+  box-shadow: none;
 }
 
 .dashboard-panel > h2 {
@@ -82,7 +82,7 @@
 
 .dashboard-panel > h2 .svg-inline--fa {
   margin-right: 0.45em;
-  color: #147d7d;
+  color: var(--bf-blue-ink);
   font-size: 0.82em;
 }
 
@@ -138,12 +138,13 @@
   padding: 20px;
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-cyan-light);
-  box-shadow: 4px 4px 0 rgba(57, 57, 57, 0.12);
+  box-shadow: none;
 }
 
 .dashboard-metric-card.accent {
-  background: #fff0eb;
-  box-shadow: 4px 4px 0 var(--bauhaus-orange);
+  border-color: var(--bf-orange-ink);
+  background: var(--bf-orange-wash);
+  box-shadow: none;
 }
 
 .dashboard-metric-card > span {
@@ -151,8 +152,8 @@
   font-family: var(--font-ui);
   font-size: 0.78rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .dashboard-metric-card h3 {
@@ -174,7 +175,7 @@
   padding: 18px;
   border: 2px solid var(--bauhaus-ink);
   background: #fff;
-  box-shadow: 4px 4px 0 var(--bauhaus-cyan);
+  box-shadow: none;
 }
 
 .dashboard-agenda-barber-header {
@@ -225,8 +226,8 @@
   color: var(--bauhaus-ink);
   font-family: var(--font-ui);
   font-size: 0.84rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .dashboard-agenda-section > p {
@@ -418,17 +419,18 @@
   font-family: var(--font-ui);
   font-size: 0.76rem;
   font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .dashboard-field input,
-.dashboard-field textarea {
+.dashboard-field textarea,
+.dashboard-field select {
   width: 100%;
   min-height: 46px;
   padding: 11px 13px;
   border: 1px solid var(--bauhaus-gray);
-  border-radius: 2px;
+  border-radius: 0;
   background: #fff;
   color: var(--bauhaus-ink);
   font-family: var(--font-body);
@@ -455,8 +457,8 @@
   font-family: var(--font-ui);
   font-size: 0.76rem;
   font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .dashboard-working-days > p {
@@ -498,7 +500,8 @@
 }
 
 .dashboard-field input:focus,
-.dashboard-field textarea:focus {
+.dashboard-field textarea:focus,
+.dashboard-field select:focus {
   border-color: var(--accent-dark);
   outline: 3px solid rgba(43, 207, 206, 0.28);
   outline-offset: 1px;

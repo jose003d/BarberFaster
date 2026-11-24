@@ -61,7 +61,8 @@ el sitio pierde la conexión a MySQL.
    (la carpeta que **contiene** a `public_html`, no la de adentro).
 2. Crea ahí un archivo `.env` con el contenido de
    `barberfaster/backend/.env.example`. Pon los datos de MySQL,
-   `SUPERADMIN_HOSTS`, `PASSWORD_RESET_FROM` y las llaves de Wompi/Wuapi si las usas.
+   `SUPERADMIN_HOSTS`, `PASSWORD_RESET_FROM`, `PAGOS_CLAVE_CIFRADO` y `WOMPI_REDIRECT_URL`
+   (las llaves de Wompi las pega cada barbería en su panel) y las de Wuapi si las usas.
    Si no tienes la contraseña de MySQL, cámbiala en hPanel → **Bases de datos → Administración**.
 
 `backend/config/env.php` lee, en este orden: `domains/barberfaster.site/.env`,
@@ -166,7 +167,7 @@ no la copies a la carpeta automática sin confirmar primero si ya fue aplicada.
 | 404 al recargar `/agenda` u otra ruta        | Falta `public_html/.htaccess` (viene en el despliegue).                                                 |
 | Un endpoint devuelve HTML en vez de JSON     | Ese `.php` no está en el servidor: revisa que esté en Git y que el workflow haya terminado bien.        |
 | Una barbería sin foto o con "—"              | No tiene fotos en `barberia_fotos` o no tiene reseñas; no es un error.                                  |
-| Pagos Wompi fallan                           | Faltan `WOMPI_*` en `barberfaster-config.php`.                                                                 |
+| Una barbería no ofrece pago en línea         | No ha pegado sus llaves en **Pagos en línea**, las desactivó, o falta `PAGOS_CLAVE_CIFRADO` / `WOMPI_REDIRECT_URL` en el `.env`. Ver `backend/wompi/README.md`. |
 | No llega el código de recuperación         | Crea el buzón en hPanel → Correos y pon `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` en `barberfaster-config.php`. Revisa spam. |
 | El login SUPERADMIN falla en barberfaster.site | Falta `barberfaster.site,www.barberfaster.site` en `SUPERADMIN_HOSTS` de `barberfaster-config.php`. |
 

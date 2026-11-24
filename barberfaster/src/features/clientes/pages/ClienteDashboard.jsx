@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { buscarClientePorDni } from "../../../shared/services/api.js";
 import PeekRating from "../components/PeekRating.jsx";
 import "./ClienteDashboard.css";
+import logoBarberFaster from "../../../assets/logo-barberfaster.png";
 import {
   codigoValido,
   documentoValido,
@@ -380,17 +381,16 @@ export default function ClienteDashboard() {
   return (
     <main className="client-profile-page">
       <header className="client-profile-nav">
-        <Link to="/" className="client-profile-brand">BARBERFASTER</Link>
+        <Link to="/" className="client-profile-brand" aria-label="BarberFaster, ir al inicio"><img src={logoBarberFaster} alt="" draggable="false" /></Link>
         <nav aria-label="Navegación de cliente">
-          <Link to="/" className="client-profile-nav-back">← Volver</Link>
-          {cliente && <button type="button" onClick={cerrarSesion}>Cerrar sesión</button>}
+          <Link to="/" className="client-profile-nav-back">Volver al inicio</Link>
+          {cliente && <button className="btn-quiet" type="button" onClick={cerrarSesion}>Cerrar sesión</button>}
         </nav>
       </header>
 
       <section className="client-profile-content">
         {!cliente ? (
           <div className="client-auth-card">
-            <p className="client-profile-eyebrow">ÁREA DEL CLIENTE</p>
             <h1>Tu perfil y tus citas</h1>
             <p className="client-profile-intro">
               Confirma los datos con los que reservaste y verificaremos tu número por WhatsApp.
@@ -450,7 +450,7 @@ export default function ClienteDashboard() {
               )}
               {error && <p className="client-profile-message error" role="alert">{error}</p>}
               {aviso && <p className="client-profile-message success" role="status">{aviso}</p>}
-              <button className="client-profile-submit" type="submit" disabled={cargando || buscandoCliente}>
+              <button className="client-profile-submit btn-primary" type="submit" disabled={cargando || buscandoCliente}>
                 {cargando ? "Procesando..." : codigoEnviado ? "Verificar y entrar" : "Enviar código por WhatsApp"}
               </button>
               {codigoEnviado && (
@@ -479,7 +479,6 @@ export default function ClienteDashboard() {
           <>
             <div className="client-profile-heading">
               <div>
-                <p className="client-profile-eyebrow">PERFIL DEL CLIENTE</p>
                 <h1>Hola, {cliente.nombre}</h1>
                 <p>
                   Sesión verificada por WhatsApp · vence a las{" "}
@@ -501,7 +500,6 @@ export default function ClienteDashboard() {
             <section className="client-appointments" aria-labelledby="client-appointments-title">
               <div className="client-appointments-heading">
                 <div>
-                  <p className="client-profile-eyebrow">TUS RESERVAS</p>
                   <h2 id="client-appointments-title">Citas agendadas</h2>
                 </div>
                 <span>{citas.length} {citas.length === 1 ? "cita" : "citas"}</span>

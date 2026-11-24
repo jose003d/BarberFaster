@@ -62,7 +62,7 @@
 .peek-rating__star:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--pr-active) 70%, transparent);
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: 0;
 }
 
 .peek-rating__lift {
@@ -98,7 +98,7 @@
   align-items: center;
   height: calc(var(--pr-size) * 0.6);
   padding: 0 calc(var(--pr-size) * 0.3);
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--pr-tip);
   color: var(--pr-tip-text);
   font-size: calc(var(--pr-size) * 0.38);

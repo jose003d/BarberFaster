@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBuilding, faCalendarDays, faChartColumn } from "@fortawesome/free-solid-svg-icons";
+import PagosEnLineaPanel from "../components/PagosEnLineaPanel.jsx";
 import { BASE_URL } from "../../../shared/services/api.js";
 import { obtenerBarberiaActivaId } from "../../../shared/services/barberiaActiva.js";
 import "./Dashboard.css";
@@ -23,7 +24,7 @@ export default function Dashboard() {
   // La sección activa del panel se selecciona desde el menú desplegable.
   const [searchParams] = useSearchParams();
   const seccionSolicitada = searchParams.get("section");
-  const tabActiva = ["metricas", "agenda", "perfil"].includes(seccionSolicitada)
+  const tabActiva = ["metricas", "agenda", "perfil", "pagos"].includes(seccionSolicitada)
     ? seccionSolicitada
     : "perfil";
   const [agendaBarberos, setAgendaBarberos] = useState([]);
@@ -349,7 +350,6 @@ export default function Dashboard() {
     <div className="page-section dashboard-page">
       <header className="dashboard-header">
         <div>
-          <p className="dashboard-eyebrow">BarberFaster · Administración</p>
           <h1>Panel de control</h1>
           <p className="dashboard-description">Administra la operación y la información de tu barbería.</p>
         </div>
@@ -363,7 +363,6 @@ export default function Dashboard() {
 
       {usuarioEsAdministrador() && (
         <section className="dashboard-panel dashboard-payment-notifications" aria-labelledby="payment-notifications-title">
-          <p className="dashboard-eyebrow">Actividad de pagos</p>
           <h2 id="payment-notifications-title">Notificaciones de reservas y pagos</h2>
           {errorNotificacionesPago ? (
             <p className="dashboard-message error" role="alert">{errorNotificacionesPago}</p>
@@ -387,7 +386,6 @@ export default function Dashboard() {
       {/* Pestaña de resumen de citas e ingresos del negocio. */}
       {tabActiva === "metricas" && (
         <section className="dashboard-panel">
-          <p className="dashboard-eyebrow">Tu negocio</p>
           <h2><FontAwesomeIcon icon={faChartColumn} aria-hidden="true" /> Métricas del negocio</h2>
           <p className="dashboard-description">Resumen estadístico de citas reservadas e ingresos generados.</p>
           <div className="dashboard-metrics">
@@ -406,7 +404,6 @@ export default function Dashboard() {
       {/* Agenda general: próximos turnos agrupados por barbero e historial opcional. */}
       {tabActiva === "agenda" && (
         <section className="dashboard-panel">
-          <p className="dashboard-eyebrow">Turnos de la barbería</p>
           <h2><FontAwesomeIcon icon={faCalendarDays} aria-hidden="true" /> Agenda general</h2>
           <p className="dashboard-description">
             Consulta los próximos turnos de cada barbero. El historial se carga al solicitarlo.
@@ -510,7 +507,6 @@ export default function Dashboard() {
       {/* Pestaña de edición de perfil, ubicación y horas de atención. */}
       {tabActiva === "perfil" && (
         <section className="dashboard-panel">
-          <p className="dashboard-eyebrow">Información pública</p>
           <h2><FontAwesomeIcon icon={faBuilding} aria-hidden="true" /> Perfil e información de la barbería</h2>
           <p className="dashboard-description">
             Esta información se mostrará públicamente a los clientes al agendar.
@@ -707,6 +703,8 @@ export default function Dashboard() {
           )}
         </section>
       )}
+
+      {tabActiva === "pagos" && <PagosEnLineaPanel />}
     </div>
   );
 }

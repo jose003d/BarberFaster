@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import logoBarberFaster from "../../../assets/logo-barberfaster.png";
 import { BASE_URL, handleResponse } from "../../../shared/services/api.js";
 import { limpiarDocumento, propsInputDocumento } from "../../../shared/utils/validacionesColombia.js";
 
@@ -49,11 +50,10 @@ export default function SolicitarBarberia() {
   return (
     <main className="barber-request-page">
       <header className="barber-request-header">
-        <Link to="/" className="discovery-brand">BARBERFASTER</Link>
+        <Link to="/" className="discovery-brand" aria-label="BarberFaster, ir al inicio"><img src={logoBarberFaster} alt="" draggable="false" /></Link>
         <Link to="/">Volver al inicio</Link>
       </header>
       <section className="barber-request-card">
-        <p className="discovery-eyebrow">BARBERFASTER · ALIANZAS</p>
         <h1>Solicita unir tu barbería</h1>
         <p>Enviaremos tus datos al equipo de BarberFaster. Si se aprueba, se creará el acceso de administrador para este negocio.</p>
 
@@ -96,7 +96,7 @@ export default function SolicitarBarberia() {
           </div>
           {error && <p className="barber-request-message error" role="alert">{error}</p>}
           {mensaje && <p className="barber-request-message success" role="status">{mensaje}</p>}
-          <button type="submit" className="login-btn" disabled={enviando}>
+          <button type="submit" className="login-btn btn-primary" disabled={enviando}>
             {enviando ? "Enviando..." : "Enviar solicitud"}
           </button>
         </form>

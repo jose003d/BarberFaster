@@ -107,7 +107,7 @@ export default function ProfileCard({
                       >
                         <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
                       </svg>
-                      <span>{ratingCount > 0 ? Number(rating).toFixed(1) : '—'}</span>
+                      <span>{ratingCount > 0 ? Number(rating).toFixed(1) : 'Nuevo'}</span>
                     </div>
                   ) : avatarUrl && !avatarError ? (
                     <div className="pc-mini-avatar" aria-hidden="true">
@@ -120,7 +120,7 @@ export default function ProfileCard({
                   </div>
                 </div>
                 <button
-                  className="pc-contact-btn"
+                  className="pc-contact-btn btn-primary"
                   onClick={onContactClick}
                   type="button"
                   aria-label={`${contactText}: ${cardName}`}

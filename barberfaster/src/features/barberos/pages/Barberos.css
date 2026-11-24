@@ -19,7 +19,7 @@
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-paper);
   color: var(--bauhaus-ink);
-  box-shadow: 6px 6px 0 var(--bauhaus-cyan);
+  box-shadow: 10px 10px 0 var(--bf-blue);
   animation: barberos-modal-enter 180ms ease-out;
 }
 
@@ -107,7 +107,7 @@
 .barberos-assignment-option:hover {
   border-color: var(--bauhaus-ink);
   background: var(--bauhaus-paper);
-  box-shadow: 3px 3px 0 var(--bauhaus-orange);
+  box-shadow: var(--brand-shadow);
   transform: translateY(-2px);
 }
 

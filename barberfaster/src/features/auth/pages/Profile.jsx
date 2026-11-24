@@ -88,7 +88,6 @@ export default function Profile() {
   return (
     <main className={cambioObligatorio ? "password-setup-page" : "page-section account-page"}>
       <section className={cambioObligatorio ? "password-setup-card" : "account-page-card"}>
-        <p className="password-setup-eyebrow">BarberFaster · Seguridad de la cuenta</p>
         <h1 className="account-page-title">{cambioObligatorio ? "Configura tu acceso" : "Mi perfil"}</h1>
         {cambioObligatorio ? (
           <p className="page-description password-setup-description" role="status">

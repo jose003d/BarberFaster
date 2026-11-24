@@ -11,7 +11,8 @@ import {
   faGaugeHigh,
   faStore,
   faUserTie,
-  faRightFromBracket
+  faRightFromBracket,
+  faCreditCard
 } from "@fortawesome/free-solid-svg-icons";
 
 function obtenerRolGuardado() {
@@ -73,7 +74,8 @@ function Sidebar() {
         { label: "Usuarios", to: "/usuarios", icon: faUserGroup },
         { label: "Clientes", to: "/clientes", icon: faUserGroup },
         { label: "Agenda", to: "/dashboard?section=agenda", icon: faCalendarDays, section: "agenda" },
-        { label: "Establecimiento", to: "/dashboard?section=perfil", icon: faStore, section: "perfil" }
+        { label: "Establecimiento", to: "/dashboard?section=perfil", icon: faStore, section: "perfil" },
+        { label: "Pagos en línea", to: "/dashboard?section=pagos", icon: faCreditCard, section: "pagos" }
       ]
       : [
           { label: "Métricas", to: "/dashboard?section=metricas", icon: faGaugeHigh, section: "metricas" },
@@ -81,6 +83,7 @@ function Sidebar() {
           { label: "Usuarios", to: "/usuarios", icon: faUserGroup },
           { label: "Agenda", to: "/dashboard?section=agenda", icon: faCalendarDays, section: "agenda" },
           { label: "Establecimiento", to: "/dashboard?section=perfil", icon: faStore, section: "perfil" },
+          { label: "Pagos en línea", to: "/dashboard?section=pagos", icon: faCreditCard, section: "pagos" },
           { label: "Mi perfil", to: "/perfil", icon: faUserTie }
         ];
   const homePath = usuarioRol === "SUPERADMIN"
@@ -111,7 +114,7 @@ function Sidebar() {
                 end
                 className={({ isActive }) => {
                   const activeSection = section
-                    ? location.pathname === "/dashboard" && location.search === `?section=${section}`
+                    ? location.pathname === "/dashboard" && new URLSearchParams(location.search).get("section") === section
                     : isActive;
                   return `top-nav-link${activeSection ? " active" : ""}`;
                 }}
@@ -125,7 +128,7 @@ function Sidebar() {
       </nav>
 
       <div className="top-nav-actions">
-        <button className="top-nav-logout" type="button" onClick={handleLogout} aria-label="Cerrar sesión">
+        <button className="top-nav-logout btn-quiet" type="button" onClick={handleLogout} aria-label="Cerrar sesión">
           <FontAwesomeIcon icon={faRightFromBracket} aria-hidden="true" />
           <span>Cerrar sesión</span>
         </button>

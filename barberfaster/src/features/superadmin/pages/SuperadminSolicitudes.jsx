@@ -90,7 +90,7 @@ export default function SuperadminSolicitudes() {
           {solicitudes.map((solicitud) => (
             <article className="superadmin-request-card" key={solicitud.id_solicitud}>
               <div>
-                <p className="discovery-eyebrow">SOLICITUD #{solicitud.id_solicitud}</p>
+                <p className="discovery-eyebrow">Solicitud #{solicitud.id_solicitud}</p>
                 <h4>{solicitud.nombre_barberia}</h4>
                 <p>{solicitud.direccion}, {solicitud.ciudad}</p>
                 <p>Teléfono del negocio: {solicitud.telefono_barberia}</p>

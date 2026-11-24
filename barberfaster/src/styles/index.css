@@ -8,14 +8,6 @@
 }
 
 @font-face {
-  font-family: "Baumans";
-  src: url("../assets/fonts/Baumans-Regular.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
-@font-face {
   font-family: "Chillax";
   src: url("../assets/fonts/Chillax-Regular.otf") format("opentype");
   font-style: normal;
@@ -64,44 +56,140 @@
 }
 
 :root {
-  /* Tipografía, paleta Bauhaus y tokens reutilizables de interfaz. */
-  --font-body: "Satoshi", sans-serif;
-  --font-ui: "Chillax", sans-serif;
-  --font-brand: "Baumans", sans-serif;
+  /* Tipografía, paleta del logo y tokens reutilizables de interfaz. */
+  --font-body: "Satoshi", system-ui, sans-serif;
+  --font-ui: "Chillax", "Satoshi", sans-serif;
 
   font-family: var(--font-body);
+  font-size: 106.25%;
+  line-height: 1.55;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --bauhaus-ink: #393939;
-  --bauhaus-paper: #fafafa;
-  --bauhaus-gray: #cdcdcf;
-  --bauhaus-neutral: #e5e5e7;
-  --bauhaus-cyan: #2bcfce;
-  --bauhaus-cyan-light: #dff7f6;
-  --bauhaus-orange: #ec4d25;
-  --bauhaus-green: #3fe112;
+  /* Los colores de la barbería, renovados: el rojo se vuelve naranja, el azul
+     se vuelve cian y el blanco se queda. El oscuro de la marca es un petróleo
+     de la familia del cian, en lugar del negro. */
+  --bf-orange: #ea5728;
+  --bf-orange-ink: #b33d14;
+  --bf-orange-wash: #fdeee8;
+  --bf-cyan: #2bcfce;
+  --bf-cyan-ink: #0b6f6e;
+  --bf-cyan-wash: #dff7f6;
+  /* Alias: el resto del código aún dice "blue"; ahora es cian. */
+  --bf-blue: var(--bf-cyan);
+  --bf-blue-ink: var(--bf-cyan-ink);
+  --bf-blue-wash: var(--bf-cyan-wash);
+  /* Petróleo: trazos, sombras, titulares y bandas oscuras. */
+  --bf-black: #0e3b40;
+  /* Texto sobre naranja o cian: negro real para que siempre se lea. */
+  --bf-on-action: #000000;
+  --bf-text: #1a1a1a;
+  --bf-muted: #4d5656;
+  --bf-paper: #ffffff;
+  --bf-surface: #f3f7f7;
+  --bf-line: #d3dcdc;
+  --bf-success: #1f7a3a;
+  --bf-danger: #c0271b;
+
+  /* Titulares: grotesca en peso negro, firme y legible. */
+  --font-display: "Satoshi", system-ui, sans-serif;
+
+  /* Campos de color (antes "tv-*"): la reserva los usa para su cabecera.
+     Ahora el campo es cian con texto oscuro, nunca un fondo negro. */
+  --tv-night: var(--bf-cyan);
+  --tv-night-raised: var(--bf-cyan-wash);
+  --tv-on-night: var(--bf-text);
+  --tv-muted-on-night: #174746;
+  --tv-line-on-night: rgba(14, 59, 64, 0.2);
+  --tv-grid: rgba(14, 59, 64, 0.06);
+  --tv-bars: var(--bf-black);
+
+  /* Movimiento: salidas suaves y cortas, nada rebota. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur: 280ms;
+  --dur-slow: 560ms;
+
+  /* Sombra de marca: bloque petróleo desplazado, visible sobre blanco y cian. */
+  --brand-offset: 4px;
+  --brand-shadow: var(--brand-offset) var(--brand-offset) 0 var(--bf-black);
+  --brand-shadow-ink: var(--brand-offset) var(--brand-offset) 0 var(--bf-black);
+
+  /* Alias heredados: las pantallas existentes siguen leyendo estos nombres. */
+  --bauhaus-ink: var(--bf-black);
+  --bauhaus-paper: var(--bf-paper);
+  --bauhaus-gray: #b9bfc3;
+  --bauhaus-neutral: var(--bf-line);
+  --bauhaus-cyan: var(--bf-blue);
+  --bauhaus-cyan-light: var(--bf-blue-wash);
+  --bauhaus-orange: var(--bf-orange);
+  --bauhaus-green: #2fa84f;
+  /* Degradado original de BarberFaster: de cian muy claro a cian. Refresca
+     los espacios de color sin saturar la pantalla. */
   --brand-gradient: linear-gradient(
     90deg,
-    var(--bauhaus-cyan-light) 0%,
+    var(--bf-cyan-wash) 0%,
     #81e4e9 48%,
-    var(--bauhaus-cyan) 100%
+    var(--bf-cyan) 100%
   );
 
-  --text: var(--bauhaus-ink);
-  --text-muted: #65666a;
-  --bg: var(--bauhaus-paper);
-  --border: var(--bauhaus-neutral);
-  --accent: var(--bauhaus-cyan);
-  --accent-dark: #147d7d;
-  --shadow: 0 12px 32px rgba(57, 57, 57, 0.08);
-  --radius: 3px;
-  --radius-sm: 2px;
+  --text: var(--bf-text);
+  --text-muted: var(--bf-muted);
+  --bg: var(--bf-paper);
+  --border: var(--bf-line);
+  --accent: var(--bf-blue);
+  --accent-dark: var(--bf-blue-ink);
+  --shadow: 0 10px 28px rgba(0, 0, 0, 0.07);
+  --radius: 0px;
+  --radius-sm: 0px;
 
   color: var(--text);
-  background: var(--brand-gradient);
+  background: var(--bf-paper);
+  accent-color: var(--bf-orange);
+}
+
+/* Superficies del navegador vestidas con la marca. */
+::selection {
+  background: var(--bf-orange);
+  color: var(--bf-black);
+}
+
+:focus-visible {
+  outline: 3px solid var(--bf-black);
+  outline-offset: 3px;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-color: var(--bf-black) var(--bf-surface);
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 2px;
+}
+
+input,
+textarea {
+  caret-color: var(--bf-orange);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
 }
 
 /* Normalización de cajas, dimensiones base y fuentes para controles nativos. */
@@ -118,7 +206,8 @@ body {
 
 body {
   min-height: 100vh;
-  background: var(--brand-gradient);
+  background: var(--bf-paper);
+  color: var(--bf-text);
   font-family: var(--font-body);
 }
 
@@ -143,13 +232,15 @@ button,
 .search-input,
 .filter-select {
   font-family: var(--font-ui);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
+/* Botones en tipo oración: se leen más rápido que en mayúsculas sostenidas. */
 button,
 .btn,
 .btn-secondary {
-  text-transform: uppercase;
+  text-transform: none;
+  font-weight: 600;
 }
 
 button {
@@ -180,9 +271,12 @@ h1,
 h2,
 h3,
 h4 {
-  color: var(--bauhaus-ink);
+  color: var(--bf-black);
   font-family: var(--font-body);
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-wrap: balance;
 }
 
 p {

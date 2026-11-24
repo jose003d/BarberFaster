@@ -40,3 +40,4 @@ backend/.env
 
 # Paquete para subir a mano a Hostinger
 frontend-hostinger.zip
+.impeccable/review/

@@ -1,61 +1,29 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCalendarCheck,
-  faChartLine,
-  faUsers,
-} from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { CheckmarkCircle02Icon } from "@hugeicons/core-free-icons";
 import "./BarberiaBenefits.css";
 
 const beneficios = [
-  {
-    icon: faCalendarCheck,
-    titulo: "Agenda organizada",
-    texto: "Administra las citas de tu barbería desde un solo lugar.",
-  },
-  {
-    icon: faChartLine,
-    titulo: "Más visibilidad",
-    texto: "Haz que nuevos clientes encuentren tu negocio y conozcan tus servicios.",
-  },
-  {
-    icon: faUsers,
-    titulo: "Tu equipo conectado",
-    texto: "Organiza barberos, horarios y servicios en el mismo espacio.",
-  },
+  "Agenda de citas organizada en un solo lugar.",
+  "Tus barberos, horarios y servicios conectados.",
+  "Nuevos clientes te encuentran aquí.",
 ];
 
+// Sección para dueños de barberías: una ventana con los beneficios y la solicitud.
 export default function BarberiaBenefits() {
   return (
     <section className="business-benefits" aria-labelledby="business-benefits-title">
-      <div className="business-benefits-heading">
-        <p className="discovery-eyebrow"><span>03</span> CRECE CON BARBERFASTER</p>
-        <h2 id="business-benefits-title">Tu barbería, mejor conectada.</h2>
-        <p>Herramientas sencillas para organizar tu negocio y atender más clientes.</p>
-      </div>
-
-      <div className="business-benefits-grid">
-        {beneficios.map(({ icon, titulo, texto }, index) => (
-          <article className="business-benefit-card" key={titulo}>
-            <span className="business-benefit-icon" aria-hidden="true">
-              <FontAwesomeIcon icon={icon} />
-            </span>
-            <p className="business-benefit-number">0{index + 1}</p>
-            <h3>{titulo}</h3>
-            <p>{texto}</p>
-          </article>
-        ))}
-      </div>
-
-      <div className="business-benefits-cta">
-        <div>
-          <p className="discovery-eyebrow">¿TIENES UNA BARBERÍA?</p>
-          <h3>Solicita crear el espacio de tu negocio</h3>
-          <p>Cuéntanos sobre tu barbería. Revisaremos la solicitud y te contactaremos.</p>
-        </div>
-        <Link to="/solicitar-barberia">
-          Solicitar mi barbería <span aria-hidden="true">→</span>
-        </Link>
+      <div className="business-window">
+        <h2 id="business-benefits-title">¿Tienes una barbería en Sonsón?</h2>
+        <ul>
+          {beneficios.map((beneficio) => (
+            <li key={beneficio}>
+              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={24} strokeWidth={2} aria-hidden="true" />
+              <span>{beneficio}</span>
+            </li>
+          ))}
+        </ul>
+        <Link className="btn business-window-cta" to="/solicitar-barberia">Solicitar mi barbería</Link>
       </div>
     </section>
   );

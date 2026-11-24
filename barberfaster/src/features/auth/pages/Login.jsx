@@ -160,7 +160,6 @@ export default function Login({ onLoginSuccess }) {
     <main className="login-page">
       <section className="login-card" aria-labelledby="login-title">
         <img className="login-brand-logo" src={logoBarberFaster} alt="BarberFaster" />
-        <p className="login-kicker">BarberFaster · Acceso al personal</p>
         <h1 id="login-title">{titulo}</h1>
         <p className="login-description">
           {vista === "login"
@@ -201,7 +200,7 @@ export default function Login({ onLoginSuccess }) {
                 />
                 <button
                   type="button"
-                  className="login-password-toggle"
+                  className="login-password-toggle btn-link"
                   aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   aria-pressed={showPassword}
                   onClick={() => setShowPassword((visible) => !visible)}
@@ -211,14 +210,14 @@ export default function Login({ onLoginSuccess }) {
               </span>
             </label>
 
-            <button type="submit" disabled={loading} className="login-btn">
+            <button type="submit" disabled={loading} className="login-btn btn-primary">
               {loading ? "Validando acceso..." : "Iniciar sesión"}
             </button>
-            <button type="button" className="login-recovery-link" onClick={iniciarRecuperacion}>
+            <button type="button" className="login-recovery-link btn-link" onClick={iniciarRecuperacion}>
               ¿Olvidaste tu contraseña?
             </button>
             <Link className="login-back-link" to="/">
-              ← Volver a la página principal
+              Volver a la página principal
             </Link>
           </form>
         )}
@@ -238,11 +237,11 @@ export default function Login({ onLoginSuccess }) {
                 required
               />
             </label>
-            <button type="submit" disabled={loading} className="login-btn">
+            <button type="submit" disabled={loading} className="login-btn btn-primary">
               {loading ? "Enviando código..." : "Enviar código"}
             </button>
-            <button type="button" className="login-recovery-link" onClick={volverAlLogin}>
-              ← Volver al inicio de sesión
+            <button type="button" className="login-recovery-link btn-link" onClick={volverAlLogin}>
+              Volver al inicio de sesión
             </button>
           </form>
         )}
@@ -288,10 +287,10 @@ export default function Login({ onLoginSuccess }) {
                 required
               />
             </label>
-            <button type="submit" disabled={loading} className="login-btn">
+            <button type="submit" disabled={loading} className="login-btn btn-primary">
               {loading ? "Restableciendo..." : "Guardar nueva contraseña"}
             </button>
-            <button type="button" className="login-recovery-link" onClick={iniciarRecuperacion}>
+            <button type="button" className="login-recovery-link btn-link" onClick={iniciarRecuperacion}>
               Solicitar otro código
             </button>
           </form>
