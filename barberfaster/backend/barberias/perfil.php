@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Importa la conexión a la base de datos.
 require_once '../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../wompi/comun.php';
 
 // Convierte enlaces cortos de Google Maps a una URL que se puede insertar en un iframe.
 function convertirEnlaceMapaCompartido(string $url): string
@@ -174,6 +175,8 @@ if ($method === 'GET') {
         }
         // La base guarda los días separados por comas; la interfaz los consume como lista.
         $data['dias_trabajo'] = array_values(array_filter(explode(',', (string)$data['dias_trabajo'])));
+        // La reserva solo ofrece pagar en línea si la barbería configuró su Wompi.
+        $data['pago_en_linea'] = wompiBarberiaAceptaPagosEnLinea($pdo, (int)$id_barberia);
 
         // Respuesta JSON con los datos del perfil.
         echo json_encode(["status" => "success", "data" => $data]);

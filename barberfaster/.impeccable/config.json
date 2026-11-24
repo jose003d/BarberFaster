@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/features/barberias/pages/BarberiaDiscovery.css"
+        ],
+        "createdAt": "2026-11-24T15:14:07.815Z",
+        "reason": "Claude: es el filete que divide video y texto dentro de la ventana enmarcada de la portada, no un acento lateral de tarjeta"
+      }
+    ]
+  }
+}

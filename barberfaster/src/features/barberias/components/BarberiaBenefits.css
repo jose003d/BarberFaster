@@ -1,186 +1,73 @@
+/*
+ * Sección para dueños de barberías: ventana blanca sobre el degradado
+ * original, con trazo y sombra petróleo como la portada.
+ */
 .business-benefits {
-  padding: clamp(42px, 6vw, 72px) 24px clamp(56px, 7vw, 82px);
-  border-top: 3px solid var(--bauhaus-ink);
-  background: var(--bauhaus-cyan-light);
+  padding: clamp(64px, 9vw, 120px) var(--page-pad, 20px);
+  background: var(--brand-gradient);
 }
 
-.business-benefits-heading {
-  max-width: 1120px;
-  margin: 0 auto 24px;
-}
-
-.business-benefits-heading .discovery-eyebrow {
-  margin-bottom: 13px;
-}
-
-.business-benefits-heading h2 {
-  margin: 0;
-  color: var(--bauhaus-ink);
-  font-family: var(--font-body);
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-weight: 400;
-  letter-spacing: -0.025em;
-  line-height: 0.95;
-  text-transform: uppercase;
-}
-
-.business-benefits-heading > p:last-child,
-.business-benefit-card > p:last-child,
-.business-benefits-cta > div > p:last-child {
-  color: #626267;
-  line-height: 1.6;
-}
-
-.business-benefits-heading > p:last-child {
-  margin: 10px 0 0;
-  font-size: 0.91rem;
-}
-
-.business-benefits-grid {
+.business-window {
   display: grid;
-  max-width: 1120px;
+  width: calc(100% - 14px);
+  max-width: 1180px;
+  gap: 24px;
   margin: 0 auto;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  padding: clamp(24px, 4vw, 48px);
+  border: 3px solid var(--bf-black);
+  background: var(--bf-paper);
+  box-shadow: 14px 14px 0 var(--bf-black);
 }
 
-.business-benefit-card {
-  position: relative;
-  min-height: 230px;
-  padding: 24px;
-  border: 2px solid var(--bauhaus-ink);
-  background: var(--bauhaus-paper);
-  transition: transform 180ms ease;
+.business-window h2 {
+  margin: 0;
+  color: var(--bf-black);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
 }
 
-.business-benefit-card:hover {
-  transform: translateY(-4px);
-}
-
-.business-benefit-icon {
+.business-window ul {
   display: grid;
-  width: 52px;
-  height: 52px;
-  place-items: center;
-  border: 2px solid var(--bauhaus-ink);
-  background: var(--bauhaus-cyan);
-  box-shadow: 3px 3px 0 var(--bauhaus-orange);
-  font-size: 1.25rem;
-}
-
-.business-benefit-number {
-  position: absolute;
-  top: 24px;
-  right: 24px;
+  gap: 12px;
   margin: 0;
-  color: var(--bauhaus-orange);
-  font-family: var(--font-ui);
-  font-size: 0.72rem;
-  font-weight: 850;
-  letter-spacing: 0.08em;
+  padding: 0;
+  list-style: none;
 }
 
-.business-benefit-card h3 {
-  margin: 25px 0 8px;
-  color: var(--bauhaus-ink);
-  font-family: var(--font-body);
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  text-transform: uppercase;
-}
-
-.business-benefit-card > p:last-child {
-  margin: 0;
-  font-size: 0.91rem;
-}
-
-.business-benefits-cta {
+.business-window li {
   display: flex;
-  max-width: 1120px;
-  margin: 32px auto 0;
-  padding: clamp(22px, 3.5vw, 34px);
-  align-items: center;
-  justify-content: space-between;
-  gap: 28px;
-  border: 2px solid var(--bauhaus-ink);
-  background: var(--bauhaus-paper);
-  box-shadow: 7px 7px 0 var(--bauhaus-cyan);
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--bf-text);
+  font-size: 1.0625rem;
+  line-height: 1.45;
 }
 
-.business-benefits-cta h3 {
-  margin: 10px 0 6px;
-  color: var(--bauhaus-ink);
-  font-family: var(--font-body);
-  font-size: clamp(1.35rem, 2.8vw, 1.8rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
+.business-window li svg {
+  flex: none;
+  align-self: flex-start;
+  color: var(--bf-orange);
 }
 
-.business-benefits-cta > div > p:last-child {
-  margin: 0;
-  font-size: 0.91rem;
-}
-
-.business-benefits-cta > a {
+.business-window-cta {
   display: inline-flex;
-  min-height: 48px;
-  padding: 0 16px;
-  flex: 0 0 auto;
+  min-height: 56px;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  border: 2px solid var(--bauhaus-ink);
-  background: var(--bauhaus-cyan);
-  color: var(--bauhaus-ink);
+  justify-self: start;
+  padding: 0 28px;
   font-family: var(--font-ui);
-  font-size: 0.75rem;
-  font-weight: 750;
-  letter-spacing: 0.08em;
+  font-size: 1.0625rem;
+  font-weight: 600;
   text-decoration: none;
-  text-transform: uppercase;
-  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
-.business-benefits-cta > a:hover {
-  background: var(--bauhaus-orange);
-  color: var(--bauhaus-paper);
-  transform: translateY(-2px);
-}
-
-.business-benefits-cta > a:focus-visible {
-  outline: 3px solid var(--bauhaus-ink);
-  outline-offset: 4px;
-}
-
-@media (max-width: 760px) {
-  .business-benefits {
-    padding-inline: 18px;
-  }
-
-  .business-benefits-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .business-benefit-card {
-    min-height: 0;
-  }
-
-  .business-benefits-cta {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .business-benefits-cta > a {
-    width: 100%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .business-benefit-card,
-  .business-benefits-cta > a {
-    transition: none;
+@media (min-width: 900px) {
+  .business-window {
+    grid-template-columns: 1.2fr 1fr auto;
+    align-items: center;
   }
 }

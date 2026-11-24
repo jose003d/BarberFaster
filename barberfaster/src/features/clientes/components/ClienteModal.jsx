@@ -1,6 +1,7 @@
 // src/components/ClienteModal.jsx
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../../shared/services/api.js';
+import { documentoValido, limpiarDocumento, MENSAJE_DOCUMENTO_INVALIDO, propsInputDocumento } from '../../../shared/utils/validacionesColombia.js';
 
 // Formulario modal para registrar un cliente o actualizar sus datos de contacto.
 export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
@@ -41,6 +42,10 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
   // Envía los datos al endpoint de creación o actualización del cliente.
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!clienteEditar && !documentoValido(form.dni)) {
+      setError(MENSAJE_DOCUMENTO_INVALIDO);
+      return;
+    }
     setLoading(true);
     setError('');
 
@@ -147,12 +152,9 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
             <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#444', fontSize: '0.85rem' }}>DNI / Cédula (Clave Principal):</label>
             <input 
               type="text"
-              inputMode="numeric"
-              maxLength={10}
-              pattern="[0-9]{1,10}"
-              title="Ingresa una cédula colombiana de máximo 10 dígitos."
+              {...(clienteEditar ? {} : propsInputDocumento)}
               value={form.dni} 
-              onChange={e => setForm({ ...form, dni: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+              onChange={e => setForm({ ...form, dni: limpiarDocumento(e.target.value) })}
               placeholder="Número de documento único"
               required 
               disabled={Boolean(clienteEditar)}

@@ -23,17 +23,17 @@ try {
 
     wompiLiberarPagosVencidos($pdo);
 
-    // Solo se completan citas confirmadas tras un pago aprobado.
+    // Se completan citas confirmadas: pagadas con Wompi o con pago en el local.
     $ahora = new DateTimeImmutable('now', new DateTimeZone('America/Bogota'));
     $actualizarVencidas = $pdo->prepare("
         UPDATE citas
         SET estado = 'COMPLETADA'
         WHERE id_barbero = ?
           AND estado = 'CONFIRMADA'
-          AND EXISTS (
+          AND NOT EXISTS (
               SELECT 1
               FROM wompi_pagos p
-              WHERE p.id_cita = citas.id_cita AND p.estado = 'APPROVED'
+              WHERE p.id_cita = citas.id_cita AND p.estado <> 'APPROVED'
           )
           AND CONCAT(fecha, ' ', hora_fin) <= ?
     ");

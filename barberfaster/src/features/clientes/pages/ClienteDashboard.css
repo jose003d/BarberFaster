@@ -21,9 +21,9 @@
   color: var(--bauhaus-ink);
   font-family: var(--font-ui);
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.01em;
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .client-profile-brand {
@@ -84,7 +84,7 @@
   padding: clamp(24px, 5vw, 42px);
   border: 3px solid var(--bauhaus-ink);
   background: var(--bauhaus-paper);
-  box-shadow: 8px 8px 0 var(--bauhaus-orange);
+  box-shadow: 10px 10px 0 var(--bf-blue);
 }
 
 .client-profile-eyebrow {
@@ -93,8 +93,8 @@
   font-family: var(--font-ui);
   font-size: 0.7rem;
   font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .client-auth-card h1,
@@ -175,9 +175,9 @@
   font-family: var(--font-ui);
   font-size: 0.78rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.01em;
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .client-profile-submit:disabled,
@@ -234,7 +234,7 @@
   padding: 22px;
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-paper);
-  box-shadow: 5px 5px 0 var(--bauhaus-cyan);
+  box-shadow: none;
 }
 
 .client-details-card div {
@@ -248,8 +248,8 @@
   font-family: var(--font-ui);
   font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .client-details-card strong {
@@ -551,4 +551,98 @@
   .client-appointment-buttons {
     grid-column: auto;
   }
+}
+
+/* Alineado con la parte pública: logo real, enlace de volver como texto,
+   títulos firmes y fondo blanco. */
+.client-profile-page {
+  background: var(--bf-paper);
+}
+
+.client-profile-nav {
+  border-bottom-width: 2px;
+}
+
+.client-profile-brand img {
+  display: block;
+  width: auto;
+  height: 46px;
+}
+
+.client-profile-nav nav .client-profile-nav-back {
+  width: auto;
+  min-height: 48px;
+  padding: 0 2px;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.25em;
+}
+
+.client-profile-nav nav .client-profile-nav-back:hover {
+  text-decoration-color: var(--bf-orange);
+}
+
+.client-profile-nav nav button {
+  width: auto;
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 0.95rem;
+}
+
+.client-auth-card h1,
+.client-profile-heading h1 {
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+/* Mundo "poste renovado": campo cian y tarjeta con sombra naranja. */
+.client-profile-page {
+  background: var(--bf-cyan);
+}
+
+.client-profile-nav {
+  position: relative;
+  border-bottom: 0;
+}
+
+.client-profile-nav::after {
+  position: absolute;
+  right: 0;
+  bottom: -12px;
+  left: 0;
+  height: 12px;
+  border-top: 2px solid var(--bf-black);
+  border-bottom: 2px solid var(--bf-black);
+  background: var(--pole-stripes);
+  background-size: 51px 51px;
+  content: "";
+}
+
+.client-auth-card {
+  box-shadow: 14px 14px 0 var(--bf-black);
+}
+
+.client-auth-card h1,
+.client-profile-heading h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.client-profile-nav::after {
+  display: none;
+}
+
+.client-profile-nav {
+  border-bottom: 2px solid var(--bf-black);
+}
+
+.client-profile-page {
+  background: var(--brand-gradient);
 }

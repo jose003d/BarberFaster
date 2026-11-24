@@ -5,6 +5,7 @@ header('Content-Type: application/json; charset=UTF-8');
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/validaciones.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -32,11 +33,15 @@ try {
     $correo = trim((string) ($data['correo'] ?? $data['email'] ?? ''));
     $rolSolicitado = strtoupper(trim((string) ($data['rol'] ?? 'BARBERO')));
 
+    if (!documentoColombiaValido($documento)) {
+        http_response_code(422);
+        echo json_encode(['status' => 'error', 'mensaje' => MENSAJE_DOCUMENTO_INVALIDO]);
+        exit();
+    }
+
     if (
         $nombre === ''
         || strlen($nombre) > 150
-        || $documento === ''
-        || strlen($documento) > 30
         || strlen($telefono) > 20
         || $correo === ''
         || strlen($correo) > 120

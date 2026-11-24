@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 // Carga normalización, utilidades OTP, mensajería y respuestas comunes.
 require_once __DIR__ . '/comun.php';
+require_once __DIR__ . '/../config/validaciones.php';
 
 // Configura CORS y termina solicitudes preflight del navegador.
 setCorsHeaders();
@@ -31,8 +32,11 @@ if ($dniCliente !== '' || $nombreCliente !== '') {
     if ($dniCliente === '' || $nombreCliente === '') {
         responder(400, false, 'Ingresa el nombre y el DNI de tu perfil.');
     }
-    if (!preg_match('/^\d{1,10}$/', $dniCliente) || longitudCaracteres($nombreCliente) > 100) {
-        responder(422, false, 'El DNI debe tener máximo 10 dígitos y el nombre no puede superar 100 caracteres.');
+    if (!documentoColombiaValido($dniCliente)) {
+        responder(422, false, MENSAJE_DOCUMENTO_INVALIDO);
+    }
+    if (longitudCaracteres($nombreCliente) > 100) {
+        responder(422, false, 'El nombre no puede superar 100 caracteres.');
     }
 
     try {

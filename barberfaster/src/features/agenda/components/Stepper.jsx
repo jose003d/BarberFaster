@@ -107,7 +107,7 @@ export default function Stepper({
         {!hideNextButton && (
           <button
             type="button"
-            className="booking-stepper-next"
+            className={`booking-stepper-next${isLastStep ? ' btn-primary' : ''}`}
             onClick={handleNext}
             disabled={!canContinue}
           >

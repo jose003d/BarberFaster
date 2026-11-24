@@ -25,14 +25,30 @@ if (!is_string($idTransaccion) || !preg_match('/^[A-Za-z0-9-]{1,100}$/', $idTran
     exit();
 }
 
+// Wompi agrega ?id= a la URL de retorno, que ya trae ?barberia= desde
+// wompiCrearReferencia(). La barbería indica con qué llave privada consultar.
+$idBarberia = filter_var($_GET['barberia'] ?? null, FILTER_VALIDATE_INT);
+if (!$idBarberia || $idBarberia < 1) {
+    http_response_code(422);
+    echo json_encode(['status' => 'error', 'mensaje' => 'Falta indicar la barbería del pago.']);
+    exit();
+}
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/comun.php';
 
 try {
-    wompiConfiguracion();
+    $config = wompiConfiguracionBarberia($pdo, $idBarberia, false);
     wompiLiberarPagosVencidos($pdo);
-    $transaccion = wompiConsultarTransaccion($idTransaccion);
-    $resultado = wompiAplicarTransaccion($pdo, $transaccion);
+    // La consulta usa la llave privada de la barbería: solo encuentra pagos
+    // hechos a su cuenta. Después se exige que la referencia sea de una cita
+    // suya y del mismo ambiente en que se creó.
+    $transaccion = wompiConsultarTransaccion($config, $idTransaccion);
+    $pago = wompiPagoPorReferencia($pdo, (string) ($transaccion['reference'] ?? ''));
+    if ($pago === null || $pago['ambiente'] !== $config['ambiente']) {
+        throw new RuntimeException('La transacción no corresponde a una reserva de esta barbería.');
+    }
+    $resultado = wompiAplicarTransaccion($pdo, $transaccion, $idBarberia);
 
     echo json_encode([
         'status' => 'success',

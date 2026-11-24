@@ -5,6 +5,7 @@ header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json; charset=UTF-8');
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/validaciones.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -39,6 +40,12 @@ foreach ([
     $campos[$campo] = is_string($valor) || is_numeric($valor) ? trim((string) $valor) : '';
 }
 
+if (!documentoColombiaValido($campos['documento_admin'])) {
+    http_response_code(422);
+    echo json_encode(['status' => 'error', 'mensaje' => MENSAJE_DOCUMENTO_INVALIDO]);
+    exit();
+}
+
 if (
     $campos['nombre_barberia'] === ''
     || strlen($campos['nombre_barberia']) > 100
@@ -50,8 +57,6 @@ if (
     || strlen($campos['telefono_barberia']) > 20
     || $campos['nombre_admin'] === ''
     || strlen($campos['nombre_admin']) > 150
-    || $campos['documento_admin'] === ''
-    || strlen($campos['documento_admin']) > 30
     || strlen($campos['telefono_admin']) > 20
     || !filter_var($campos['correo_admin'], FILTER_VALIDATE_EMAIL)
     || strlen($campos['correo_admin']) > 120

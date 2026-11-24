@@ -4,9 +4,9 @@
   margin: 0 auto;
   overflow: hidden;
   border: 2px solid var(--bauhaus-ink);
-  border-radius: 2px;
+  border-radius: 0;
   background: #fff;
-  box-shadow: 4px 4px 0 var(--bauhaus-cyan);
+  box-shadow: none;
 }
 
 .booking-stepper-indicators {
@@ -31,7 +31,7 @@
   flex: 0 0 auto;
   padding: 0;
   border: 0;
-  border-radius: 50%;
+  border-radius: 0;
   background: transparent;
   cursor: default;
 }
@@ -64,8 +64,8 @@
   width: 36px;
   height: 36px;
   place-items: center;
-  border: 2px solid #c9ccce;
-  border-radius: 50%;
+  border: 2px solid var(--bf-line);
+  border-radius: 0;
   background: #fff;
   color: #646b70;
   font-family: var(--font-ui);
@@ -96,7 +96,7 @@
   flex: 1;
   margin: 0 10px;
   overflow: hidden;
-  border-radius: 3px;
+  border-radius: 0;
   background: #dedfe0;
 }
 
@@ -115,7 +115,7 @@
 
 .booking-stepper-content {
   padding: 8px 28px 24px;
-  animation: booking-step-enter 250ms ease both;
+  animation: booking-step-enter var(--dur) var(--ease-out) backwards;
 }
 
 /* Contenido visible del paso y controles para avanzar o regresar. */
@@ -136,7 +136,7 @@
   min-height: 42px;
   padding: 9px 16px;
   border: 2px solid var(--bauhaus-ink);
-  border-radius: 2px;
+  border-radius: 0;
   color: var(--bauhaus-ink);
   cursor: pointer;
   font: inherit;
@@ -160,11 +160,11 @@
 
 .booking-stepper-next:hover:not(:disabled) {
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0 var(--bauhaus-ink);
+  box-shadow: var(--brand-shadow);
 }
 
 .booking-stepper-next:disabled {
-  border-color: #aeb2b4;
+  border-color: var(--bf-line);
   background: #e5e5e7;
   color: #6b7280;
   cursor: not-allowed;
@@ -223,4 +223,45 @@
   .booking-stepper-next {
     transition: none;
   }
+}
+
+/* Presentación del stepper en el flujo público; medidas táctiles amplias. */
+.agenda-page--fija .booking-stepper-indicators { align-items: center; }
+@media (max-width: 600px) {
+  .agenda-page--fija .booking-stepper-footer:empty { display: none; }
+}
+
+
+/* Indicadores de canal para la reserva p?blica. */
+.agenda-page--fija .booking-stepper-indicator-inner {
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--bf-muted);
+  border-radius: 0;
+  background: #fff;
+  color: var(--bf-black);
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+.agenda-page--fija .booking-stepper-indicator.active .booking-stepper-indicator-inner {
+  border-color: var(--bf-black);
+  background: var(--bf-orange);
+  color: var(--bf-black);
+}
+.agenda-page--fija .booking-stepper-indicator.complete .booking-stepper-indicator-inner {
+  border-color: var(--bf-black);
+  background: var(--bf-blue);
+  color: var(--bf-black);
+}
+.agenda-page--fija .booking-stepper-connector { background: var(--bf-line); }
+.agenda-page--fija .booking-stepper-connector span { background: var(--bf-blue); }
+.agenda-page--fija .booking-stepper-label { color: var(--bf-muted); font-size: 0.9rem; }
+.agenda-page--fija .booking-stepper-indicator.active .booking-stepper-label,
+.agenda-page--fija .booking-stepper-indicator.complete .booking-stepper-label { color: var(--bf-black); }
+
+/* Un solo trazo por número: el borde lo lleva el cuadrado interior. */
+.booking-stepper-indicator {
+  border: 0;
 }

@@ -61,7 +61,7 @@ body {
   width: 40px;
   height: 40px;
   min-width: 40px;
-  border-radius: 2px;
+  border-radius: 0;
   object-fit: cover;
   background: var(--bauhaus-paper);
 }
@@ -73,10 +73,10 @@ body {
 .sidebar-title {
   margin: 0;
   color: var(--bauhaus-paper);
-  font-family: var(--font-brand);
+  font-family: var(--font-display);
   font-size: 1.1rem;
   letter-spacing: 0.025em;
-  text-transform: uppercase;
+  text-transform: none;
   white-space: nowrap;
 }
 
@@ -97,14 +97,14 @@ body {
   min-height: 44px;
   padding: 10px 12px;
   box-sizing: border-box;
-  border-radius: 2px;
+  border-radius: 0;
   color: #eeeeef;
   font-family: var(--font-ui);
   font-size: 0.95rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.01em;
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: none;
   transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -154,9 +154,9 @@ body {
   color: var(--bauhaus-gray);
   font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.01em;
   line-height: 1.2;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 /* ── Headings ── */
@@ -181,7 +181,7 @@ body {
   margin: 0 0 24px;
   padding: 12px;
   border: 2px solid var(--bauhaus-ink);
-  border-radius: 2px;
+  border-radius: 0;
   background: var(--bauhaus-paper);
 }
 
@@ -193,7 +193,7 @@ body {
   min-height: 120px;
   padding: 20px 18px;
   border: 1px solid var(--bauhaus-gray);
-  border-radius: 2px;
+  border-radius: 0;
   background: #ffffff;
   color: var(--bauhaus-ink);
   font-weight: 700;
@@ -208,7 +208,7 @@ body {
   background: var(--bauhaus-ink);
   border-color: var(--bauhaus-ink);
   color: #fff;
-  box-shadow: 4px 4px 0 var(--bauhaus-cyan);
+  box-shadow: var(--brand-shadow);
 }
 
 .module-navigation-icon {
@@ -217,7 +217,7 @@ body {
   justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: 2px;
+  border-radius: 0;
   background: var(--bauhaus-cyan-light);
   font-size: 1.2rem;
   flex-shrink: 0;
@@ -275,9 +275,9 @@ body {
 .panel {
   background: #ffffff;
   border: 2px solid var(--bauhaus-ink);
-  border-radius: 2px;
+  border-radius: 0;
   padding: 24px;
-  box-shadow: 5px 5px 0 var(--bauhaus-cyan);
+  box-shadow: none;
   margin-bottom: 28px;
 }
 
@@ -328,7 +328,7 @@ body {
 }
 
 .eyebrow {
-  color: #0f766e;
+  color: var(--bf-blue-ink);
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -345,8 +345,8 @@ body {
   padding: 20px;
   background: #ffffff;
   border: 2px solid var(--bauhaus-ink);
-  border-radius: 2px;
-  box-shadow: 4px 4px 0 var(--bauhaus-cyan-light);
+  border-radius: 0;
+  box-shadow: none;
   color: var(--bauhaus-ink);
 }
 
@@ -396,7 +396,7 @@ body {
   height: 5px;
   margin-top: 12px;
   overflow: hidden;
-  border-radius: 99px;
+  border-radius: 0;
   background: var(--bauhaus-cyan-light);
 }
 
@@ -424,7 +424,7 @@ body {
   min-height: 140px;
   padding: 18px;
   border: 1px solid var(--bauhaus-gray);
-  border-radius: 2px;
+  border-radius: 0;
   background: var(--bauhaus-paper);
 }
 
@@ -472,7 +472,7 @@ body {
 .form-group input,
 .form-group select {
   border: 1px solid var(--bauhaus-gray);
-  border-radius: 2px;
+  border-radius: 0;
   padding: 12px 14px;
   font: inherit;
   background: #ffffff;
@@ -511,82 +511,91 @@ textarea:focus-visible {
 
 .login-page {
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: 24px;
-  background: var(--brand-gradient);
+  padding: clamp(20px, 5vw, 48px);
+  background: var(--bf-paper);
 }
 
+/* Tarjeta de acceso: trazo negro y la sombra azul del logo. */
 .login-card {
   width: min(100%, 460px);
-  padding: clamp(24px, 6vw, 42px);
-  border: 2px solid var(--bauhaus-ink);
-  background: var(--bauhaus-paper);
-  box-shadow: 8px 8px 0 var(--bauhaus-cyan);
+  margin-right: 10px;
+  padding: clamp(24px, 6vw, 44px);
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  box-shadow: 10px 10px 0 var(--bf-blue);
 }
 
-.login-brand-mark {
-  display: grid;
-  width: 54px;
-  height: 54px;
-  margin-bottom: 24px;
-  place-items: center;
-  border: 2px solid var(--bauhaus-ink);
-  background: var(--bauhaus-cyan);
-  color: var(--bauhaus-ink);
-  font-family: var(--font-brand);
-  font-size: 1.2rem;
+@media (prefers-reduced-motion: no-preference) {
+  .login-card {
+    animation: login-card-in 560ms var(--ease-out) both;
+  }
+}
+
+@keyframes login-card-in {
+  from { opacity: 0; transform: translateY(16px); box-shadow: 0 0 0 var(--bf-blue); }
+  60% { opacity: 1; transform: translateY(0); box-shadow: 0 0 0 var(--bf-blue); }
+  to { opacity: 1; transform: translateY(0); box-shadow: 10px 10px 0 var(--bf-blue); }
 }
 
 .login-brand-logo {
   display: block;
-  width: min(100%, 110px);
+  width: 132px;
   height: auto;
-  margin: 0 auto 24px;
+  margin: 0 0 28px;
   object-fit: contain;
 }
 
-.login-kicker {
-  margin-bottom: 8px;
-  color: var(--accent-dark);
-  font-family: var(--font-ui);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 .login-card h1 {
-  margin: 0 0 8px;
-  font-size: clamp(2rem, 6vw, 2.6rem);
+  margin: 0 0 10px;
+  font-size: clamp(2rem, 7vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
 }
 
 .login-description {
-  margin-bottom: 26px;
-  color: var(--text-muted);
+  margin-bottom: 28px;
+  color: var(--bf-muted);
+  font-size: 1.0625rem;
+  line-height: 1.5;
 }
 
 .login-form {
   display: grid;
-  gap: 18px;
+  gap: 20px;
 }
 
 .login-field {
   display: grid;
   gap: 8px;
-  color: var(--bauhaus-ink);
-  font-size: 0.9rem;
-  font-weight: 600;
+  color: var(--bf-black);
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .login-field input {
   width: 100%;
-  padding: 12px 14px;
-  border: 1px solid var(--bauhaus-gray);
-  border-radius: 2px;
-  background: #fff;
-  color: var(--bauhaus-ink);
+  min-height: 54px;
+  padding: 0 16px;
+  border: 2px solid var(--bf-black);
+  border-radius: 0;
+  background: var(--bf-paper);
+  color: var(--bf-text);
   font-family: var(--font-body);
+  font-size: 1.0625rem;
+  font-weight: 400;
+  transition: box-shadow var(--dur) var(--ease-out);
+}
+
+.login-field input:focus {
+  outline: 0;
+  box-shadow: var(--brand-shadow);
+}
+
+.login-field input::placeholder {
+  color: #6b6b6b;
 }
 
 .login-password-control {
@@ -596,91 +605,70 @@ textarea:focus-visible {
 }
 
 .login-password-control input {
-  padding-right: 88px;
+  padding-right: 104px;
 }
 
 .login-password-toggle {
   position: absolute;
   right: 10px;
-  border: 0;
-  background: transparent;
-  color: var(--accent-dark);
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.login-password-toggle:focus-visible {
-  outline: 2px solid var(--accent-dark);
-  outline-offset: 2px;
+  font-size: 0.95rem;
 }
 
 .login-btn {
   width: 100%;
-  margin-top: 4px;
-  padding: 12px 16px;
-  border: 2px solid var(--bauhaus-ink);
-  border-radius: 2px;
-  background: var(--bauhaus-cyan);
-  color: var(--bauhaus-ink);
-  cursor: pointer;
+  min-height: 56px;
+  margin-top: 6px;
+  padding: 0 20px;
   font-family: var(--font-ui);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  font-size: 1.0625rem;
+  font-weight: 600;
 }
 
 .login-btn:disabled {
   cursor: wait;
-  opacity: 0.7;
 }
 
 .login-back-link {
-  color: var(--bauhaus-ink);
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  color: var(--bf-black);
   font-family: var(--font-ui);
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
-  text-align: center;
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.25em;
+}
+
+.login-back-link:hover {
+  text-decoration-color: var(--bf-orange);
 }
 
 .login-recovery-link {
   justify-self: center;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--bauhaus-ink);
-  cursor: pointer;
   font-family: var(--font-ui);
-  font-size: 0.85rem;
-  font-weight: 650;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  font-size: 1rem;
 }
 
-.login-recovery-link:hover,
-.login-recovery-link:focus-visible {
-  color: var(--accent-dark);
-}
-
-.login-notice {
-  margin-top: 18px;
-  padding: 12px;
-  border: 1px solid #067647;
-  background: #ecfdf3;
-  color: #05603a;
+.login-notice,
+.login-error {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border: 2px solid currentColor;
+  font-size: 1rem;
   line-height: 1.5;
 }
 
+.login-notice {
+  background: #edf8f0;
+  color: var(--bf-success);
+}
+
 .login-error {
-  margin-top: 18px;
-  padding: 12px;
-  border: 1px solid #b42318;
-  background: #fff1f0;
-  color: #8a1c13;
+  background: #fdeceb;
+  color: var(--bf-danger);
 }
 
 .usuario-modal-backdrop {
@@ -700,7 +688,7 @@ textarea:focus-visible {
   padding: 26px;
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-paper);
-  box-shadow: 8px 8px 0 var(--bauhaus-cyan);
+  box-shadow: 10px 10px 0 var(--bf-blue);
 }
 
 .usuario-modal-header,
@@ -852,7 +840,7 @@ textarea:focus-visible {
   padding: clamp(24px, 5vw, 44px);
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-paper);
-  box-shadow: 8px 8px 0 var(--bauhaus-cyan);
+  box-shadow: 10px 10px 0 var(--bf-blue);
 }
 
 .password-setup-eyebrow {
@@ -861,8 +849,8 @@ textarea:focus-visible {
   font-family: var(--font-ui);
   font-size: 0.76rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .password-setup-description {
@@ -900,7 +888,7 @@ textarea:focus-visible {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--bauhaus-gray);
-  border-radius: 2px;
+  border-radius: 0;
   background: #fff;
   color: var(--bauhaus-ink);
   font-family: var(--font-body);
@@ -920,79 +908,136 @@ textarea:focus-visible {
 
 .barber-request-page {
   min-height: 100vh;
-  padding: 0 clamp(16px, 5vw, 72px) 48px;
-  background: var(--bauhaus-paper);
-  color: var(--bauhaus-ink);
+  padding: 0 clamp(18px, 5vw, 56px) 64px;
+  background: var(--bf-paper);
+  color: var(--bf-text);
 }
 
 .barber-request-header {
   display: flex;
-  min-height: 80px;
+  min-height: 72px;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 2px solid var(--bauhaus-ink);
+  gap: 16px;
+  margin: 0 calc(clamp(18px, 5vw, 56px) * -1);
+  padding: 0 clamp(18px, 5vw, 56px);
+  border-bottom: 2px solid var(--bf-black);
+  background: var(--bf-paper);
 }
 
-.barber-request-header a {
-  color: var(--bauhaus-ink);
-  font-weight: 700;
+.barber-request-header .discovery-brand img {
+  display: block;
+  width: auto;
+  height: 46px;
+}
+
+.barber-request-header > a:last-child {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  color: var(--bf-black);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  text-decoration-thickness: 2px;
+}
+
+.barber-request-header > a:last-child:hover {
+  text-decoration-color: var(--bf-orange);
 }
 
 .barber-request-card {
-  width: min(100%, 760px);
-  margin: 40px auto 0;
-  padding: clamp(20px, 4vw, 40px);
-  border: 2px solid var(--bauhaus-ink);
-  background: #fff;
-  box-shadow: 8px 8px 0 var(--bauhaus-cyan);
+  width: min(100% - 10px, 760px);
+  margin: clamp(28px, 6vw, 56px) auto 0;
+  padding: clamp(22px, 5vw, 44px);
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  box-shadow: 10px 10px 0 var(--bf-blue);
 }
 
 .barber-request-card h1 {
-  margin: 8px 0;
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 7vw, 2.75rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
 }
 
-.barber-request-card > p:not(.discovery-eyebrow) {
-  color: var(--text-muted);
+.barber-request-card > p {
+  max-width: 58ch;
+  color: var(--bf-muted);
+  font-size: 1.0625rem;
   line-height: 1.6;
 }
 
 .barber-request-form {
   display: grid;
-  gap: 16px;
-  margin-top: 28px;
+  gap: 18px;
+  margin-top: 32px;
 }
 
+/* Cada grupo de datos abre con un filete negro: orden claro, sin cajas extra. */
 .barber-request-form h2 {
-  margin-top: 10px;
-  font-size: 1.1rem;
+  margin-top: 14px;
+  padding-top: 18px;
+  border-top: 2px solid var(--bf-black);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.barber-request-form h2:first-child {
+  margin-top: 0;
 }
 
 .barber-request-form label {
   display: grid;
-  gap: 7px;
-  font-weight: 650;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .barber-request-form input {
   width: 100%;
   min-width: 0;
-  padding: 11px 12px;
-  border: 1px solid var(--bauhaus-gray);
-  color: var(--bauhaus-ink);
+  min-height: 54px;
+  padding: 0 16px;
+  border: 2px solid var(--bf-black);
+  border-radius: 0;
+  background: var(--bf-paper);
+  color: var(--bf-text);
+  font-size: 1.0625rem;
+  font-weight: 400;
+  transition: box-shadow var(--dur) var(--ease-out);
+}
+
+.barber-request-form input:focus {
+  outline: 0;
+  box-shadow: var(--brand-shadow);
 }
 
 .barber-request-form-row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 18px;
+}
+
+@media (min-width: 640px) {
+  .barber-request-form-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.barber-request-message {
+  padding: 14px 16px;
+  border: 2px solid currentColor;
+  font-size: 1rem;
 }
 
 .barber-request-message.error {
-  color: #a32116;
+  background: #fdeceb;
+  color: var(--bf-danger);
 }
 
 .barber-request-message.success {
-  color: #176b3a;
+  background: #edf8f0;
+  color: var(--bf-success);
 }
 
 .superadmin-request-list {
@@ -1059,7 +1104,7 @@ textarea:focus-visible {
   height: 46px;
   display: grid;
   place-items: center;
-  border-radius: 12px;
+  border-radius: 0;
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
   font-weight: 700;
@@ -1097,7 +1142,7 @@ textarea:focus-visible {
 
 .field-group input {
   border: 1px solid #d1d5db;
-  border-radius: 12px;
+  border-radius: 0;
   padding: 12px 14px;
   font: inherit;
   background: #ffffff;
@@ -1112,7 +1157,7 @@ textarea:focus-visible {
 .auth-hint {
   margin-top: 18px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 0;
   background: #f9fafb;
   border: 1px dashed #d1d5db;
   display: flex;
@@ -1193,8 +1238,9 @@ textarea:focus-visible {
 .appointment-readonly-notice {
   margin: 0 0 24px;
   padding: 12px 14px;
-  border-left: 4px solid var(--bauhaus-orange);
-  background: var(--bauhaus-cyan-light);
+  border: 2px solid var(--bf-orange-ink);
+  background: var(--bf-orange-wash);
+  color: var(--bf-orange-ink);
 }
 
 .barber-appointment-section + .barber-appointment-section {
@@ -1236,7 +1282,7 @@ textarea:focus-visible {
 .field-group textarea,
 .field-group input {
   border: 1px solid #d1d5db;
-  border-radius: 12px;
+  border-radius: 0;
   padding: 12px 14px;
   font: inherit;
   background: #ffffff;
@@ -1253,7 +1299,7 @@ textarea:focus-visible {
   margin-top: 24px;
   padding: 20px;
   border: 1px solid #e5e7eb;
-  border-radius: 18px;
+  border-radius: 0;
   margin: 0 0 6px;
   color: #111827;
 }
@@ -1274,7 +1320,7 @@ textarea:focus-visible {
   border: 1px solid #d1d5db;
   background: #ffffff;
   color: #374151;
-  border-radius: 999px;
+  border-radius: 0;
   padding: 8px 12px;
   cursor: pointer;
   font-weight: 600;
@@ -1294,7 +1340,7 @@ textarea:focus-visible {
 
 .field-group select {
   border: 1px solid #d1d5db;
-  border-radius: 12px;
+  border-radius: 0;
   padding: 12px 14px;
   font: inherit;
   background: #ffffff;
@@ -1308,7 +1354,7 @@ button,
 .nav-link,
 .day-chip,
 .profile-upload-btn {
-  border-radius: 2px;
+  border-radius: 0;
 }
 
 .btn {
@@ -1318,14 +1364,14 @@ button,
   gap: 8px;
   padding: 12px 20px;
   border: none;
-  border-radius: 2px;
+  border-radius: 0;
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
   cursor: pointer;
   font-family: var(--font-ui);
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
@@ -1348,14 +1394,14 @@ button,
   gap: 8px;
   padding: 8px 16px;
   border: 1px solid var(--bauhaus-ink);
-  border-radius: 2px;
+  border-radius: 0;
   background: var(--bauhaus-paper);
   color: var(--bauhaus-ink);
   cursor: pointer;
   font-family: var(--font-ui);
   font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
   transition: background 0.15s ease;
 }
 
@@ -1405,7 +1451,7 @@ button,
 /* ── Table ── */
 .table-wrapper {
   overflow-x: auto;
-  border-radius: 2px;
+  border-radius: 0;
   border: 2px solid var(--bauhaus-ink);
 }
 
@@ -1423,8 +1469,8 @@ thead {
   background: var(--bauhaus-ink);
   color: var(--bauhaus-paper);
   font-family: var(--font-ui);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 th, td {
@@ -1444,7 +1490,7 @@ tbody tr:hover {
 .badge {
   display: inline-flex;
   padding: 6px 10px;
-  border-radius: 2px;
+  border-radius: 0;
   background: var(--bauhaus-cyan-light);
   color: var(--bauhaus-ink);
   font-size: 0.85rem;
@@ -1569,7 +1615,7 @@ html, body {
   width: 100%;
   min-height: 100%;
   overflow-x: clip;
-  background: var(--bauhaus-cyan-light);
+  background: var(--bf-paper);
 }
 
 #root {
@@ -1623,7 +1669,7 @@ html, body {
 .content input:not([type="checkbox"]):not([type="radio"]),
 .content select,
 .content textarea {
-  border-radius: 2px;
+  border-radius: 0;
 }
 
 .content input:not([type="checkbox"]):not([type="radio"]):focus,
@@ -1646,7 +1692,7 @@ html, body {
 .report-mini-card,
 .agenda-calendar-panel,
 .agenda-schedule-panel {
-  border-radius: 2px;
+  border-radius: 0;
 }
 
 .report-mini-card,
@@ -1687,7 +1733,7 @@ input[type="reset"]:not(:disabled):hover,
   border-color: var(--bauhaus-ink);
   background-color: var(--bauhaus-orange);
   color: #ffffff;
-  box-shadow: 3px 3px 0 var(--bauhaus-cyan);
+  box-shadow: var(--brand-shadow);
   transform: translateY(-1px);
 }
 
@@ -1756,9 +1802,9 @@ input[type="reset"]:not(:disabled):hover,
   font-family: var(--font-ui);
   font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.01em;
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: none;
   white-space: nowrap;
   transition: color 0.2s ease, border-color 0.2s ease;
 }
@@ -1768,12 +1814,12 @@ input[type="reset"]:not(:disabled):hover,
 }
 
 .top-nav-link:hover {
-  color: #117d7d;
+  color: var(--bf-blue-ink);
 }
 
 .top-nav-link.active {
   border-bottom-color: var(--bauhaus-cyan);
-  color: #117d7d;
+  color: var(--bf-blue-ink);
 }
 
 .top-nav-link:focus-visible,
@@ -1797,8 +1843,8 @@ input[type="reset"]:not(:disabled):hover,
   font-family: var(--font-ui);
   font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
   cursor: pointer;
 }
 
@@ -1847,4 +1893,158 @@ input[type="reset"]:not(:disabled):hover,
   .top-nav .top-nav-logout span {
     display: none;
   }
+}
+
+/* ── Barra superior del panel: mismo lenguaje que la parte pública ── */
+.top-nav {
+  background: var(--bf-paper);
+}
+
+.top-nav-link {
+  position: relative;
+  min-height: 48px;
+  padding: 0 14px;
+  border-bottom: 0;
+  color: var(--bf-black);
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+/* Indicador de sección: barra naranja que crece desde la izquierda. */
+.top-nav-link::after {
+  position: absolute;
+  right: 10px;
+  bottom: 0;
+  left: 10px;
+  height: 4px;
+  background: var(--bf-orange);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.top-nav-link svg {
+  color: var(--bf-muted);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.top-nav-link:hover {
+  color: var(--bf-black);
+}
+
+.top-nav-link:hover::after {
+  transform: scaleX(0.4);
+}
+
+.top-nav-link.active {
+  color: var(--bf-black);
+}
+
+.top-nav-link.active::after {
+  transform: scaleX(1);
+}
+
+.top-nav-link.active svg {
+  color: var(--bf-orange-ink);
+}
+
+.top-nav-link:focus-visible,
+.top-nav .top-nav-logout:focus-visible {
+  outline: 3px solid var(--bf-black);
+  outline-offset: -3px;
+}
+
+.top-nav .top-nav-logout {
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.top-nav-list {
+  scroll-snap-type: x proximity;
+}
+
+.top-nav-list li {
+  scroll-snap-align: start;
+}
+
+/* Contenido del panel: entra con un desplazamiento corto al cambiar de sección. */
+@media (prefers-reduced-motion: no-preference) {
+  .app-shell:has(.top-nav) .content > * {
+    animation: panel-enter var(--dur) var(--ease-out) backwards;
+  }
+}
+
+@keyframes panel-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Mundo "poste renovado" en login, solicitud y perfil del cliente ── */
+.login-page,
+.barber-request-page {
+  background: var(--bf-cyan);
+}
+
+.login-card,
+.barber-request-card {
+  box-shadow: 14px 14px 0 var(--bf-black);
+}
+
+@keyframes login-card-in {
+  from { opacity: 0; transform: translateY(16px); box-shadow: 0 0 0 var(--bf-black); }
+  60% { opacity: 1; transform: translateY(0); box-shadow: 0 0 0 var(--bf-black); }
+  to { opacity: 1; transform: translateY(0); box-shadow: 14px 14px 0 var(--bf-black); }
+}
+
+.login-card h1,
+.barber-request-card h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.barber-request-form h2 {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+/* Rayas del poste bajo la cabecera de la solicitud. */
+.barber-request-header {
+  position: relative;
+  border-bottom: 0;
+}
+
+.barber-request-header::after {
+  position: absolute;
+  right: 0;
+  bottom: -12px;
+  left: 0;
+  height: 12px;
+  border-top: 2px solid var(--bf-black);
+  border-bottom: 2px solid var(--bf-black);
+  background: var(--pole-stripes);
+  background-size: 51px 51px;
+  content: "";
+}
+
+/* Sin franjas decorativas: un filete negro limpio separa la cabecera. */
+.barber-request-header::after {
+  display: none;
+}
+
+.barber-request-header {
+  border-bottom: 2px solid var(--bf-black);
+}
+
+/* Login y solicitud: degradado original de fondo. */
+.login-page,
+.barber-request-page {
+  background: var(--brand-gradient);
 }

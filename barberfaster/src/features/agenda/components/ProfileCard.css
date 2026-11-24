@@ -34,8 +34,8 @@
   overflow: hidden;
   border: 2px solid var(--bauhaus-ink, #393939);
   border-radius: 0;
-  background: var(--bauhaus-cyan-light, #dff7f6);
-  box-shadow: 4px 4px 0 var(--bauhaus-cyan, #2bcfce);
+  background: var(--bauhaus-cyan-light, var(--bf-blue-wash));
+  box-shadow: none;
   transform: rotateX(var(--rotate-x)) rotateY(var(--rotate-y));
   transform-style: preserve-3d;
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
@@ -43,7 +43,7 @@
 
 .pc-card-wrapper:hover .pc-card {
   border-color: var(--bauhaus-ink, #393939);
-  box-shadow: 5px 5px 0 var(--bauhaus-orange, #ec4d25);
+  box-shadow: var(--brand-shadow);
 }
 
 .pc-inside,
@@ -102,8 +102,8 @@
   display: grid;
   place-items: center;
   background:
-    linear-gradient(145deg, rgba(43, 207, 206, 0.25), transparent 68%),
-    var(--bauhaus-cyan-light, #dff7f6);
+    linear-gradient(145deg, rgba(25, 159, 209, 0.25), transparent 68%),
+    var(--bauhaus-cyan-light, var(--bf-blue-wash));
 }
 
 .pc-avatar-placeholder span {
@@ -113,12 +113,12 @@
   place-items: center;
   border: 2px solid var(--bauhaus-ink, #393939);
   border-radius: 0;
-  background: var(--bauhaus-cyan, #2bcfce);
+  background: var(--bauhaus-cyan, var(--bf-blue));
   color: var(--bauhaus-ink, #393939);
   font-family: var(--font-ui);
   font-size: 3rem;
   font-weight: 600;
-  box-shadow: 5px 5px 0 var(--bauhaus-orange, #ec4d25);
+  box-shadow: none;
 }
 
 /* Datos del profesional y botón de contacto en la base de la tarjeta. */
@@ -135,7 +135,7 @@
   padding: 10px 12px;
   border-top: 2px solid var(--bauhaus-ink, #393939);
   border-radius: 0;
-  background: var(--bauhaus-cyan-light, #dff7f6);
+  background: var(--bauhaus-cyan-light, var(--bf-blue-wash));
 }
 
 .pc-user-details {
@@ -154,7 +154,7 @@
   overflow: hidden;
   border: 2px solid var(--bauhaus-ink, #393939);
   border-radius: 0;
-  background: var(--bauhaus-cyan, #2bcfce);
+  background: var(--bauhaus-cyan, var(--bf-blue));
   color: var(--bauhaus-ink, #393939);
   font-size: 0.75rem;
   font-weight: 700;
@@ -172,7 +172,7 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  color: #9b5b00;
+  color: var(--bf-black);
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -181,7 +181,7 @@
   width: 18px;
   height: 18px;
   flex: 0 0 auto;
-  color: #9b5b00;
+  color: var(--bf-black);
 }
 
 .pc-user-text {
@@ -213,7 +213,7 @@
   padding: 9px 11px;
   border: 2px solid var(--bauhaus-ink, #393939);
   border-radius: 0;
-  background: var(--bauhaus-cyan, #2bcfce);
+  background: var(--bauhaus-cyan, var(--bf-blue));
   color: var(--bauhaus-ink, #253536);
   cursor: pointer;
   font: inherit;
@@ -224,12 +224,12 @@
 
 .pc-contact-btn:hover {
   transform: translate(-1px, -1px);
-  background: var(--bauhaus-orange, #ec4d25);
-  box-shadow: 2px 2px 0 var(--bauhaus-ink, #393939);
+  background: var(--bauhaus-orange, var(--bf-orange));
+  box-shadow: var(--brand-shadow);
 }
 
 .pc-contact-btn:focus-visible {
-  outline: 3px solid var(--bauhaus-orange, #ec4d25);
+  outline: 3px solid var(--bauhaus-orange, var(--bf-orange));
   outline-offset: 2px;
 }
 
@@ -257,3 +257,70 @@
     transition: none;
   }
 }
+
+/* Tarjeta plana y accesible del profesional; sin efectos decorativos en reposo. */
+.pc-card-wrapper { perspective: none; }
+.pc-behind, .pc-shine, .pc-glare { display: none; }
+.pc-card-shell { height: 300px; }
+.pc-card {
+  border: 2px solid var(--bf-black, #1a1a1a);
+  border-radius: 0;
+  background: var(--bf-blue-wash, #e7f5fa);
+  box-shadow: none;
+  transform: none;
+  transition: box-shadow var(--dur, 180ms) var(--ease-out, ease-out), transform var(--dur, 180ms) var(--ease-out, ease-out);
+}
+.pc-card-wrapper:hover .pc-card { box-shadow: var(--brand-shadow, 4px 4px 0 #199fd1); transform: translate(calc(var(--brand-offset, 4px) * -1), calc(var(--brand-offset, 4px) * -1)); }
+.pc-inside { background: var(--bf-blue-wash, #e7f5fa) !important; }
+.pc-avatar-content .avatar { mask-image: none; }
+.pc-avatar-placeholder { background: var(--bf-blue-wash, #e7f5fa); }
+.pc-avatar-placeholder span {
+  width: 112px; height: 112px; border: 2px solid var(--bf-black, #1a1a1a); border-radius: 0;
+  background: var(--bf-orange, #ea5728); color: var(--bf-black, #1a1a1a); box-shadow: none;
+}
+.pc-user-info { min-height: 76px; border-top: 2px solid var(--bf-black, #1a1a1a); border-radius: 0; background: var(--bf-paper, #fff); }
+.pc-mini-avatar { width: 42px; height: 42px; border: 2px solid var(--bf-black, #1a1a1a); border-radius: 0; background: var(--bf-blue, #199fd1); }
+.pc-name { color: var(--bf-text, #1a1a1a); font-size: 1rem; }
+.pc-specialty { color: var(--bf-muted, #545454); font-size: 0.9rem; }
+.pc-contact-btn { min-height: 48px; padding: 10px 12px; border: 2px solid var(--bf-black, #1a1a1a); border-radius: 0; background: var(--bf-blue, #199fd1); color: var(--bf-black, #1a1a1a); font-size: 0.9rem; }
+@media (prefers-reduced-motion: reduce) { .pc-card { transform: none; } }
+
+/* Nombres completos: en teléfonos angostos parten línea en vez de cortarse. */
+.pc-name,
+.pc-specialty {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.pc-name {
+  font-size: 1.0625rem;
+}
+
+.pc-specialty {
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.pc-rating-star {
+  color: var(--bf-orange);
+}
+
+/* "Elegir" es la única acción del paso: botón principal, cómodo al pulgar. */
+.pc-contact-btn {
+  min-height: 48px;
+  padding: 0 20px;
+  font-size: 1rem;
+}
+
+/* Barbero elegido: sombra azul de marca también fuera de la reserva pública. */
+.pc-card-wrapper.selected .pc-card {
+  border-color: var(--bf-black);
+  box-shadow: var(--brand-shadow);
+}
+
+
+/* Tarjeta Bauhaus en el selector p?blico de profesionales. */
+.agenda-page--fija .pc-card { border-color: var(--bf-black); background: var(--bf-paper); }
+.agenda-page--fija .pc-user-info { border-color: var(--bf-black); }

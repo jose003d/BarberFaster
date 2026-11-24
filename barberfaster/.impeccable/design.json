@@ -1,0 +1,541 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-24T00:00:00Z",
+  "title": "Design System: BarberFaster",
+  "extensions": {
+    "colorMeta": {
+      "bf-orange": {
+        "role": "primary",
+        "displayName": "Naranja Navaja",
+        "canonical": "#ea5728",
+        "tonalRamp": [
+          "#3b160a",
+          "#692712",
+          "#98391a",
+          "#c74a22",
+          "#ee7953",
+          "#f3a389",
+          "#f9cdbf",
+          "#fdeeea"
+        ]
+      },
+      "bf-orange-ink": {
+        "role": "primary",
+        "displayName": "Naranja Tinta",
+        "canonical": "#b33d14",
+        "tonalRamp": [
+          "#2d0f05",
+          "#511b09",
+          "#74280d",
+          "#983411",
+          "#c26443",
+          "#d5947e",
+          "#e8c5b9",
+          "#f7ece8"
+        ]
+      },
+      "bf-orange-wash": {
+        "role": "primary",
+        "displayName": "Naranja Lavado",
+        "canonical": "#fdeee8",
+        "tonalRamp": [
+          "#3f3c3a",
+          "#726b68",
+          "#a49b97",
+          "#d7cac5",
+          "#fdf1ed",
+          "#fef6f2",
+          "#fefaf8",
+          "#fffdfd"
+        ]
+      },
+      "bf-cyan": {
+        "role": "secondary",
+        "displayName": "Cian Poste",
+        "canonical": "#2bcfce",
+        "tonalRamp": [
+          "#0b3434",
+          "#135d5d",
+          "#1c8786",
+          "#25b0af",
+          "#55d9d8",
+          "#8ae5e4",
+          "#bff1f0",
+          "#eafafa"
+        ]
+      },
+      "bf-cyan-mid": {
+        "role": "secondary",
+        "displayName": "Cian Medio (parada del degradado)",
+        "canonical": "#81e4e9",
+        "tonalRamp": [
+          "#20393a",
+          "#3a6769",
+          "#549497",
+          "#6ec2c6",
+          "#9ae9ed",
+          "#baf0f3",
+          "#d9f7f8",
+          "#f2fcfd"
+        ]
+      },
+      "bf-cyan-ink": {
+        "role": "secondary",
+        "displayName": "Cian Tinta",
+        "canonical": "#0b6f6e",
+        "tonalRamp": [
+          "#031c1c",
+          "#053231",
+          "#074848",
+          "#095e5e",
+          "#3c8c8b",
+          "#79b0af",
+          "#b6d4d4",
+          "#e7f1f1"
+        ]
+      },
+      "bf-cyan-wash": {
+        "role": "secondary",
+        "displayName": "Cian Lavado",
+        "canonical": "#dff7f6",
+        "tonalRamp": [
+          "#383e3e",
+          "#646f6f",
+          "#91a1a0",
+          "#bed2d1",
+          "#e5f9f8",
+          "#edfbfa",
+          "#f5fdfc",
+          "#fcfefe"
+        ]
+      },
+      "bf-black": {
+        "role": "neutral",
+        "displayName": "Petróleo",
+        "canonical": "#0e3b40",
+        "tonalRamp": [
+          "#040f10",
+          "#061b1d",
+          "#09262a",
+          "#0c3236",
+          "#3e6266",
+          "#7a9396",
+          "#b7c4c6",
+          "#e7ebec"
+        ]
+      },
+      "bf-on-action": {
+        "role": "neutral",
+        "displayName": "Negro de Acción",
+        "canonical": "#000000",
+        "tonalRamp": [
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#333333",
+          "#737373",
+          "#b3b3b3",
+          "#e6e6e6"
+        ]
+      },
+      "bf-text": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#1a1a1a",
+        "tonalRamp": [
+          "#070707",
+          "#0c0c0c",
+          "#111111",
+          "#161616",
+          "#484848",
+          "#818181",
+          "#bababa",
+          "#e8e8e8"
+        ]
+      },
+      "bf-muted": {
+        "role": "neutral",
+        "displayName": "Gris Pizarra",
+        "canonical": "#4d5656",
+        "tonalRamp": [
+          "#131616",
+          "#232727",
+          "#323838",
+          "#414949",
+          "#717878",
+          "#9da2a2",
+          "#cacccc",
+          "#edeeee"
+        ]
+      },
+      "bf-on-petrol-muted": {
+        "role": "neutral",
+        "displayName": "Petróleo Claro",
+        "canonical": "#b8d3d5",
+        "tonalRamp": [
+          "#2e3535",
+          "#535f60",
+          "#78898a",
+          "#9cb3b5",
+          "#c6dcdd",
+          "#d8e7e8",
+          "#eaf2f2",
+          "#f8fbfb"
+        ]
+      },
+      "bf-paper": {
+        "role": "neutral",
+        "displayName": "Papel",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#404040",
+          "#737373",
+          "#a6a6a6",
+          "#d9d9d9",
+          "#f5f5f5",
+          "#fafafa",
+          "#fdfdfd",
+          "#ffffff"
+        ]
+      },
+      "bf-surface": {
+        "role": "neutral",
+        "displayName": "Superficie",
+        "canonical": "#f3f7f7",
+        "tonalRamp": [
+          "#3d3e3e",
+          "#6d6f6f",
+          "#9ea1a1",
+          "#cfd2d2",
+          "#f5f9f9",
+          "#f8fbfb",
+          "#fbfdfd",
+          "#fefefe"
+        ]
+      },
+      "bf-line": {
+        "role": "neutral",
+        "displayName": "Filete",
+        "canonical": "#d3dcdc",
+        "tonalRamp": [
+          "#353737",
+          "#5f6363",
+          "#898f8f",
+          "#b3bbbb",
+          "#dce3e3",
+          "#e7ecec",
+          "#f2f5f5",
+          "#fbfcfc"
+        ]
+      },
+      "bf-success": {
+        "role": "neutral",
+        "displayName": "Éxito",
+        "canonical": "#1f7a3a",
+        "tonalRamp": [
+          "#081f0f",
+          "#0e371a",
+          "#144f26",
+          "#1a6831",
+          "#4c9561",
+          "#84b693",
+          "#bcd7c4",
+          "#e9f2eb"
+        ]
+      },
+      "bf-danger": {
+        "role": "neutral",
+        "displayName": "Peligro",
+        "canonical": "#c0271b",
+        "tonalRamp": [
+          "#300a07",
+          "#56120c",
+          "#7d1912",
+          "#a32117",
+          "#cd5249",
+          "#dc8882",
+          "#ecbebb",
+          "#f9e9e8"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Solo el titular de la banda petróleo de la portada, en mayúsculas y dos líneas."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Títulos de sección de la portada, login, solicitud y dueños."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "La frase principal dentro de la ventana, máximo 18ch."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Nombres de barbería, pasos y títulos de paso en la reserva."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texto de lectura a 17px; descripciones de 32ch a 62ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Botones, navegación, etiquetas y controles en Chillax, tipo oración."
+      }
+    },
+    "gradients": [
+      {
+        "name": "brand-gradient",
+        "value": "linear-gradient(90deg, #dff7f6 0%, #81e4e9 48%, #2bcfce 100%)",
+        "purpose": "Degradado original de BarberFaster para todos los espacios de color grandes."
+      }
+    ],
+    "shadows": [
+      {
+        "name": "brand-shadow",
+        "value": "4px 4px 0 #0e3b40",
+        "purpose": "Hover de botones, hora elegida, profesional y método de pago elegidos, foco del filtro de ciudad."
+      },
+      {
+        "name": "window",
+        "value": "14px 14px 0 #0e3b40",
+        "purpose": "Ventana de la portada y de dueños, tarjeta de login, solicitud y acceso del cliente; 10px en teléfono."
+      },
+      {
+        "name": "card-hover",
+        "value": "8px 8px 0 #2bcfce",
+        "purpose": "Hover de la tarjeta de barbería."
+      },
+      {
+        "name": "search-focus",
+        "value": "5px 5px 0 #2bcfce",
+        "purpose": "Buscador de la portada con foco."
+      },
+      {
+        "name": "dialog",
+        "value": "12px 12px 0 #ea5728",
+        "purpose": "Detalle de barbería como diálogo desde 640px."
+      },
+      {
+        "name": "focus-ring",
+        "value": "outline: 3px solid #0e3b40; outline-offset: 3px",
+        "purpose": "Foco visible global."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Salida suave por defecto; nada rebota."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "purpose": "Transiciones simétricas."
+      },
+      {
+        "name": "dur-fast",
+        "value": "160ms",
+        "purpose": "Cambio de color de botones y enlaces."
+      },
+      {
+        "name": "dur",
+        "value": "280ms",
+        "purpose": "Sombra y desplazamiento de botones, indicador de navegación."
+      },
+      {
+        "name": "dur-slow",
+        "value": "560ms",
+        "purpose": "Subida de contenido en la portada y la tarjeta de login."
+      },
+      {
+        "name": "press",
+        "value": "60ms",
+        "purpose": "El botón baja sobre su sombra al presionar."
+      },
+      {
+        "name": "hero-curtain",
+        "value": "900ms clip-path inset(0 100% 0 0) a inset(0)",
+        "purpose": "El video de la ventana se abre como cortina; único momento de la entrada."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "1ms",
+        "purpose": "Con prefers-reduced-motion todas las animaciones y transiciones se anulan."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow",
+        "value": "380px"
+      },
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "tablet",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "900px"
+      },
+      {
+        "name": "short",
+        "value": "max-height: 720px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón por defecto",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "Cian en reposo; al pasar se vuelve naranja y sube sobre la sombra petróleo; al presionar baja.",
+      "html": "<button class=\"ds-btn\">Ver detalles</button>",
+      "css": ".ds-btn { min-height: 52px; padding: 0 24px; border: 2px solid var(--bf-black, #0e3b40); border-radius: 0; background: var(--bf-cyan, #2bcfce); color: #000; font-family: Chillax, Satoshi, sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.01em; cursor: pointer; box-shadow: 0 0 0 #0e3b40; transform: translate(0,0); transition: background-color 160ms cubic-bezier(0.22,1,0.36,1), box-shadow 280ms cubic-bezier(0.22,1,0.36,1), transform 280ms cubic-bezier(0.22,1,0.36,1); } .ds-btn:hover { background: var(--bf-orange, #ea5728); box-shadow: 4px 4px 0 #0e3b40; transform: translate(-4px,-4px); } .ds-btn:active { box-shadow: 0 0 0 #0e3b40; transform: translate(0,0); transition-duration: 60ms; } .ds-btn:focus-visible { outline: 3px solid #0e3b40; outline-offset: 3px; }"
+    },
+    {
+      "name": "Botón principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Naranja desde el inicio; en táctil descansa con la sombra puesta y baja al tocarlo.",
+      "html": "<button class=\"ds-btn-primary\">Buscar</button>",
+      "css": ".ds-btn-primary { min-height: 56px; padding: 0 28px; border: 2px solid #0e3b40; border-radius: 0; background: var(--bf-orange, #ea5728); color: #000; font-family: Chillax, Satoshi, sans-serif; font-size: 1.0625rem; font-weight: 600; cursor: pointer; transition: box-shadow 280ms cubic-bezier(0.22,1,0.36,1), transform 280ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-primary:hover { box-shadow: 4px 4px 0 #0e3b40; transform: translate(-4px,-4px); } .ds-btn-primary:active { box-shadow: 0 0 0 #0e3b40; transform: translate(0,0); transition-duration: 60ms; } .ds-btn-primary:focus-visible { outline: 3px solid #0e3b40; outline-offset: 3px; }"
+    },
+    {
+      "name": "Botón tranquilo",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Blanco con trazo para acciones secundarias; mismo gesto al pasar.",
+      "html": "<button class=\"ds-btn-quiet\">Atrás</button>",
+      "css": ".ds-btn-quiet { min-height: 52px; padding: 0 20px; border: 2px solid #0e3b40; border-radius: 0; background: #fff; color: #000; font-family: Chillax, Satoshi, sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 160ms cubic-bezier(0.22,1,0.36,1), box-shadow 280ms cubic-bezier(0.22,1,0.36,1), transform 280ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-quiet:hover { background: #ea5728; box-shadow: 4px 4px 0 #0e3b40; transform: translate(-4px,-4px); } .ds-btn-quiet:active { box-shadow: 0 0 0 #0e3b40; transform: translate(0,0); transition-duration: 60ms; } .ds-btn-quiet:focus-visible { outline: 3px solid #0e3b40; outline-offset: 3px; }"
+    },
+    {
+      "name": "Buscador",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Campo blanco recto con trazo petróleo de 3px; con foco muestra una sombra cian desplazada.",
+      "html": "<input class=\"ds-input\" type=\"search\" placeholder=\"Nombre de la barbería\">",
+      "css": ".ds-input { width: 100%; min-height: 56px; padding: 0 12px; border: 3px solid #0e3b40; border-radius: 0; background: #fff; color: #1a1a1a; font-family: Satoshi, system-ui, sans-serif; font-size: 1.0625rem; caret-color: #ea5728; transition: box-shadow 280ms cubic-bezier(0.22,1,0.36,1); } .ds-input:focus, .ds-input:focus-visible { outline: 0; box-shadow: 5px 5px 0 #2bcfce; }"
+    },
+    {
+      "name": "Navegación pública",
+      "kind": "nav",
+      "refersTo": "nav-public",
+      "description": "Cabecera fundida con el degradado; barra naranja de 4px crece bajo el enlace al pasar.",
+      "html": "<nav class=\"ds-nav\"><strong class=\"ds-nav-brand\">BarberFaster</strong><a class=\"ds-nav-link\" href=\"#\">Barberías</a><a class=\"ds-nav-link\" href=\"#\">Ingresar</a></nav>",
+      "css": ".ds-nav { display: flex; min-height: 72px; align-items: center; gap: 28px; padding: 0 24px; background: linear-gradient(90deg, #dff7f6 0%, #81e4e9 48%, #2bcfce 100%); } .ds-nav-brand { margin-right: auto; color: #0e3b40; font-family: Satoshi, sans-serif; font-weight: 900; letter-spacing: -0.03em; } .ds-nav-link { position: relative; display: inline-flex; min-height: 48px; align-items: center; color: #1a1a1a; font-family: Chillax, Satoshi, sans-serif; font-size: 1rem; font-weight: 600; text-decoration: none; } .ds-nav-link::after { position: absolute; right: 0; bottom: 10px; left: 0; height: 4px; background: #ea5728; content: \"\"; transform: scaleX(0); transform-origin: left; transition: transform 280ms cubic-bezier(0.22,1,0.36,1); } .ds-nav-link:hover::after, .ds-nav-link:focus-visible::after { transform: scaleX(1); } .ds-nav-link:focus-visible { outline: 3px solid #0e3b40; outline-offset: 3px; }"
+    },
+    {
+      "name": "Tarjeta de barbería",
+      "kind": "card",
+      "refersTo": "card-barberia",
+      "description": "Tarjeta blanca recta con trazo petróleo; al pasar sube sobre una sombra cian de 8px.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-img\"></div><div class=\"ds-card-body\"><h3>Barbería El Centro</h3><p>Calle 10, Sonsón</p><button class=\"ds-card-btn\">Ver detalles</button></div></article>",
+      "css": ".ds-card { max-width: 320px; border: 2px solid #0e3b40; border-radius: 0; background: #fff; transition: box-shadow 280ms cubic-bezier(0.22,1,0.36,1), transform 280ms cubic-bezier(0.22,1,0.36,1); } .ds-card:hover { box-shadow: 8px 8px 0 #2bcfce; transform: translate(-4px,-4px); } .ds-card-img { aspect-ratio: 4 / 3; border-bottom: 2px solid #0e3b40; background: linear-gradient(90deg, #dff7f6, #2bcfce); } .ds-card-body { display: grid; gap: 10px; padding: 20px; } .ds-card-body h3 { margin: 0; color: #0e3b40; font-family: Satoshi, sans-serif; font-size: 1.65rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; } .ds-card-body p { margin: 0; color: #4d5656; } .ds-card-btn { min-height: 48px; border: 2px solid #0e3b40; border-radius: 0; background: #fff; color: #000; font-family: Chillax, Satoshi, sans-serif; font-weight: 600; cursor: pointer; }"
+    },
+    {
+      "name": "La ventana",
+      "kind": "custom",
+      "refersTo": "hero-window",
+      "description": "Componente firma: marco blanco sin barra de título, contenido y banda petróleo con el titular display.",
+      "html": "<div class=\"ds-window-field\"><div class=\"ds-window\"><div class=\"ds-window-copy\"><p class=\"ds-window-lead\">Tu próximo corte, reservado en pocos pasos.</p></div><div class=\"ds-window-band\"><span>TU ESTILO.</span><span>TU LUGAR.</span></div></div></div>",
+      "css": ".ds-window-field { padding: 16px 26px 30px 16px; background: linear-gradient(90deg, #dff7f6 0%, #81e4e9 48%, #2bcfce 100%); } .ds-window { border: 3px solid #0e3b40; border-radius: 0; background: #fff; box-shadow: 10px 10px 0 #0e3b40; } .ds-window-copy { padding: 20px; } .ds-window-lead { max-width: 18ch; margin: 0; color: #0e3b40; font-family: Satoshi, sans-serif; font-size: 1.75rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1.1; } .ds-window-band { display: flex; flex-direction: column; padding: 12px 18px 8px; border-top: 3px solid #0e3b40; background: #0e3b40; color: #fff; font-family: Satoshi, sans-serif; font-size: 3rem; font-weight: 900; letter-spacing: -0.045em; line-height: 0.88; text-transform: uppercase; } .ds-window-band span + span { color: #ea5728; }"
+    },
+    {
+      "name": "Tríada de pasos",
+      "kind": "custom",
+      "refersTo": "step-shape",
+      "description": "Cuadrado naranja, círculo cian y triángulo petróleo: solo numeran los tres pasos de la reserva.",
+      "html": "<div class=\"ds-steps\"><span class=\"ds-step ds-step-sq\">1</span><span class=\"ds-step ds-step-ci\">2</span><span class=\"ds-step ds-step-tr\"><svg viewBox=\"0 0 100 100\" aria-hidden=\"true\"><polygon points=\"50,4 98,96 2,96\"/></svg><b>3</b></span></div>",
+      "css": ".ds-steps { display: flex; gap: 24px; } .ds-step { position: relative; display: grid; width: 84px; height: 84px; place-items: center; color: #000; font-family: Satoshi, sans-serif; font-size: 2.4rem; font-weight: 900; } .ds-step-sq { border: 3px solid #0e3b40; background: #ea5728; } .ds-step-ci { border: 3px solid #0e3b40; border-radius: 50%; background: #2bcfce; } .ds-step-tr svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: #0e3b40; } .ds-step-tr b { position: relative; padding-top: 22px; color: #fff; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Una ventana a las barberías de Sonsón",
+    "overview": "BarberFaster no abandona la barbería clásica: la refresca. El rojo, el azul y el blanco del poste se vuelven naranja, cian y blanco, y el negro se vuelve petróleo (\"no queremos tanto negro\"). Encima de esa paleta va una disciplina Bauhaus: retícula clara, color plano, trazos de 2 a 3px, sombras sólidas desplazadas y esquinas rectas en todo. Las esquinas rectas son deliberadas: rompen el molde de bordes redondeados que comparten los demás proyectos de la clase.\n\nLa pieza que define el mundo es la ventana enmarcada: un marco blanco con trazo y sombra petróleo, apoyado sobre el degradado original de cian muy claro a cian, que muestra el oficio en video real y deja buscar y reservar desde el primer segundo. Debajo, una banda petróleo lleva el titular enorme \"TU ESTILO. / TU LUGAR.\" La tríada cuadrado, círculo y triángulo aparece una sola vez, para numerar los tres pasos de la reserva; no se usa como adorno.\n\nLa densidad es generosa y legible, pensada para un público amplio que incluye personas mayores en teléfono: texto base de 17px, objetivos táctiles de 48px o más, frases cortas. El movimiento es corto y tranquilo; nada rebota.",
+    "keyCharacteristics": [
+      "Naranja para la acción, cian para refrescar, blanco donde se lee, petróleo para trazos, sombras, titulares y bandas.",
+      "Esquinas rectas (0px) en todos los controles, tarjetas, campos y ventanas; el círculo solo existe en la tríada.",
+      "Sombra de marca sólida y desplazada, sin difuminado.",
+      "Satoshi en peso negro para titulares; Chillax para controles.",
+      "La primera pantalla de la portada muestra todo sin desplazar, de 375×667 a 1440×900."
+    ],
+    "rules": [
+      {
+        "name": "The Degradado Original Rule",
+        "body": "Los espacios de color grandes (cabecera, portada, sección de dueños, fondo de login, solicitud y perfil del cliente, cabecera de la reserva) usan `--brand-gradient`: de cian lavado a cian, de izquierda a derecha. Nunca un campo de cian plano y saturado, nunca un fondo negro.",
+        "section": "colors"
+      },
+      {
+        "name": "The Petróleo No Negro Rule",
+        "body": "El oscuro de la marca es petróleo. Ningún fondo, trazo ni sombra nuevo usa negro puro; el negro real queda solo como texto sobre naranja y cian.",
+        "section": "colors"
+      },
+      {
+        "name": "The Naranja Actúa Rule",
+        "body": "El naranja marca lo que se puede hacer o lo que está elegido. No se usa como fondo de sección ni como decoración.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tipo Oración Rule",
+        "body": "Botones, etiquetas y enlaces van en tipo oración. Las mayúsculas sostenidas se reservan para el titular display de la banda.",
+        "section": "typography"
+      },
+      {
+        "name": "The Peso Negro Rule",
+        "body": "Los titulares van en 800 o 900 con tracking negativo; nunca en peso ligero ni con otra familia de display.",
+        "section": "typography"
+      },
+      {
+        "name": "The Bloque Sólido Rule",
+        "body": "Toda sombra es un bloque desplazado con 0 de desenfoque. Si una sombra tiene difuminado, no pertenece a este mundo.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Baja Sobre Su Sombra Rule",
+        "body": "Un botón al pasar sube sobre su sombra; al presionar, baja a su lugar en 60ms. En táctil, el botón principal descansa con la sombra puesta y al tocarlo baja 4px.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Esquina Recta Rule",
+        "body": "Ningún componente lleva `border-radius` distinto de 0, salvo el círculo de la tríada.",
+        "section": "shapes"
+      },
+      {
+        "name": "The Tríada Numera Rule",
+        "body": "Cuadrado, círculo y triángulo existen para contar 1, 2, 3. No se repiten como fondo, patrón ni adorno en otras secciones.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do usar naranja (#ea5728) para la acción y lo elegido, con texto negro encima.",
+      "Do llenar los espacios de color grandes con `--brand-gradient` (cian lavado a cian).",
+      "Do usar petróleo (#0e3b40) para trazos, sombras, titulares y bandas oscuras.",
+      "Do mantener todas las esquinas en 0px y las sombras como bloques sólidos desplazados.",
+      "Do reservar la tríada cuadrado, círculo y triángulo para numerar los 3 pasos de la reserva.",
+      "Do mostrar video o fotos reales del oficio dentro de un marco con trazo y sombra petróleo.",
+      "Do comprobar que la primera pantalla de la portada cabe sin desplazar entre 375×667 y 1440×900.",
+      "Do mantener texto base de 17px, objetivos táctiles de 48px o más y botones en tipo oración."
+    ],
+    "donts": [
+      "Don't usar mosaicos de baldosas ni patrones de azulejo.",
+      "Don't usar rayas de poste de barbero, ni como franja ni como borde.",
+      "Don't usar marquesinas de texto en movimiento.",
+      "Don't usar stickers, sellos o etiquetas inclinadas.",
+      "Don't usar texto retro con contorno (outlined text).",
+      "Don't usar el mundo de TV o carta de ajuste (barras de color, pantallas de prueba).",
+      "Don't usar salmón ni durazno; el cálido de la marca es el naranja.",
+      "Don't usar campos negros ni fondos negros.",
+      "Don't usar campos de cian plano y saturado; los espacios de color van en degradado.",
+      "Don't usar la fuente Baumans ni otra display distinta de Satoshi.",
+      "Don't usar micro-etiquetas en mayúsculas ni eyebrows sobre los títulos.",
+      "Don't redondear esquinas para \"suavizar\" un componente."
+    ]
+  }
+}

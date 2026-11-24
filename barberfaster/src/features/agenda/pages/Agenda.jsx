@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarDays, faChevronLeft, faChevronRight, faClock, faMoneyBillWave, faScissors } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faCalendarDays, faChevronLeft, faChevronRight, faClock, faMoneyBillWave, faScissors } from '@fortawesome/free-solid-svg-icons';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import es from 'date-fns/locale/es';
@@ -9,7 +9,16 @@ import './Agenda.css';
 import ProfileCard from '../components/ProfileCard.jsx';
 import Stepper, { Step } from '../components/Stepper.jsx';
 import TimeSlotGrid from '../components/TimeSlotGrid.jsx';
-import WompiCheckoutButton from '../components/WompiCheckoutButton.jsx';
+import WompiCheckoutButton, { construirUrlCheckoutWompi } from '../components/WompiCheckoutButton.jsx';
+import {
+  codigoValido,
+  documentoValido,
+  limpiarCodigo,
+  limpiarDocumento,
+  MENSAJE_DOCUMENTO_INVALIDO,
+  propsInputCodigo,
+  propsInputDocumento,
+} from '../../../shared/utils/validacionesColombia.js';
 import { getAvailableTimeSlots } from '../utils/timeSlotUtils.js';
 import logoBarberFaster from '../../../assets/logo-barberfaster.png';
 
@@ -132,6 +141,8 @@ export default function Agenda({ reservaPublica = false }) {
   const [mensaje, setMensaje] = useState(null);
   const [pagoPendiente, setPagoPendiente] = useState(null);
   const [procesandoReserva, setProcesandoReserva] = useState(false);
+  const [metodoPago, setMetodoPago] = useState('WOMPI');
+  const [pagoEnLineaDisponible, setPagoEnLineaDisponible] = useState(null);
   const [verificandoPago, setVerificandoPago] = useState(false);
   const idBarberiaEnlace = searchParams.get('barberia');
   const esReservaPublica = reservaPublica;
@@ -246,6 +257,9 @@ export default function Agenda({ reservaPublica = false }) {
           throw new Error(data.mensaje || 'No se pudo cargar el horario de atención.');
         }
         setNombreBarberia(data.data.nombre || 'Barbería seleccionada');
+        const pagoEnLinea = Boolean(data.data.pago_en_linea);
+        setPagoEnLineaDisponible(pagoEnLinea);
+        if (!pagoEnLinea) setMetodoPago('LOCAL');
         const apertura = data.data.hora_apertura?.substring(0, 5);
         const cierre = data.data.hora_cierre?.substring(0, 5);
         if (!apertura || !cierre) throw new Error('El horario de atención no está configurado.');
@@ -350,7 +364,13 @@ export default function Agenda({ reservaPublica = false }) {
     const controller = new AbortController();
     setVerificandoPago(true);
 
-    fetch(`${BASE_URL}/wompi/verificar_pago.php?id=${encodeURIComponent(idTransaccionRetorno)}`, {
+    const idBarberiaPago = idBarberiaEnlace || obtenerBarberiaActivaSesion();
+    if (!idBarberiaPago) {
+      setVerificandoPago(false);
+      setMensaje({ tipo: 'error', texto: 'No se pudo identificar la barbería para verificar el pago.' });
+      return () => controller.abort();
+    }
+    fetch(`${BASE_URL}/wompi/verificar_pago.php?id=${encodeURIComponent(idTransaccionRetorno)}&barberia=${encodeURIComponent(idBarberiaPago)}`, {
       signal: controller.signal,
       cache: 'no-store',
     })
@@ -486,8 +506,12 @@ export default function Agenda({ reservaPublica = false }) {
 
   // Envía un código de verificación al teléfono antes de aceptar la reserva.
   const solicitarCodigoTelefono = async () => {
-    if (!/^\d{1,10}$/.test(dniCliente.trim()) || !nombreCliente.trim()) {
-      setMensajeVerificacion({ tipo: 'error', texto: 'Ingresa tu nombre y una cédula colombiana de máximo 10 dígitos antes de verificar el teléfono.' });
+    if (!documentoValido(dniCliente)) {
+      setMensajeVerificacion({ tipo: 'error', texto: MENSAJE_DOCUMENTO_INVALIDO });
+      return;
+    }
+    if (!nombreCliente.trim()) {
+      setMensajeVerificacion({ tipo: 'error', texto: 'Ingresa tu nombre antes de verificar el teléfono.' });
       return;
     }
 
@@ -568,8 +592,24 @@ export default function Agenda({ reservaPublica = false }) {
   const handleAgendarCita = (e) => {
     e.preventDefault();
 
-    if (!/^\d{1,10}$/.test(dniCliente.trim()) || !nombreCliente.trim()) {
-      setMensaje({ tipo: 'error', texto: 'Ingresa el nombre y una cédula colombiana de máximo 10 dígitos.' });
+    // Solo se paga en línea si la barbería tiene su cuenta de Wompi activa.
+    if (metodoPago === 'WOMPI' && pagoEnLineaDisponible !== true) {
+      if (pagoEnLineaDisponible === false) setMetodoPago('LOCAL');
+      setMensaje({
+        tipo: 'error',
+        texto: pagoEnLineaDisponible === false
+          ? 'Esta barbería aún no recibe pagos en línea. Elige pagar en el local.'
+          : 'Espera a que carguen las opciones de pago de la barbería.',
+      });
+      return;
+    }
+
+    if (!documentoValido(dniCliente)) {
+      setMensajeVerificacion({ tipo: 'error', texto: MENSAJE_DOCUMENTO_INVALIDO });
+      return;
+    }
+    if (!nombreCliente.trim()) {
+      setMensaje({ tipo: 'error', texto: 'Ingresa tu nombre para reservar.' });
       return;
     }
 
@@ -605,6 +645,7 @@ export default function Agenda({ reservaPublica = false }) {
       telefono_cliente: telefonoCliente ? `+57${telefonoCliente}` : '',
       ticket_verificacion: telefonoVerificado.ticket,
       notas: `${nombreCliente}${telefonoCliente ? ` - Teléfono: +57${telefonoCliente}` : ''}`,
+      metodo_pago: metodoPago,
     };
 
     setProcesandoReserva(true);
@@ -623,7 +664,9 @@ export default function Agenda({ reservaPublica = false }) {
         data: await response.json(),
       }))
       .then(({ httpStatus, data: resData }) => {
-        if ((resData.success || resData.status === 'success') && resData.pago) {
+        const reservaCreada = resData.success || resData.status === 'success';
+        const pagoEnLocal = reservaCreada && resData.metodo_pago === 'LOCAL';
+        if (reservaCreada && (resData.pago || pagoEnLocal)) {
           let sesionActiva = tokenSesion;
           if (resData.sesion_cliente) {
             localStorage.setItem(CLIENT_SESSION_KEY, resData.sesion_cliente);
@@ -632,8 +675,15 @@ export default function Agenda({ reservaPublica = false }) {
             }
             sesionActiva = resData.sesion_cliente;
           }
-          setPagoPendiente(resData.pago);
-          setMensaje({ tipo: 'warning', texto: 'Reserva pendiente de pago. Completa el pago para confirmar tu cita.' });
+          if (pagoEnLocal) {
+            setMensaje({
+              tipo: 'success',
+              texto: resData.mensaje || 'Tu cita quedó confirmada. Pagas en la barbería el día de tu cita.',
+            });
+          } else {
+            setPagoPendiente(resData.pago);
+            setMensaje({ tipo: 'warning', texto: 'Te estamos llevando a Wompi para completar el pago...' });
+          }
           setMostrarModalCita(false);
           setCodigoTelefono('');
           setCodigoEnviado(false);
@@ -643,6 +693,9 @@ export default function Agenda({ reservaPublica = false }) {
             : null);
           
           cargarCitasOcupadas();
+          if (!pagoEnLocal) {
+            window.location.assign(construirUrlCheckoutWompi(resData.pago));
+          }
         } else {
           if (tokenSesion && httpStatus === 403) {
             localStorage.removeItem(CLIENT_SESSION_KEY);
@@ -665,17 +718,13 @@ export default function Agenda({ reservaPublica = false }) {
       .finally(() => setProcesandoReserva(false));
   };
 
-  const manejarErrorWompi = useCallback((texto) => {
-    setMensaje({ tipo: 'error', texto });
-  }, []);
-
   // Renderiza los tres pasos de reserva y el modal con los datos de confirmación.
   return (
     <div className={`agenda-page${esReservaPublica ? ' agenda-page--fija' : ''}`}>
       <div className="agenda-topbar">
         {esReservaPublica && (
-          <button className="booking-back-link" type="button" onClick={() => navigate('/')}>
-            ← Cambiar barbería
+          <button className="booking-back-link btn-link" type="button" onClick={() => navigate('/')}>
+            <FontAwesomeIcon icon={faArrowLeft} aria-hidden="true" /> Cambiar barbería
           </button>
         )}
         <div className="agenda-header">
@@ -700,8 +749,8 @@ export default function Agenda({ reservaPublica = false }) {
               }).format(Number(pagoPendiente.monto_centavos) / 100)}
             </strong>
           </p>
-          <p>El horario se retiene durante 10 minutos. La cita solo se confirma cuando Wompi apruebe el pago.</p>
-          <WompiCheckoutButton payment={pagoPendiente} onError={manejarErrorWompi} />
+          <p>Te estamos llevando a Wompi. Si no se abre en unos segundos, toca el botón.</p>
+          <WompiCheckoutButton payment={pagoPendiente} />
         </section>
       )}
 
@@ -731,14 +780,14 @@ export default function Agenda({ reservaPublica = false }) {
       {/* Paso 1: selección del profesional que atenderá la cita. */}
       <Step label="Barbero">
         <div>
-          <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>¿Con quién te deseas atender hoy?</h2>
+          <h2 className="booking-step-title">¿Con quién te deseas atender hoy?</h2>
           {esReservaPublica && !barberiaPublicaValida ? (
-            <div role="alert" style={{ padding: '24px', borderRadius: '12px', background: '#fff7ed', color: '#9a3412', textAlign: 'center' }}>
+            <div role="alert" className="booking-step-alert">
               <p>Primero elige una barbería para consultar sus barberos y horarios.</p>
               <Link to="/">Ver barberías disponibles</Link>
             </div>
           ) : barberos.length === 0 ? (
-            <p role="status" style={{ textAlign: 'center', color: '#6b7280' }}>
+            <p role="status" className="booking-step-empty">
               No hay barberos disponibles en esta barbería por el momento.
             </p>
           ) : (
@@ -764,17 +813,15 @@ export default function Agenda({ reservaPublica = false }) {
       {/* Paso 2: selección de servicios y cálculo de duración y precio. */}
       <Step label="Servicios">
         {barberoSeleccionado ? (
-        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <div>
-              <h2 style={{ margin: 0 }}>Servicios de {barberoSeleccionado.nombre}</h2>
-              <p style={{ color: '#6b7280', margin: '4px 0 0 0' }}>Marca los servicios que deseas realizarte:</p>
-            </div>
+        <div className="booking-services">
+          <div className="booking-services-heading">
+            <h2>Servicios de {barberoSeleccionado.nombre}</h2>
+            <p>Marca los servicios que deseas realizarte.</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+          <div className="booking-services-list">
             {servicios.length === 0 ? (
-              <p style={{ color: '#6b7280' }}>Este barbero no tiene servicios asignados actualmente.</p>
+              <p className="booking-step-empty">Este barbero no tiene servicios asignados actualmente.</p>
             ) : (
               servicios.map((s) => {
                 const idStr = String(s.id_servicio || s.id);
@@ -800,11 +847,9 @@ export default function Agenda({ reservaPublica = false }) {
             )}
           </div>
 
-          <div style={{ borderTop: '1px solid #eee', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontSize: '0.9rem', color: '#374151' }}>Duración total: <strong>{duracionTotalMinutos} min</strong></div>
-              <div style={{ fontSize: '1.2rem', color: '#16a34a', fontWeight: 'bold' }}>Total: ${precioTotal}</div>
-            </div>
+          <div className="booking-services-total">
+            <span>Duración total: <strong>{duracionTotalMinutos} min</strong></span>
+            <span className="booking-services-price">Total: ${precioTotal}</span>
           </div>
         </div>
         ) : (
@@ -818,8 +863,7 @@ export default function Agenda({ reservaPublica = false }) {
           <div className="booking-schedule-card">
             <section className="booking-selection-summary" aria-label="Resumen de tu cita">
               <div className="booking-selection-heading">
-                <span className="booking-selection-eyebrow">TU CITA</span>
-                <h2>Con {barberoSeleccionado.nombre}</h2>
+                <h2>Tu cita con {barberoSeleccionado.nombre}</h2>
               </div>
               <div className="booking-selected-services" aria-label="Servicios seleccionados">
                 {serviciosElegidos.map((servicio) => (
@@ -981,16 +1025,17 @@ export default function Agenda({ reservaPublica = false }) {
                   placeholder="Ej. 1001234567"
                   value={dniCliente}
                   onChange={(e) => {
-                    setDniCliente(e.target.value.replace(/\D/g, '').slice(0, 10));
+                    setDniCliente(limpiarDocumento(e.target.value));
                     invalidarVerificacionCliente();
                   }}
-                  inputMode="numeric"
-                  maxLength={10}
-                  pattern="[0-9]{1,10}"
-                  title="Ingresa una cédula colombiana de máximo 10 dígitos."
+                  {...propsInputDocumento}
+                  aria-invalid={dniCliente !== '' && !documentoValido(dniCliente)}
                   required
                   disabled={validandoSesionCliente}
                 />
+                {dniCliente !== '' && !documentoValido(dniCliente) && (
+                  <small className="field-error" role="alert">{MENSAJE_DOCUMENTO_INVALIDO}</small>
+                )}
               </div>
 
               <div className="form-group">
@@ -1054,12 +1099,10 @@ export default function Agenda({ reservaPublica = false }) {
                     <input
                       id="codigo-verificacion"
                       type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={6}
+                      {...propsInputCodigo}
                       placeholder="000000"
                       value={codigoTelefono}
-                      onChange={(e) => setCodigoTelefono(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      onChange={(e) => setCodigoTelefono(limpiarCodigo(e.target.value))}
                       required
                       disabled={validandoSesionCliente}
                     />
@@ -1067,7 +1110,7 @@ export default function Agenda({ reservaPublica = false }) {
                       type="button"
                       className="phone-verification-button"
                       onClick={verificarCodigoTelefono}
-                      disabled={verificandoTelefono || validandoSesionCliente || codigoTelefono.length !== 6}
+                      disabled={verificandoTelefono || validandoSesionCliente || !codigoValido(codigoTelefono)}
                     >
                       {verificandoTelefono ? 'Verificando...' : 'Verificar'}
                     </button>
@@ -1079,6 +1122,46 @@ export default function Agenda({ reservaPublica = false }) {
                   {mensajeVerificacion.texto}
                 </p>
               )}
+
+              <fieldset className="payment-method-group">
+                <legend>¿Cómo quieres pagar?</legend>
+                {/* El pago en línea solo se ofrece si la barbería configuró su propia cuenta de Wompi. */}
+                <label
+                  className={`payment-method-option${metodoPago === 'WOMPI' ? ' is-selected' : ''}${pagoEnLineaDisponible !== true ? ' is-disabled' : ''}`}
+                >
+                  <input
+                    type="radio"
+                    name="metodo_pago"
+                    value="WOMPI"
+                    checked={metodoPago === 'WOMPI'}
+                    disabled={pagoEnLineaDisponible !== true}
+                    onChange={() => setMetodoPago('WOMPI')}
+                  />
+                  <span>
+                    <strong>Pagar en línea con Wompi</strong>
+                    <small>
+                      {pagoEnLineaDisponible === true
+                        ? 'Tarjeta, PSE o Nequi. Te llevamos a pagar al confirmar.'
+                        : pagoEnLineaDisponible === false
+                          ? 'Esta barbería aún no recibe pagos en línea.'
+                          : 'Consultando opciones de pago...'}
+                    </small>
+                  </span>
+                </label>
+                <label className={`payment-method-option${metodoPago === 'LOCAL' ? ' is-selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="metodo_pago"
+                    value="LOCAL"
+                    checked={metodoPago === 'LOCAL'}
+                    onChange={() => setMetodoPago('LOCAL')}
+                  />
+                  <span>
+                    <strong>Pagar en el local</strong>
+                    <small>Pagas en la barbería el día de tu cita.</small>
+                  </span>
+                </label>
+              </fieldset>
 
               <div className="modal-actions">
                 <button
@@ -1093,7 +1176,9 @@ export default function Agenda({ reservaPublica = false }) {
                   className="booking-confirm-button"
                   disabled={procesandoReserva || validandoSesionCliente || !telefonoVerificado || telefonoVerificado.numero !== telefonoCliente || verificandoTelefono}
                 >
-                  {procesandoReserva ? 'Procesando...' : 'Confirmar Cita'}
+                  {procesandoReserva
+                    ? 'Procesando...'
+                    : metodoPago === 'LOCAL' ? 'Confirmar cita' : 'Confirmar e ir a pagar'}
                 </button>
               </div>
             </form>
