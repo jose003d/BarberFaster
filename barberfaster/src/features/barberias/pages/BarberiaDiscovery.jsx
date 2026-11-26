@@ -266,24 +266,48 @@ function BarberiaDiscovery() {
           </div>
           <ol>
             <li>
-              <span className="step-shape step-shape--square" aria-hidden="true">1</span>
+              <svg className="step-icon" viewBox="0 0 84 84" aria-hidden="true" focusable="false">
+                {/* Local: fachada con toldo naranja, puerta y vitrina. */}
+                <rect className="si-ink" x="6" y="6" width="72" height="10" />
+                <path
+                  className="si-orange si-line"
+                  d="M6 16H78V28a6 6 0 0 1-12 0a6 6 0 0 1-12 0a6 6 0 0 1-12 0a6 6 0 0 1-12 0a6 6 0 0 1-12 0a6 6 0 0 1-12 0Z"
+                />
+                <rect className="si-paper si-line" x="12" y="38" width="60" height="40" />
+                <rect className="si-cyan si-line" x="20" y="50" width="18" height="28" />
+                <rect className="si-cyan si-line" x="46" y="50" width="18" height="14" />
+              </svg>
               <div>
                 <strong>Elige tu barbería</strong>
                 <span>Mira fotos, dirección y quiénes atienden.</span>
               </div>
             </li>
             <li>
-              <span className="step-shape step-shape--circle" aria-hidden="true">2</span>
+              <svg className="step-icon" viewBox="0 0 84 84" aria-hidden="true" focusable="false">
+                {/* Tijeras: hojas cruzadas y argollas cian. */}
+                <path className="si-paper si-line" d="M33 58L66 6L72 11L41 62Z" />
+                <path className="si-paper si-line" d="M51 58L18 6L12 11L43 62Z" />
+                <circle className="si-ink" cx="42" cy="40" r="4" />
+                <circle className="si-cyan si-line" cx="25" cy="66" r="13" />
+                <circle className="si-paper si-line" cx="25" cy="66" r="5" />
+                <circle className="si-cyan si-line" cx="59" cy="66" r="13" />
+                <circle className="si-paper si-line" cx="59" cy="66" r="5" />
+              </svg>
               <div>
                 <strong>Elige barbero y servicio</strong>
                 <span>Ves la duración y el precio antes de reservar.</span>
               </div>
             </li>
             <li>
-              <span className="step-shape step-shape--triangle" aria-hidden="true">
-                <svg viewBox="0 0 84 84" focusable="false"><polygon points="42,4 81,80 3,80" /></svg>
-                <b>3</b>
-              </span>
+              <svg className="step-icon" viewBox="0 0 84 84" aria-hidden="true" focusable="false">
+                {/* Reloj: aro petróleo, marcas y manecillas. */}
+                <circle className="si-ink" cx="42" cy="42" r="40" />
+                <circle className="si-paper" cx="42" cy="42" r="31" />
+                <path className="si-tick" d="M42 15V22M69 42H62M42 69V62M15 42H22" />
+                <path className="si-hand si-hand--hour" d="M42 42L30 33" />
+                <path className="si-hand si-hand--minute" d="M42 42V19" />
+                <circle className="si-ink" cx="42" cy="42" r="4.5" />
+              </svg>
               <div>
                 <strong>Elige la hora y confirma</strong>
                 <span>Paga en línea o al llegar al local.</span>
