@@ -100,7 +100,9 @@ jobs:
             git init -b "$RAMA_DESPLIEGUE" publicar
             git -C publicar remote add origin "$REPO_URL"
           fi
-          rsync -a --delete --exclude '.git' deploy/ publicar/
+          # --checksum: compara contenido, no tamaño+fecha. Los nombres con hash
+          # miden siempre lo mismo, así que index.html podía quedar sin copiar.
+          rsync -a --checksum --delete --exclude '.git' deploy/ publicar/
           cd publicar
           git add -A
           if git diff --cached --quiet; then
