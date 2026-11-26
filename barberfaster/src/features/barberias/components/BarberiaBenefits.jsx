@@ -12,7 +12,7 @@ const beneficios = [
 // Sección para dueños de barberías: una ventana con los beneficios y la solicitud.
 export default function BarberiaBenefits() {
   return (
-    <section className="business-benefits" aria-labelledby="business-benefits-title">
+    <section className="business-benefits" data-nav-tono="degradado" aria-labelledby="business-benefits-title">
       <div className="business-window">
         <h2 id="business-benefits-title">¿Tienes una barbería en Sonsón?</h2>
         <ul>

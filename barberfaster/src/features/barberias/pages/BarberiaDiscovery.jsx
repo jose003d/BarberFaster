@@ -125,6 +125,28 @@ function BarberiaDiscovery() {
     return () => controller.abort();
   }, [barberiaDetalleId, detallesBarberia]);
 
+  // La cabecera toma el color de la sección que pasa por debajo al hacer scroll.
+  const navRef = useRef(null);
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return undefined;
+    const actualizarTono = () => {
+      const limite = nav.getBoundingClientRect().bottom;
+      let tono = "degradado";
+      for (const seccion of document.querySelectorAll("[data-nav-tono]")) {
+        if (seccion.getBoundingClientRect().top <= limite) tono = seccion.dataset.navTono;
+      }
+      if (nav.dataset.tono !== tono) nav.dataset.tono = tono;
+    };
+    actualizarTono();
+    window.addEventListener("scroll", actualizarTono, { passive: true });
+    window.addEventListener("resize", actualizarTono);
+    return () => {
+      window.removeEventListener("scroll", actualizarTono);
+      window.removeEventListener("resize", actualizarTono);
+    };
+  }, []);
+
   // Cierra el detalle con Escape y evita que el scroll se desplace detrás del diálogo.
   useEffect(() => {
     if (!barberiaDetalleId) return undefined;
@@ -185,7 +207,7 @@ function BarberiaDiscovery() {
   return (
     <main className="barber-discovery-page">
       {/* Navegación pública hacia el catálogo y el perfil del cliente. */}
-      <header className="discovery-nav">
+      <header className="discovery-nav" ref={navRef} data-tono="degradado">
         {/* Acceso discreto al panel SUPERADMIN: sin cursor, enlace ni foco visibles. */}
         <div className="discovery-brand" onClick={() => irAlPanelSuperadmin(navigate)}>
           <img src={logoBarberFaster} alt="BarberFaster" draggable="false" />
@@ -198,7 +220,7 @@ function BarberiaDiscovery() {
 
       {/* Portada: una ventana enmarcada con el video y la invitación a reservar,
           cerrada por el titular grande en la banda petróleo. */}
-      <section className="discovery-hero" aria-labelledby="discovery-title">
+      <section className="discovery-hero" data-nav-tono="degradado" aria-labelledby="discovery-title">
         <div className="hero-window">
           <div className="hero-window-stage">
             <div className="hero-window-media">
@@ -256,7 +278,7 @@ function BarberiaDiscovery() {
       </section>
 
       {/* Los tres pasos reales de una reserva, numerados con la tríada Bauhaus. */}
-      <section className="discovery-steps" id="pasos" aria-labelledby="discovery-steps-title">
+      <section className="discovery-steps" data-nav-tono="blanco" id="pasos" aria-labelledby="discovery-steps-title">
         <div className="discovery-steps-inner">
           <div className="discovery-section-heading">
             <div>
@@ -318,7 +340,7 @@ function BarberiaDiscovery() {
       </section>
 
       {/* Filtros, estados de consulta y tarjetas con acciones de reserva. */}
-      <section className="discovery-listing" id="barberias" aria-labelledby="barber-list-title">
+      <section className="discovery-listing" data-nav-tono="cian" id="barberias" aria-labelledby="barber-list-title">
         <div className="discovery-section-heading">
           <div>
             <h2 id="barber-list-title">Barberías disponibles</h2>
@@ -590,7 +612,7 @@ function BarberiaDiscovery() {
         document.body
       )}
 
-      <section className="discovery-trust" aria-labelledby="discovery-trust-title">
+      <section className="discovery-trust" data-nav-tono="petroleo" aria-labelledby="discovery-trust-title">
         <div className="discovery-trust-inner">
           <div className="discovery-section-heading">
             <div>
@@ -627,7 +649,7 @@ function BarberiaDiscovery() {
       <BarberiaBenefits />
 
       {/* Acceso al área de negocios; el panel superadmin no se publica aquí. */}
-      <footer className="discovery-footer">
+      <footer className="discovery-footer" data-nav-tono="petroleo">
         <img src={logoBarberFaster} alt="BarberFaster" width="112" height="60" draggable="false" />
         <span>Tu estilo, a tu tiempo.</span>
         <Link to="/login">Acceso para negocios</Link>

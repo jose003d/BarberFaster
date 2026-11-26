@@ -1762,3 +1762,58 @@
     var(--brand-gradient);
   background-size: 22px 22px, auto;
 }
+
+/* ══ Cabecera camaleón: toma el color de la sección que tiene debajo ══
+   El degradado vive en una capa aparte que se desvanece, porque los
+   degradados no se pueden animar; el color de fondo sí. */
+.discovery-nav {
+  isolation: isolate;
+  background: var(--nav-fondo, transparent);
+  transition:
+    background-color 450ms var(--ease-out),
+    box-shadow 450ms var(--ease-out);
+}
+
+.discovery-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--brand-gradient);
+  opacity: 0;
+  transition: opacity 450ms var(--ease-out);
+  pointer-events: none;
+}
+
+.discovery-nav[data-tono="degradado"]::before { opacity: 1; }
+.discovery-nav[data-tono="blanco"] { --nav-fondo: var(--bf-paper); }
+.discovery-nav[data-tono="cian"] { --nav-fondo: #eef9f9; }
+.discovery-nav[data-tono="petroleo"] { --nav-fondo: var(--bf-black); }
+
+.discovery-nav nav a {
+  transition: color 450ms var(--ease-out);
+}
+
+.discovery-nav[data-tono="petroleo"] nav a {
+  color: var(--bf-paper);
+}
+
+/* ══ Pie en petróleo ══ */
+.discovery-footer {
+  border-top: 0;
+  background: var(--bf-black);
+  color: var(--bf-paper);
+}
+
+.discovery-footer span {
+  color: rgb(255 255 255 / 0.78);
+}
+
+.discovery-footer a {
+  color: var(--bf-paper);
+  text-decoration-color: var(--bf-orange);
+}
+
+.discovery-footer a:hover {
+  color: var(--bf-cyan);
+}
