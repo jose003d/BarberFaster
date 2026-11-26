@@ -212,7 +212,6 @@ function BarberiaDiscovery() {
                 preload="metadata"
                 aria-hidden="true"
               />
-              <span className="hero-window-tag">Barberías de Sonsón, Antioquia</span>
             </div>
             <div className="hero-window-copy">
               <p className="hero-lead">Tu próximo corte, reservado en pocos pasos.</p>
@@ -248,6 +247,10 @@ function BarberiaDiscovery() {
               <span className="discovery-title-line">Tu estilo.</span>
               <span className="discovery-title-line">Tu lugar.</span>
             </h1>
+            <p className="hero-band-brand" aria-hidden="true">
+              <span className="hero-band-brand-line">Barber</span>
+              <span className="hero-band-brand-line">Faster</span>
+            </p>
           </div>
         </div>
       </section>

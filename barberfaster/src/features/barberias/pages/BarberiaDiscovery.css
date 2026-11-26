@@ -1115,20 +1115,6 @@
 /* ══ Propuesta final: ventana con búsqueda, tríada Bauhaus y confianza ══ */
 
 
-/* Etiqueta sobre el video. */
-.hero-window-tag {
-  position: absolute;
-  bottom: 16px;
-  left: 16px;
-  padding: 8px 14px;
-  border: 3px solid var(--bf-black);
-  background: var(--bf-paper);
-  color: var(--bf-black);
-  font-family: var(--font-ui);
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
 /* Buscador real dentro de la ventana. */
 .hero-search {
   display: grid;
@@ -1616,5 +1602,98 @@
   .discovery-detail-modal button.btn-primary:active {
     box-shadow: 0 0 0 var(--bf-black);
     transform: translate(var(--brand-offset), var(--brand-offset));
+  }
+}
+
+/* ══ Portada adaptable a cualquier pantalla ══ */
+
+/* Banda petróleo: "TU ESTILO. / TU LUGAR." a la izquierda y
+   "BARBER / FASTER" a la derecha, del mismo tamaño. El tamaño sale del
+   ancho de la banda y del alto de la pantalla, así nunca se corta. */
+.hero-window-band {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5em;
+  container-type: inline-size;
+}
+
+.discovery-hero h1,
+.hero-band-brand {
+  font-size: min(10cqi, 10svh, 8.5rem);
+}
+
+.hero-band-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin: 0;
+  color: var(--bf-paper);
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.88;
+  text-align: right;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hero-band-brand-line:first-child {
+  color: var(--bf-orange);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-band-brand-line {
+    animation: band-rise 800ms var(--ease-out) 420ms backwards;
+  }
+
+  .hero-band-brand-line + .hero-band-brand-line { animation-delay: 520ms; }
+}
+
+/* Pantallas de escritorio bajas (portátiles con zoom o escala de Windows):
+   el texto y los márgenes de la ventana se encogen con el alto. */
+@media (min-width: 900px) {
+  .hero-lead {
+    max-width: 20ch;
+    font-size: clamp(1.5rem, min(3vw, 6svh), 2.6rem);
+  }
+
+  .discovery-intro {
+    font-size: clamp(1rem, 2.4svh, 1.125rem);
+  }
+
+  .hero-window-copy {
+    padding: clamp(18px, 4svh, 44px) clamp(20px, 3vw, 44px);
+  }
+
+  .hero-search {
+    margin-top: clamp(10px, 2.4svh, 24px);
+  }
+
+  .hero-search input,
+  .hero-search button {
+    min-height: clamp(44px, 7svh, 56px);
+  }
+
+  .hero-how {
+    margin-top: clamp(2px, 1svh, 12px);
+  }
+}
+
+@media (min-width: 900px) {
+  .discovery-hero {
+    padding-bottom: clamp(20px, 4svh, 34px);
+  }
+
+  .hero-window-band {
+    padding-top: clamp(10px, 2svh, 24px);
+    padding-bottom: clamp(6px, 1.4svh, 16px);
+  }
+}
+
+/* Escritorio bajo: la cabecera también cede un poco de alto. */
+@media (min-width: 900px) and (max-height: 700px) {
+  .barber-discovery-page {
+    --nav-h: 68px;
   }
 }
