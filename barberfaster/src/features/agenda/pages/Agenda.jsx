@@ -1124,7 +1124,9 @@ export default function Agenda({ reservaPublica = false }) {
 
               <fieldset className="payment-method-group">
                 <legend>¿Cómo quieres pagar?</legend>
-                {/* El pago en línea solo se ofrece si la barbería configuró su propia cuenta de Wompi. */}
+                {/* El pago en línea solo se ofrece si la barbería configuró su propia cuenta de Wompi;
+                    si no la tiene, la opción no se muestra y queda solo pagar en el local. */}
+                {pagoEnLineaDisponible !== false && (
                 <label
                   className={`payment-method-option${metodoPago === 'WOMPI' ? ' is-selected' : ''}${pagoEnLineaDisponible !== true ? ' is-disabled' : ''}`}
                 >
@@ -1141,12 +1143,11 @@ export default function Agenda({ reservaPublica = false }) {
                     <small>
                       {pagoEnLineaDisponible === true
                         ? 'Tarjeta, PSE o Nequi. Te llevamos a pagar al confirmar.'
-                        : pagoEnLineaDisponible === false
-                          ? 'Esta barbería aún no recibe pagos en línea.'
-                          : 'Consultando opciones de pago...'}
+                        : 'Consultando opciones de pago...'}
                     </small>
                   </span>
                 </label>
+                )}
                 <label className={`payment-method-option${metodoPago === 'LOCAL' ? ' is-selected' : ''}`}>
                   <input
                     type="radio"
