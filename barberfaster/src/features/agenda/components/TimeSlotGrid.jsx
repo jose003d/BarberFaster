@@ -42,7 +42,7 @@ export default function TimeSlotGrid({ slots, selectedTime, onSelect, isLoading 
           <button
             key={slot.hora_inicio}
             type="button"
-            className={`time-slot-button${selected ? " selected" : ""}`}
+            className={`time-slot-button btn-quiet${selected ? " selected" : ""}`}
             aria-pressed={selected}
             aria-label={`${textoDoceHoras(slot.hora_inicio.slice(0, 5))} hasta ${textoDoceHoras(slot.hora_fin.slice(0, 5))}${selected ? ", horario seleccionado" : ""}`}
             onClick={() => onSelect(slot.hora_inicio.slice(0, 5))}

@@ -16,14 +16,14 @@
   margin-bottom: 18px;
   padding: 0 13px;
   border: 2px solid var(--bauhaus-ink);
-  border-radius: 0;
+  border-radius: 2px;
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
   font-family: var(--font-ui);
   font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.01em;
-  text-transform: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
@@ -31,7 +31,7 @@
 .booking-back-link:hover {
   background: var(--bauhaus-orange);
   color: #ffffff;
-  box-shadow: var(--brand-shadow);
+  box-shadow: 3px 3px 0 var(--bauhaus-cyan);
   transform: translateY(-1px);
 }
 
@@ -85,13 +85,13 @@
 
 .agenda-mensaje {
   padding: 14px 20px;
-  border-radius: 0;
+  border-radius: 2px;
   margin-bottom: 20px;
   font-family: var(--font-ui);
   font-weight: 700;
   letter-spacing: 0.03em;
   text-align: center;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 .agenda-mensaje.success { background: #d1fae5; color: #065f46; }
@@ -103,7 +103,7 @@
   padding: clamp(18px, 3vw, 28px);
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-paper);
-  box-shadow: 10px 10px 0 var(--bf-blue);
+  box-shadow: 5px 5px 0 var(--bauhaus-orange);
   text-align: center;
 }
 
@@ -130,7 +130,7 @@
 
 .agenda-wompi-link:hover,
 .agenda-wompi-link:focus-visible {
-  box-shadow: var(--brand-shadow);
+  box-shadow: 3px 3px 0 var(--bauhaus-ink);
 }
 
 .agenda-payment-status {
@@ -160,10 +160,10 @@
   position: relative;
   overflow: hidden;
   background: #fff;
-  border-radius: 0;
+  border-radius: 16px;
   border: 2px solid var(--bauhaus-ink);
-  border-radius: 0;
-  box-shadow: none;
+  border-radius: 2px;
+  box-shadow: 4px 4px 0 var(--bauhaus-cyan);
   padding: 24px;
   min-width: 0;
   box-sizing: border-box;
@@ -209,7 +209,7 @@
   gap: 12px;
   padding: 16px;
   border: 2px solid var(--bauhaus-ink);
-  border-radius: 0;
+  border-radius: 2px;
   background: #fff;
   color: var(--bauhaus-ink);
   cursor: pointer;
@@ -222,7 +222,7 @@
 }
 
 .booking-service-option:hover {
-  box-shadow: var(--brand-shadow);
+  box-shadow: 4px 4px 0 var(--bauhaus-orange);
   transform: translateY(-2px);
 }
 
@@ -258,7 +258,7 @@
 /* Calendario, resumen de la reserva y selección de horarios/servicios. */
 .calendario-wrapper {
   background: #fff;
-  border-radius: 0;
+  border-radius: 16px;
   padding: 24px;
   box-shadow: 0 8px 30px rgba(0,0,0,0.08);
 }
@@ -301,7 +301,7 @@
 
 .date-picker-row input {
   border: 1px solid #d1d5db;
-  border-radius: 0;
+  border-radius: 10px;
 }
 
 .selected-day-heading {
@@ -332,7 +332,7 @@
   padding: 22px;
   border: 2px solid var(--bauhaus-ink);
   background: #fff;
-  box-shadow: none;
+  box-shadow: 4px 4px 0 var(--bauhaus-cyan);
   font-family: var(--font-body);
 }
 
@@ -345,7 +345,7 @@
   padding: 18px;
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-cyan-light);
-  box-shadow: none;
+  box-shadow: 4px 4px 0 var(--bauhaus-orange);
 }
 
 .booking-selection-heading {
@@ -390,7 +390,7 @@
 }
 
 .booking-selected-service > .svg-inline--fa {
-  color: var(--bf-blue-ink);
+  color: #147d7d;
 }
 
 .booking-confirmation-summary .svg-inline--fa {
@@ -416,8 +416,8 @@
   font-family: var(--font-ui);
   font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.01em;
-  text-transform: none;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .booking-selection-totals strong {
@@ -464,7 +464,7 @@
 }
 
 .booking-column-heading .booking-selected-date {
-  color: var(--bf-blue-ink);
+  color: #147d7d;
   font-family: var(--font-ui);
   font-size: 0.74rem;
   font-weight: 700;
@@ -479,7 +479,7 @@
   align-items: stretch;
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-paper);
-  box-shadow: none;
+  box-shadow: 3px 3px 0 var(--bauhaus-cyan);
 }
 
 .booking-calendar-panel .react-datepicker {
@@ -527,7 +527,7 @@
   font-family: var(--font-ui);
   font-size: 0.62rem;
   font-weight: 700;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 .booking-calendar-panel .react-datepicker__month {
@@ -609,7 +609,7 @@
   padding: 11px 12px;
   border: 2px solid var(--bauhaus-ink);
   background: var(--bauhaus-cyan-light);
-  box-shadow: none;
+  box-shadow: 3px 3px 0 var(--bauhaus-orange);
 }
 
 .booking-selected-time span {
@@ -617,8 +617,8 @@
   font-family: var(--font-ui);
   font-size: 0.67rem;
   font-weight: 700;
-  letter-spacing: 0.01em;
-  text-transform: none;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .booking-selected-time strong {
@@ -648,7 +648,7 @@
   gap: 4px;
   padding: 10px 8px;
   border: 2px solid var(--bauhaus-ink);
-  border-radius: 0;
+  border-radius: 2px;
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
   cursor: pointer;
@@ -664,7 +664,7 @@
   border-color: var(--bauhaus-ink);
   background-color: var(--bauhaus-orange);
   color: #ffffff;
-  box-shadow: var(--brand-shadow);
+  box-shadow: 3px 3px 0 var(--bauhaus-ink);
 }
 
 .time-slot-button:focus-visible {
@@ -677,7 +677,7 @@
   background: var(--bauhaus-orange);
   background-color: var(--bauhaus-orange);
   color: var(--bauhaus-ink);
-  box-shadow: var(--brand-shadow);
+  box-shadow: 4px 4px 0 var(--bauhaus-orange);
   transform: translate(-2px, -2px);
 }
 
@@ -686,7 +686,7 @@
   background: var(--bauhaus-orange);
   background-color: var(--bauhaus-orange);
   color: var(--bauhaus-ink);
-  box-shadow: var(--brand-shadow);
+  box-shadow: 4px 4px 0 var(--bauhaus-orange);
   transform: translate(-2px, -2px);
 }
 
@@ -703,16 +703,16 @@
   margin-top: 2px;
   font-size: 0.62rem;
   font-weight: 900;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.06em;
   line-height: 1;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 .time-slot-message,
 .time-slot-error {
   margin: 16px 0;
   padding: 12px;
-  border-radius: 0;
+  border-radius: 8px;
   background: #f9fafb;
   color: #4b5563;
 }
@@ -734,7 +734,7 @@
 
 .slot-card {
   border: 2px solid #e5e7eb;
-  border-radius: 0;
+  border-radius: 14px;
   background: #fff;
   padding: 16px;
   text-align: left;
@@ -753,7 +753,7 @@
 
 .slot-card.disponible {
   border-color: rgba(57, 57, 57, 0.18);
-  background: var(--bf-blue-wash);
+  background: #dff7f6;
 }
 
 .slot-card.ocupado {
@@ -766,7 +766,7 @@
 .slot-card.selected {
   border-color: var(--bauhaus-ink);
   box-shadow: 0 0 0 3px rgba(236, 77, 37, 0.12);
-  background: var(--bf-blue-wash);
+  background: #dff7f6;
 }
 
 .slot-header {
@@ -780,7 +780,7 @@
   display: inline-flex;
   align-items: center;
   padding: 4px 8px;
-  border-radius: 0;
+  border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -826,7 +826,7 @@
   text-align: center;
   color: #6b7280;
   border: 1px dashed #d1d5db;
-  border-radius: 0;
+  border-radius: 12px;
   background: #f9fafb;
 }
 
@@ -851,7 +851,7 @@
   box-sizing: border-box;
   padding: 10px 12px;
   border: 1px solid #d1d5db;
-  border-radius: 0;
+  border-radius: 8px;
   font: inherit;
   font-family: var(--font-body);
 }
@@ -892,7 +892,7 @@
   flex: 0 0 auto;
   padding: 10px 12px;
   border: 2px solid var(--bauhaus-ink);
-  border-radius: 0;
+  border-radius: 8px;
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
   cursor: pointer;
@@ -934,7 +934,7 @@
   justify-content: space-between;
   padding: 12px;
   border: 1px solid var(--bauhaus-cyan);
-  border-radius: 0;
+  border-radius: 2px;
   background: var(--bauhaus-cyan-light);
   color: var(--bauhaus-ink);
 }
@@ -953,7 +953,7 @@
 
 .agenda-modal {
   background: #fff;
-  border-radius: 0;
+  border-radius: 2px;
   padding: clamp(20px, 5vw, 28px);
   width: min(480px, calc(100% - 32px));
   max-width: 480px;
@@ -985,7 +985,7 @@
   place-items: center;
   padding: 0;
   border: 2px solid var(--bauhaus-ink);
-  border-radius: 0;
+  border-radius: 2px;
   background: var(--bauhaus-cyan);
   color: var(--bauhaus-ink);
   cursor: pointer;
@@ -996,7 +996,7 @@
 .booking-confirmation-summary {
   margin-bottom: 16px;
   padding: 12px;
-  border-radius: 0;
+  border-radius: 2px;
   background: #f9fafb;
 }
 
@@ -1028,7 +1028,7 @@
 .agenda-modal .form-group input,
 .agenda-modal .form-group textarea {
   border: 1px solid #d1d5db;
-  border-radius: 0;
+  border-radius: 2px;
 }
 
 .agenda-modal .phone-country-code {
@@ -1040,7 +1040,7 @@
 }
 
 .agenda-modal .phone-verification-button {
-  border-radius: 0;
+  border-radius: 2px;
 }
 
 .agenda-modal .payment-method-group {
@@ -1065,18 +1065,13 @@
   align-items: flex-start;
   padding: 10px 12px;
   border: 2px solid var(--bauhaus-gray);
-  border-radius: 0;
+  border-radius: 2px;
   cursor: pointer;
 }
 
 .agenda-modal .payment-method-option.is-selected {
   border-color: var(--bauhaus-ink);
   background: var(--bauhaus-cyan-light);
-}
-
-.agenda-modal .payment-method-option.is-disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
 }
 
 .agenda-modal .payment-method-option input {
@@ -1105,7 +1100,7 @@
   min-height: 46px;
   padding: 10px 16px;
   border: 0;
-  border-radius: 0;
+  border-radius: 2px;
   font-family: var(--font-ui);
   font-weight: 700;
 }
@@ -1130,7 +1125,7 @@
 
 .agenda-modal .form-group > .phone-verification-button {
   width: 100%;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 @media (max-width: 480px) {
@@ -1150,7 +1145,7 @@
   width: 100%;
   box-sizing: border-box;
   background: var(--bauhaus-paper);
-  border-radius: 0;
+  border-radius: 2px;
   border: 1px solid var(--bauhaus-gray);
   display: flex;
   flex-direction: column;
@@ -1165,7 +1160,7 @@
   background: #ffffff;
   border: none;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  border-radius: 0;
+  border-radius: 12px;
   padding: 16px;
   font-family: inherit;
 }
@@ -1187,7 +1182,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
   color: #374151;
@@ -1631,8 +1626,8 @@
   color: var(--bauhaus-cyan);
   font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.01em;
-  text-transform: none;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .booking-calendar-panel .booking-calendar-nav {
@@ -1681,580 +1676,1061 @@
   }
 }
 
-/* Ajustes Bauhaus para el flujo público. Se limita a la reserva fija para
-   mantener intacta la presentación del panel administrativo. */
-.agenda-page--fija {
-  max-width: 960px;
-  padding: 20px 20px max(24px, env(safe-area-inset-bottom));
-  color: var(--bf-text);
-  background: var(--bf-paper);
-  font-family: var(--font-body);
-  font-size: 17px;
+.agenda-modal .payment-method-option.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
-.agenda-page--fija .agenda-topbar { min-width: 0; }
-.agenda-page--fija .agenda-header { min-width: 0; }
-.agenda-page--fija .agenda-header h1 {
-  color: var(--bf-text);
-  font-family: var(--font-body);
-  font-size: clamp(1.35rem, 4vw, 2rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  overflow-wrap: anywhere;
-}
-.agenda-page--fija .agenda-header p { color: var(--bf-muted); font-size: 1rem; }
-.agenda-page--fija .booking-back-link {
-  min-height: 48px;
-  margin-bottom: 12px;
-  border-radius: 0;
-  background: var(--bf-paper);
-  color: var(--bf-text);
-  font-family: var(--font-ui);
-  font-size: 0.9rem;
-  letter-spacing: 0;
-  text-transform: none;
-}
-.agenda-page--fija .agenda-mensaje {
-  border: 2px solid currentColor;
-  border-radius: 0;
-  font-size: 1rem;
-  letter-spacing: 0;
-  text-transform: none;
-}
-.agenda-page--fija .booking-stepper {
-  border: 2px solid var(--bf-black);
-  border-radius: 0;
-  background: var(--bf-paper);
-  box-shadow: none;
-}
-.agenda-page--fija .booking-stepper-content { animation: booking-step-enter var(--dur, 220ms) var(--ease-out, ease-out) backwards; }
-.agenda-page--fija .booking-stepper-label {
-  color: var(--bf-muted);
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-.agenda-page--fija .booking-stepper-indicator.active .booking-stepper-label,
-.agenda-page--fija .booking-stepper-indicator.complete .booking-stepper-label { color: var(--bf-text); }
-.agenda-page--fija .booking-stepper-indicator-inner {
-  width: 42px; height: 42px; border: 2px solid var(--bf-line); border-radius: 0;
-  color: var(--bf-muted); font-family: var(--font-ui); font-size: 1rem;
-}
-.agenda-page--fija .booking-stepper-indicator.active .booking-stepper-indicator-inner {
-  border-color: var(--bf-black); background: var(--bf-orange); color: var(--bf-black);
-}
-.agenda-page--fija .booking-stepper-indicator.complete .booking-stepper-indicator-inner {
-  border-color: var(--bf-black); background: var(--bf-blue); color: var(--bf-black);
-}
-.agenda-page--fija .booking-stepper-connector { height: 3px; margin-inline: 8px; border-radius: 0; background: var(--bf-line); }
-.agenda-page--fija .booking-stepper-connector span { background: var(--bf-blue); transition: transform var(--dur, 220ms) var(--ease-out, ease-out); }
-.agenda-page--fija .booking-stepper-footer { gap: 12px; }
-.agenda-page--fija .booking-stepper-back,
-.agenda-page--fija .booking-stepper-next { min-height: 52px; padding: 12px 20px; border-radius: 0; font-size: 1rem; }
-.agenda-page--fija .booking-stepper-back { background: var(--bf-paper); }
-.agenda-page--fija .booking-stepper-next { margin-left: auto; }
-
-.agenda-page--fija .booking-service-option {
-  min-height: 68px; padding: 16px; border: 2px solid var(--bf-black); border-radius: 0;
-  background: var(--bf-paper); color: var(--bf-text); font-family: var(--font-body); font-size: 1rem;
-  transition: box-shadow var(--dur-fast, 150ms) var(--ease-out, ease-out), transform var(--dur-fast, 150ms) var(--ease-out, ease-out), background-color var(--dur-fast, 150ms) var(--ease-out, ease-out);
-}
-.agenda-page--fija .booking-service-option.is-selected { background: var(--bf-blue-wash); box-shadow: var(--brand-shadow); transform: translate(calc(var(--brand-offset) * -1), calc(var(--brand-offset) * -1)); }
-.agenda-page--fija .booking-service-option:hover { box-shadow: var(--brand-shadow); transform: translate(calc(var(--brand-offset) * -1), calc(var(--brand-offset) * -1)); }
-.agenda-page--fija .booking-service-details { color: var(--bf-muted); font-size: 0.9rem; }
-.agenda-page--fija .booking-service-option input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--bf-orange); }
-.agenda-page--fija .barber-profile-grid { gap: 18px; }
-.agenda-page--fija .barber-profile-grid .pc-card-wrapper.selected .pc-card { box-shadow: var(--brand-shadow); outline: 0; }
-.agenda-page--fija .booking-selection-summary,
-.agenda-page--fija .booking-schedule-card,
-.agenda-page--fija .booking-calendar-panel,
-.agenda-page--fija .booking-calendar-column,
-.agenda-page--fija .booking-time-column {
-  border-radius: 0; box-shadow: none;
-}
-.agenda-page--fija .booking-selection-summary { border: 2px solid var(--bf-black); background: var(--bf-blue-wash); }
-.agenda-page--fija .booking-selection-eyebrow { display: none; }
-.agenda-page--fija .booking-selection-heading h2,
-.agenda-page--fija .booking-column-heading h3 { color: var(--bf-text); font-weight: 800; letter-spacing: -0.02em; }
-.agenda-page--fija .booking-selection-totals small { font-size: 0.875rem; letter-spacing: 0; }
-.agenda-page--fija .booking-column-number { width: 42px; height: 42px; border-color: var(--bf-black); border-radius: 0; background: var(--bf-orange); font-size: 1rem; }
-.agenda-page--fija .booking-column-heading p,
-.agenda-page--fija .booking-column-heading .booking-selected-date { color: var(--bf-muted); font-size: 0.95rem; }
-.agenda-page--fija .booking-calendar-panel { border: 2px solid var(--bf-black); }
-.agenda-page--fija .booking-calendar-panel .react-datepicker__header { background: var(--bf-black); }
-.agenda-page--fija .booking-calendar-panel .react-datepicker__day-name { color: var(--bf-paper) !important; font-size: 0.82rem; }
-.agenda-page--fija .booking-calendar-panel .react-datepicker__day { height: 44px; font-size: 1rem; }
-.agenda-page--fija .booking-calendar-panel .react-datepicker__day--selected,
-.agenda-page--fija .booking-calendar-panel .react-datepicker__day--keyboard-selected { background: var(--bf-orange) !important; }
-.agenda-page--fija .booking-calendar-panel .react-datepicker__day--disabled { color: #767676; }
-.agenda-page--fija .time-slot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.agenda-page--fija .time-slot-button {
-  min-height: 64px; border: 2px solid var(--bf-black); border-radius: 0;
-  background: var(--bf-blue-wash); color: var(--bf-text); font-size: 1.05rem;
-  transition: box-shadow var(--dur-fast, 150ms) var(--ease-out, ease-out), transform var(--dur-fast, 150ms) var(--ease-out, ease-out);
-}
-.agenda-page--fija .time-slot-button:hover { box-shadow: var(--brand-shadow); transform: translate(calc(var(--brand-offset) * -1), calc(var(--brand-offset) * -1)); background: var(--bf-blue-wash); color: var(--bf-text); }
-.agenda-page--fija .time-slot-button.selected { border: 2px solid var(--bf-black); background: var(--bf-orange); color: var(--bf-black); box-shadow: var(--brand-shadow); }
-.agenda-page--fija .time-slot-button small,
-.agenda-page--fija .time-slot-selected-time span { font-size: 0.9rem; }
-.agenda-page--fija .booking-selected-time { border: 2px solid var(--bf-black); border-radius: 0; background: var(--bf-orange-wash); box-shadow: none; }
-.agenda-page--fija .time-slot-message,
-.agenda-page--fija .time-slot-error { border: 2px solid var(--bf-line); border-radius: 0; font-size: 1rem; }
-.agenda-page--fija .time-slot-error { border-color: #991b1b; color: #7f1d1d; }
-.agenda-page--fija .agenda-empty { border-radius: 0; background: var(--bf-surface); color: var(--bf-text); font-size: 1rem; }
-.agenda-page--fija .appointment-form label { color: var(--bf-text); font-size: 1rem; }
-.agenda-page--fija .appointment-form input,
-.agenda-page--fija .appointment-form select,
-.agenda-page--fija .appointment-form textarea { min-height: 50px; border: 2px solid var(--bf-black); border-radius: 0; font-size: 1rem; }
-.agenda-page--fija .agenda-modal .field-error { color: #7f1d1d; font-size: 0.9rem; }
-
-@media (max-width: 600px) {
-  .agenda-page--fija { padding: 10px 12px max(16px, env(safe-area-inset-bottom)); }
-  .agenda-page--fija .agenda-topbar { grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 8px; }
-  .agenda-page--fija .booking-back-link { max-width: 100%; min-height: 48px; margin: 0; padding-inline: 10px; font-size: 0.86rem; white-space: normal; }
-  .agenda-page--fija .agenda-header { grid-column: 2; justify-content: flex-end; }
-  .agenda-page--fija .agenda-header h1 { font-size: clamp(1rem, 4.5vw, 1.25rem); text-align: right; }
-  .agenda-page--fija .booking-stepper-indicators { padding: 16px 12px 30px; }
-  .agenda-page--fija .booking-stepper-indicator-inner { width: 38px; height: 38px; }
-  .agenda-page--fija .booking-stepper-label { top: calc(100% + 7px); font-size: 0.82rem; }
-  .agenda-page--fija .booking-stepper-connector { margin-inline: 5px; }
-  .agenda-page--fija .booking-stepper-content { padding: 8px 14px 18px; }
-  .agenda-page--fija .booking-stepper-footer { position: sticky; bottom: 0; z-index: 5; padding: 12px 14px max(14px, env(safe-area-inset-bottom)); border-top: 1px solid var(--bf-line); background: var(--bf-paper); }
-  .agenda-page--fija .booking-stepper-back,
-  .agenda-page--fija .booking-stepper-next { min-height: 54px; padding-inline: 18px; }
-  .agenda-page--fija .barber-profile-grid { grid-template-columns: 1fr; }
-  .agenda-page--fija .barber-profile-grid .pc-card-shell { height: 230px; }
-  .agenda-page--fija .booking-selection-summary { grid-template-columns: minmax(0, 1fr); }
-  .agenda-page--fija .booking-selection-totals { flex-wrap: wrap; }
-  .agenda-page--fija .booking-date-time-layout { grid-template-columns: minmax(0, 1fr); }
-  .agenda-page--fija .booking-calendar-panel { max-width: 100%; }
-  .agenda-page--fija .booking-calendar-panel .react-datepicker__day { height: 44px; }
-  .agenda-page--fija .time-slot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
-  .agenda-page--fija .time-slot-button { min-height: 64px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .agenda-page--fija .booking-stepper-content { animation: none; }
-  .agenda-page--fija .booking-service-option,
-  .agenda-page--fija .time-slot-button,
-  .agenda-page--fija .booking-stepper-connector span { transition: none; }
-  .agenda-page--fija .booking-service-option:hover,
-  .agenda-page--fija .booking-service-option.is-selected,
-  .agenda-page--fija .time-slot-button:hover { transform: none; }
-}
-
-/* Cabecera de la reserva pública: logo y enlace de volver en una fila,
-   nombre de la barbería debajo. Todo arranca arriba, sin huecos. */
-.agenda-page--fija .agenda-topbar {
-  padding-bottom: 14px;
-  border-bottom: 2px solid var(--bf-black);
-  margin-bottom: 16px;
-}
-
-.agenda-page--fija .booking-back-link.btn-link {
-  margin: 0;
-  font-family: var(--font-ui);
-  font-size: 1rem;
-  white-space: nowrap;
-}
-
-@media (max-width: 768px) {
-  .agenda-page--fija {
-    justify-content: flex-start;
-  }
-
-  .agenda-page--fija .agenda-topbar {
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas:
-      "logo back"
-      "title title";
-    row-gap: 12px;
-  }
-
-  .agenda-page--fija .agenda-header {
-    display: contents;
-  }
-
-  .agenda-page--fija .agenda-brand-mark {
-    display: block;
-    grid-area: logo;
-    width: auto;
-    height: 40px;
-    max-height: none;
-  }
-
-  .agenda-page--fija .booking-back-link.btn-link {
-    grid-area: back;
-    justify-self: end;
-    min-height: 44px;
-    padding: 0 2px;
-    font-size: 0.95rem;
-  }
-
-  .agenda-page--fija .agenda-header h1 {
-    grid-area: title;
-    font-size: 1.5rem;
-    text-align: left;
-  }
-
-  .agenda-page--fija .booking-stepper {
-    flex: 1 1 auto;
-  }
-}
-
-/* Pasos 1 y 2: títulos, avisos y lista de servicios (antes en línea). */
+/* Pasos 1 y 2: mismos tamaños que tenían como estilos en línea. */
 .booking-step-title {
-  margin: 0 0 20px;
-  font-size: clamp(1.5rem, 5vw, 1.9rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  margin-bottom: 20px;
   text-align: center;
 }
 
 .booking-step-alert {
-  display: grid;
-  justify-items: center;
-  gap: 10px;
   padding: 24px;
-  border: 2px solid var(--bf-orange-ink);
+  border-radius: var(--radius);
   background: var(--bf-orange-wash);
   color: var(--bf-orange-ink);
-  font-size: 1.0625rem;
   text-align: center;
 }
 
-.booking-step-alert a {
-  color: var(--bf-black);
-  font-weight: 700;
-}
-
 .booking-step-empty {
-  padding: 20px;
-  border: 2px dashed var(--bf-line);
-  color: var(--bf-muted);
-  font-size: 1.0625rem;
+  color: #6b7280;
   text-align: center;
 }
 
 .booking-services {
-  display: grid;
-  gap: 20px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.booking-services-heading {
+  margin-bottom: 20px;
 }
 
 .booking-services-heading h2 {
   margin: 0;
-  font-size: clamp(1.5rem, 5vw, 1.9rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
 }
 
 .booking-services-heading p {
-  margin-top: 6px;
-  color: var(--bf-muted);
-  font-size: 1.0625rem;
+  margin: 4px 0 0;
+  color: #6b7280;
 }
 
 .booking-services-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.booking-services-list .booking-step-empty {
+  text-align: left;
 }
 
 .booking-services-total {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px 20px;
-  padding-top: 16px;
-  border-top: 2px solid var(--bf-black);
-  color: var(--bf-muted);
-  font-size: 1rem;
-}
-
-.booking-services-total strong {
-  color: var(--bf-black);
+  flex-direction: column;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  color: #374151;
+  font-size: 0.9rem;
 }
 
 .booking-services-price {
+  color: var(--bf-success);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* =====================================================================
+   ACABADO DE LA RESERVA PÚBLICA
+   Conserva la distribución de la reserva y la viste con el sistema de
+   DESIGN.md: esquinas rectas, tipo oración, texto legible (≥16px),
+   objetivos táctiles de 48px, petróleo para trazos y naranja solo para
+   la acción y lo elegido. Solo afecta a .agenda-page--fija.
+   ===================================================================== */
+
+/* Esquina Recta Rule: ningún componente de la reserva lleva radio. */
+.agenda-page--fija,
+.agenda-page--fija *,
+.agenda-page--fija *::before,
+.agenda-page--fija *::after {
+  border-radius: 0 !important;
+}
+
+/* Tipo Oración Rule: sin mayúsculas sostenidas en etiquetas ni botones. */
+.agenda-page--fija * {
+  text-transform: none;
+}
+
+.agenda-page--fija {
+  color: var(--bf-text);
+  font-family: var(--font-body);
+  font-size: 17px;
+}
+
+.agenda-page--fija ::selection {
+  background: var(--bf-orange);
+  color: var(--bf-on-action);
+}
+
+/* ---------- Cabecera ---------- */
+.agenda-page--fija .booking-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  color: var(--bf-on-action);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: none;
+  transform: none;
+  transition: background-color var(--dur-fast) var(--ease-out), box-shadow var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+}
+
+.agenda-page--fija .booking-back-link:hover {
+  background: var(--bf-orange);
+  color: var(--bf-on-action);
+  box-shadow: var(--brand-shadow);
+  transform: translate(calc(var(--brand-offset) * -1), calc(var(--brand-offset) * -1));
+}
+
+.agenda-page--fija .booking-back-link:active {
+  box-shadow: none;
+  transform: none;
+  transition-duration: 60ms;
+}
+
+.agenda-page--fija .booking-back-link:focus-visible,
+.agenda-page--fija button:focus-visible,
+.agenda-page--fija a:focus-visible,
+.agenda-page--fija input:focus-visible {
+  outline: 3px solid var(--bf-black);
+  outline-offset: 3px;
+}
+
+.agenda-page--fija .agenda-header h1 {
   color: var(--bf-black);
-  font-size: 1.375rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.8vw, 2.25rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  text-wrap: balance;
 }
 
-/* Con pocos barberos, las tarjetas conservan su tamaño en vez de estirarse. */
-@media (min-width: 601px) {
-  .agenda-page--fija .barber-profile-grid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 300px));
-    justify-content: center;
-  }
+/* ---------- Recuadro de pasos ---------- */
+.agenda-page--fija .booking-stepper {
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  box-shadow: 10px 10px 0 var(--bf-black);
 }
 
-/* Los números del progreso también se pueden tocar: mínimo 44px. */
-.agenda-page--fija .booking-stepper-indicator-inner,
+.agenda-page--fija .booking-stepper-indicators {
+  padding-inline: max(32px, 2.4vw);
+}
+
 .agenda-page--fija .booking-stepper-indicator {
   min-width: 44px;
   min-height: 44px;
 }
 
-/* Móvil: sin marco exterior ni relleno vacío; el filete de la cabecera
-   es la única división y la tarjeta del barbero no queda anidada. */
-@media (max-width: 768px) {
-  .agenda-page--fija .booking-stepper {
-    flex: 0 1 auto;
-    border: 0;
-    background: transparent;
-  }
-
-  .agenda-page--fija .booking-stepper-indicators {
-    padding-inline: 22px;
-  }
-
-  .agenda-page--fija .booking-stepper-content {
-    padding-inline: 0;
-  }
-
-  .agenda-page--fija .booking-stepper-footer {
-    padding-inline: 0;
-  }
+.agenda-page--fija .booking-stepper-indicator-inner {
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--bf-line);
+  background: var(--bf-paper);
+  color: var(--bf-muted);
+  font-family: var(--font-ui);
+  font-size: 1.05rem;
+  font-weight: 700;
 }
 
-
-/* Carta de ajuste: reserva p?blica con lenguaje de TV retro y Bauhaus. */
-.agenda-page--fija {
-  overflow-x: clip;
+.agenda-page--fija .booking-stepper-indicator.active .booking-stepper-indicator-inner {
+  border-color: var(--bf-black);
+  background: var(--bf-orange);
+  color: var(--bf-on-action);
 }
 
-.agenda-page--fija .agenda-topbar {
-  position: relative;
-  z-index: 1;
-  width: calc(100% + 48px);
-  margin: -24px -24px 0;
-  padding: 22px 24px 20px;
-  border: 0;
-  border-radius: 0;
-  background: var(--tv-night);
-  box-shadow: 0 6px 0 var(--tv-night);
-  color: var(--tv-on-night);
+.agenda-page--fija .booking-stepper-indicator.complete .booking-stepper-indicator-inner {
+  border-color: var(--bf-black);
+  background: var(--bf-cyan);
+  color: var(--bf-on-action);
 }
 
-.agenda-page--fija .agenda-topbar::after {
-  position: absolute;
-  right: 0;
-  bottom: -12px;
-  left: 0;
-  height: 6px;
-  background: var(--tv-bars);
-  content: "";
-  transform-origin: left center;
+.agenda-page--fija .booking-stepper-label {
+  color: var(--bf-muted);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
-.agenda-page--fija .booking-back-link.btn-link {
-  min-height: 44px;
-  color: var(--tv-on-night) !important;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.agenda-page--fija .agenda-header h1 {
-  color: var(--tv-on-night);
-  font-family: var(--font-display);
-  letter-spacing: -0.03em;
-  font-size: clamp(1.75rem, 4vw, 2.7rem);
-  font-weight: 800;
-  line-height: 1.05;
-}
-
-.agenda-page--fija .agenda-header p { color: var(--tv-muted-on-night); }
-
-.agenda-page--fija .booking-step-title,
-.agenda-page--fija .booking-services-heading h2,
-.agenda-page--fija .booking-selection-heading h2,
-.agenda-page--fija .booking-column-heading h3 {
+.agenda-page--fija .booking-stepper-indicator.active .booking-stepper-label,
+.agenda-page--fija .booking-stepper-indicator.complete .booking-stepper-label {
   color: var(--bf-text);
-  font-family: var(--font-display);
-  font-size: clamp(1.65rem, 3.2vw, 2.35rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.12;
 }
 
-.agenda-page--fija .time-slot-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+.agenda-page--fija .booking-stepper-connector {
+  height: 3px;
+  background: var(--bf-line);
+}
+
+.agenda-page--fija .booking-stepper-connector span {
+  background: var(--bf-cyan);
+}
+
+.agenda-page--fija .booking-stepper-footer {
+  border-top: 2px solid var(--bf-line);
+}
+
+/* Botones del pie: Anterior silencioso, Siguiente cian, Confirmar naranja. */
+.agenda-page--fija .booking-stepper-back,
+.agenda-page--fija .booking-stepper-next {
+  min-height: 52px;
+  padding: 0 24px;
+  border: 2px solid var(--bf-black);
+  color: var(--bf-on-action);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: none;
+  transform: none;
+  transition: background-color var(--dur-fast) var(--ease-out), box-shadow var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+}
+
+.agenda-page--fija .booking-stepper-back { background: var(--bf-paper); }
+.agenda-page--fija .booking-stepper-next { background: var(--bf-cyan); }
+
+.agenda-page--fija .booking-stepper-back:hover,
+.agenda-page--fija .booking-stepper-next:hover:not(:disabled) {
+  background: var(--bf-orange);
+  color: var(--bf-on-action);
+  box-shadow: var(--brand-shadow);
+  transform: translate(calc(var(--brand-offset) * -1), calc(var(--brand-offset) * -1));
+}
+
+.agenda-page--fija .booking-stepper-back:active,
+.agenda-page--fija .booking-stepper-next:active:not(:disabled) {
+  box-shadow: none;
+  transform: none;
+  transition-duration: 60ms;
+}
+
+.agenda-page--fija .booking-stepper-next:disabled {
+  border-color: var(--bf-line);
+  background: var(--bf-surface);
+  color: #767676;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---------- Títulos de los pasos ---------- */
+.agenda-page--fija .booking-step-title,
+.agenda-page--fija .booking-services-heading h2 {
+  color: var(--bf-black);
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 2.4vw, 1.85rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.agenda-page--fija .booking-services-heading p,
+.agenda-page--fija .booking-step-empty {
+  color: var(--bf-muted);
+  font-size: 1.0625rem;
+}
+
+.agenda-page--fija .booking-step-empty {
+  padding: 20px;
+  border: 2px dashed var(--bf-line);
+}
+
+.agenda-page--fija .booking-step-alert {
+  border: 2px solid var(--bf-orange-ink);
+  font-size: 1.0625rem;
+}
+
+/* ---------- Paso 1: tarjetas de barbero ---------- */
+.agenda-page--fija .barber-profile-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 300px));
+  justify-content: center;
+  gap: 24px;
+}
+
+.agenda-page--fija .pc-card-wrapper { --pc-footer-h: 112px; }
+.agenda-page--fija .pc-card-shell { height: clamp(280px, calc(100dvh - 330px), 340px); }
+
+.agenda-page--fija .pc-card {
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  box-shadow: none;
+  transform: none;
+  transition: box-shadow var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+}
+
+.agenda-page--fija .pc-card-wrapper:hover .pc-card,
+.agenda-page--fija .pc-card-wrapper.selected .pc-card {
+  box-shadow: var(--brand-shadow);
+  transform: translate(calc(var(--brand-offset) * -1), calc(var(--brand-offset) * -1));
+}
+
+.agenda-page--fija .pc-behind,
+.agenda-page--fija .pc-shine,
+.agenda-page--fija .pc-glare { display: none; }
+
+.agenda-page--fija .pc-inside { background: var(--brand-gradient); }
+
+.agenda-page--fija .pc-avatar-content {
+  bottom: var(--pc-footer-h);
+  align-items: center;
+}
+
+.agenda-page--fija .pc-avatar-content .avatar { mask-image: none; }
+
+.agenda-page--fija .pc-avatar-placeholder { background: var(--brand-gradient); }
+
+.agenda-page--fija .pc-avatar-placeholder span {
+  width: 96px;
+  height: 96px;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  color: var(--bf-black);
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  box-shadow: none;
+}
+
+.agenda-page--fija .pc-user-info {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   gap: 12px;
+  height: var(--pc-footer-h);
+  padding: 12px 16px;
+  border-top: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+}
+
+.agenda-page--fija .pc-user-details {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.agenda-page--fija .pc-mini-rating {
+  order: 2;
+  gap: 5px;
+  color: var(--bf-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.agenda-page--fija .pc-rating-star {
+  width: 16px;
+  height: 16px;
+  color: var(--bf-orange-ink);
+}
+
+.agenda-page--fija .pc-user-text { gap: 2px; }
+
+.agenda-page--fija .pc-name {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--bf-text);
+  font-size: 1.0625rem;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.agenda-page--fija .pc-specialty {
+  overflow: hidden;
+  color: var(--bf-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agenda-page--fija .pc-contact-btn {
+  min-height: 48px;
+  padding: 0 20px;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-orange);
+  color: var(--bf-on-action);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: none;
+}
+
+.agenda-page--fija .pc-contact-btn:hover {
+  background: var(--bf-orange);
+  box-shadow: var(--brand-shadow);
+  transform: translate(calc(var(--brand-offset) * -1), calc(var(--brand-offset) * -1));
+}
+
+/* ---------- Paso 2: servicios (sin tarjeta anidada) ---------- */
+.agenda-page--fija .booking-services {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.agenda-page--fija .booking-service-option {
+  min-height: 76px;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  color: var(--bf-text);
+  box-shadow: none;
+  transform: none;
+  transition: background-color var(--dur-fast) var(--ease-out), box-shadow var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+}
+
+.agenda-page--fija .booking-service-option strong {
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.agenda-page--fija .booking-service-details {
+  margin-top: 2px;
+  color: var(--bf-muted);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.agenda-page--fija .booking-service-option input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--bf-orange);
+}
+
+.agenda-page--fija .booking-service-option:hover,
+.agenda-page--fija .booking-service-option.is-selected {
+  box-shadow: var(--brand-shadow);
+  transform: translate(calc(var(--brand-offset) * -1), calc(var(--brand-offset) * -1));
+}
+
+.agenda-page--fija .booking-service-option.is-selected { background: var(--bf-orange-wash); }
+
+.agenda-page--fija .booking-service-option:focus-within {
+  outline: 3px solid var(--bf-black);
+  outline-offset: 3px;
+}
+
+.agenda-page--fija .booking-services-total {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-top: 18px;
+  border-top: 2px solid var(--bf-black);
+  color: var(--bf-muted);
+  font-size: 1.0625rem;
+}
+
+.agenda-page--fija .booking-services-total strong { color: var(--bf-text); }
+
+.agenda-page--fija .booking-services-price {
+  color: var(--bf-black);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Paso 3: resumen, calendario y horas ---------- */
+.agenda-page--fija .booking-schedule-card {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.agenda-page--fija .booking-selection-summary {
+  border: 2px solid var(--bf-black);
+  background: var(--bf-cyan-wash);
+  box-shadow: none;
+}
+
+.agenda-page--fija .booking-selection-eyebrow { display: none; }
+
+.agenda-page--fija .booking-selection-heading h2 {
+  color: var(--bf-black);
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 1.6vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.agenda-page--fija .booking-selected-service {
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.agenda-page--fija .booking-selected-service > .svg-inline--fa { color: var(--bf-black); }
+
+.agenda-page--fija .booking-selection-totals > span { border-left: 2px solid var(--bf-black); }
+
+.agenda-page--fija .booking-selection-totals small {
+  color: var(--bf-muted);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.agenda-page--fija .booking-selection-totals strong {
+  color: var(--bf-text);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Calendario: banda petróleo, días legibles, día elegido en naranja. */
+.agenda-page--fija .booking-calendar-panel {
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  box-shadow: none;
+}
+
+.agenda-page--fija .booking-calendar-panel .react-datepicker__header {
+  border-bottom: 2px solid var(--bf-black);
+  background: var(--bf-black);
+}
+
+.agenda-page--fija .booking-calendar-title { color: var(--bf-paper); }
+
+.agenda-page--fija .booking-calendar-title strong {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.agenda-page--fija .booking-calendar-title small { color: var(--bf-on-petrol-muted, #b8d3d5); font-size: 0.85rem; }
+
+.agenda-page--fija .booking-calendar-panel .booking-calendar-nav {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--bf-paper);
+  background: var(--bf-paper);
+  color: var(--bf-black);
+}
+
+.agenda-page--fija .booking-calendar-panel .booking-calendar-nav:hover:not(:disabled) {
+  border-color: var(--bf-orange);
+  background: var(--bf-orange);
+  color: var(--bf-on-action);
+}
+
+.agenda-page--fija .booking-calendar-panel .booking-calendar-nav:disabled {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.agenda-page--fija .booking-calendar-panel .booking-calendar-nav:focus-visible { outline-color: var(--bf-cyan); }
+
+.agenda-page--fija .booking-calendar-panel .react-datepicker__day-name {
+  color: var(--bf-on-petrol-muted, #b8d3d5) !important;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: capitalize;
+}
+
+.agenda-page--fija .booking-calendar-panel .react-datepicker__day {
+  color: var(--bf-text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.agenda-page--fija .booking-calendar-panel .react-datepicker__day:hover:not(.react-datepicker__day--disabled):not(.react-datepicker__day--selected) {
+  border-color: var(--bf-black);
+  background: var(--bf-cyan-wash);
+  color: var(--bf-text);
+}
+
+.agenda-page--fija .booking-calendar-panel .react-datepicker__day--selected,
+.agenda-page--fija .booking-calendar-panel .react-datepicker__day--keyboard-selected {
+  border-color: var(--bf-black);
+  background: var(--bf-orange) !important;
+  color: var(--bf-on-action) !important;
+  font-weight: 800;
+}
+
+.agenda-page--fija .booking-calendar-panel .react-datepicker__day--today {
+  border-bottom: 3px solid var(--bf-orange);
+  font-weight: 800;
+}
+
+.agenda-page--fija .booking-calendar-panel .react-datepicker__day--disabled,
+.agenda-page--fija .booking-calendar-panel .react-datepicker__day--outside-month {
+  color: #767676;
+}
+
+/* Horas: botones blancos con trazo; la elegida en naranja. */
+.agenda-page--fija .booking-column-number { display: none; }
+
+.agenda-page--fija .booking-column-heading h3 {
+  color: var(--bf-black);
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 1.8vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.agenda-page--fija .booking-column-heading p {
+  color: var(--bf-muted);
+  font-size: 0.95rem;
 }
 
 .agenda-page--fija .time-slot-button {
   min-width: 0;
   min-height: 68px;
+  padding: 8px 6px;
   border: 2px solid var(--bf-black);
-  border-radius: 0;
   background: var(--bf-paper);
-  color: var(--bf-black);
+  color: var(--bf-on-action);
+  font-family: var(--font-ui);
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  box-shadow: none;
+  transform: none;
 }
 
 .agenda-page--fija .time-slot-button > span:first-child {
-  font-family: var(--font-ui);
-  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-size: 1.2rem;
   font-weight: 700;
+}
+
+.agenda-page--fija .time-slot-period { font-size: 0.8em; letter-spacing: 0; }
+
+.agenda-page--fija .time-slot-button small {
+  color: var(--bf-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.agenda-page--fija .time-slot-button:hover {
+  border-color: var(--bf-black);
+  background: var(--bf-cyan-wash);
+  color: var(--bf-on-action);
+  box-shadow: var(--brand-shadow);
+  transform: translate(calc(var(--brand-offset) * -1), calc(var(--brand-offset) * -1));
+}
+
+.agenda-page--fija .time-slot-button.selected,
+.agenda-page--fija .time-slot-button.selected:hover {
+  border: 2px solid var(--bf-black);
+  background: var(--bf-orange);
+  color: var(--bf-on-action);
+  box-shadow: var(--brand-shadow);
+  transform: translate(calc(var(--brand-offset) * -1), calc(var(--brand-offset) * -1));
+}
+
+.agenda-page--fija .time-slot-button.selected small { color: var(--bf-on-action); }
+
+.agenda-page--fija .time-slot-selected-indicator {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.agenda-page--fija .time-slot-message,
+.agenda-page--fija .time-slot-error {
+  padding: 16px;
+  border: 2px dashed var(--bf-line);
+  background: var(--bf-surface);
+  color: var(--bf-muted);
+  font-size: 1rem;
+}
+
+.agenda-page--fija .time-slot-error {
+  border-style: solid;
+  border-color: var(--bf-danger);
+  background: #fdecea;
+  color: #8a1c13;
+}
+
+.agenda-page--fija .booking-selected-time {
+  border: 2px solid var(--bf-black);
+  background: var(--bf-orange-wash);
+  box-shadow: none;
+}
+
+.agenda-page--fija .booking-selected-time span {
+  color: var(--bf-muted);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.agenda-page--fija .booking-selected-time strong {
+  color: var(--bf-text);
+  font-size: 1.0625rem;
   font-variant-numeric: tabular-nums;
 }
 
-.agenda-page--fija .time-slot-button:hover,
-.agenda-page--fija .time-slot-button.selected {
-  border-color: var(--bf-black);
-  background: var(--bf-orange);
-  color: var(--bf-black);
-  box-shadow: var(--brand-shadow);
+/* Barra de desplazamiento de la lista de horas con la paleta de la marca. */
+.agenda-page--fija .time-slot-grid {
+  scrollbar-color: var(--bf-black) var(--bf-surface);
+  scrollbar-width: thin;
 }
 
-.agenda-page--fija .time-slot-button.selected { transform: translate(-2px, -2px); }
+/* ---------- Mensajes ---------- */
+.agenda-page--fija .agenda-mensaje {
+  border: 2px solid currentColor;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* ---------- Ventana de confirmación ---------- */
+.agenda-page--fija .agenda-modal-backdrop { background: rgba(14, 59, 64, 0.55); }
 
 .agenda-page--fija .agenda-modal {
-  overflow: hidden;
   border: 2px solid var(--bf-black);
-  border-radius: 0;
   background: var(--bf-paper);
   color: var(--bf-text);
+  box-shadow: 12px 12px 0 var(--bf-black);
 }
 
 .agenda-page--fija .agenda-modal h3 {
-  position: relative;
-  margin: -28px -28px 24px;
-  padding: 22px 28px 28px;
-  background: var(--tv-night);
-  color: var(--tv-on-night);
+  color: var(--bf-black);
   font-family: var(--font-display);
-  letter-spacing: -0.03em;
-  font-size: clamp(1.65rem, 4vw, 2.15rem);
+  font-size: clamp(1.35rem, 4vw, 1.75rem);
   font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
-.agenda-page--fija .agenda-modal h3::after {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 6px;
-  background: var(--tv-bars);
-  content: "";
+.agenda-page--fija .agenda-modal .modal-close {
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  color: var(--bf-on-action);
+  font-size: 1.5rem;
+}
+
+.agenda-page--fija .agenda-modal .modal-close:hover { background: var(--bf-orange); }
+
+.agenda-page--fija .booking-confirmation-summary {
+  border: 2px solid var(--bf-black);
+  background: var(--bf-cyan-wash);
+  font-size: 1rem;
 }
 
 .agenda-page--fija .agenda-modal .form-group label,
-.agenda-page--fija .agenda-modal .payment-method-group legend,
-.agenda-page--fija .agenda-modal .payment-method-option,
-.agenda-page--fija .agenda-modal .payment-method-option span,
-.agenda-page--fija .agenda-modal .payment-method-option small { font-size: 1rem; }
+.agenda-page--fija .appointment-form label,
+.agenda-page--fija .agenda-modal .payment-method-group legend {
+  color: var(--bf-text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.agenda-page--fija .appointment-form input,
+.agenda-page--fija .appointment-form select,
+.agenda-page--fija .appointment-form textarea {
+  min-height: 52px;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  color: var(--bf-text);
+  font-size: 1.0625rem;
+  caret-color: var(--bf-orange);
+}
+
+.agenda-page--fija .appointment-form input:focus {
+  outline: 3px solid var(--bf-black);
+  outline-offset: 2px;
+}
+
+.agenda-page--fija .phone-country-code {
+  border: 2px solid var(--bf-black);
+  border-right: 0;
+  background: var(--bf-surface);
+  color: var(--bf-text);
+  font-size: 1.0625rem;
+}
+
+.agenda-page--fija .phone-verification-button {
+  min-height: 48px;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-cyan);
+  color: var(--bf-on-action);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.agenda-page--fija .phone-verification-button:hover:not(:disabled) {
+  background: var(--bf-orange);
+  box-shadow: var(--brand-shadow);
+}
+
+.agenda-page--fija .phone-verification-button:disabled {
+  border-color: var(--bf-line);
+  background: var(--bf-surface);
+  color: #767676;
+  box-shadow: none;
+}
+
+.agenda-page--fija .phone-verification-status { font-size: 0.95rem; }
 
 .agenda-page--fija .agenda-modal .payment-method-option {
   min-height: 56px;
   border: 2px solid var(--bf-black);
-  border-radius: 0;
   background: var(--bf-paper);
   color: var(--bf-text);
 }
 
 .agenda-page--fija .agenda-modal .payment-method-option.is-selected {
-  border-color: var(--bf-black);
   background: var(--bf-orange-wash);
   box-shadow: var(--brand-shadow);
 }
 
-.agenda-page--fija .agenda-modal .modal-actions .booking-confirm-button {
+.agenda-page--fija .agenda-modal .payment-method-option input { accent-color: var(--bf-orange); }
+.agenda-page--fija .agenda-modal .payment-method-option strong { font-size: 1.0625rem; }
+.agenda-page--fija .agenda-modal .payment-method-option small { color: var(--bf-muted); font-size: 0.95rem; }
+
+.agenda-page--fija .agenda-modal .modal-actions button {
   min-height: 52px;
-  border-color: var(--bf-black);
-  border-radius: 0;
-  background: var(--bf-orange);
-  color: var(--bf-black);
+  padding: 0 22px;
+  border: 2px solid var(--bf-black);
+  color: var(--bf-on-action);
+  font-family: var(--font-ui);
   font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
-.agenda-page--fija .booking-calendar-panel .react-datepicker__header {
-  background: var(--tv-night);
-  color: var(--tv-on-night);
+.agenda-page--fija .agenda-modal .modal-actions .booking-cancel-button { background: var(--bf-paper); }
+.agenda-page--fija .agenda-modal .modal-actions .booking-confirm-button { background: var(--bf-orange); }
+
+.agenda-page--fija .agenda-modal .modal-actions button:hover:not(:disabled) {
+  box-shadow: var(--brand-shadow);
+  transform: translate(calc(var(--brand-offset) * -1), calc(var(--brand-offset) * -1));
 }
 
-.agenda-page--fija .booking-calendar-panel .react-datepicker__current-month,
-.agenda-page--fija .booking-calendar-panel .react-datepicker__day-name { color: var(--tv-on-night); }
-
-.agenda-page--fija .booking-calendar-panel .react-datepicker__day {
-  min-width: 44px;
-  height: 44px;
-  line-height: 44px;
+.agenda-page--fija .agenda-modal .modal-actions .booking-confirm-button:disabled {
+  border-color: var(--bf-line);
+  background: var(--bf-surface);
+  color: #767676;
+  box-shadow: none;
+  transform: none;
 }
 
-.agenda-page--fija .booking-calendar-panel .react-datepicker__day--selected,
-.agenda-page--fija .booking-calendar-panel .react-datepicker__day--keyboard-selected {
-  background: var(--bf-orange);
-  color: var(--bf-black);
+/* ---------- Teléfono ---------- */
+@media (max-width: 768px) {
+  .agenda-page--fija .booking-stepper { box-shadow: none; }
+  .agenda-page--fija .booking-back-link { min-height: 48px; padding: 0 14px; font-size: 0.95rem; }
+  .agenda-page--fija .agenda-header h1 { font-size: clamp(1.35rem, 6vw, 1.75rem); }
+  .agenda-page--fija .booking-stepper-indicators { padding-inline: 28px; }
 }
 
-@media (min-width: 769px) {
-  .agenda-page--fija .agenda-topbar { width: calc(100% + 64px); margin-inline: -32px; padding-inline: 32px; }
+@media (max-width: 600px) {
+  .agenda-page--fija .barber-profile-grid { grid-template-columns: minmax(0, 1fr); }
+  .agenda-page--fija .pc-card-shell { height: 260px; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .agenda-page--fija .booking-back-link,
+  .agenda-page--fija .booking-stepper-back,
+  .agenda-page--fija .booking-stepper-next,
+  .agenda-page--fija .pc-card,
+  .agenda-page--fija .pc-contact-btn,
+  .agenda-page--fija .booking-service-option,
+  .agenda-page--fija .time-slot-button { transition: none; }
+  .agenda-page--fija .booking-back-link:hover,
+  .agenda-page--fija .booking-stepper-back:hover,
+  .agenda-page--fija .booking-stepper-next:hover:not(:disabled),
+  .agenda-page--fija .pc-card-wrapper:hover .pc-card,
+  .agenda-page--fija .pc-card-wrapper.selected .pc-card,
+  .agenda-page--fija .pc-contact-btn:hover,
+  .agenda-page--fija .booking-service-option:hover,
+  .agenda-page--fija .booking-service-option.is-selected,
+  .agenda-page--fija .time-slot-button:hover,
+  .agenda-page--fija .time-slot-button.selected { transform: none; }
+}
+
+/* ---------- Ajustes de la revisión (Codex + auditoría) ---------- */
+/* Sin mayúsculas sostenidas en las etiquetas que las traían de antes. */
+.agenda-page--fija .booking-back-link,
+.agenda-page--fija .booking-stepper-back,
+.agenda-page--fija .booking-stepper-next,
+.agenda-page--fija .booking-selection-totals small,
+.agenda-page--fija .booking-selected-time span,
+.agenda-page--fija .time-slot-selected-indicator,
+.agenda-page--fija .booking-calendar-title small,
+.agenda-page--fija .agenda-mensaje,
+.agenda-page--fija .agenda-modal .modal-actions button {
+  text-transform: none;
+}
+
+/* Objetivos táctiles de 44-48px en todos los tamaños y alturas. */
+.agenda-page--fija .booking-stepper-back,
+.agenda-page--fija .booking-stepper-next { min-height: 48px; }
+.agenda-page--fija .booking-calendar-panel .booking-calendar-nav { width: 44px; height: 44px; flex: none; }
+.agenda-page--fija .booking-calendar-header { min-width: 0; gap: 8px; }
+.agenda-page--fija .booking-calendar-title { min-width: 0; overflow-wrap: anywhere; }
+
+/* La hora elegida crece para mostrar "Elegido" sin montarse sobre la siguiente. */
+.agenda-page--fija .time-slot-grid { grid-auto-rows: minmax(68px, auto); }
+.agenda-page--fija .time-slot-button { height: auto; }
+
+@media (max-width: 899.98px), (max-height: 539.98px) {
+  .agenda-page--fija .booking-calendar-panel .react-datepicker__day { height: 44px; }
+}
+
+/* Modal: nunca más alto que la pantalla visible del teléfono. */
+.agenda-page--fija .agenda-modal-backdrop { padding: 16px; overflow-y: auto; }
+.agenda-page--fija .agenda-modal { max-height: 90vh; max-height: 90dvh; overflow-y: auto; }
+
+/* Tarjetas centradas aunque haya un solo barbero; el texto nunca pasa bajo el botón. */
+.agenda-page--fija .barber-profile-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 300px));
+}
+.agenda-page--fija .pc-user-details,
+.agenda-page--fija .pc-user-text {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+.agenda-page--fija .time-slot-button { gap: 2px; padding: 6px; }
+
+/* Pie de la tarjeta en dos filas: nombre y especialidad a todo el ancho;
+   calificación y botón "Elegir" debajo. Nada se corta con textos normales. */
+.agenda-page--fija .pc-card-wrapper { --pc-footer-h: 148px; }
+.agenda-page--fija .pc-card-shell { height: clamp(300px, calc(100dvh - 320px), 360px); }
+.agenda-page--fija .pc-user-info {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-content: center;
+  row-gap: 10px;
+}
+.agenda-page--fija .pc-user-details { display: contents; }
+.agenda-page--fija .pc-user-text { grid-column: 1 / -1; grid-row: 1; }
+.agenda-page--fija .pc-mini-rating { grid-column: 1; grid-row: 2; align-self: center; }
+.agenda-page--fija .pc-contact-btn { grid-column: 2; grid-row: 2; }
+.agenda-page--fija .pc-specialty { white-space: normal; text-overflow: clip; }
+@media (max-width: 600px) {
+  .agenda-page--fija .pc-card-shell { height: 290px; }
+}
+.agenda-page--fija .pc-mini-rating { justify-self: start; justify-content: flex-start; }
+.agenda-page--fija .pc-avatar-content { display: grid; place-items: center; }
+.agenda-page--fija .pc-avatar-placeholder { display: grid; place-items: center; }
+@media (max-width: 600px) {
+  .agenda-page--fija .pc-card-shell { height: 310px; }
+}
+
+/* Campos de texto a 52px; radios y casillas conservan su tamaño. */
+.agenda-page--fija .appointment-form input[type="radio"],
+.agenda-page--fija .appointment-form input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  flex: none;
+  margin: 2px 0 0;
+  padding: 0;
+  border: 0;
+  accent-color: var(--bf-orange);
+}
+.agenda-page--fija .agenda-modal .payment-method-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+}
+.agenda-page--fija .agenda-modal .payment-method-option span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+.agenda-page--fija .agenda-modal .payment-method-option.is-disabled { opacity: 0.65; }
+.agenda-page--fija .phone-verification-button { text-transform: none; letter-spacing: 0.01em; }
+.agenda-page--fija .booking-confirmation-summary p,
+.agenda-page--fija .booking-confirmation-summary p:last-child { color: var(--bf-text); }
+.agenda-page--fija .booking-confirmation-summary .svg-inline--fa { color: var(--bf-black); }
+
+/* El cuerpo del paso nunca pasa por debajo de las etiquetas del progreso. */
+.agenda-page--fija .booking-stepper-indicators { padding-bottom: 36px; }
+.agenda-page--fija .booking-stepper-content { background: var(--bf-paper); }
+
+/* Pie de botones: nunca parte el texto en dos líneas. */
+.agenda-page--fija .booking-stepper-back,
+.agenda-page--fija .booking-stepper-next { white-space: nowrap; }
 
 @media (max-width: 768px) {
-  .agenda-page--fija .agenda-topbar {
-    width: calc(100% + 24px);
-    margin: -10px -12px 0;
-    padding: 16px 12px 18px;
-    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  .agenda-page--fija { justify-content: flex-start; }
+}
+@media (max-width: 420px) {
+  .agenda-page--fija .booking-stepper-footer { gap: 10px; }
+  .agenda-page--fija .booking-stepper-back { flex: none; padding-inline: 16px; }
+  .agenda-page--fija .booking-stepper-next { flex: 1; min-width: 0; padding-inline: 12px; }
+}
+.agenda-page--fija .agenda-modal .form-group > .phone-verification-button,
+.agenda-page--fija .agenda-modal .phone-verification-button {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+/* La hora elegida ya se distingue por el naranja y la sombra, y el recuadro
+   "Horario seleccionado" la repite: el sello interno solo la desbordaba. */
+.agenda-page--fija .time-slot-selected-indicator { display: none; }
+
+.agenda-page--fija .booking-selected-time {
+  flex-wrap: nowrap;
+  gap: 12px;
+  padding: 10px 14px;
+}
+.agenda-page--fija .booking-selected-time strong { white-space: nowrap; }
+
+/* Tableta vertical: el calendario conserva un ancho cómodo. */
+@media (min-width: 769px) and (max-width: 899.98px) {
+  .agenda-page--fija .booking-date-time-layout {
+    grid-template-columns: minmax(300px, 1fr) minmax(0, 1.2fr);
   }
-  .agenda-page--fija .agenda-header h1 { font-size: clamp(1.5rem, 6vw, 2rem); }
-  .agenda-page--fija .time-slot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .agenda-page--fija .agenda-modal h3 { margin: -20px -20px 20px; padding: 18px 20px 26px; }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .agenda-page--fija .agenda-topbar::after {
-    animation: tv-bars-reveal 650ms var(--ease-out) both;
-  }
-  @keyframes tv-bars-reveal {
-    from { clip-path: inset(0 100% 0 0); }
-    to { clip-path: inset(0 0 0 0); }
-  }
-}
-
-/* Franjas del poste en la reserva: mismo trazo que en la portada. */
-.agenda-page--fija .agenda-topbar::after,
-.agenda-page--fija .agenda-modal h3::after {
-  height: 12px;
-  border-top: 2px solid var(--bf-black);
-  border-bottom: 2px solid var(--bf-black);
-  background: var(--pole-stripes);
-  background-size: 51px 51px;
-}
-
-/* Sin franjas decorativas en la reserva: filete negro limpio. */
-.agenda-page--fija .agenda-topbar::after,
-.agenda-page--fija .agenda-modal h3::after {
-  display: none;
-}
-
-.agenda-page--fija .agenda-topbar {
-  border-bottom: 2px solid var(--bf-black);
-}
-
-.agenda-page--fija .agenda-modal h3 {
-  border-bottom: 2px solid var(--bf-black);
-}
-
-/* Cabecera de la reserva con el degradado original. */
-.agenda-page--fija .agenda-topbar {
-  background: var(--brand-gradient);
-  box-shadow: none;
-}
-
-/* Cabecera de la reserva fundida con su degradado, igual que el inicio. */
-.agenda-page--fija .agenda-topbar {
-  border-bottom: 0;
-}
-
-/* Título de la confirmación y cabecera del calendario: mismo degradado
-   original que los demás espacios de color (nunca cian plano). */
-.agenda-page--fija .agenda-modal h3,
-.agenda-page--fija .booking-calendar-panel .react-datepicker__header {
-  background: var(--brand-gradient);
 }

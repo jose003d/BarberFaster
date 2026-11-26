@@ -98,7 +98,7 @@ export default function Stepper({
         {step > 1 && (
           <button
             type="button"
-            className="booking-stepper-back"
+            className="booking-stepper-back btn-quiet"
             onClick={() => navigateToStep(step - 1)}
           >
             {backButtonText}

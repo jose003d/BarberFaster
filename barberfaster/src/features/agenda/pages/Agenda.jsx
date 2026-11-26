@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faCalendarDays, faChevronLeft, faChevronRight, faClock, faMoneyBillWave, faScissors } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarDays, faChevronLeft, faChevronRight, faClock, faMoneyBillWave, faScissors } from '@fortawesome/free-solid-svg-icons';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import es from 'date-fns/locale/es';
@@ -723,8 +723,8 @@ export default function Agenda({ reservaPublica = false }) {
     <div className={`agenda-page${esReservaPublica ? ' agenda-page--fija' : ''}`}>
       <div className="agenda-topbar">
         {esReservaPublica && (
-          <button className="booking-back-link btn-link" type="button" onClick={() => navigate('/')}>
-            <FontAwesomeIcon icon={faArrowLeft} aria-hidden="true" /> Cambiar barbería
+          <button className="booking-back-link btn-quiet" type="button" onClick={() => navigate('/')}>
+            ← Cambiar barbería
           </button>
         )}
         <div className="agenda-header">
@@ -839,7 +839,7 @@ export default function Agenda({ reservaPublica = false }) {
                     />
                     <div>
                       <strong>{s.nombre}</strong>
-                      <div className="booking-service-details">{s.duracion_minutos || 30} min · ${s.precio}</div>
+                      <div className="booking-service-details">{s.duracion_minutos || 30} min · ${Number(s.precio).toLocaleString('es-CO')}</div>
                     </div>
                   </label>
                 );
@@ -849,7 +849,7 @@ export default function Agenda({ reservaPublica = false }) {
 
           <div className="booking-services-total">
             <span>Duración total: <strong>{duracionTotalMinutos} min</strong></span>
-            <span className="booking-services-price">Total: ${precioTotal}</span>
+            <span className="booking-services-price">Total: ${precioTotal.toLocaleString('es-CO')}</span>
           </div>
         </div>
         ) : (
@@ -907,7 +907,7 @@ export default function Agenda({ reservaPublica = false }) {
                         <div className="booking-calendar-header">
                           <button
                             type="button"
-                            className="booking-calendar-nav"
+                            className="booking-calendar-nav btn-quiet"
                             onClick={decreaseMonth}
                             disabled={prevMonthButtonDisabled}
                             aria-label="Mes anterior"
@@ -924,7 +924,7 @@ export default function Agenda({ reservaPublica = false }) {
                           </div>
                           <button
                             type="button"
-                            className="booking-calendar-nav"
+                            className="booking-calendar-nav btn-quiet"
                             onClick={increaseMonth}
                             disabled={nextMonthButtonDisabled}
                             aria-label="Mes siguiente"
@@ -940,7 +940,6 @@ export default function Agenda({ reservaPublica = false }) {
 
               <section className="booking-time-column" aria-label="Horarios disponibles">
                 <div className="booking-column-heading">
-                  <span className="booking-column-number">02</span>
                   <div>
                     <h3>Elige la hora</h3>
                     <p>
@@ -986,9 +985,9 @@ export default function Agenda({ reservaPublica = false }) {
         <div className="agenda-modal-backdrop" onClick={() => setMostrarModalCita(false)}>
           <div className="agenda-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-heading">
-              <h3>Confirmar Cita con {barberoSeleccionado?.nombre}</h3>
+              <h3>Confirmar cita con {barberoSeleccionado?.nombre}</h3>
               <button
-                className="modal-close"
+                className="modal-close btn-quiet"
                 type="button"
                 onClick={() => setMostrarModalCita(false)}
                 aria-label="Cerrar"
@@ -1008,7 +1007,7 @@ export default function Agenda({ reservaPublica = false }) {
               </p>
               <p>
                 <FontAwesomeIcon icon={faMoneyBillWave} aria-hidden="true" />{" "}
-                Total a pagar: ${precioTotal}
+                Total a pagar: ${precioTotal.toLocaleString('es-CO')}
               </p>
             </div>
 
@@ -1019,7 +1018,7 @@ export default function Agenda({ reservaPublica = false }) {
                 </p>
               )}
               <div className="form-group">
-                <label>Documento (DNI / Cédula):</label>
+                <label>Documento (cédula)</label>
                 <input
                   type="text"
                   placeholder="Ej. 1001234567"
@@ -1039,7 +1038,7 @@ export default function Agenda({ reservaPublica = false }) {
               </div>
 
               <div className="form-group">
-                <label>Nombre Completo:</label>
+                <label>Nombre completo</label>
                 <input
                   type="text"
                   placeholder="Tu nombre y apellido"
@@ -1054,7 +1053,7 @@ export default function Agenda({ reservaPublica = false }) {
               </div>
 
               <div className="form-group">
-                <label>Teléfono de contacto:</label>
+                <label>Teléfono de contacto</label>
                 <div className="phone-input-group">
                   <span className="phone-country-code" aria-hidden="true">+57</span>
                   <input
@@ -1094,7 +1093,7 @@ export default function Agenda({ reservaPublica = false }) {
 
               {codigoEnviado && telefonoVerificado?.numero !== telefonoCliente && (
                 <div className="form-group">
-                  <label htmlFor="codigo-verificacion">Código de verificación:</label>
+                  <label htmlFor="codigo-verificacion">Código de verificación</label>
                   <div className="phone-verification-row">
                     <input
                       id="codigo-verificacion"
@@ -1165,7 +1164,7 @@ export default function Agenda({ reservaPublica = false }) {
 
               <div className="modal-actions">
                 <button
-                  className="booking-cancel-button"
+                  className="booking-cancel-button btn-quiet"
                   type="button"
                   onClick={() => setMostrarModalCita(false)}
                 >
@@ -1173,7 +1172,7 @@ export default function Agenda({ reservaPublica = false }) {
                 </button>
                 <button
                   type="submit"
-                  className="booking-confirm-button"
+                  className="booking-confirm-button btn-primary"
                   disabled={procesandoReserva || validandoSesionCliente || !telefonoVerificado || telefonoVerificado.numero !== telefonoCliente || verificandoTelefono}
                 >
                   {procesandoReserva
