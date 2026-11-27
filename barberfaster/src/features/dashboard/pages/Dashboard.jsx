@@ -112,7 +112,8 @@ export default function Dashboard() {
       if (mostrarCarga) setCargandoAgenda(true);
       try {
         const idBarberia = obtenerBarberiaActivaId();
-        const url = new URL(`${BASE_URL}/citas/listar_agenda_barberia.php`);
+        // BASE_URL es una ruta relativa (/erpbarber/...): se resuelve sobre el dominio actual.
+        const url = new URL(`${BASE_URL}/citas/listar_agenda_barberia.php`, window.location.origin);
         url.searchParams.set("id_barberia", String(idBarberia));
         if (historialBarberoId) url.searchParams.set("id_barbero", String(historialBarberoId));
         const response = await fetch(url, { signal: controller.signal, cache: "no-store" });
