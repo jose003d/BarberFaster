@@ -27,6 +27,7 @@ if (!$idBarberia || $idBarberia < 1) {
 }
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../barberos/comun.php';
 
 try {
     $stmtBarberia = $pdo->prepare("
@@ -43,31 +44,14 @@ try {
         exit();
     }
 
-    $stmtBarberos = $pdo->prepare("
-        SELECT
-            u.id_usuario AS id_barbero,
-            u.nombre_completo AS nombre,
-            '' AS apellido,
-            NULL AS especialidad,
-            NULL AS foto,
-            COALESCE(AVG(r.calificacion), 0) AS calificacion_promedio,
-            COUNT(r.id_resena) AS cantidad_calificaciones
-        FROM usuarios u
-        LEFT JOIN citas c ON c.id_barbero = u.id_usuario
-        LEFT JOIN resenas r ON r.id_cita = c.id_cita
-        WHERE u.id_barberia = ?
-          AND (u.rol = 'BARBERO' OR (u.rol = 'ADMINISTRADOR' AND u.atiende_clientes = 1))
-          AND u.estado = 'ACTIVO'
-        GROUP BY u.id_usuario, u.nombre_completo
-        ORDER BY u.nombre_completo
-    ");
-    $stmtBarberos->execute([$idBarberia]);
+    // La foto apunta a barberos/foto.php, que vive en la carpeta hermana.
+    $urlFotoBarberos = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'], 2)), '/') . '/barberos/foto.php?id_foto=';
 
     echo json_encode([
         'status' => 'success',
         'data' => [
             'barberia' => $barberia,
-            'barberos' => $stmtBarberos->fetchAll(PDO::FETCH_ASSOC),
+            'barberos' => listarBarberosPublicos($pdo, $idBarberia, $urlFotoBarberos),
         ],
     ]);
 } catch (Throwable $error) {

@@ -123,3 +123,42 @@ function obtenerPerfilBarbero(PDO $pdo, int $idBarbero): ?array
 
     return $perfil;
 }
+
+/**
+ * Barberos que atienden clientes en una barbería, con foto de perfil, descripción y
+ * calificación. Única fuente para la reserva (listar_barberos.php) y para el detalle
+ * público de la barbería (detalle_publico.php), para que ambos muestren lo mismo.
+ */
+function listarBarberosPublicos(PDO $pdo, int $idBarberia, string $urlFoto): array
+{
+    $stmt = $pdo->prepare("
+        SELECT
+            u.id_usuario AS id_barbero,
+            u.id_barberia,
+            u.nombre_completo AS nombre,
+            u.rol = 'ADMINISTRADOR' AS es_administrador,
+            '' AS apellido,
+            NULL AS especialidad,
+            u.descripcion,
+            (
+                SELECT CONCAT(?, bf.id_foto)
+                FROM barbero_fotos bf
+                WHERE bf.id_barbero = u.id_usuario AND bf.tipo = 'PERFIL'
+                ORDER BY bf.id_foto DESC
+                LIMIT 1
+            ) AS foto,
+            COALESCE(AVG(r.calificacion), 0) AS calificacion_promedio,
+            COUNT(r.id_resena) AS cantidad_calificaciones
+        FROM usuarios u
+        LEFT JOIN citas c ON c.id_barbero = u.id_usuario
+        LEFT JOIN resenas r ON r.id_cita = c.id_cita
+        WHERE u.id_barberia = ?
+          AND (u.rol = 'BARBERO' OR (u.rol = 'ADMINISTRADOR' AND u.atiende_clientes = 1))
+          AND u.estado = 'ACTIVO'
+        GROUP BY u.id_usuario, u.id_barberia, u.nombre_completo, u.rol, u.descripcion
+        ORDER BY u.nombre_completo ASC
+    ");
+    $stmt->execute([$urlFoto, $idBarberia]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}

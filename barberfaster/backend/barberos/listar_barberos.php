@@ -19,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/comun.php';
 
-$idBarberia = filter_var($_GET['id_barberia'] ?? 1, FILTER_VALIDATE_INT);
+// Sin barbería explícita no se adivina una: antes se usaba la 1 por defecto.
+$idBarberia = filter_var($_GET['id_barberia'] ?? null, FILTER_VALIDATE_INT);
 if (!$idBarberia || $idBarberia < 1) {
     http_response_code(422);
     echo json_encode(['status' => 'error', 'mensaje' => 'La barbería indicada no es válida.']);
@@ -27,37 +28,7 @@ if (!$idBarberia || $idBarberia < 1) {
 }
 
 try {
-    $stmt = $pdo->prepare("
-        SELECT
-            u.id_usuario AS id_barbero,
-            u.id_barberia,
-            u.nombre_completo AS nombre,
-            u.rol = 'ADMINISTRADOR' AS es_administrador,
-            '' AS apellido,
-            NULL AS especialidad,
-            u.descripcion,
-            (
-                SELECT CONCAT(:url_foto, bf.id_foto)
-                FROM barbero_fotos bf
-                WHERE bf.id_barbero = u.id_usuario AND bf.tipo = 'PERFIL'
-                ORDER BY bf.id_foto DESC
-                LIMIT 1
-            ) AS foto,
-            COALESCE(AVG(r.calificacion), 0) AS calificacion_promedio,
-            COUNT(r.id_resena) AS cantidad_calificaciones
-        FROM usuarios u
-        LEFT JOIN citas c ON c.id_barbero = u.id_usuario
-        LEFT JOIN resenas r ON r.id_cita = c.id_cita
-        WHERE u.id_barberia = :id_barberia
-          AND (u.rol = 'BARBERO' OR (u.rol = 'ADMINISTRADOR' AND u.atiende_clientes = 1))
-          AND u.estado = 'ACTIVO'
-        GROUP BY u.id_usuario, u.id_barberia, u.nombre_completo, u.rol, u.descripcion
-        ORDER BY u.nombre_completo ASC
-    ");
-    $urlFoto = urlFotoBarbero();
-    $stmt->execute([':id_barberia' => $idBarberia, ':url_foto' => $urlFoto]);
-
-    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+    echo json_encode(listarBarberosPublicos($pdo, $idBarberia, urlFotoBarbero()));
 } catch (Throwable $error) {
     error_log('Error al listar el personal de una barbería: ' . $error->getMessage());
     http_response_code(500);
