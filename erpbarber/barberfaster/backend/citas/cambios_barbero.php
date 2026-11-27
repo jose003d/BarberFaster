@@ -21,7 +21,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
 
 try {
-    $usuario = requerirRol($pdo, ['BARBERO']);
+    $usuario = requerirBarberoEnSesion($pdo);
 
     $ahora = new DateTimeImmutable('now', new DateTimeZone('America/Bogota'));
     $fecha = (string) ($_GET['fecha'] ?? $ahora->format('Y-m-d'));

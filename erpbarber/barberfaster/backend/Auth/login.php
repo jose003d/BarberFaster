@@ -45,7 +45,7 @@ if (
 
 try {
     $stmt = $pdo->prepare("
-        SELECT id_usuario, id_barberia, documento, nombre_completo, telefono, correo, password, rol, estado, debe_cambiar_contrasena
+        SELECT id_usuario, id_barberia, documento, nombre_completo, telefono, correo, password, rol, estado, debe_cambiar_contrasena, atiende_clientes
         FROM usuarios
         WHERE documento = :identificador_documento
            OR correo = :identificador_correo
@@ -99,6 +99,8 @@ try {
             'estado' => $usuario['estado'],
             'debe_cambiar_contrasena' => $usuario['rol'] !== 'SUPERADMIN'
                 && (bool) $usuario['debe_cambiar_contrasena'],
+            'atiende_clientes' => $usuario['rol'] === 'BARBERO'
+                || ($usuario['rol'] === 'ADMINISTRADOR' && (bool) $usuario['atiende_clientes']),
         ],
     ], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $error) {

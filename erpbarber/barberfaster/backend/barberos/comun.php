@@ -21,43 +21,6 @@ function urlFotoBarbero(): string
     return rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . '/foto.php?id_foto=';
 }
 
-/**
- * Decide qué barbero puede modificar quien hizo la petición.
- * - Un BARBERO solo puede editarse a sí mismo: el ID enviado se ignora.
- * - Un ADMINISTRADOR puede editarse a sí mismo o a un barbero de su barbería.
- */
-function resolverBarberoEditable(PDO $pdo, array $sesion, $idSolicitado): int
-{
-    if ($sesion['rol'] === 'BARBERO') {
-        return (int) $sesion['id_usuario'];
-    }
-
-    if ($sesion['rol'] !== 'ADMINISTRADOR') {
-        responderBarbero(403, ['status' => 'error', 'mensaje' => 'No tienes permiso para editar este perfil.']);
-    }
-
-    $idBarbero = filter_var($idSolicitado, FILTER_VALIDATE_INT);
-    if ($idSolicitado === null || $idSolicitado === '' || $idBarbero === (int) $sesion['id_usuario']) {
-        return (int) $sesion['id_usuario'];
-    }
-    if (!$idBarbero || $idBarbero < 1) {
-        responderBarbero(422, ['status' => 'error', 'mensaje' => 'Indica un barbero válido.']);
-    }
-
-    $stmt = $pdo->prepare("
-        SELECT id_usuario
-        FROM usuarios
-        WHERE id_usuario = ? AND id_barberia = ? AND rol = 'BARBERO'
-        LIMIT 1
-    ");
-    $stmt->execute([$idBarbero, $sesion['id_barberia']]);
-    if (!$stmt->fetchColumn()) {
-        responderBarbero(404, ['status' => 'error', 'mensaje' => 'No se encontró el barbero en tu barbería.']);
-    }
-
-    return $idBarbero;
-}
-
 // Valida una imagen subida y devuelve su contenido y tipo MIME real.
 function leerImagenSubida(array $archivo): array
 {

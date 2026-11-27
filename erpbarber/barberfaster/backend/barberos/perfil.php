@@ -1,8 +1,8 @@
 <?php
 // Perfil público del barbero.
 // GET ?id_barbero=N: lo consulta cualquiera (para la reserva) si el barbero atiende clientes.
-// GET sin id: devuelve el perfil propio de quien inició sesión.
-// POST {descripcion, id_barbero?}: el barbero edita el suyo; el administrador, los de su barbería.
+// GET sin id: devuelve el perfil propio de quien inició sesión (barbero o administrador que atiende).
+// POST {descripcion}: quien inició sesión edita SU perfil (barbero o administrador que atiende).
 
 declare(strict_types=1);
 
@@ -25,7 +25,7 @@ if ($metodo === 'GET') {
 
     try {
         if ($idSolicitado === null || $idSolicitado === '') {
-            $sesion = requerirRol($pdo, ['ADMINISTRADOR', 'BARBERO']);
+            $sesion = requerirBarberoEnSesion($pdo);
             $perfil = obtenerPerfilBarbero($pdo, (int) $sesion['id_usuario']);
         } else {
             $idBarbero = filter_var($idSolicitado, FILTER_VALIDATE_INT);
@@ -60,13 +60,13 @@ if ($metodo === 'GET') {
 
 if ($metodo === 'POST') {
     try {
-        $sesion = requerirRol($pdo, ['ADMINISTRADOR', 'BARBERO']);
+        $sesion = requerirBarberoEnSesion($pdo);
         $datos = json_decode((string) file_get_contents('php://input'), true);
         if (!is_array($datos)) {
             responderBarbero(400, ['status' => 'error', 'mensaje' => 'Los datos enviados no son válidos.']);
         }
 
-        $idBarbero = resolverBarberoEditable($pdo, $sesion, $datos['id_barbero'] ?? null);
+        $idBarbero = (int) $sesion['id_usuario'];
         $descripcion = trim(preg_replace('/\r\n?/', "\n", (string) ($datos['descripcion'] ?? '')));
         if (mb_strlen($descripcion) > BARBERO_MAX_DESCRIPCION) {
             responderBarbero(422, [

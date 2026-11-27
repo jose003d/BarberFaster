@@ -78,7 +78,7 @@ function obtenerUsuarioSesion(PDO $pdo): ?array
     }
 
     $stmt = $pdo->prepare("
-        SELECT id_usuario, id_barberia, documento, nombre_completo, telefono, correo, rol, estado, debe_cambiar_contrasena
+        SELECT id_usuario, id_barberia, documento, nombre_completo, telefono, correo, rol, estado, debe_cambiar_contrasena, atiende_clientes
         FROM usuarios
         WHERE id_usuario = :id_usuario
         LIMIT 1
@@ -115,6 +115,9 @@ function obtenerUsuarioSesion(PDO $pdo): ?array
         'estado' => $usuario['estado'],
         'debe_cambiar_contrasena' => $usuario['rol'] !== 'SUPERADMIN'
             && (bool) $usuario['debe_cambiar_contrasena'],
+        // Un administrador que también atiende tiene su propio perfil de barbero.
+        'atiende_clientes' => $usuario['rol'] === 'BARBERO'
+            || ($usuario['rol'] === 'ADMINISTRADOR' && (bool) $usuario['atiende_clientes']),
     ];
 }
 

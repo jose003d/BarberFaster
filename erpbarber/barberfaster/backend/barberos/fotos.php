@@ -1,9 +1,9 @@
 <?php
 // Fotos del barbero: una de perfil y hasta 12 de portafolio.
-// POST multipart {tipo: PERFIL|PORTAFOLIO, fotos[], id_barbero?}: sube fotos.
+// POST multipart {tipo: PERFIL|PORTAFOLIO, fotos[]}: sube fotos.
 //   Con tipo PERFIL la foto nueva reemplaza a la anterior.
-// DELETE {id_foto, id_barbero?}: elimina una foto.
-// El barbero solo toca sus fotos; el administrador, las de los barberos de su barbería.
+// DELETE {id_foto}: elimina una foto.
+// Siempre se tocan las fotos de quien inició sesión: nadie edita el perfil de otro.
 
 declare(strict_types=1);
 
@@ -23,8 +23,8 @@ $metodo = $_SERVER['REQUEST_METHOD'];
 
 if ($metodo === 'POST') {
     try {
-        $sesion = requerirRol($pdo, ['ADMINISTRADOR', 'BARBERO']);
-        $idBarbero = resolverBarberoEditable($pdo, $sesion, $_POST['id_barbero'] ?? null);
+        $sesion = requerirBarberoEnSesion($pdo);
+        $idBarbero = (int) $sesion['id_usuario'];
     } catch (Throwable $error) {
         error_log('Error al validar acceso a las fotos del barbero: ' . $error->getMessage());
         responderBarbero(500, ['status' => 'error', 'mensaje' => 'No se pudo validar el acceso.']);
@@ -119,8 +119,8 @@ if ($metodo === 'DELETE') {
     }
 
     try {
-        $sesion = requerirRol($pdo, ['ADMINISTRADOR', 'BARBERO']);
-        $idBarbero = resolverBarberoEditable($pdo, $sesion, $datos['id_barbero'] ?? null);
+        $sesion = requerirBarberoEnSesion($pdo);
+        $idBarbero = (int) $sesion['id_usuario'];
 
         // La condición por id_barbero impide borrar fotos de otro barbero.
         $stmt = $pdo->prepare('DELETE FROM barbero_fotos WHERE id_foto = ? AND id_barbero = ?');
