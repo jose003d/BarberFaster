@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../config/cifrado.php';
-require_once __DIR__ . '/../tiempo_real/comun.php';
 
 // Cada barbería cobra con su propia cuenta de Wompi: el dinero de sus clientes
 // llega directo a ella. Sus llaves se guardan en barberia_pasarelas y los
@@ -413,9 +412,6 @@ function wompiAplicarTransaccion(PDO $pdo, array $transaccion, int $idBarberia):
         }
 
         $pdo->commit();
-        if (in_array($estadoPago, ['APPROVED', 'LATE_APPROVED', 'DECLINED', 'VOIDED', 'ERROR'], true)) {
-            notificarCambioCita($pdo, (int) $pago['id_cita'], $estadoPago === 'APPROVED' ? 'CONFIRMADA' : 'CANCELADA');
-        }
         return ['estado_pago' => $estadoPago, 'id_cita' => (int) $pago['id_cita']];
     } catch (Throwable $error) {
         if ($pdo->inTransaction()) {

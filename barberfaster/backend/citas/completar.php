@@ -5,7 +5,6 @@ header('Content-Type: application/json; charset=UTF-8');
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
-require_once __DIR__ . '/../tiempo_real/comun.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -56,7 +55,6 @@ try {
         exit();
     }
 
-    notificarCambioCita($pdo, $idCita, 'COMPLETADA');
     echo json_encode(['status' => 'success', 'mensaje' => 'La cita ha sido marcada como completada.']);
 } catch (Throwable $error) {
     error_log('Error al completar una cita: ' . $error->getMessage());

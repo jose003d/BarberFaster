@@ -160,26 +160,19 @@ Copias de seguridad** o **Bases de datos**. La migración histórica
 `20261126210000_clientes_estado.sql`, con `IF NOT EXISTS`, así que es segura aunque
 la columna ya exista.
 
-## Agenda del barbero en vivo (WebSocket propio)
+## Agenda del barbero en vivo
 
-El plan *Single Web Hosting* no puede mantener conexiones WebSocket abiertas (PHP
-atiende una petición y termina). Por eso hay un servidor WebSocket propio en Node, en la
-carpeta `servidor-tiempo-real/`, que corre en el **VPS**. No usa cuentas ni servicios
-externos:
+El plan *Single Web Hosting* no puede mantener conexiones WebSocket abiertas (PHP atiende
+una petición y termina), y no queremos depender de un VPS ni de servicios externos. Por
+eso "Mi agenda" funciona con **consultas cortas**:
 
-```text
-Cliente agenda ──▶ PHP guarda la cita ──POST /publicar──▶ servidor propio (VPS) ──WebSocket──▶ barbero
-```
+- Cada 5 segundos pregunta a `backend/citas/cambios_barbero.php` si cambió algo. Esa
+  respuesta es solo una huella del día (unos 300 bytes).
+- Solo cuando la huella cambia, pide la lista completa a
+  `backend/citas/listar_barbero_perfil.php`. Además la recarga entera cada minuto.
+- Se pausa con la pestaña oculta y revisa apenas el barbero vuelve.
 
-- Esa carpeta está fuera de `barberfaster/`: el despliegue a Hostinger **no** la sube.
-  Se instala una sola vez en el VPS siguiendo `servidor-tiempo-real/README.md`
-  (systemd + Nginx con `wss://` en un subdominio como `tiempo-real.barberfaster.site`).
-- El backend lo encuentra con `TIEMPO_REAL_WS_URL`, `TIEMPO_REAL_PUBLICAR_URL` y
-  `TIEMPO_REAL_SECRETO` en `domains/barberfaster.site/.env`.
-- Cada barbero escucha solo su canal: PHP le firma un permiso con el secreto. Al aviso
-  solo viajan el ID de la cita, la fecha y la hora, nunca datos del cliente.
-- Si las variables faltan o el servidor se cae, la agenda sigue funcionando y se
-  actualiza cada 15 segundos; cuando vuelve, se reconecta sola.
+No hay nada que configurar: funciona igual en XAMPP y en Hostinger.
 
 ## Si algo no carga en línea
 

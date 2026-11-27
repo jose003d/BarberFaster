@@ -2,20 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { apiFetch } from "../../../shared/services/api.js";
 import "./BarberoWorkspace.css";
 
-// Cada cuánto se consulta la agenda: con WebSocket es solo un respaldo.
-const INTERVALO_EN_VIVO_MS = 60000;
-const INTERVALO_SIN_SOCKET_MS = 15000;
+// El hosting compartido no mantiene WebSockets abiertos: la agenda pregunta cada 5 s si
+// cambió algo (consulta liviana) y solo entonces recarga la lista completa.
+const INTERVALO_REVISION_MS = 5000;
+// Recarga completa de respaldo (libera pagos vencidos y refresca todo el día).
+const INTERVALO_RECARGA_MS = 60000;
 // Durante cuánto tiempo una cita nueva queda resaltada.
 const RESALTE_NUEVA_MS = 2 * 60 * 1000;
 const CLAVE_SONIDO = "barberfaster_agenda_sonido";
-
-function idUsuarioSesion() {
-  try {
-    return JSON.parse(localStorage.getItem("user") || "null")?.id_usuario || null;
-  } catch {
-    return null;
-  }
-}
 
 function fechaLocalHoy() {
   const hoy = new Date();
@@ -81,7 +75,6 @@ function sonarAviso(contexto) {
 
 // Agenda en vivo del barbero: pensada para dejarla abierta todo el día en su celular o tablet.
 export const BarberoWorkspace = () => {
-  const idBarbero = idUsuarioSesion();
   const [fecha, setFecha] = useState(fechaLocalHoy);
   const [citas, setCitas] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -96,6 +89,7 @@ export const BarberoWorkspace = () => {
 
   const audioRef = useRef(null);
   const idsConocidosRef = useRef({ fecha: null, ids: new Set() });
+  const huellaRef = useRef(null);
   const fechaRef = useRef(fecha);
   const sonidoRef = useRef(sonidoActivo);
   fechaRef.current = fecha;
@@ -124,7 +118,7 @@ export const BarberoWorkspace = () => {
 
     if (respuesta.status !== "success" || !Array.isArray(respuesta.datos)) {
       setError(respuesta.mensaje || "No se pudieron cargar las citas.");
-      setConexion((actual) => (actual === "en-vivo" ? actual : "sin-conexion"));
+      setConexion("sin-conexion");
       setCargando(false);
       return;
     }
@@ -153,7 +147,7 @@ export const BarberoWorkspace = () => {
     setCitas(lista);
     setError("");
     setUltimaActualizacion(new Date());
-    setConexion((actual) => (actual === "sin-conexion" ? "consultando" : actual));
+    setConexion("en-vivo");
     setCargando(false);
   }, [avisarNueva]);
 
@@ -162,85 +156,52 @@ export const BarberoWorkspace = () => {
     setCargando(true);
     setNuevas({});
     setAviso("");
+    huellaRef.current = null;
     cargarCitas();
   }, [fecha, cargarCitas]);
 
-  // Respaldo: consulta periódica, pausada mientras la pestaña está oculta.
+  // "En vivo": cada 5 s pregunta si cambió algo y solo entonces recarga la lista.
+  // Se pausa con la pestaña oculta y revisa apenas el barbero vuelve a ella.
   useEffect(() => {
-    const intervalo = conexion === "en-vivo" ? INTERVALO_EN_VIVO_MS : INTERVALO_SIN_SOCKET_MS;
-    const id = window.setInterval(() => {
+    let cancelado = false;
+
+    const revisar = async () => {
+      if (document.hidden) return;
+      const fechaConsulta = fechaRef.current;
+      const respuesta = await apiFetch(
+        `citas/cambios_barbero.php?fecha=${encodeURIComponent(fechaConsulta)}`,
+        { cache: "no-store" },
+      );
+      if (cancelado || fechaConsulta !== fechaRef.current) return;
+      if (respuesta.status !== "success") {
+        setConexion("sin-conexion");
+        return;
+      }
+      setConexion("en-vivo");
+      const anterior = huellaRef.current;
+      huellaRef.current = respuesta.huella;
+      if (anterior !== null && anterior !== respuesta.huella) cargarCitas();
+    };
+
+    const idRevision = window.setInterval(revisar, INTERVALO_REVISION_MS);
+    const idRecarga = window.setInterval(() => {
       if (!document.hidden) cargarCitas();
-    }, intervalo);
+    }, INTERVALO_RECARGA_MS);
     const alVolver = () => {
-      if (!document.hidden) cargarCitas();
+      if (!document.hidden) revisar();
     };
     document.addEventListener("visibilitychange", alVolver);
     window.addEventListener("online", alVolver);
+    revisar();
+
     return () => {
-      window.clearInterval(id);
+      cancelado = true;
+      window.clearInterval(idRevision);
+      window.clearInterval(idRecarga);
       document.removeEventListener("visibilitychange", alVolver);
       window.removeEventListener("online", alVolver);
     };
-  }, [conexion, cargarCitas]);
-
-  // WebSocket propio (servidor-tiempo-real): avisa al instante cuando una cita se crea o cambia.
-  // Si se corta, reintenta con espera creciente; mientras tanto sigue la consulta periódica.
-  useEffect(() => {
-    if (!idBarbero) return undefined;
-    let socket = null;
-    let temporizador = null;
-    let intentos = 0;
-    let cancelado = false;
-
-    const reintentar = () => {
-      if (cancelado) return;
-      const espera = Math.min(30000, 1000 * 2 ** intentos);
-      intentos += 1;
-      temporizador = window.setTimeout(conectar, espera);
-    };
-
-    async function conectar() {
-      // Cada conexión pide un permiso nuevo: el anterior pudo vencer.
-      const config = await apiFetch("tiempo_real/config.php", { cache: "no-store" });
-      if (cancelado) return;
-      if (config.status !== "success") {
-        reintentar();
-        return;
-      }
-      // Sin servidor configurado: se queda con la consulta periódica.
-      if (!config.datos?.activo) return;
-
-      const separador = config.datos.url.includes("?") ? "&" : "?";
-      socket = new WebSocket(`${config.datos.url}${separador}token=${encodeURIComponent(config.datos.token)}`);
-      socket.onopen = () => {
-        intentos = 0;
-        setConexion("en-vivo");
-        // Recupera lo que haya pasado mientras no hubo conexión.
-        cargarCitas();
-      };
-      socket.onmessage = (evento) => {
-        try {
-          const mensaje = JSON.parse(evento.data);
-          if (mensaje.evento === "cita-actualizada") cargarCitas();
-        } catch {
-          // Mensaje ilegible: se ignora.
-        }
-      };
-      socket.onclose = () => {
-        socket = null;
-        if (cancelado) return;
-        setConexion("consultando");
-        reintentar();
-      };
-    }
-
-    conectar();
-    return () => {
-      cancelado = true;
-      window.clearTimeout(temporizador);
-      socket?.close();
-    };
-  }, [idBarbero, cargarCitas]);
+  }, [cargarCitas]);
 
   // Reloj: recalcula "quién sigue" y apaga los resaltes vencidos.
   useEffect(() => {
@@ -310,7 +271,7 @@ export const BarberoWorkspace = () => {
 
   const textoConexion = {
     "en-vivo": "En vivo",
-    consultando: `Actualiza cada ${INTERVALO_SIN_SOCKET_MS / 1000} s`,
+    consultando: "Conectando…",
     "sin-conexion": "Sin conexión",
   }[conexion];
 
@@ -362,7 +323,7 @@ export const BarberoWorkspace = () => {
         </div>
         <div className="agenda-vivo-controles">
           <span className={`agenda-vivo-conexion is-${conexion}`} role="status" title={
-            ultimaActualizacion ? `Última actualización: ${ultimaActualizacion.toLocaleTimeString("es-CO")}` : undefined
+            ultimaActualizacion ? `Revisa cada ${INTERVALO_REVISION_MS / 1000} s · última lista: ${ultimaActualizacion.toLocaleTimeString("es-CO")}` : undefined
           }>
             <span aria-hidden="true" />
             {textoConexion}
