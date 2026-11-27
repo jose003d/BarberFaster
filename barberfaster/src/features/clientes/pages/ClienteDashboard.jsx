@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { buscarClientePorDni } from "../../../shared/services/api.js";
 import PeekRating from "../components/PeekRating.jsx";
+import ReprogramarCita from "../components/ReprogramarCita.jsx";
 import "./ClienteDashboard.css";
 import logoBarberFaster from "../../../assets/logo-barberfaster.png";
 import {
@@ -55,13 +56,6 @@ function formatearFecha(fecha) {
   });
 }
 
-function fechaLocalHoy() {
-  const hoy = new Date();
-  const mes = String(hoy.getMonth() + 1).padStart(2, "0");
-  const dia = String(hoy.getDate()).padStart(2, "0");
-  return `${hoy.getFullYear()}-${mes}-${dia}`;
-}
-
 export default function ClienteDashboard() {
   const [nombre, setNombre] = useState("");
   const [dni, setDni] = useState("");
@@ -70,7 +64,6 @@ export default function ClienteDashboard() {
   const [codigoEnviado, setCodigoEnviado] = useState(false);
   const [cliente, setCliente] = useState(null);
   const [citas, setCitas] = useState([]);
-  const [cambios, setCambios] = useState({});
   const [calificaciones, setCalificaciones] = useState({});
   const [calificandoCita, setCalificandoCita] = useState(null);
   const [token, setToken] = useState("");
@@ -98,12 +91,6 @@ export default function ClienteDashboard() {
           .filter((cita) => cita.calificacion)
           .map((cita) => [cita.id_cita, Number(cita.calificacion)])
       ));
-      setCambios(
-        Object.fromEntries((historial.datos || []).map((cita) => [
-          cita.id_cita,
-          { fecha: String(cita.fecha).slice(0, 10), hora: horaParaCampo(cita.hora_inicio) },
-        ]))
-      );
       localStorage.setItem(CLIENT_SESSION_KEY, sesion);
       localStorage.setItem(CLIENT_SESSION_EXPIRY_KEY, String(perfil.sesion_expira_en));
       setNombre("");
@@ -265,25 +252,9 @@ export default function ClienteDashboard() {
     setCliente(null);
     setSesionExpiraEn(null);
     setCitas([]);
-    setCambios({});
     setCalificaciones({});
     setError("");
     setAviso("");
-  };
-
-  const actualizarCambio = (idCita, campo, valor) => {
-    setCambios((actuales) => ({
-      ...actuales,
-      [idCita]: { ...actuales[idCita], [campo]: valor },
-    }));
-  };
-
-  const descartarCambio = (idCita) => {
-    setCambios((actuales) => {
-      const siguientes = { ...actuales };
-      delete siguientes[idCita];
-      return siguientes;
-    });
   };
 
   const cancelarCita = async (idCita) => {
@@ -308,36 +279,15 @@ export default function ClienteDashboard() {
     }
   };
 
-  const reprogramarCita = async (event, idCita) => {
-    event.preventDefault();
+  // Tras mover una cita, muestra el aviso y recarga la lista.
+  const alReprogramar = async (mensaje) => {
     setError("");
-    setAviso("");
-    const cambio = cambios[idCita];
+    setAviso(mensaje);
     try {
-      const response = await fetch(`${BASE_URL}/citas/reprogramar_cliente.php`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          id_cita: idCita,
-          fecha: cambio?.fecha,
-          hora_inicio: cambio?.hora,
-        }),
-      });
-      const data = await leerRespuesta(response);
-      setAviso(data.mensaje);
       const historial = await obtenerCitas(token);
       setCitas(historial.datos || []);
-      setCambios(
-        Object.fromEntries((historial.datos || []).map((cita) => [
-          cita.id_cita,
-          { fecha: String(cita.fecha).slice(0, 10), hora: horaParaCampo(cita.hora_inicio) },
-        ]))
-      );
     } catch (requestError) {
-      setError(requestError.message || "No se pudo reprogramar la cita.");
+      setError(requestError.message || "No se pudieron recargar tus citas.");
     }
   };
 
@@ -515,7 +465,6 @@ export default function ClienteDashboard() {
               ) : (
                 <div className="client-appointment-list">
                   {citas.map((cita) => {
-                    const cambio = cambios[cita.id_cita] || {};
                     const administrable = ["PENDIENTE", "CONFIRMADA"].includes(cita.estado);
                     return (
                       <article className="client-appointment-card" key={cita.id_cita}>
@@ -533,35 +482,17 @@ export default function ClienteDashboard() {
                           </p>
                         </div>
                         {administrable && (
-                          <form className="client-appointment-actions" onSubmit={(event) => reprogramarCita(event, cita.id_cita)}>
-                            <label>
-                              Nueva fecha
-                              <input
-                                type="date"
-                                min={fechaLocalHoy()}
-                                value={cambio.fecha || ""}
-                                onChange={(event) => actualizarCambio(cita.id_cita, "fecha", event.target.value)}
-                                required
-                              />
-                            </label>
-                            <label>
-                              Nueva hora
-                              <input
-                                type="time"
-                                step="1800"
-                                value={cambio.hora || ""}
-                                onChange={(event) => actualizarCambio(cita.id_cita, "hora", event.target.value)}
-                                required
-                              />
-                            </label>
+                          <div className="client-appointment-actions">
+                            <ReprogramarCita
+                              cita={cita}
+                              token={token}
+                              onReprogramada={alReprogramar}
+                              onError={(mensaje) => { setAviso(""); setError(mensaje); }}
+                            />
                             <div className="client-appointment-buttons">
-                              <button className="client-reschedule-button" type="submit">Cambiar horario</button>
-                              <button className="client-discard-button" type="button" onClick={() => descartarCambio(cita.id_cita)}>
-                                Descartar cambios
-                              </button>
                               <button className="client-cancel-button" type="button" onClick={() => cancelarCita(cita.id_cita)}>Cancelar cita</button>
                             </div>
-                          </form>
+                          </div>
                         )}
                         {cita.estado === "COMPLETADA" && (
                           cita.calificacion ? (

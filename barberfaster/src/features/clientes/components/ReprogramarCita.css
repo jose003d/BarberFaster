@@ -1,0 +1,70 @@
+/* Cambio de horario del cliente: día + turnos libres, con el estilo recto de la marca. */
+.reprogramar {
+  display: grid;
+  gap: 12px;
+  grid-column: 1 / -1;
+}
+
+.reprogramar-fecha {
+  display: grid;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.reprogramar-fecha input {
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 2px solid var(--bf-black);
+  border-radius: 0;
+  background: var(--bf-paper);
+  font: inherit;
+  font-family: var(--font-body);
+}
+
+.reprogramar-turnos {
+  display: grid;
+  gap: 8px;
+}
+
+.reprogramar-titulo {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.reprogramar-grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.reprogramar-mensaje {
+  margin: 0;
+  padding: 12px;
+  border: 2px dashed var(--bf-line);
+  color: var(--bf-muted);
+  font-size: 0.88rem;
+}
+
+.reprogramar-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Los turnos usan el estilo de la reserva (.time-slot-button), más compactos aquí. */
+.reprogramar-grilla .time-slot-button {
+  min-height: 44px;
+  padding: 6px;
+  font-size: 0.85rem;
+}
+
+.reprogramar-grilla .time-slot-button small {
+  font-size: 0.65rem;
+  font-weight: 600;
+}
