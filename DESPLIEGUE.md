@@ -160,6 +160,30 @@ Copias de seguridad** o **Bases de datos**. La migración histórica
 `20261126210000_clientes_estado.sql`, con `IF NOT EXISTS`, así que es segura aunque
 la columna ya exista.
 
+## Agenda del barbero en vivo (WebSocket con Pusher)
+
+El plan *Single Web Hosting* no puede mantener un servidor WebSocket propio (PHP
+atiende una petición y termina). Por eso la agenda en vivo usa **Pusher Channels**,
+un servicio de WebSocket administrado:
+
+```text
+Cliente agenda ──▶ PHP guarda la cita ──HTTP──▶ Pusher ──WebSocket──▶ celular del barbero
+```
+
+1. Crea una cuenta gratuita en <https://dashboard.pusher.com> y una app de tipo
+   **Channels** (clúster `us2` o el más cercano). Revisa los límites del plan gratuito.
+2. En **App Keys** copia `app_id`, `key`, `secret` y `cluster` al `.env` del servidor
+   (`domains/barberfaster.site/.env`) como `PUSHER_APP_ID`, `PUSHER_KEY`,
+   `PUSHER_SECRET` y `PUSHER_CLUSTER`. Para probar en XAMPP, ponlos también en
+   `barberfaster/backend/.env`.
+3. No hay que compilar nada: el navegador pide la llave pública a
+   `backend/tiempo_real/config.php`. El `secret` nunca sale del servidor.
+
+Cada barbero escucha solo su canal privado `private-barbero-{id}`;
+`backend/tiempo_real/auth.php` lo comprueba con la sesión. Al aviso solo viajan el
+ID de la cita, la fecha y la hora, nunca datos del cliente. Si Pusher no está
+configurado o se cae, la agenda sigue funcionando y se actualiza cada 15 segundos.
+
 ## Si algo no carga en línea
 
 | Síntoma                                      | Causa probable / solución                                                                              |

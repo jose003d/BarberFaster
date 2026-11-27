@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../agenda/utilidades_horario.php';
 require_once __DIR__ . '/../verificacion/comun.php';
+require_once __DIR__ . '/../tiempo_real/pusher.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -162,6 +163,7 @@ try {
     ");
     $stmtActualizar->execute([$fecha, $horaInicio, $horaFin, $idCita, $cliente['dni']]);
     $pdo->commit();
+    notificarCambioCita($pdo, $idCita, 'REPROGRAMADA');
 
     responder(200, true, 'La cita se reprogramó correctamente.', [
         'id_cita' => $idCita,
