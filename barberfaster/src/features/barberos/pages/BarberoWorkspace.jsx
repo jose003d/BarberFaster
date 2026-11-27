@@ -116,11 +116,15 @@ function PerfilBarberoSesion({ nombre }) {
   const [tic, setTic] = useState(() => Date.now());
   const [nuevas, setNuevas] = useState({});
   const [aviso, setAviso] = useState("");
+  // Cita nueva en un día distinto al que el barbero está mirando: { texto, fecha }.
+  const [avisoOtroDia, setAvisoOtroDia] = useState(null);
   const [sonidoActivo, setSonidoActivo] = useState(() => localStorage.getItem(CLAVE_SONIDO) === "1");
 
   const audioRef = useRef(null);
   const idsConocidosRef = useRef({ fecha: null, ids: new Set() });
   const huellaRef = useRef(null);
+  // Última cita activa conocida (de cualquier día desde hoy) para detectar reservas nuevas.
+  const ultimaCitaRef = useRef(null);
   const fechaRef = useRef(fecha);
   const sonidoRef = useRef(sonidoActivo);
   fechaRef.current = fecha;
@@ -148,8 +152,9 @@ function PerfilBarberoSesion({ nombre }) {
     if (fechaConsulta !== fechaRef.current) return;
 
     if (respuesta.status !== "success" || !Array.isArray(respuesta.datos)) {
+      // Un error de la lista se muestra como mensaje; la señal "En vivo" depende solo de la
+      // revisión de cambios, para que no parpadee entre "En vivo" y "Sin conexión".
       setError(respuesta.mensaje || "No se pudieron cargar las citas.");
-      setConexion("sin-conexion");
       setCargando(false);
       return;
     }
@@ -195,6 +200,8 @@ function PerfilBarberoSesion({ nombre }) {
   // Se pausa con la pestaña oculta y revisa apenas el barbero vuelve a ella.
   useEffect(() => {
     let cancelado = false;
+    // Un fallo suelto (señal débil del celular) no cambia la señal; dos seguidos sí.
+    let fallosSeguidos = 0;
 
     const revisar = async () => {
       if (document.hidden) return;
@@ -205,10 +212,27 @@ function PerfilBarberoSesion({ nombre }) {
       );
       if (cancelado || fechaConsulta !== fechaRef.current) return;
       if (respuesta.status !== "success") {
-        setConexion("sin-conexion");
+        fallosSeguidos += 1;
+        if (fallosSeguidos >= 2) setConexion("sin-conexion");
         return;
       }
+      fallosSeguidos = 0;
       setConexion("en-vivo");
+
+      const ultima = respuesta.ultima;
+      if (ultima) {
+        const conocida = ultimaCitaRef.current;
+        if (conocida !== null && ultima.id_cita > conocida && ultima.fecha !== fechaConsulta) {
+          setAvisoOtroDia({
+            fecha: ultima.fecha,
+            texto: `Nueva cita el ${formatoFechaLarga(ultima.fecha)} a las ${formatoHora(ultima.hora_inicio)}`,
+          });
+          if (sonidoRef.current) sonarAviso(audioRef.current);
+        }
+        ultimaCitaRef.current = Math.max(conocida ?? 0, ultima.id_cita);
+      } else if (ultimaCitaRef.current === null) {
+        ultimaCitaRef.current = 0;
+      }
       const anterior = huellaRef.current;
       huellaRef.current = respuesta.huella;
       if (anterior !== null && anterior !== respuesta.huella) cargarCitas();
@@ -374,6 +398,23 @@ function PerfilBarberoSesion({ nombre }) {
           Mis fotos y descripción
         </button>
       </div>
+
+      {avisoOtroDia && (
+        <div className="agenda-vivo-aviso" role="alert">
+          <button
+            type="button"
+            className="agenda-vivo-aviso-ir"
+            onClick={() => {
+              setFecha(avisoOtroDia.fecha);
+              setPestana("agenda");
+              setAvisoOtroDia(null);
+            }}
+          >
+            {avisoOtroDia.texto} · Ver ese día
+          </button>
+          <button type="button" onClick={() => setAvisoOtroDia(null)} aria-label="Cerrar aviso">×</button>
+        </div>
+      )}
 
       {/* El aviso de cita nueva se ve en ambas pestañas; la agenda sigue revisando en segundo plano. */}
       {aviso && pestana === "perfil" && (

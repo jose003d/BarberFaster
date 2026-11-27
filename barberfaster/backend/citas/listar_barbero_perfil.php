@@ -21,23 +21,28 @@ try {
     $usuario = requerirBarberoEnSesion($pdo);
     $idBarbero = $usuario['id_usuario'];
 
-    wompiLiberarPagosVencidos($pdo);
-
-    // Se completan citas confirmadas: pagadas con Wompi o con pago en el local.
     $ahora = new DateTimeImmutable('now', new DateTimeZone('America/Bogota'));
-    $actualizarVencidas = $pdo->prepare("
-        UPDATE citas
-        SET estado = 'COMPLETADA'
-        WHERE id_barbero = ?
-          AND estado = 'CONFIRMADA'
-          AND NOT EXISTS (
-              SELECT 1
-              FROM wompi_pagos p
-              WHERE p.id_cita = citas.id_cita AND p.estado <> 'APPROVED'
-          )
-          AND CONCAT(fecha, ' ', hora_fin) <= ?
-    ");
-    $actualizarVencidas->execute([$idBarbero, $ahora->format('Y-m-d H:i:s')]);
+
+    // Mantenimiento: libera pagos en línea vencidos y marca como atendidas las citas
+    // confirmadas que ya pasaron. Si falla, se registra pero la agenda igual se muestra.
+    try {
+        wompiLiberarPagosVencidos($pdo);
+        $actualizarVencidas = $pdo->prepare("
+            UPDATE citas
+            SET estado = 'COMPLETADA'
+            WHERE id_barbero = ?
+              AND estado = 'CONFIRMADA'
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM wompi_pagos p
+                  WHERE p.id_cita = citas.id_cita AND p.estado <> 'APPROVED'
+              )
+              AND CONCAT(fecha, ' ', hora_fin) <= ?
+        ");
+        $actualizarVencidas->execute([$idBarbero, $ahora->format('Y-m-d H:i:s')]);
+    } catch (Throwable $errorMantenimiento) {
+        error_log('Agenda del barbero: no se pudo actualizar el estado de las citas: ' . $errorMantenimiento->getMessage());
+    }
 
     // Agenda de un solo día (hoy en Bogotá si no se indica otra fecha).
     $fecha = (string) ($_GET['fecha'] ?? $ahora->format('Y-m-d'));
@@ -84,6 +89,12 @@ try {
     ]);
 } catch (Throwable $error) {
     error_log('Error al listar citas del perfil de barbero: ' . $error->getMessage());
+    // Solo el código de error de la base (p. ej. 42S22 = columna inexistente), sin datos
+    // ni nombres internos: sirve para diagnosticar sin abrir los registros del hosting.
+    $codigo = $error instanceof PDOException ? (string) $error->getCode() : 'PHP';
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'mensaje' => 'No se pudieron cargar las citas.']);
+    echo json_encode([
+        'status' => 'error',
+        'mensaje' => "No se pudieron cargar las citas (código {$codigo}).",
+    ]);
 }
