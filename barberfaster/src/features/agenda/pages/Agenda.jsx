@@ -172,6 +172,8 @@ export default function Agenda({ reservaPublica = false }) {
   }, [dniCliente, validandoSesionCliente, telefonoVerificado?.sesion]);
 
   const [mensaje, setMensaje] = useState(null);
+  // Ventana de éxito que se muestra al confirmar la cita.
+  const [citaAgendada, setCitaAgendada] = useState(null);
   const [pagoPendiente, setPagoPendiente] = useState(null);
   const [procesandoReserva, setProcesandoReserva] = useState(false);
   const [metodoPago, setMetodoPago] = useState('WOMPI');
@@ -417,7 +419,8 @@ export default function Agenda({ reservaPublica = false }) {
       .then((data) => {
         if (controller.signal.aborted) return;
         if (data.estado_pago === 'APPROVED') {
-          setMensaje({ tipo: 'success', texto: '¡Pago aprobado! Tu cita quedó confirmada.' });
+          setMensaje(null);
+          setCitaAgendada({ detalle: '¡Pago aprobado! Tu cita quedó confirmada.' });
         } else if (data.estado_pago === 'PENDING') {
           setMensaje({ tipo: 'warning', texto: 'El pago sigue pendiente. La cita no está confirmada; el horario se retiene hasta completar los 10 minutos.' });
         } else if (data.estado_pago === 'LATE_APPROVED') {
@@ -709,10 +712,16 @@ export default function Agenda({ reservaPublica = false }) {
             sesionActiva = resData.sesion_cliente;
           }
           if (pagoEnLocal) {
-            setMensaje({
-              tipo: 'success',
-              texto: resData.mensaje || 'Tu cita quedó confirmada. Pagas en la barbería el día de tu cita.',
+            // Se libera la hora elegida antes de recargar la agenda: si no, al verse
+            // ocupada por esta misma cita saldría el aviso de "horario ocupado".
+            setCitaAgendada({
+              barbero: barberoSeleccionado?.nombre || '',
+              fecha: formatearFechaCabecera(fechaSeleccionada),
+              hora: formatearHoraLimpiaStr(estadoDisponibilidad.horaInicioStr),
+              detalle: resData.mensaje || 'Pagas en la barbería el día de tu cita.',
             });
+            setHoraSeleccionada('');
+            setMensaje(null);
           } else {
             setPagoPendiente(resData.pago);
             setMensaje({ tipo: 'warning', texto: 'Te estamos llevando a Wompi para completar el pago...' });
@@ -768,6 +777,10 @@ export default function Agenda({ reservaPublica = false }) {
       </div>
 
       {mensaje && <div className={`agenda-mensaje ${mensaje.tipo}`}>{mensaje.texto}</div>}
+
+      {citaAgendada && (
+        <CitaAgendadaModal cita={citaAgendada} onClose={() => setCitaAgendada(null)} />
+      )}
       {verificandoPago && <p className="agenda-payment-status" role="status">Verificando el estado de tu pago...</p>}
       {pagoPendiente && (
         <section className="agenda-payment-panel" aria-labelledby="agenda-payment-title">
@@ -1231,6 +1244,49 @@ export default function Agenda({ reservaPublica = false }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Ventana de confirmación tipo "alerta": avisa que la cita quedó agendada y lleva
+// al perfil del cliente, donde puede cambiar el horario o revisar la fecha.
+function CitaAgendadaModal({ cita, onClose }) {
+  useEffect(() => {
+    const cerrarConEscape = (event) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', cerrarConEscape);
+    return () => document.removeEventListener('keydown', cerrarConEscape);
+  }, [onClose]);
+
+  return (
+    <div className="cita-exito-fondo" onClick={onClose}>
+      <div
+        className="cita-exito"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="cita-exito-titulo"
+        aria-describedby="cita-exito-texto"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="cita-exito-icono" aria-hidden="true">
+          <svg viewBox="0 0 52 52"><path d="M14 27l8 8 16-17" /></svg>
+        </div>
+        <h2 id="cita-exito-titulo">¡Tu cita ha sido agendada con éxito!</h2>
+        {cita.fecha && (
+          <p className="cita-exito-resumen">
+            {cita.barbero && <>Con <strong>{cita.barbero}</strong> · </>}
+            <strong>{cita.fecha}</strong> a las <strong>{cita.hora}</strong>
+          </p>
+        )}
+        <p id="cita-exito-texto">
+          {cita.detalle} Si deseas cambiar el horario o verificar la fecha de tu cita, entra a la sección <strong>Mi perfil</strong>.
+        </p>
+        <div className="cita-exito-acciones">
+          <Link className="btn btn-primary" to="/cliente" autoFocus>Ir a Mi perfil</Link>
+          <button type="button" className="btn-quiet" onClick={onClose}>Cerrar</button>
+        </div>
+      </div>
     </div>
   );
 }

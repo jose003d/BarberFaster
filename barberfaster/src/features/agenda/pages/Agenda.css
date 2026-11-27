@@ -2746,3 +2746,106 @@
 .client-lookup-status.success {
   color: #15803d;
 }
+
+/* ── Ventana de cita agendada con éxito ── */
+.cita-exito-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(14, 59, 64, 0.55);
+  animation: cita-exito-fundido 160ms ease-out;
+}
+
+.cita-exito {
+  width: min(460px, 100%);
+  padding: 32px 28px 26px;
+  text-align: center;
+  background: var(--bf-paper);
+  border: 2px solid var(--bf-black);
+  box-shadow: 10px 10px 0 var(--bf-black);
+  animation: cita-exito-entrada 220ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.cita-exito-icono {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 18px;
+  border: 2px solid var(--bf-black);
+  border-radius: 50%;
+  background: var(--bf-cyan-wash);
+}
+
+.cita-exito-icono svg {
+  width: 46px;
+  height: 46px;
+  fill: none;
+  stroke: var(--bf-cyan-ink);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: cita-exito-trazo 380ms 160ms ease-out forwards;
+}
+
+.cita-exito h2 {
+  margin: 0 0 10px;
+  color: var(--bf-black);
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.cita-exito p {
+  margin: 0 0 12px;
+  color: var(--bf-muted);
+  line-height: 1.55;
+}
+
+.cita-exito .cita-exito-resumen {
+  color: var(--bf-text);
+}
+
+.cita-exito-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.cita-exito-acciones > * {
+  min-width: 150px;
+  min-height: 44px;
+  padding: 10px 20px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@keyframes cita-exito-fundido {
+  from { opacity: 0; }
+}
+
+@keyframes cita-exito-entrada {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+}
+
+@keyframes cita-exito-trazo {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cita-exito-fondo,
+  .cita-exito,
+  .cita-exito-icono svg {
+    animation: none;
+  }
+
+  .cita-exito-icono svg {
+    stroke-dashoffset: 0;
+  }
+}
