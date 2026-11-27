@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { apiFetch, BASE_URL } from "../../../shared/services/api.js";
+import { apiFetch } from "../../../shared/services/api.js";
 import "./BarberoWorkspace.css";
 
 // Cada cuánto se consulta la agenda: con WebSocket es solo un respaldo.
@@ -183,37 +183,62 @@ export const BarberoWorkspace = () => {
     };
   }, [conexion, cargarCitas]);
 
-  // WebSocket (Pusher): el servidor avisa al instante cuando una cita se crea o cambia.
+  // WebSocket propio (servidor-tiempo-real): avisa al instante cuando una cita se crea o cambia.
+  // Si se corta, reintenta con espera creciente; mientras tanto sigue la consulta periódica.
   useEffect(() => {
     if (!idBarbero) return undefined;
-    let pusher = null;
+    let socket = null;
+    let temporizador = null;
+    let intentos = 0;
     let cancelado = false;
 
-    (async () => {
-      const config = await apiFetch("tiempo_real/config.php", { cache: "no-store" });
-      if (cancelado || config.status !== "success" || !config.datos?.activo) return;
-
-      const { default: Pusher } = await import("pusher-js");
+    const reintentar = () => {
       if (cancelado) return;
-      pusher = new Pusher(config.datos.key, {
-        cluster: config.datos.cluster,
-        forceTLS: true,
-        channelAuthorization: { endpoint: `${BASE_URL}/tiempo_real/auth.php`, transport: "ajax" },
-      });
-      pusher.connection.bind("state_change", ({ current }) => {
-        setConexion(current === "connected" ? "en-vivo" : "consultando");
-        // Al reconectar se recupera lo que haya pasado mientras no hubo conexión.
-        if (current === "connected") cargarCitas();
-      });
-      const canal = pusher.subscribe(`private-barbero-${idBarbero}`);
-      canal.bind("cita-actualizada", () => cargarCitas());
-    })().catch((errorSocket) => {
-      console.error("No se pudo abrir la conexión en vivo:", errorSocket);
-    });
+      const espera = Math.min(30000, 1000 * 2 ** intentos);
+      intentos += 1;
+      temporizador = window.setTimeout(conectar, espera);
+    };
 
+    async function conectar() {
+      // Cada conexión pide un permiso nuevo: el anterior pudo vencer.
+      const config = await apiFetch("tiempo_real/config.php", { cache: "no-store" });
+      if (cancelado) return;
+      if (config.status !== "success") {
+        reintentar();
+        return;
+      }
+      // Sin servidor configurado: se queda con la consulta periódica.
+      if (!config.datos?.activo) return;
+
+      const separador = config.datos.url.includes("?") ? "&" : "?";
+      socket = new WebSocket(`${config.datos.url}${separador}token=${encodeURIComponent(config.datos.token)}`);
+      socket.onopen = () => {
+        intentos = 0;
+        setConexion("en-vivo");
+        // Recupera lo que haya pasado mientras no hubo conexión.
+        cargarCitas();
+      };
+      socket.onmessage = (evento) => {
+        try {
+          const mensaje = JSON.parse(evento.data);
+          if (mensaje.evento === "cita-actualizada") cargarCitas();
+        } catch {
+          // Mensaje ilegible: se ignora.
+        }
+      };
+      socket.onclose = () => {
+        socket = null;
+        if (cancelado) return;
+        setConexion("consultando");
+        reintentar();
+      };
+    }
+
+    conectar();
     return () => {
       cancelado = true;
-      pusher?.disconnect();
+      window.clearTimeout(temporizador);
+      socket?.close();
     };
   }, [idBarbero, cargarCitas]);
 

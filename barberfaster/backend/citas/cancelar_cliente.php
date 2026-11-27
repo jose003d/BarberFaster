@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once '../config/database.php';
 require_once '../verificacion/comun.php';
-require_once __DIR__ . '/../tiempo_real/pusher.php';
+require_once __DIR__ . '/../tiempo_real/comun.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');

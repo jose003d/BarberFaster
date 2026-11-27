@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../config/cifrado.php';
-require_once __DIR__ . '/../tiempo_real/pusher.php';
+require_once __DIR__ . '/../tiempo_real/comun.php';
 
 // Cada barbería cobra con su propia cuenta de Wompi: el dinero de sus clientes
 // llega directo a ella. Sus llaves se guardan en barberia_pasarelas y los

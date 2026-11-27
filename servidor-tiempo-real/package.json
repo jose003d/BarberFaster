@@ -1,0 +1,17 @@
+{
+  "name": "barberfaster-tiempo-real",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Servidor WebSocket propio para la agenda en vivo de BarberFaster.",
+  "type": "module",
+  "main": "servidor.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node servidor.js"
+  },
+  "dependencies": {
+    "ws": "^8.23.0"
+  }
+}
