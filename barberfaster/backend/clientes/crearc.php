@@ -46,7 +46,8 @@ try {
         ON DUPLICATE KEY UPDATE 
             nombre = VALUES(nombre),
             telefono = VALUES(telefono),
-            email = VALUES(email)
+            -- Los clientes no usan correo: si no se envía, se conserva el que hubiera.
+            email = COALESCE(VALUES(email), email)
     ");
     $stmt->execute([$dni, $nombre, $telefono, $correo !== '' ? $correo : null]);
 

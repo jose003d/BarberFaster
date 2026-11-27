@@ -47,7 +47,7 @@ if (
 try {
     $stmt = $pdo->prepare("
         UPDATE clientes
-        SET nombre = ?, telefono = ?, email = ?
+        SET nombre = ?, telefono = ?, email = COALESCE(?, email)
         WHERE dni = ?
     ");
     $stmt->execute([$nombre, $telefono, $correo !== '' ? $correo : null, $dni]);

@@ -10,8 +10,7 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
     dni: '',
     nombre: '',
     apellido: '',
-    telefono: '',
-    correo: ''
+    telefono: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -23,16 +22,14 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
         dni: clienteEditar.dni || clienteEditar.id_cliente || '',
         nombre: clienteEditar.nombre || '',
         apellido: clienteEditar.apellido || '',
-        telefono: clienteEditar.telefono || '',
-        correo: clienteEditar.correo || ''
+        telefono: clienteEditar.telefono || ''
       });
     } else {
       setForm({ 
         dni: '', 
         nombre: '', 
         apellido: '', 
-        telefono: '', 
-        correo: '' 
+        telefono: ''
       });
     }
   }, [clienteEditar, isOpen]);
@@ -55,8 +52,7 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
       dni: form.dni,
       nombre: form.nombre,
       apellido: form.apellido,
-      telefono: form.telefono,
-      correo: form.correo
+      telefono: form.telefono
     };
 
     const res = await apiFetch(endpoint, {
@@ -186,7 +182,7 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
             </div>
           </div>
 
-          <div style={{ marginBottom: '14px' }}>
+          <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#444', fontSize: '0.85rem' }}>Teléfono:</label>
             <input 
               type="tel"
@@ -198,17 +194,6 @@ export const ClienteModal = ({ isOpen, onClose, clienteEditar, onSuccess }) => {
             />
           </div>
 
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#444', fontSize: '0.85rem' }}>Correo Electrónico:</label>
-            <input 
-              type="email" 
-              maxLength={120}
-              value={form.correo} 
-              onChange={e => setForm({ ...form, correo: e.target.value })} 
-              placeholder="correo@ejemplo.com"
-              className="erp-modal-input"
-            />
-          </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
             <button 

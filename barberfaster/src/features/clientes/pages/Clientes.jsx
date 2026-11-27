@@ -202,14 +202,13 @@ function Clientes() {
                 <th style={{ padding: "12px 16px" }}>Nombre</th>
                 <th style={{ padding: "12px 16px" }}>Apellido</th>
                 <th style={{ padding: "12px 16px" }}>Teléfono</th>
-                <th style={{ padding: "12px 16px" }}>Correo</th>
                 <th style={{ padding: "12px 16px", width: "120px", textAlign: "center" }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {clientesFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan="6" style={{ padding: "20px", textAlign: "center", color: "#666" }}>
+                  <td colSpan="5" style={{ padding: "20px", textAlign: "center", color: "#666" }}>
                     {busquedaCliente.trim()
                       ? "No se encontraron clientes con ese nombre o documento."
                       : mostrarPapelera
@@ -226,7 +225,6 @@ function Clientes() {
                       <td style={{ padding: "12px 16px", fontWeight: "500" }}>{c.nombre}</td>
                       <td style={{ padding: "12px 16px", color: "#555" }}>{c.apellido || "-"}</td>
                       <td style={{ padding: "12px 16px", color: "#555" }}>{c.telefono || "-"}</td>
-                      <td style={{ padding: "12px 16px", color: "#555" }}>{c.correo || "-"}</td>
                       <td className="table-actions-cell" style={{ padding: "12px 16px" }}>
                         <div className="table-actions">
                         <button className="btn-secondary table-action-icon" onClick={() => handleEditar(c)} title="Editar">
