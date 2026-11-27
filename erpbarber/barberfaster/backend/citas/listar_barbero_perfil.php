@@ -49,6 +49,8 @@ try {
     }
 
     // Solo lo que el barbero necesita para atender: quién viene, a qué hora y a qué.
+    // Usa solo columnas que existen en todas las bases (no "creado_en") y una subconsulta
+    // para los servicios en vez de GROUP BY, que en MySQL con ONLY_FULL_GROUP_BY falla.
     $stmt = $pdo->prepare("
         SELECT
             c.id_cita,
@@ -58,16 +60,17 @@ try {
             c.estado,
             c.precio_total,
             c.notas,
-            c.creado_en,
             cl.nombre AS nombre_cliente,
             cl.telefono AS telefono_cliente,
-            GROUP_CONCAT(s.nombre ORDER BY s.nombre SEPARATOR ', ') AS servicios
+            (
+                SELECT GROUP_CONCAT(s.nombre ORDER BY s.nombre SEPARATOR ', ')
+                FROM cita_servicios cs
+                INNER JOIN servicios s ON s.id_servicio = cs.id_servicio
+                WHERE cs.id_cita = c.id_cita
+            ) AS servicios
         FROM citas c
         LEFT JOIN clientes cl ON cl.dni = c.dni_cliente
-        LEFT JOIN cita_servicios cs ON cs.id_cita = c.id_cita
-        LEFT JOIN servicios s ON s.id_servicio = cs.id_servicio
         WHERE c.id_barbero = ? AND c.fecha = ?
-        GROUP BY c.id_cita
         ORDER BY c.hora_inicio ASC
     ");
     $stmt->execute([$idBarbero, $fecha]);
