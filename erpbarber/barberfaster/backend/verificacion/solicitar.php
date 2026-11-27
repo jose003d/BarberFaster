@@ -49,11 +49,14 @@ if ($dniCliente !== '' || $nombreCliente !== '') {
         responder(500, false, 'No se pudieron validar los datos del cliente.');
     }
 
-    if (!$cliente || normalizarTelefono((string)$cliente['telefono']) !== $telefonoNormalizado) {
+    // Un documento sin registro de cliente se crea al verificar el código. Esto incluye
+    // a administradores y barberos: su cuenta de trabajo (usuarios) es aparte y
+    // también pueden reservar como clientes.
+    if ($cliente && normalizarTelefono((string)$cliente['telefono']) !== $telefonoNormalizado) {
         responder(422, false, 'El DNI y el teléfono deben coincidir con los datos registrados en tu perfil.');
     }
 
-    $contexto = ['dni_cliente' => $dniCliente, 'nombre_cliente' => $nombreCliente];
+    $contexto = ['dni_cliente' => $dniCliente, 'nombre_cliente' => $nombreCliente, 'cliente_nuevo' => !$cliente];
 }
 
 try {
