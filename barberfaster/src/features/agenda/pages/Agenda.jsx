@@ -7,6 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import es from 'date-fns/locale/es';
 import './Agenda.css';
 import ProfileCard from '../components/ProfileCard.jsx';
+import BarberoDetalleModal from '../../barberos/components/BarberoDetalleModal.jsx';
 import Stepper, { Step } from '../components/Stepper.jsx';
 import TimeSlotGrid from '../components/TimeSlotGrid.jsx';
 import WompiCheckoutButton, { construirUrlCheckoutWompi } from '../components/WompiCheckoutButton.jsx';
@@ -90,6 +91,9 @@ export default function Agenda({ reservaPublica = false }) {
 
   const [barberos, setBarberos] = useState([]);
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
+  // Barbero cuyo perfil se muestra en la ventana de detalle antes de elegirlo.
+  const [barberoDetalle, setBarberoDetalle] = useState(null);
+  const cerrarDetalleBarbero = useCallback(() => setBarberoDetalle(null), []);
   const [servicios, setServicios] = useState([]);
   const [serviciosSeleccionados, setServiciosSeleccionados] = useState([]);
   const [citasOcupadas, setCitasOcupadas] = useState([]);
@@ -844,14 +848,26 @@ export default function Agenda({ reservaPublica = false }) {
                 className={String(barberoSeleccionado?.id_barbero || barberoSeleccionado?.id) === String(b.id_barbero || b.id) ? 'selected' : ''}
                 name={[b.nombre || b.nombre_barbero, b.apellido].filter(Boolean).join(' ')}
                 title={b.especialidad || 'Especialista en barbería'}
-                contactText="Elegir"
+                contactText="Ver perfil"
                 avatarUrl={obtenerUrlFotoBarbero(b.foto)}
                 rating={Number(b.calificacion_promedio)}
                 ratingCount={Number(b.cantidad_calificaciones)}
-                onContactClick={() => seleccionarBarberoYAvanzar(b)}
+                onContactClick={() => setBarberoDetalle(b)}
               />
             ))}
           </div>
+          )}
+          {barberoDetalle && (
+            <BarberoDetalleModal
+              barbero={barberoDetalle}
+              fotoUrl={obtenerUrlFotoBarbero(barberoDetalle.foto)}
+              onCerrar={cerrarDetalleBarbero}
+              onElegir={() => {
+                const elegido = barberoDetalle;
+                setBarberoDetalle(null);
+                seleccionarBarberoYAvanzar(elegido);
+              }}
+            />
           )}
         </div>
       </Step>
