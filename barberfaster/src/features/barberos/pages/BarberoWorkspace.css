@@ -373,3 +373,57 @@
     animation: none;
   }
 }
+
+/* Pestañas del perfil de barbero: agenda del día y fotos. */
+.agenda-vivo-pestanas {
+  display: flex;
+  border-bottom: 2px solid var(--bf-black);
+}
+
+.agenda-vivo .agenda-vivo-pestanas button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+  margin: 0 0 -2px;
+  padding: 10px 16px;
+  border: 2px solid transparent;
+  border-bottom: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--bf-muted);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 700;
+  transform: none;
+}
+
+.agenda-vivo .agenda-vivo-pestanas button:hover {
+  background: var(--bf-cyan-wash);
+  color: var(--bf-black);
+  box-shadow: none;
+  transform: none;
+}
+
+.agenda-vivo .agenda-vivo-pestanas button[aria-selected="true"] {
+  border-color: var(--bf-black);
+  background: var(--bf-paper);
+  color: var(--bf-black);
+}
+
+.agenda-vivo .agenda-vivo-pestanas button:focus-visible {
+  outline: 3px solid var(--bf-black);
+  outline-offset: 3px;
+}
+
+.agenda-vivo-aviso .agenda-vivo-aviso-ir {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}

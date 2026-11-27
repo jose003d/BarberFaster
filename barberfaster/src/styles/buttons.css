@@ -143,3 +143,28 @@
   box-shadow: none !important;
   transform: none !important;
 }
+
+/* Pestañas del perfil de barbero ("Agenda del día" / "Mis fotos y descripción"):
+   se dibujan como pestañas, no como botones levantados. */
+#root button.agenda-vivo-tab.agenda-vivo-tab,
+#root button.agenda-vivo-tab.agenda-vivo-tab:hover,
+#root button.agenda-vivo-tab.agenda-vivo-tab:active {
+  border: 2px solid transparent !important;
+  border-bottom: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--bf-muted) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+#root button.agenda-vivo-tab.agenda-vivo-tab:hover {
+  background: var(--bf-cyan-wash) !important;
+  color: var(--bf-black) !important;
+}
+
+#root button.agenda-vivo-tab.agenda-vivo-tab[aria-selected="true"] {
+  border-color: var(--bf-black) !important;
+  background: var(--bf-paper) !important;
+  color: var(--bf-black) !important;
+}

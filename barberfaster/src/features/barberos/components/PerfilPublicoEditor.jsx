@@ -17,8 +17,8 @@ function iniciales(nombre = "") {
 }
 
 // Edita lo que los clientes ven del barbero al reservar: foto, descripción y portafolio.
-// Sin idBarbero edita el perfil propio; con idBarbero lo usa el administrador para su personal.
-export default function PerfilPublicoEditor({ idBarbero = null }) {
+// Siempre es el perfil de quien inició sesión (barbero o administrador que atiende).
+export default function PerfilPublicoEditor() {
   const [perfil, setPerfil] = useState(null);
   const [descripcion, setDescripcion] = useState("");
   const [cargando, setCargando] = useState(true);
@@ -34,9 +34,8 @@ export default function PerfilPublicoEditor({ idBarbero = null }) {
 
   useEffect(() => {
     let activo = true;
-    const consulta = idBarbero ? `?id_barbero=${encodeURIComponent(idBarbero)}` : "";
     setCargando(true);
-    apiFetch(`barberos/perfil.php${consulta}`, { cache: "no-store" }).then((respuesta) => {
+    apiFetch("barberos/perfil.php", { cache: "no-store" }).then((respuesta) => {
       if (!activo) return;
       if (respuesta.status === "success") {
         aplicarPerfil(respuesta.datos);
@@ -49,7 +48,7 @@ export default function PerfilPublicoEditor({ idBarbero = null }) {
     return () => {
       activo = false;
     };
-  }, [idBarbero, aplicarPerfil]);
+  }, [aplicarPerfil]);
 
   // Ejecuta una petición del editor y actualiza el perfil con la respuesta del servidor.
   const ejecutar = async (accion, peticion, textoExito) => {
@@ -82,7 +81,6 @@ export default function PerfilPublicoEditor({ idBarbero = null }) {
 
     const body = new FormData();
     body.append("tipo", tipo);
-    if (idBarbero) body.append("id_barbero", idBarbero);
     archivos.forEach((archivo) => body.append("fotos[]", archivo));
     await ejecutar(
       tipo,
@@ -96,7 +94,7 @@ export default function PerfilPublicoEditor({ idBarbero = null }) {
     `borrar-${idFoto}`,
     () => apiFetch("barberos/fotos.php", {
       method: "DELETE",
-      body: { id_foto: idFoto, ...(idBarbero ? { id_barbero: idBarbero } : {}) },
+      body: { id_foto: idFoto },
     }),
     "Foto eliminada.",
   );
@@ -107,7 +105,7 @@ export default function PerfilPublicoEditor({ idBarbero = null }) {
       "descripcion",
       () => apiFetch("barberos/perfil.php", {
         method: "POST",
-        body: { descripcion, ...(idBarbero ? { id_barbero: idBarbero } : {}) },
+        body: { descripcion },
       }),
       "Descripción guardada.",
     );
@@ -127,9 +125,7 @@ export default function PerfilPublicoEditor({ idBarbero = null }) {
     <section className="perfil-publico" aria-labelledby="perfil-publico-titulo">
       <header className="perfil-publico-encabezado">
         <h2 id="perfil-publico-titulo">Perfil para clientes</h2>
-        <p>{idBarbero
-          ? "Esto es lo que ven los clientes cuando eligen a este barbero al reservar."
-          : "Esto es lo que ven los clientes cuando te eligen al reservar."}</p>
+        <p>Esto es lo que ven los clientes cuando te eligen al reservar.</p>
       </header>
 
       <div className="perfil-publico-identidad">

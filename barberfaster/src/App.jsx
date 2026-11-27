@@ -100,7 +100,7 @@ function App() {
           <Route
             path="/barbero"
             element={
-              <ProtectedRoute roles={["BARBERO"]}>
+              <ProtectedRoute roles={["BARBERO", "ADMINISTRADOR"]}>
                 <DashboardLayout><BarberoWorkspace /></DashboardLayout>
               </ProtectedRoute>
             }

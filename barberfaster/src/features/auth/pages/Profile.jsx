@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiFetch, BASE_URL, handleResponse } from "../../../shared/services/api.js";
 import { PANEL_POR_ROL } from "../auth.js";
-import PerfilPublicoEditor from "../../barberos/components/PerfilPublicoEditor.jsx";
 
 function obtenerUsuarioSesion() {
   try {
@@ -89,7 +88,7 @@ export default function Profile() {
   return (
     <main className={cambioObligatorio ? "password-setup-page" : "page-section account-page"}>
       <section className={cambioObligatorio ? "password-setup-card" : "account-page-card"}>
-        <h1 className="account-page-title">{cambioObligatorio ? "Configura tu acceso" : "Mi perfil"}</h1>
+        <h1 className="account-page-title">{cambioObligatorio ? "Configura tu acceso" : "Mi cuenta"}</h1>
         {cambioObligatorio ? (
           <p className="page-description password-setup-description" role="status">
             Para proteger tu cuenta, cambia la contraseña temporal antes de entrar al panel de tu barbería.
@@ -103,11 +102,6 @@ export default function Profile() {
               <div><dt>Teléfono</dt><dd>{usuario.telefono || "No registrado"}</dd></div>
               <div><dt>Rol</dt><dd>{usuario.rol === "ADMINISTRADOR" ? "Administrador" : usuario.rol === "BARBERO" ? "Barbero" : usuario.rol}</dd></div>
             </dl>
-            {usuario.rol === "BARBERO" && (
-              <div className="account-public-profile">
-                <PerfilPublicoEditor />
-              </div>
-            )}
           </>
         )}
         <section className="password-change" aria-labelledby="password-change-title">

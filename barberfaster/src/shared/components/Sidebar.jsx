@@ -13,8 +13,17 @@ import {
   faRightFromBracket,
   faCreditCard,
   faClipboardList,
-  faAddressBook
+  faAddressBook,
+  faScissors
 } from "@fortawesome/free-solid-svg-icons";
+
+function obtenerAtiendeGuardado() {
+  try {
+    return Boolean(JSON.parse(localStorage.getItem("user") || "null")?.atiende_clientes);
+  } catch {
+    return false;
+  }
+}
 
 function obtenerRolGuardado() {
   try {
@@ -30,12 +39,14 @@ function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [usuarioRol, setUsuarioRol] = useState(obtenerRolGuardado);
+  const [atiendeClientes, setAtiendeClientes] = useState(obtenerAtiendeGuardado);
   const [logoutError, setLogoutError] = useState("");
 
   // Escucha cambios de rol y sincroniza el menú con la sesión.
   useEffect(() => {
     const syncRole = () => {
       setUsuarioRol(obtenerRolGuardado());
+      setAtiendeClientes(obtenerAtiendeGuardado());
     };
     window.addEventListener("barberfaster-role-change", syncRole);
     window.addEventListener("storage", syncRole);
@@ -63,8 +74,8 @@ function Sidebar() {
   // Construye las opciones de navegación apropiadas al rol activo.
   const menuItems = usuarioRol === "BARBERO"
     ? [
-        { label: "Mi agenda", to: "/barbero", icon: faGaugeHigh },
-        { label: "Mi perfil", to: "/perfil", icon: faUserTie }
+        { label: "Mi perfil de barbero", to: "/barbero", icon: faScissors },
+        { label: "Mi cuenta", to: "/perfil", icon: faUserTie }
       ]
     : usuarioRol === "SUPERADMIN"
       // El superadmin solo administra la plataforma, nunca la operación de una barbería.
@@ -81,7 +92,9 @@ function Sidebar() {
           { label: "Agenda", to: "/dashboard?section=agenda", icon: faCalendarDays, section: "agenda" },
           { label: "Establecimiento", to: "/dashboard?section=perfil", icon: faStore, section: "perfil" },
           { label: "Pagos en línea", to: "/dashboard?section=pagos", icon: faCreditCard, section: "pagos" },
-          { label: "Mi perfil", to: "/perfil", icon: faUserTie }
+          // El administrador que también atiende tiene su propio perfil de barbero.
+          ...(atiendeClientes ? [{ label: "Mi perfil de barbero", to: "/barbero", icon: faScissors }] : []),
+          { label: "Mi cuenta", to: "/perfil", icon: faUserTie }
         ];
   const homePath = usuarioRol === "SUPERADMIN"
     ? "/superadmin"

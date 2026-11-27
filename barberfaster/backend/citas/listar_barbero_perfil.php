@@ -18,7 +18,7 @@ require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../wompi/comun.php';
 
 try {
-    $usuario = requerirRol($pdo, ['BARBERO']);
+    $usuario = requerirBarberoEnSesion($pdo);
     $idBarbero = $usuario['id_usuario'];
 
     wompiLiberarPagosVencidos($pdo);

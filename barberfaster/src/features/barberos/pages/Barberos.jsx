@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faTrashCan, faScissors, faPlus, faBan, faImage } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faTrashCan, faScissors, faPlus, faBan } from "@fortawesome/free-solid-svg-icons";
 import ConfirmModal from "../../../shared/components/ConfirmModal.jsx";
-import PerfilPublicoEditor from "../components/PerfilPublicoEditor.jsx";
 import {
   crearUsuario,
   desactivarServicio,
@@ -71,7 +70,7 @@ function Barberos() {
   // Modales
   const [isModalBarberoOpen, setIsModalBarberoOpen] = useState(false);
   const [isModalServicioOpen, setIsModalServicioOpen] = useState(false);
-  const [modalGestion, setModalGestion] = useState(null); // 'servicios' | 'perfil'
+  const [modalGestion, setModalGestion] = useState(null); // 'servicios'
 
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
   const [serviciosSeleccionados, setServiciosSeleccionados] = useState([]);
@@ -201,6 +200,16 @@ function Barberos() {
         throw new Error(data.mensaje || "No se pudo guardar la opción.");
       }
       setAtiendeClientes(Boolean(data.atiende_clientes));
+      // Actualiza la sesión guardada para mostrar u ocultar "Mi perfil de barbero" en el menú.
+      try {
+        const usuario = JSON.parse(localStorage.getItem("user") || "null");
+        if (usuario) {
+          localStorage.setItem("user", JSON.stringify({ ...usuario, atiende_clientes: Boolean(data.atiende_clientes) }));
+          window.dispatchEvent(new Event("barberfaster-role-change"));
+        }
+      } catch {
+        // Si no se puede leer, el menú se corrige al recargar la sesión.
+      }
       await cargarDatosIniciales();
       setSuccessMessage(data.mensaje);
       setTimeout(() => setSuccessMessage(null), 4000);
@@ -422,9 +431,6 @@ function Barberos() {
                     <button className="btn-secondary" onClick={() => abrirGestionServicios(b)} title="Asignar Servicios del Catálogo">
                       <FontAwesomeIcon icon={faScissors} /> Servicios
                     </button>
-                    <button className="btn-secondary" type="button" onClick={() => { setBarberoSeleccionado(b); setModalGestion("perfil"); }} title="Foto, descripción y portafolio que ven los clientes">
-                      <FontAwesomeIcon icon={faImage} /> Perfil
-                    </button>
                     {!b.es_administrador && (<>
                     <button className="btn-secondary table-action-icon" onClick={() => {
                       setBarberoSeleccionado(b);
@@ -565,13 +571,6 @@ function Barberos() {
               <button type="submit" className="btn">{formServicio.id_servicio ? "Guardar cambios" : "Guardar en Catálogo"}</button>
             </div>
           </form>
-        </BarberosModal>
-      )}
-
-      {/* MODAL 4: PERFIL PÚBLICO DEL BARBERO */}
-      {modalGestion === "perfil" && barberoSeleccionado && (
-        <BarberosModal title={`Perfil de ${barberoSeleccionado.nombre}`} onClose={() => setModalGestion(null)}>
-          <PerfilPublicoEditor idBarbero={barberoSeleccionado.id_barbero} />
         </BarberosModal>
       )}
 

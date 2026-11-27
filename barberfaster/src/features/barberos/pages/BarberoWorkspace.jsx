@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { apiFetch } from "../../../shared/services/api.js";
+import PerfilPublicoEditor from "../components/PerfilPublicoEditor.jsx";
 import "./BarberoWorkspace.css";
 
 // El hosting compartido no mantiene WebSockets abiertos: la agenda pregunta cada 5 s si
@@ -73,8 +75,37 @@ function sonarAviso(contexto) {
   });
 }
 
-// Agenda en vivo del barbero: pensada para dejarla abierta todo el día en su celular o tablet.
+function usuarioSesion() {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    return null;
+  }
+}
+
+// Perfil de barbero de quien inició sesión (barbero, o administrador que también atiende):
+// agenda del día en vivo y sus fotos, descripción y portafolio. Pensado para dejarlo abierto
+// todo el día en el celular o la tablet del puesto.
 export const BarberoWorkspace = () => {
+  const usuario = usuarioSesion();
+
+  if (!usuario?.atiende_clientes) {
+    return (
+      <main className="agenda-vivo">
+        <h1>Mi perfil de barbero</h1>
+        <p className="agenda-vivo-vacio">
+          Tu cuenta no atiende clientes. Si tú también cortas, activa
+          {" "}<strong>Yo también atiendo clientes</strong> en <Link to="/personal">Personal</Link>.
+        </p>
+      </main>
+    );
+  }
+
+  return <PerfilBarberoSesion nombre={usuario.nombre_completo || usuario.nombre || ""} />;
+};
+
+function PerfilBarberoSesion({ nombre }) {
+  const [pestana, setPestana] = useState("agenda");
   const [fecha, setFecha] = useState(fechaLocalHoy);
   const [citas, setCitas] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -318,7 +349,7 @@ export const BarberoWorkspace = () => {
     <main className="agenda-vivo">
       <header className="agenda-vivo-encabezado">
         <div>
-          <h1>Mi agenda</h1>
+          <h1>{nombre ? `Hola, ${nombre.split(" ")[0]}` : "Mi perfil de barbero"}</h1>
           <p className="agenda-vivo-fecha">{esHoy ? "Hoy, " : ""}{formatoFechaLarga(fecha)}</p>
         </div>
         <div className="agenda-vivo-controles">
@@ -334,6 +365,25 @@ export const BarberoWorkspace = () => {
         </div>
       </header>
 
+      <div className="agenda-vivo-pestanas" role="tablist" aria-label="Secciones de mi perfil">
+        <button type="button" role="tab" className="agenda-vivo-tab" aria-selected={pestana === "agenda"} onClick={() => setPestana("agenda")}>
+          Agenda del día
+          {cantidadNuevas > 0 && <span className="agenda-vivo-etiqueta-nueva">{cantidadNuevas}</span>}
+        </button>
+        <button type="button" role="tab" className="agenda-vivo-tab" aria-selected={pestana === "perfil"} onClick={() => setPestana("perfil")}>
+          Mis fotos y descripción
+        </button>
+      </div>
+
+      {/* El aviso de cita nueva se ve en ambas pestañas; la agenda sigue revisando en segundo plano. */}
+      {aviso && pestana === "perfil" && (
+        <div className="agenda-vivo-aviso" role="alert">
+          <button type="button" className="agenda-vivo-aviso-ir" onClick={() => setPestana("agenda")}>{aviso} · Ver agenda</button>
+          <button type="button" onClick={() => setAviso("")} aria-label="Cerrar aviso">×</button>
+        </div>
+      )}
+
+      {pestana === "perfil" ? <PerfilPublicoEditor /> : (<>
       <nav className="agenda-vivo-dias" aria-label="Cambiar de día">
         <button type="button" className="btn-secondary" onClick={() => setFecha(moverFecha(fecha, -1))} aria-label="Día anterior">‹</button>
         <button type="button" className="btn-secondary" onClick={() => setFecha(hoy)} disabled={esHoy}>Hoy</button>
@@ -406,6 +456,7 @@ export const BarberoWorkspace = () => {
           )}
         </>
       )}
+      </>)}
     </main>
   );
-};
+}
