@@ -198,7 +198,7 @@ if ($method === 'POST') {
     }
 
     try {
-        $usuario = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+        $usuario = requerirRol($pdo, ['ADMINISTRADOR']);
     } catch (Throwable $error) {
         error_log('Error al validar acceso al perfil de barbería: ' . $error->getMessage());
         http_response_code(500);

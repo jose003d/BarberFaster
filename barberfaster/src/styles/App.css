@@ -2048,3 +2048,60 @@ input[type="reset"]:not(:disabled):hover,
 .barber-request-page {
   background: var(--brand-gradient);
 }
+
+/* ── Panel de la plataforma (SUPERADMIN) ── */
+.superadmin-metrics {
+  margin-bottom: 24px;
+}
+
+.superadmin-metric-link {
+  display: block;
+  text-decoration: none;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.superadmin-metric-link:hover,
+.superadmin-metric-link:focus-visible {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--bauhaus-ink);
+}
+
+.superadmin-pending-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.superadmin-pending-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--bauhaus-gray);
+}
+
+.superadmin-pending-list li span {
+  grid-column: 1;
+  color: var(--text-muted);
+}
+
+.superadmin-pending-list li small {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--text-muted);
+}
+
+@media (max-width: 900px) {
+  .superadmin-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .superadmin-metric-link {
+    transition: none;
+  }
+}

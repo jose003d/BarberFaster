@@ -14,7 +14,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
 
 try {
-    $sesion = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    $sesion = requerirRol($pdo, ['ADMINISTRADOR']);
     $idBarbero = $_SERVER['REQUEST_METHOD'] === 'GET'
         ? filter_var($_GET['id_barbero'] ?? null, FILTER_VALIDATE_INT)
         : null;

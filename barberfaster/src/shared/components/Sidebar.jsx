@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import logoBarberFaster from "../../assets/logo-barberfaster.png";
 import { cerrarSesion } from "../../features/auth/auth.js";
 import {
-  faScissors,
   faUsers,
   faUserGroup,
   faCalendarDays,
@@ -12,7 +11,9 @@ import {
   faStore,
   faUserTie,
   faRightFromBracket,
-  faCreditCard
+  faCreditCard,
+  faClipboardList,
+  faAddressBook
 } from "@fortawesome/free-solid-svg-icons";
 
 function obtenerRolGuardado() {
@@ -66,16 +67,12 @@ function Sidebar() {
         { label: "Mi perfil", to: "/perfil", icon: faUserTie }
       ]
     : usuarioRol === "SUPERADMIN"
+      // El superadmin solo administra la plataforma, nunca la operación de una barbería.
       ? [
-        { label: "Métricas", to: "/dashboard?section=metricas", icon: faGaugeHigh, section: "metricas" },
-        { label: "Superadmin", to: "/superadmin", icon: faScissors },
-        { label: "Barberías", to: "/barberias", icon: faScissors },
-        { label: "Personal", to: "/personal", icon: faUsers },
-        { label: "Usuarios", to: "/usuarios", icon: faUserGroup },
-        { label: "Clientes", to: "/clientes", icon: faUserGroup },
-        { label: "Agenda", to: "/dashboard?section=agenda", icon: faCalendarDays, section: "agenda" },
-        { label: "Establecimiento", to: "/dashboard?section=perfil", icon: faStore, section: "perfil" },
-        { label: "Pagos en línea", to: "/dashboard?section=pagos", icon: faCreditCard, section: "pagos" }
+        { label: "Resumen", to: "/superadmin", icon: faGaugeHigh },
+        { label: "Solicitudes", to: "/superadmin/solicitudes", icon: faClipboardList },
+        { label: "Barberías", to: "/superadmin/barberias", icon: faStore },
+        { label: "Clientes", to: "/superadmin/clientes", icon: faAddressBook }
       ]
       : [
           { label: "Métricas", to: "/dashboard?section=metricas", icon: faGaugeHigh, section: "metricas" },
@@ -100,7 +97,7 @@ function Sidebar() {
 
       <nav
         className="top-nav-list-wrap"
-        aria-label={usuarioRol === "BARBERO" ? "Menú de barbero" : "Menú de administración"}
+        aria-label={usuarioRol === "BARBERO" ? "Menú de barbero" : usuarioRol === "SUPERADMIN" ? "Menú de la plataforma" : "Menú de administración"}
         style={{ display: "contents" }}
       >
         <ul className="top-nav-list">

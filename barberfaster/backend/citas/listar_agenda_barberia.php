@@ -41,7 +41,7 @@ require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../wompi/comun.php';
 
 try {
-    $usuario = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    $usuario = requerirRol($pdo, ['ADMINISTRADOR']);
     if ($usuario['rol'] === 'ADMINISTRADOR') {
         $idBarberia = $usuario['id_barberia'];
         if (!$idBarberia) {

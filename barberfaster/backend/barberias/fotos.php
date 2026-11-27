@@ -64,7 +64,7 @@ if ($metodo === 'GET') {
 
 if ($metodo === 'POST') {
     try {
-        $usuario = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+        $usuario = requerirRol($pdo, ['ADMINISTRADOR']);
     } catch (Throwable $error) {
         error_log('Error al validar acceso a las fotos de barbería: ' . $error->getMessage());
         responderFotos(500, ['status' => 'error', 'mensaje' => 'No se pudo validar el acceso.']);
@@ -167,7 +167,7 @@ if ($metodo === 'DELETE') {
     $datos = json_decode(file_get_contents('php://input'), true);
     $idFoto = filter_var($datos['id_foto'] ?? null, FILTER_VALIDATE_INT);
     try {
-        $usuario = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+        $usuario = requerirRol($pdo, ['ADMINISTRADOR']);
     } catch (Throwable $error) {
         error_log('Error al validar eliminación de fotos de barbería: ' . $error->getMessage());
         responderFotos(500, ['status' => 'error', 'mensaje' => 'No se pudo validar el acceso.']);
