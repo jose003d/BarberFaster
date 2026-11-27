@@ -42,9 +42,26 @@ try {
     $stmt->execute([$usuario['id_usuario'], $fecha]);
     $fila = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // La cita activa más reciente desde hoy, aunque sea de otro día: así la agenda avisa
+    // "Nueva cita el sábado 29" aunque el barbero esté mirando hoy.
+    $stmtUltima = $pdo->prepare("
+        SELECT id_cita, fecha, hora_inicio
+        FROM citas
+        WHERE id_barbero = ? AND fecha >= ? AND estado IN ('PENDIENTE', 'CONFIRMADA')
+        ORDER BY id_cita DESC
+        LIMIT 1
+    ");
+    $stmtUltima->execute([$usuario['id_usuario'], $ahora->format('Y-m-d')]);
+    $ultima = $stmtUltima->fetch(PDO::FETCH_ASSOC) ?: null;
+
     echo json_encode([
         'status' => 'success',
         'huella' => md5($fecha . '#' . $fila['total'] . '#' . $fila['resumen']),
+        'ultima' => $ultima === null ? null : [
+            'id_cita' => (int) $ultima['id_cita'],
+            'fecha' => $ultima['fecha'],
+            'hora_inicio' => substr((string) $ultima['hora_inicio'], 0, 5),
+        ],
     ]);
 } catch (Throwable $error) {
     error_log('Error al revisar cambios de la agenda del barbero: ' . $error->getMessage());
