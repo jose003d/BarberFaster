@@ -2734,3 +2734,15 @@
     grid-template-columns: minmax(300px, 1fr) minmax(0, 1.2fr);
   }
 }
+
+/* Estado de la búsqueda automática del cliente por documento */
+.client-lookup-status {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.client-lookup-status.success {
+  color: #15803d;
+}

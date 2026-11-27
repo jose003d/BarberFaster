@@ -22,7 +22,7 @@ import {
 import { getAvailableTimeSlots } from '../utils/timeSlotUtils.js';
 import logoBarberFaster from '../../../assets/logo-barberfaster.png';
 
-import { BASE_URL } from '../../../shared/services/api.js';
+import { BASE_URL, buscarClientePorDni } from '../../../shared/services/api.js';
 import { obtenerBarberiaActivaId as obtenerBarberiaActivaSesion } from '../../../shared/services/barberiaActiva.js';
 const CLIENT_SESSION_KEY = 'barberfaster_cliente_session';
 const CLIENT_SESSION_EXPIRY_KEY = 'barberfaster_cliente_session_expira_en';
@@ -137,6 +137,39 @@ export default function Agenda({ reservaPublica = false }) {
     localStorage.removeItem(CLIENT_SESSION_KEY);
     localStorage.removeItem(CLIENT_SESSION_EXPIRY_KEY);
   };
+
+  // Al escribir un documento válido busca el registro del cliente: si existe, completa
+  // nombre y teléfono; si no, avisa que se creará un cliente nuevo al reservar.
+  const [busquedaCliente, setBusquedaCliente] = useState(null);
+  useEffect(() => {
+    if (validandoSesionCliente || telefonoVerificado?.sesion || !documentoValido(dniCliente)) {
+      setBusquedaCliente(null);
+      return undefined;
+    }
+    let activa = true;
+    setBusquedaCliente({ estado: 'buscando' });
+    const temporizador = window.setTimeout(async () => {
+      try {
+        const resultado = await buscarClientePorDni(dniCliente);
+        if (!activa) return;
+        if (!resultado.encontrado || !resultado.datos) {
+          setBusquedaCliente({ estado: 'nuevo' });
+          return;
+        }
+        const digitos = String(resultado.datos.telefono || '').replace(/\D/g, '');
+        const telefonoLocal = digitos.startsWith('57') && digitos.length > 10 ? digitos.slice(2) : digitos;
+        setNombreCliente(resultado.datos.nombre || '');
+        setTelefonoCliente(telefonoLocal.slice(0, 10));
+        setBusquedaCliente({ estado: 'encontrado' });
+      } catch {
+        if (activa) setBusquedaCliente(null);
+      }
+    }, 400);
+    return () => {
+      activa = false;
+      window.clearTimeout(temporizador);
+    };
+  }, [dniCliente, validandoSesionCliente, telefonoVerificado?.sesion]);
 
   const [mensaje, setMensaje] = useState(null);
   const [pagoPendiente, setPagoPendiente] = useState(null);
@@ -1034,6 +1067,19 @@ export default function Agenda({ reservaPublica = false }) {
                 />
                 {dniCliente !== '' && !documentoValido(dniCliente) && (
                   <small className="field-error" role="alert">{MENSAJE_DOCUMENTO_INVALIDO}</small>
+                )}
+                {busquedaCliente?.estado === 'buscando' && (
+                  <small className="client-lookup-status" role="status">Buscando tu registro...</small>
+                )}
+                {busquedaCliente?.estado === 'encontrado' && (
+                  <small className="client-lookup-status success" role="status">
+                    Encontramos tu registro y completamos tus datos.
+                  </small>
+                )}
+                {busquedaCliente?.estado === 'nuevo' && (
+                  <small className="client-lookup-status" role="status">
+                    No tienes registro aún: completa tus datos y lo crearemos al reservar.
+                  </small>
                 )}
               </div>
 

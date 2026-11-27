@@ -109,13 +109,19 @@ if (is_array($contextoOtp) && isset($contextoOtp['dni_cliente'], $contextoOtp['n
         $stmtCliente = $pdo->prepare('SELECT telefono FROM clientes WHERE dni = ? FOR UPDATE');
         $stmtCliente->execute([$dniCliente]);
         $cliente = $stmtCliente->fetch();
-        if (!$cliente || normalizarTelefono((string)$cliente['telefono']) !== $telefonoNormalizado) {
+        $esClienteNuevo = !empty($contextoOtp['cliente_nuevo']);
+        if (!$cliente && $esClienteNuevo) {
+            // Primer ingreso de este documento: se crea su registro de cliente con el
+            // teléfono que acaba de verificar por WhatsApp.
+            $stmtCrear = $pdo->prepare('INSERT INTO clientes (dni, nombre, telefono) VALUES (?, ?, ?)');
+            $stmtCrear->execute([$dniCliente, trim((string)$contextoOtp['nombre_cliente']), $telefonoNormalizado]);
+        } elseif (!$cliente || normalizarTelefono((string)$cliente['telefono']) !== $telefonoNormalizado) {
             $pdo->rollBack();
             responder(403, false, 'El DNI o el teléfono ya no coinciden con el registro del cliente.');
+        } else {
+            $stmtActualizarNombre = $pdo->prepare('UPDATE clientes SET nombre = ? WHERE dni = ?');
+            $stmtActualizarNombre->execute([trim((string)$contextoOtp['nombre_cliente']), $dniCliente]);
         }
-
-        $stmtActualizarNombre = $pdo->prepare('UPDATE clientes SET nombre = ? WHERE dni = ?');
-        $stmtActualizarNombre->execute([trim((string)$contextoOtp['nombre_cliente']), $dniCliente]);
         $pdo->commit();
     } catch (Throwable $e) {
         if (isset($pdo) && $pdo->inTransaction()) {
