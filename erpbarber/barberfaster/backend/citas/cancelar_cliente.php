@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once '../config/database.php';
 require_once '../verificacion/comun.php';
+require_once __DIR__ . '/../tiempo_real/pusher.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -46,6 +47,7 @@ try {
         responder(409, false, 'La cita no existe, no te pertenece o ya no está pendiente.');
     }
 
+    notificarCambioCita($pdo, $idCita, 'CANCELADA');
     responder(200, true, 'La cita se canceló correctamente.');
 } catch (Throwable $e) {
     error_log('Error al cancelar cita de cliente: ' . $e->getMessage());

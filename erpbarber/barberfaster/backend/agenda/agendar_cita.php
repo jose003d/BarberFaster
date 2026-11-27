@@ -16,6 +16,7 @@ require_once __DIR__ . '/utilidades_horario.php';
 require_once __DIR__ . '/../verificacion/comun.php';
 require_once __DIR__ . '/../wompi/comun.php';
 require_once __DIR__ . '/../config/validaciones.php';
+require_once __DIR__ . '/../tiempo_real/pusher.php';
 
 // Los navegadores suelen enviar OPTIONS antes de una petición POST (preflight).
 // Se responde correctamente sin intentar crear una cita.
@@ -373,6 +374,7 @@ try {
 
     // Confirma definitivamente todos los INSERT realizados en la transacción.
     $pdo->commit();
+    notificarCambioCita($pdo, (int) $id_cita, 'CREADA');
 
     $sesionCliente = null;
     if ($sesionClienteActiva === false) {
