@@ -1,0 +1,322 @@
+/* Métricas del negocio. Esquinas rectas y trazos petróleo (DESIGN.md); las marcas de datos
+   usan un solo cian de la marca (#11a3a2), validado contra el fondo blanco. */
+.metricas {
+  --metricas-dato: #11a3a2;
+  --metricas-dato-activo: var(--bf-cyan-ink);
+}
+
+.metricas-encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.metricas-encabezado .dashboard-description {
+  margin-bottom: 0;
+}
+
+.metricas-periodos {
+  display: inline-flex;
+  border: 2px solid var(--bf-black);
+}
+
+.metricas-periodo + .metricas-periodo {
+  border-left: 2px solid var(--bf-black);
+}
+
+.metricas-contenido {
+  display: grid;
+  gap: 28px;
+  transition: opacity 160ms ease-out;
+}
+
+.metricas-contenido.is-cargando {
+  opacity: 0.55;
+}
+
+/* KPI: cifras grandes, etiqueta y contexto en tinta de texto. */
+.metricas-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 860px) {
+  .metricas-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .metricas-kpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.metricas-kpi {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 16px 18px;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+}
+
+.metricas-kpi.is-principal {
+  background: var(--bf-cyan-wash);
+  box-shadow: 6px 6px 0 var(--bf-black);
+}
+
+.metricas-kpi > span {
+  color: var(--bf-muted);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.metricas-kpi > strong {
+  color: var(--bf-black);
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.metricas-kpi > small {
+  color: var(--bf-muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.metricas-bloque h3 {
+  margin: 0 0 12px;
+  color: var(--bf-black);
+  font-family: var(--font-ui);
+  font-size: 1.02rem;
+}
+
+.metricas-columnas {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 28px;
+}
+
+/* Gráfico de columnas. */
+.metricas-grafico {
+  margin: 0;
+}
+
+.metricas-grafico-area {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 8px;
+  height: 200px;
+}
+
+.metricas-grafico-eje {
+  position: relative;
+}
+
+.metricas-grafico-eje span {
+  position: absolute;
+  right: 0;
+  color: var(--bf-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  transform: translateY(50%);
+}
+
+.metricas-grafico-columnas {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  border-bottom: 2px solid var(--bf-black);
+}
+
+.metricas-grafico-guia {
+  position: absolute;
+  right: 0;
+  left: 0;
+  border-top: 1px dashed var(--bf-line);
+  pointer-events: none;
+}
+
+.metricas-grafico-columna {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 0;
+  padding: 0;
+  cursor: default;
+}
+
+.metricas-grafico-barra {
+  display: block;
+  width: min(24px, 70%);
+  min-height: 0;
+  background: var(--metricas-dato);
+}
+
+.metricas-grafico-columna.is-activa .metricas-grafico-barra {
+  background: var(--metricas-dato-activo);
+}
+
+.metricas-grafico-tooltip {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  min-width: 150px;
+  padding: 8px 10px;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  box-shadow: 4px 4px 0 var(--bf-black);
+  color: var(--bf-text);
+  font-size: 0.82rem;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.metricas-grafico-tooltip strong {
+  color: var(--bf-black);
+  display: block;
+  font-family: var(--font-ui);
+}
+
+.metricas-grafico-tooltip strong::first-letter {
+  text-transform: uppercase;
+}
+
+.metricas-grafico-fechas {
+  display: flex;
+  gap: 2px;
+  margin: 6px 0 0 36px;
+}
+
+.metricas-grafico-fechas span {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--bf-muted);
+  font-size: 0.72rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Tabla por barbero. */
+.metricas-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.metricas-tabla th,
+.metricas-tabla td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--bf-line);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.metricas-tabla th:first-child {
+  text-align: left;
+  white-space: normal;
+}
+
+.metricas-tabla thead th {
+  color: var(--bf-muted);
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+}
+
+.metricas-tabla tbody th {
+  color: var(--bf-black);
+  font-weight: 700;
+}
+
+.metricas-tabla small {
+  color: var(--bf-muted);
+}
+
+/* Servicios: barras horizontales ordenadas, un solo tono. */
+.metricas-servicios {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.metricas-servicios li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+}
+
+.metricas-servicio-nombre {
+  color: var(--bf-text);
+  font-weight: 600;
+}
+
+.metricas-servicio-valor {
+  display: grid;
+  justify-items: end;
+  color: var(--bf-black);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.metricas-servicio-valor small {
+  color: var(--bf-muted);
+  font-weight: 500;
+}
+
+.metricas-servicio-pista {
+  grid-column: 1;
+  height: 10px;
+  background: var(--bf-surface);
+}
+
+.metricas-servicio-pista span {
+  display: block;
+  height: 100%;
+  background: var(--metricas-dato);
+}
+
+.metricas-vacio {
+  margin: 0;
+  padding: 18px;
+  border: 2px dashed var(--bf-line);
+  color: var(--bf-muted);
+  text-align: center;
+}
+
+.metricas-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+  .metricas-columnas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .metricas-contenido {
+    transition: none;
+  }
+}

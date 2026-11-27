@@ -53,6 +53,14 @@ try {
         exit();
     }
 
+    // El barbero solo ve de hoy en adelante; las citas pasadas se consultan en el
+    // historial del administrador.
+    if ($fecha < $ahora->format('Y-m-d')) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'mensaje' => 'Las citas de días pasados se consultan en el historial del administrador.']);
+        exit();
+    }
+
     // Solo lo que el barbero necesita para atender: quién viene, a qué hora y a qué.
     // Usa solo columnas que existen en todas las bases (no "creado_en") y una subconsulta
     // para los servicios en vez de GROUP BY, que en MySQL con ONLY_FULL_GROUP_BY falla.

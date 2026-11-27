@@ -263,6 +263,12 @@ function PerfilBarberoSesion({ nombre }) {
     const id = window.setInterval(() => setTic(Date.now()), 30000);
     return () => window.clearInterval(id);
   }, []);
+
+  // Si la página queda abierta después de medianoche, pasa sola al día nuevo.
+  useEffect(() => {
+    const hoyActual = fechaLocalHoy();
+    if (fecha < hoyActual) setFecha(hoyActual);
+  }, [tic, fecha]);
   useEffect(() => {
     setNuevas((actuales) => {
       const vigentes = Object.fromEntries(Object.entries(actuales).filter(([, hasta]) => hasta > tic));
@@ -426,10 +432,27 @@ function PerfilBarberoSesion({ nombre }) {
 
       {pestana === "perfil" ? <PerfilPublicoEditor /> : (<>
       <nav className="agenda-vivo-dias" aria-label="Cambiar de día">
-        <button type="button" className="btn-secondary" onClick={() => setFecha(moverFecha(fecha, -1))} aria-label="Día anterior">‹</button>
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={() => setFecha(moverFecha(fecha, -1))}
+          disabled={fecha <= hoy}
+          aria-label="Día anterior"
+          title={fecha <= hoy ? "Las citas pasadas se ven en el historial del administrador" : undefined}
+        >‹</button>
         <button type="button" className="btn-secondary" onClick={() => setFecha(hoy)} disabled={esHoy}>Hoy</button>
         <button type="button" className="btn-secondary" onClick={() => setFecha(moverFecha(fecha, 1))} aria-label="Día siguiente">›</button>
-        <input type="date" value={fecha} onChange={(event) => event.target.value && setFecha(event.target.value)} aria-label="Elegir fecha" />
+        <input
+          type="date"
+          value={fecha}
+          min={hoy}
+          onChange={(event) => {
+            // Solo de hoy en adelante: los días pasados son del historial del administrador.
+            const elegida = event.target.value;
+            if (elegida) setFecha(elegida < hoy ? hoy : elegida);
+          }}
+          aria-label="Elegir fecha"
+        />
       </nav>
 
       {aviso && (

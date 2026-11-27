@@ -32,6 +32,14 @@ try {
         exit();
     }
 
+    // El barbero solo ve de hoy en adelante; las citas pasadas se consultan en el
+    // historial del administrador.
+    if ($fecha < $ahora->format('Y-m-d')) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'mensaje' => 'Las citas de días pasados se consultan en el historial del administrador.']);
+        exit();
+    }
+
     // Cualquier cita nueva, cancelada, confirmada, completada o movida cambia este texto.
     $stmt = $pdo->prepare("
         SELECT COUNT(*) AS total,

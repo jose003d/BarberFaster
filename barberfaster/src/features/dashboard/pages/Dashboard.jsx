@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBuilding, faCalendarDays, faChartColumn } from "@fortawesome/free-solid-svg-icons";
+import { faBuilding, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import PagosEnLineaPanel from "../components/PagosEnLineaPanel.jsx";
+import MetricasPanel from "../components/MetricasPanel.jsx";
 import { BASE_URL } from "../../../shared/services/api.js";
 import { obtenerBarberiaActivaId } from "../../../shared/services/barberiaActiva.js";
 import "./Dashboard.css";
@@ -385,22 +386,7 @@ export default function Dashboard() {
       )}
 
       {/* Pestaña de resumen de citas e ingresos del negocio. */}
-      {tabActiva === "metricas" && (
-        <section className="dashboard-panel">
-          <h2><FontAwesomeIcon icon={faChartColumn} aria-hidden="true" /> Métricas del negocio</h2>
-          <p className="dashboard-description">Resumen estadístico de citas reservadas e ingresos generados.</p>
-          <div className="dashboard-metrics">
-            <article className="dashboard-metric-card">
-              <span>Total citas reservadas</span>
-              <h3>24</h3>
-            </article>
-            <article className="dashboard-metric-card accent">
-              <span>Ingresos estimados hoy</span>
-              <h3>$450.000</h3>
-            </article>
-          </div>
-        </section>
-      )}
+      {tabActiva === "metricas" && <MetricasPanel />}
 
       {/* Agenda general: próximos turnos agrupados por barbero e historial opcional. */}
       {tabActiva === "agenda" && (

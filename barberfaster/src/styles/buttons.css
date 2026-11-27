@@ -168,3 +168,43 @@
   background: var(--bf-paper) !important;
   color: var(--bf-black) !important;
 }
+
+/* Selector de período de las métricas: opciones planas unidas, la elegida en cian. */
+#root button.metricas-periodo.metricas-periodo,
+#root button.metricas-periodo.metricas-periodo:hover,
+#root button.metricas-periodo.metricas-periodo:active {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--bf-paper) !important;
+  color: var(--bf-black) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+
+#root button.metricas-periodo.metricas-periodo + .metricas-periodo {
+  border-left: 2px solid var(--bf-black) !important;
+}
+
+#root button.metricas-periodo.metricas-periodo:hover {
+  background: var(--bf-cyan-wash) !important;
+}
+
+#root button.metricas-periodo.metricas-periodo[aria-pressed="true"] {
+  background: var(--bf-cyan) !important;
+}
+
+/* Columnas del gráfico de métricas: son botones solo para el detalle al pasar o enfocar. */
+#root button.metricas-grafico-columna.metricas-grafico-columna,
+#root button.metricas-grafico-columna.metricas-grafico-columna:hover,
+#root button.metricas-grafico-columna.metricas-grafico-columna:active {
+  min-height: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
