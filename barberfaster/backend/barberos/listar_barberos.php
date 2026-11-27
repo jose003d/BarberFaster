@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/comun.php';
 
 $idBarberia = filter_var($_GET['id_barberia'] ?? 1, FILTER_VALIDATE_INT);
 if (!$idBarberia || $idBarberia < 1) {
@@ -34,7 +35,14 @@ try {
             u.rol = 'ADMINISTRADOR' AS es_administrador,
             '' AS apellido,
             NULL AS especialidad,
-            NULL AS foto,
+            u.descripcion,
+            (
+                SELECT CONCAT(:url_foto, bf.id_foto)
+                FROM barbero_fotos bf
+                WHERE bf.id_barbero = u.id_usuario AND bf.tipo = 'PERFIL'
+                ORDER BY bf.id_foto DESC
+                LIMIT 1
+            ) AS foto,
             COALESCE(AVG(r.calificacion), 0) AS calificacion_promedio,
             COUNT(r.id_resena) AS cantidad_calificaciones
         FROM usuarios u
@@ -43,10 +51,11 @@ try {
         WHERE u.id_barberia = :id_barberia
           AND (u.rol = 'BARBERO' OR (u.rol = 'ADMINISTRADOR' AND u.atiende_clientes = 1))
           AND u.estado = 'ACTIVO'
-        GROUP BY u.id_usuario, u.id_barberia, u.nombre_completo, u.rol
+        GROUP BY u.id_usuario, u.id_barberia, u.nombre_completo, u.rol, u.descripcion
         ORDER BY u.nombre_completo ASC
     ");
-    $stmt->execute([':id_barberia' => $idBarberia]);
+    $urlFoto = urlFotoBarbero();
+    $stmt->execute([':id_barberia' => $idBarberia, ':url_foto' => $urlFoto]);
 
     echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
 } catch (Throwable $error) {

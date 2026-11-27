@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faTrashCan, faScissors, faPlus, faBan } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faTrashCan, faScissors, faPlus, faBan, faImage } from "@fortawesome/free-solid-svg-icons";
 import ConfirmModal from "../../../shared/components/ConfirmModal.jsx";
+import PerfilPublicoEditor from "../components/PerfilPublicoEditor.jsx";
 import {
   crearUsuario,
   desactivarServicio,
@@ -70,7 +71,7 @@ function Barberos() {
   // Modales
   const [isModalBarberoOpen, setIsModalBarberoOpen] = useState(false);
   const [isModalServicioOpen, setIsModalServicioOpen] = useState(false);
-  const [modalGestion, setModalGestion] = useState(null); // 'servicios'
+  const [modalGestion, setModalGestion] = useState(null); // 'servicios' | 'perfil'
 
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
   const [serviciosSeleccionados, setServiciosSeleccionados] = useState([]);
@@ -421,6 +422,9 @@ function Barberos() {
                     <button className="btn-secondary" onClick={() => abrirGestionServicios(b)} title="Asignar Servicios del Catálogo">
                       <FontAwesomeIcon icon={faScissors} /> Servicios
                     </button>
+                    <button className="btn-secondary" type="button" onClick={() => { setBarberoSeleccionado(b); setModalGestion("perfil"); }} title="Foto, descripción y portafolio que ven los clientes">
+                      <FontAwesomeIcon icon={faImage} /> Perfil
+                    </button>
                     {!b.es_administrador && (<>
                     <button className="btn-secondary table-action-icon" onClick={() => {
                       setBarberoSeleccionado(b);
@@ -561,6 +565,13 @@ function Barberos() {
               <button type="submit" className="btn">{formServicio.id_servicio ? "Guardar cambios" : "Guardar en Catálogo"}</button>
             </div>
           </form>
+        </BarberosModal>
+      )}
+
+      {/* MODAL 4: PERFIL PÚBLICO DEL BARBERO */}
+      {modalGestion === "perfil" && barberoSeleccionado && (
+        <BarberosModal title={`Perfil de ${barberoSeleccionado.nombre}`} onClose={() => setModalGestion(null)}>
+          <PerfilPublicoEditor idBarbero={barberoSeleccionado.id_barbero} />
         </BarberosModal>
       )}
 

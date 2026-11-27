@@ -1,0 +1,1 @@
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS descripcion VARCHAR(500) DEFAULT NULL AFTER atiende_clientes;

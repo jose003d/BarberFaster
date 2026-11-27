@@ -1,0 +1,219 @@
+/* Editor del perfil público del barbero: foto, descripción y portafolio. */
+.perfil-publico {
+  display: grid;
+  gap: 22px;
+  padding: 22px;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+}
+
+.perfil-publico-encabezado h2 {
+  margin: 0 0 4px;
+  color: var(--bf-black);
+  font-family: var(--font-ui);
+  font-size: 1.15rem;
+}
+
+.perfil-publico-encabezado p,
+.perfil-publico-portafolio-encabezado p {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 0.88rem;
+}
+
+.perfil-publico-identidad {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.perfil-publico-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 112px;
+  height: 112px;
+  overflow: hidden;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-cyan-wash);
+  box-shadow: 4px 4px 0 var(--bf-black);
+}
+
+.perfil-publico-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.perfil-publico-avatar span {
+  color: var(--bf-black);
+  font-family: var(--font-ui);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.perfil-publico-avatar-acciones {
+  display: grid;
+  gap: 8px;
+}
+
+.perfil-publico-avatar-acciones strong {
+  color: var(--bf-black);
+  font-family: var(--font-ui);
+  font-size: 1.05rem;
+}
+
+.perfil-publico-avatar-acciones small {
+  color: var(--bf-muted);
+}
+
+.perfil-publico-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.perfil-publico-descripcion {
+  display: grid;
+  gap: 8px;
+}
+
+.perfil-publico-descripcion label {
+  color: var(--bf-black);
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+
+.perfil-publico-descripcion textarea {
+  width: 100%;
+  min-height: 104px;
+  padding: 10px 12px;
+  border: 2px solid var(--bf-black);
+  border-radius: 0;
+  background: var(--bf-paper);
+  color: var(--bf-text);
+  font: inherit;
+  resize: vertical;
+}
+
+.perfil-publico-descripcion textarea:focus-visible {
+  outline: 3px solid var(--bf-black);
+  outline-offset: 3px;
+  caret-color: var(--bf-orange);
+}
+
+.perfil-publico-descripcion-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.perfil-publico-descripcion-pie span,
+.perfil-publico-portafolio-encabezado > span {
+  color: var(--bf-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.perfil-publico-portafolio {
+  display: grid;
+  gap: 14px;
+}
+
+.perfil-publico-portafolio-encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.perfil-publico-portafolio-encabezado h3 {
+  margin: 0 0 4px;
+  color: var(--bf-black);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+}
+
+.perfil-publico-galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.perfil-publico-galeria figure {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-cyan-wash);
+}
+
+.perfil-publico-galeria img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.perfil-publico-galeria button {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 5px 9px;
+  border: 2px solid var(--bf-black);
+  background: var(--bf-paper);
+  color: var(--bf-black);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.perfil-publico-galeria button:hover:not(:disabled),
+.perfil-publico-galeria button:focus-visible {
+  background: var(--bf-orange);
+  color: var(--bf-on-action);
+}
+
+.perfil-publico-vacio {
+  margin: 0;
+  padding: 18px;
+  border: 2px dashed var(--bf-line);
+  color: var(--bf-muted);
+  text-align: center;
+}
+
+.perfil-publico-agregar {
+  justify-self: start;
+}
+
+.perfil-publico-mensaje {
+  margin: 0;
+  padding: 10px 12px;
+  border: 2px solid currentColor;
+  font-weight: 600;
+}
+
+.perfil-publico-mensaje.success {
+  color: var(--bf-success);
+}
+
+.perfil-publico-mensaje.error {
+  color: var(--bf-danger);
+}
+
+.perfil-publico-estado {
+  color: var(--bf-muted);
+}
+
+@media (max-width: 520px) {
+  .perfil-publico {
+    padding: 16px;
+  }
+
+  .perfil-publico-galeria {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
