@@ -77,9 +77,6 @@ export default function SolicitarBarberia() {
           </fieldset>
           <fieldset className="barber-request-group">
           <h2>Datos del administrador</h2>
-          <label>Nombre completo
-            <input name="nombre_admin" value={formulario.nombre_admin} onChange={actualizar} maxLength={150} required autoComplete="name" />
-          </label>
           <label>Documento
             <input
               name="documento_admin"
@@ -88,6 +85,9 @@ export default function SolicitarBarberia() {
               {...propsInputDocumento}
               required
             />
+          </label>
+          <label>Nombre completo
+            <input name="nombre_admin" value={formulario.nombre_admin} onChange={actualizar} maxLength={150} required autoComplete="name" />
           </label>
           <div className="barber-request-form-row">
             <label>Teléfono de contacto

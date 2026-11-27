@@ -118,18 +118,6 @@ export const UsuarioModal = ({ isOpen, onClose, usuarioEditar, onSuccess }) => {
         </header>
 
         <form className="usuario-modal-form" onSubmit={handleSubmit}>
-          <label>
-            Nombre completo
-            <input
-              type="text"
-              maxLength={150}
-              value={form.nombre_completo}
-              onChange={(event) => setForm({ ...form, nombre_completo: event.target.value })}
-              autoComplete="name"
-              required
-            />
-          </label>
-
           {!usuarioEditar && (
             <label>
               Documento
@@ -142,6 +130,18 @@ export const UsuarioModal = ({ isOpen, onClose, usuarioEditar, onSuccess }) => {
               />
             </label>
           )}
+
+          <label>
+            Nombre completo
+            <input
+              type="text"
+              maxLength={150}
+              value={form.nombre_completo}
+              onChange={(event) => setForm({ ...form, nombre_completo: event.target.value })}
+              autoComplete="name"
+              required
+            />
+          </label>
 
           <label>
             Correo electrónico

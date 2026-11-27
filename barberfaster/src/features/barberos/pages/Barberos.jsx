@@ -506,6 +506,14 @@ function Barberos() {
         >
           {fetchError && <p className="status error">{fetchError}</p>}
           <form onSubmit={guardarBarbero}>
+            {!barberoSeleccionado && (
+              <>
+                <div className="form-group" style={{ marginBottom: "12px" }}>
+                  <label>Documento (será su contraseña inicial):</label>
+                  <input type="text" {...propsInputDocumento} value={formBarbero.documento} onChange={(e) => setFormBarbero({ ...formBarbero, documento: limpiarDocumento(e.target.value) })} required />
+                </div>
+              </>
+            )}
             <div className="form-group" style={{ marginBottom: "12px" }}>
               <label>Nombre completo:</label>
               <input type="text" maxLength={150} value={formBarbero.nombre_completo} onChange={(e) => setFormBarbero({ ...formBarbero, nombre_completo: e.target.value })} required />
@@ -518,14 +526,6 @@ function Barberos() {
               <label>Teléfono:</label>
               <input type="tel" maxLength={20} value={formBarbero.telefono} onChange={(e) => setFormBarbero({ ...formBarbero, telefono: e.target.value })} />
             </div>
-            {!barberoSeleccionado && (
-              <>
-                <div className="form-group" style={{ marginBottom: "12px" }}>
-                  <label>Documento (será su contraseña inicial):</label>
-                  <input type="text" {...propsInputDocumento} value={formBarbero.documento} onChange={(e) => setFormBarbero({ ...formBarbero, documento: limpiarDocumento(e.target.value) })} required />
-                </div>
-              </>
-            )}
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
               <button type="button" className="btn-secondary" onClick={() => setIsModalBarberoOpen(false)}>Cancelar</button>
               <button type="submit" className="btn">Guardar Barbero</button>
