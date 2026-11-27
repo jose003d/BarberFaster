@@ -391,11 +391,13 @@ export default function ClienteDashboard() {
       <section className="client-profile-content">
         {!cliente ? (
           <div className="client-auth-card">
+            <div className="client-auth-intro">
             <h1>Tu perfil y tus citas</h1>
             <p className="client-profile-intro">
               Confirma los datos con los que reservaste y verificaremos tu número por WhatsApp.
               La sesión será válida durante 30 minutos.
             </p>
+            </div>
             <form onSubmit={codigoEnviado ? verificarCodigo : solicitarCodigo}>
               <label>
                 DNI / cédula

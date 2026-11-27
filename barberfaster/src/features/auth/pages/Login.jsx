@@ -159,6 +159,7 @@ export default function Login({ onLoginSuccess }) {
   return (
     <main className="login-page">
       <section className="login-card" aria-labelledby="login-title">
+        <div className="login-card-intro">
         <img className="login-brand-logo" src={logoBarberFaster} alt="BarberFaster" />
         <h1 id="login-title">{titulo}</h1>
         <p className="login-description">
@@ -168,6 +169,9 @@ export default function Login({ onLoginSuccess }) {
               ? "Te enviaremos un código temporal al correo asociado a tu cuenta."
               : "Ingresa el código del correo y elige una contraseña nueva."}
         </p>
+        </div>
+
+        <div className="login-card-body">
 
         {vista === "login" && (
           <form onSubmit={handleSubmit} className="login-form">
@@ -298,6 +302,7 @@ export default function Login({ onLoginSuccess }) {
 
         {error && <div className="login-error" role="alert">{error}</div>}
         {mensaje && <div className="login-notice" role="status">{mensaje}</div>}
+        </div>
       </section>
     </main>
   );

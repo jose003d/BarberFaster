@@ -177,9 +177,10 @@ try {
         ]);
     }
 
-    $ambiente = $datos['ambiente'] ?? null;
-    if (!is_string($ambiente) || !isset(WOMPI_PREFIJOS[$ambiente])) {
-        responderPagos(422, ['status' => 'error', 'mensaje' => 'Elige el ambiente: pruebas o producción.']);
+    // Las barberías solo conectan su cuenta de Wompi en producción (cobros reales).
+    $ambiente = $datos['ambiente'] ?? 'production';
+    if ($ambiente !== 'production' || !isset(WOMPI_PREFIJOS[$ambiente])) {
+        responderPagos(422, ['status' => 'error', 'mensaje' => 'Pega las llaves de producción de tu cuenta de Wompi.']);
     }
     $activo = filter_var($datos['activo'] ?? true, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
     if ($activo === null) {

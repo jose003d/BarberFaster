@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCreditCard } from "@fortawesome/free-solid-svg-icons";
+import { faCircleQuestion, faCreditCard } from "@fortawesome/free-solid-svg-icons";
 import { BASE_URL } from "../../../shared/services/api.js";
 import { obtenerBarberiaActivaId } from "../../../shared/services/barberiaActiva.js";
 
@@ -16,23 +16,22 @@ const CAMPOS_SECRETOS = [
   ["secreto_eventos", "Secreto de eventos", "events"],
 ];
 
-// Prefijo que Wompi usa en cada llave según el ambiente.
-const prefijoLlave = (campo, ambiente) => {
-  const sufijo = ambiente === "production" ? "prod" : "test";
-  return {
-    llave_publica: `pub_${sufijo}_`,
-    llave_privada: `prv_${sufijo}_`,
-    secreto_integridad: `${sufijo}_integrity_`,
-    secreto_eventos: `${sufijo}_events_`,
-  }[campo];
-};
+// Las barberías solo usan el ambiente de producción de Wompi (cobros reales):
+// el de pruebas solo las confundía. Prefijo que Wompi usa en cada llave.
+const AMBIENTE = "production";
+const prefijoLlave = (campo) => ({
+  llave_publica: "pub_prod_",
+  llave_privada: "prv_prod_",
+  secreto_integridad: "prod_integrity_",
+  secreto_eventos: "prod_events_",
+}[campo]);
 
-// Normaliza la respuesta del backend. Una barbería sin configurar empieza en
-// pruebas y con el pago en línea marcado, para que el primer guardado lo active.
+// Normaliza la respuesta del backend. Una barbería sin configurar empieza con el
+// pago en línea marcado, para que el primer guardado lo active.
 const normalizarEstado = (data = {}) => ({
   configurado: Boolean(data.configurado),
   activo: data.configurado ? Boolean(data.activo) : true,
-  ambiente: data.ambiente || "sandbox",
+  ambiente: AMBIENTE,
   ambienteGuardado: data.ambiente || null,
   llave_publica: data.llave_publica || "",
   secretos_guardados: Boolean(data.secretos_guardados),
@@ -46,6 +45,7 @@ export default function PagosEnLineaPanel() {
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState(null);
+  const [mostrarGuia, setMostrarGuia] = useState(false);
   const idBarberia = obtenerBarberiaActivaId();
   const esSuperadmin = (() => {
     try {
@@ -74,8 +74,8 @@ export default function PagosEnLineaPanel() {
 
   useEffect(() => { cargar(); }, [cargar]);
 
-  // Al cambiar de ambiente los secretos guardados ya no sirven: hay que pegar los cuatro.
-  const cambioDeAmbiente = configuracion.configurado && configuracion.ambiente !== configuracion.ambienteGuardado;
+  // Si quedaron guardadas llaves de pruebas, hay que pegar las cuatro de producción.
+  const cambioDeAmbiente = configuracion.configurado && configuracion.ambienteGuardado !== AMBIENTE;
   const conservarSecretos = configuracion.secretos_guardados && !cambioDeAmbiente;
 
   const enviar = async (cuerpo) => {
@@ -99,13 +99,13 @@ export default function PagosEnLineaPanel() {
     setMensaje(null);
     const valores = { llave_publica: configuracion.llave_publica.trim(), ...secretos };
     for (const [campo, valor] of Object.entries(valores)) {
-      const prefijo = prefijoLlave(campo, configuracion.ambiente);
+      const prefijo = prefijoLlave(campo);
       if (!valor.trim() && (campo === "llave_publica" || !conservarSecretos)) {
-        setMensaje({ tipo: "error", texto: "Pega las cuatro llaves de Wompi del ambiente elegido." });
+        setMensaje({ tipo: "error", texto: "Pega las cuatro llaves de producción de tu cuenta de Wompi." });
         return;
       }
       if (valor.trim() && !valor.trim().startsWith(prefijo)) {
-        setMensaje({ tipo: "error", texto: `Una de las llaves no corresponde al ambiente elegido: la que va en ese campo empieza por ${prefijo}` });
+        setMensaje({ tipo: "error", texto: `Una de las llaves no es de producción: la que va en ese campo empieza por ${prefijo}` });
         return;
       }
     }
@@ -113,7 +113,7 @@ export default function PagosEnLineaPanel() {
     setGuardando(true);
     try {
       await enviar({
-        ambiente: configuracion.ambiente,
+        ambiente: AMBIENTE,
         llave_publica: valores.llave_publica,
         llave_privada: secretos.llave_privada.trim(),
         secreto_integridad: secretos.secreto_integridad.trim(),
@@ -151,7 +151,9 @@ export default function PagosEnLineaPanel() {
 
   const estado = !configuracion.configurado
     ? "Sin configurar: tus clientes solo pueden pagar en el local."
-    : `${configuracion.activo ? "Activo" : "Desactivado"} · ${configuracion.ambienteGuardado === "production" ? "Producción (cobros reales)" : "Pruebas (sandbox)"}`
+    : cambioDeAmbiente
+      ? "Tienes guardadas llaves de pruebas: pega las de producción para cobrar de verdad."
+      : `${configuracion.activo ? "Activo" : "Desactivado"}`
       + (configuracion.validado_en ? ` · Llaves validadas el ${new Date(configuracion.validado_en.replace(" ", "T")).toLocaleString("es-CO")}` : "");
 
   return (
@@ -159,10 +161,15 @@ export default function PagosEnLineaPanel() {
       <h2 id="pagos-linea-title">
         <FontAwesomeIcon icon={faCreditCard} aria-hidden="true" /> Pagos en línea (Wompi)
       </h2>
-      <p className="dashboard-description">
-        El dinero que pagan tus clientes al reservar llega directo a tu cuenta de Wompi. Copia las llaves desde
-        Wompi &gt; Desarrolladores &gt; Llaves del API, todas del mismo ambiente.
-      </p>
+      <div className="pagos-intro">
+        <p className="dashboard-description">
+          El dinero que pagan tus clientes al reservar llega directo a tu cuenta de Wompi.
+        </p>
+        <button type="button" className="btn-primary pagos-guia-boton" onClick={() => setMostrarGuia(true)}>
+          <FontAwesomeIcon icon={faCircleQuestion} aria-hidden="true" /> ¿Cómo activo los pagos en línea?
+        </button>
+      </div>
+      {mostrarGuia && <GuiaWompi onClose={() => setMostrarGuia(false)} />}
 
       {mensaje && (
         <p className={`dashboard-message ${mensaje.tipo}`} role={mensaje.tipo === "error" ? "alert" : "status"}>
@@ -178,19 +185,6 @@ export default function PagosEnLineaPanel() {
 
           <div className="dashboard-profile-grid">
             <div className="dashboard-field">
-              <label htmlFor="pagos-ambiente">Ambiente</label>
-              <select
-                id="pagos-ambiente"
-                value={configuracion.ambiente}
-                disabled={guardando}
-                onChange={(e) => setConfiguracion({ ...configuracion, ambiente: e.target.value })}
-              >
-                <option value="sandbox">Pruebas (sandbox)</option>
-                <option value="production">Producción (cobros reales)</option>
-              </select>
-            </div>
-
-            <div className="dashboard-field">
               <label htmlFor="pagos-llave_publica">Llave pública</label>
               <input
                 id="pagos-llave_publica"
@@ -199,7 +193,7 @@ export default function PagosEnLineaPanel() {
                 value={configuracion.llave_publica}
                 disabled={guardando}
                 onChange={(e) => setConfiguracion({ ...configuracion, llave_publica: e.target.value })}
-                placeholder={prefijoLlave("llave_publica", configuracion.ambiente)}
+                placeholder={prefijoLlave("llave_publica")}
               />
             </div>
 
@@ -216,17 +210,19 @@ export default function PagosEnLineaPanel() {
                   onChange={(e) => setSecretos({ ...secretos, [campo]: e.target.value })}
                   placeholder={conservarSecretos
                     ? "Guardado · déjalo vacío para conservarlo"
-                    : prefijoLlave(campo, configuracion.ambiente)}
+                    : prefijoLlave(campo)}
                 />
               </div>
             ))}
 
             <div className="dashboard-field full">
-              <label htmlFor="pagos-url-eventos">URL de eventos (regístrala en Wompi &gt; Desarrolladores, mismo ambiente)</label>
-              <input id="pagos-url-eventos" type="text" readOnly value={configuracion.url_eventos} onFocus={(e) => e.target.select()} />
-              <button type="button" className="btn-secondary" onClick={copiarUrl} disabled={!configuracion.url_eventos}>
-                Copiar URL
-              </button>
+              <label htmlFor="pagos-url-eventos">URL de eventos (pégala en Wompi &gt; Desarrolladores)</label>
+              <div className="pagos-url-fila">
+                <input id="pagos-url-eventos" type="text" readOnly value={configuracion.url_eventos} onFocus={(e) => e.target.select()} />
+                <button type="button" className="btn-secondary" onClick={copiarUrl} disabled={!configuracion.url_eventos}>
+                  Copiar URL
+                </button>
+              </div>
             </div>
 
             <fieldset className="dashboard-field full dashboard-working-days">
@@ -256,5 +252,84 @@ export default function PagosEnLineaPanel() {
         </form>
       )}
     </section>
+  );
+}
+
+// Guía paso a paso para que la barbería conecte su propia cuenta de Wompi.
+function GuiaWompi({ onClose }) {
+  useEffect(() => {
+    const cerrarConEscape = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", cerrarConEscape);
+    return () => document.removeEventListener("keydown", cerrarConEscape);
+  }, [onClose]);
+
+  return (
+    <div className="pagos-guia-fondo" onClick={onClose}>
+      <div
+        className="pagos-guia"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pagos-guia-titulo"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <header className="pagos-guia-encabezado">
+          <h3 id="pagos-guia-titulo">¿Cómo activo los pagos en línea?</h3>
+          <button type="button" className="btn-quiet pagos-guia-cerrar" onClick={onClose} aria-label="Cerrar">×</button>
+        </header>
+
+        <ol className="pagos-guia-pasos">
+          <li>
+            <strong>Ten tu cuenta de Wompi.</strong>
+            <span>
+              Si aún no la tienes, regístrate como comercio en{" "}
+              <a href="https://comercios.wompi.co" target="_blank" rel="noopener noreferrer">comercios.wompi.co</a>{" "}
+              con los datos de tu barbería y tu cuenta bancaria. Wompi revisa tus documentos; cuando aprueben la
+              cuenta ya puedes recibir pagos.
+            </span>
+          </li>
+          <li>
+            <strong>Busca tus llaves.</strong>
+            <span>
+              Entra a tu panel de Wompi y ve a <em>Desarrolladores</em>. Verifica que estés en modo{" "}
+              <em>Producción</em> (no en pruebas). Ahí verás la <em>llave pública</em>, la <em>llave privada</em> y
+              los secretos de <em>integridad</em> y de <em>eventos</em>.
+            </span>
+          </li>
+          <li>
+            <strong>Pégalas aquí, cada una en su campo.</strong>
+            <span className="pagos-guia-llaves">
+              <span><code>pub_prod_…</code> → Llave pública</span>
+              <span><code>prv_prod_…</code> → Llave privada</span>
+              <span><code>prod_integrity_…</code> → Secreto de integridad</span>
+              <span><code>prod_events_…</code> → Secreto de eventos</span>
+            </span>
+          </li>
+          <li>
+            <strong>Registra la URL de eventos.</strong>
+            <span>
+              Pulsa <em>Copiar URL</em> en este panel y pégala en Wompi &gt; Desarrolladores, en el campo{" "}
+              <em>URL de eventos</em>. Así sabemos cuándo un cliente pagó y confirmamos su cita.
+            </span>
+          </li>
+          <li>
+            <strong>Guarda.</strong>
+            <span>
+              Pulsa <em>Guardar llaves</em>. Las validamos con Wompi y, si todo está bien, el estado cambia a{" "}
+              <em>Activo</em> y tus clientes ya pueden pagar al reservar.
+            </span>
+          </li>
+        </ol>
+
+        <p className="pagos-guia-nota">
+          Nunca compartas tu llave privada ni tus secretos con nadie. Aquí se guardan cifrados y nadie puede verlos.
+        </p>
+
+        <div className="pagos-guia-acciones">
+          <button type="button" className="btn-primary" onClick={onClose}>Entendido</button>
+        </div>
+      </div>
+    </div>
   );
 }

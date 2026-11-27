@@ -2182,3 +2182,38 @@ input[type="reset"]:not(:disabled):hover,
     min-height: clamp(42px, 5.4vh, 54px);
   }
 }
+
+/* ── Login en dos columnas en pantallas de computador (sin scroll) ── */
+@media (min-width: 900px) {
+  .login-card {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: clamp(28px, 4vw, 56px);
+    width: min(100%, 880px);
+  }
+
+  .login-card-intro .login-description {
+    margin-bottom: 0;
+  }
+
+  .login-card-body {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+  }
+}
+
+@media (min-width: 900px) and (min-height: 560px) {
+  .login-page {
+    padding: clamp(16px, 3vh, 48px);
+  }
+
+  .login-card {
+    padding: clamp(22px, 4vh, 44px) clamp(28px, 3vw, 44px);
+  }
+
+  .login-form {
+    gap: clamp(12px, 2vh, 20px);
+  }
+}
