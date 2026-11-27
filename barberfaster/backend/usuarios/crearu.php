@@ -113,12 +113,14 @@ try {
         exit();
     }
 
+    // El documento es solo la contraseña inicial: no es secreto, así que en su primer
+    // ingreso el usuario debe cambiarla antes de entrar (debe_cambiar_contrasena = 1).
     $passwordHash = password_hash($documento, PASSWORD_BCRYPT);
     $stmt = $pdo->prepare("
         INSERT INTO usuarios
-            (id_barberia, documento, nombre_completo, telefono, correo, password, rol, estado)
+            (id_barberia, documento, nombre_completo, telefono, correo, password, rol, estado, debe_cambiar_contrasena)
         VALUES
-            (:id_barberia, :documento, :nombre_completo, :telefono, :correo, :password, :rol, 'ACTIVO')
+            (:id_barberia, :documento, :nombre_completo, :telefono, :correo, :password, :rol, 'ACTIVO', 1)
     ");
     $stmt->execute([
         ':id_barberia' => $idBarberia,
@@ -132,7 +134,7 @@ try {
 
     echo json_encode([
         'status' => 'success',
-        'mensaje' => 'Usuario registrado correctamente. Su contraseña inicial es su documento.',
+        'mensaje' => 'Usuario registrado. Su contraseña inicial es su documento y deberá cambiarla en su primer ingreso.',
         'id_usuario' => (int) $pdo->lastInsertId(),
     ]);
 } catch (PDOException $error) {

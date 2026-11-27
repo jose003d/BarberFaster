@@ -519,7 +519,7 @@ function Barberos() {
             {!barberoSeleccionado && (
               <>
                 <div className="form-group" style={{ marginBottom: "12px" }}>
-                  <label>Documento (será su contraseña inicial):</label>
+                  <label>Documento (contraseña inicial; la cambiará en su primer ingreso):</label>
                   <input type="text" {...propsInputDocumento} value={formBarbero.documento} onChange={(e) => setFormBarbero({ ...formBarbero, documento: limpiarDocumento(e.target.value) })} required />
                 </div>
               </>

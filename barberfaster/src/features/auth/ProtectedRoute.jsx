@@ -51,6 +51,23 @@ export default function ProtectedRoute({ children, roles }) {
     };
   }, []);
 
+  // React reutiliza esta misma protección al pasar de una ruta a otra (por ejemplo de
+  // /cambiar-contrasena a /barbero), así que no vuelve a consultar la sesión. Cuando otra
+  // pantalla actualiza la sesión guardada (cambio de contraseña, "Yo también atiendo
+  // clientes"), avisa con este evento y aquí se toma el usuario nuevo.
+  useEffect(() => {
+    const sincronizar = () => {
+      try {
+        const guardado = JSON.parse(localStorage.getItem("user") || "null");
+        if (guardado) setUsuario(guardado);
+      } catch {
+        // Sesión ilegible: se mantiene la última validada por el backend.
+      }
+    };
+    window.addEventListener("barberfaster-role-change", sincronizar);
+    return () => window.removeEventListener("barberfaster-role-change", sincronizar);
+  }, []);
+
   if (rutaOculta) {
     return <Navigate to="/" replace />;
   }

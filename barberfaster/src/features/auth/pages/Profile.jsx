@@ -91,7 +91,7 @@ export default function Profile() {
         <h1 className="account-page-title">{cambioObligatorio ? "Configura tu acceso" : "Mi cuenta"}</h1>
         {cambioObligatorio ? (
           <p className="page-description password-setup-description" role="status">
-            Para proteger tu cuenta, cambia la contraseña temporal antes de entrar al panel de tu barbería.
+            Para proteger tu cuenta, cambia la contraseña temporal antes de entrar a BarberFaster.
           </p>
         ) : (
           <>
@@ -107,7 +107,7 @@ export default function Profile() {
         <section className="password-change" aria-labelledby="password-change-title">
           <h3 id="password-change-title">{cambioObligatorio ? "Crea tu contraseña" : "Contraseña"}</h3>
           {cambioObligatorio && (
-            <p>Ingresa la contraseña temporal que recibiste por correo y define una nueva de al menos 8 caracteres.</p>
+            <p>Ingresa tu contraseña temporal (si te registró tu barbería, es tu número de documento) y define una nueva de al menos 8 caracteres.</p>
           )}
           {!mostrarFormulario && (
             <button
@@ -129,7 +129,7 @@ export default function Profile() {
               <input
                 type="password"
                 autoComplete="current-password"
-                placeholder={cambioObligatorio ? "Contraseña temporal entregada" : "Tu contraseña actual"}
+                placeholder={cambioObligatorio ? "Contraseña temporal" : "Tu contraseña actual"}
                 value={contrasenas.actual}
                 onChange={(event) => setContrasenas({ ...contrasenas, actual: event.target.value })}
                 maxLength={4096}
