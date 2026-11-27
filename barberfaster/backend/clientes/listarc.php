@@ -13,8 +13,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 try {
     requerirRol($pdo, ['SUPERADMIN']);
-    $stmt = $pdo->prepare('SELECT dni, nombre, telefono, email AS correo, estado FROM clientes ORDER BY nombre ASC');
-    $stmt->execute();
+    try {
+        $stmt = $pdo->prepare('SELECT dni, nombre, telefono, email AS correo, estado FROM clientes ORDER BY nombre ASC');
+        $stmt->execute();
+    } catch (PDOException $errorColumna) {
+        // Base sin la migración 20261126210000_clientes_estado: se listan todos como activos
+        // hasta que el cron de migraciones agregue la columna.
+        if ($errorColumna->getCode() !== '42S22') {
+            throw $errorColumna;
+        }
+        error_log('clientes.estado no existe todavía; se lista sin estado.');
+        $stmt = $pdo->prepare("SELECT dni, nombre, telefono, email AS correo, 'ACTIVO' AS estado FROM clientes ORDER BY nombre ASC");
+        $stmt->execute();
+    }
     echo json_encode(['status' => 'success', 'datos' => $stmt->fetchAll()]);
 } catch (Throwable $error) {
     error_log('Error al listar clientes: ' . $error->getMessage());

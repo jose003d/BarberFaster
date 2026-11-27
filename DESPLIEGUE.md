@@ -156,8 +156,9 @@ necesita permisos para crear tablas, consultar e insertar en la base de datos.
 
 Antes de activar el cron, haz una copia de seguridad desde hPanel → **Archivos →
 Copias de seguridad** o **Bases de datos**. La migración histórica
-`20261116_estado_clientes.sql` sigue siendo manual y debe revisarse por separado;
-no la copies a la carpeta automática sin confirmar primero si ya fue aplicada.
+`20261116_estado_clientes.sql` ya pasó a la carpeta automática como
+`20261126210000_clientes_estado.sql`, con `IF NOT EXISTS`, así que es segura aunque
+la columna ya exista.
 
 ## Si algo no carga en línea
 
