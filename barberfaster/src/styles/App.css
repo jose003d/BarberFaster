@@ -2105,3 +2105,80 @@ input[type="reset"]:not(:disabled):hover,
     transition: none;
   }
 }
+
+/* ── Solicitud de barbería: los dos grupos lado a lado, sin scroll en escritorio ── */
+.barber-request-group {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+@media (min-width: 900px) {
+  .barber-request-card {
+    width: min(100%, 1120px);
+  }
+
+  .barber-request-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(28px, 4vw, 56px);
+  }
+
+  .barber-request-form > .barber-request-message,
+  .barber-request-form > button {
+    grid-column: 1 / -1;
+  }
+
+  /* Cada columna arranca con su propio filete, alineadas a la misma altura. */
+  .barber-request-group h2 {
+    margin-top: 0;
+  }
+}
+
+/* Pantallas de escritorio: la página cabe completa en la ventana. */
+@media (min-width: 900px) and (min-height: 640px) {
+  .barber-request-page {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    padding-bottom: clamp(16px, 3vh, 32px);
+    overflow-y: auto;
+  }
+
+  .barber-request-card {
+    margin: auto;
+    padding: clamp(22px, 3.5vh, 40px) clamp(28px, 3vw, 44px);
+  }
+
+  .barber-request-card h1 {
+    font-size: clamp(1.9rem, 4.2vh, 2.75rem);
+  }
+
+  .barber-request-card > p {
+    max-width: none;
+    margin: 0;
+  }
+
+  .barber-request-form {
+    gap: clamp(12px, 2vh, 18px);
+    margin-top: clamp(16px, 3vh, 28px);
+  }
+
+  .barber-request-group {
+    gap: clamp(10px, 1.8vh, 16px);
+  }
+
+  .barber-request-group h2 {
+    padding-top: clamp(10px, 1.8vh, 18px);
+  }
+
+  .barber-request-form label {
+    gap: 6px;
+  }
+
+  .barber-request-form input {
+    min-height: clamp(42px, 5.4vh, 54px);
+  }
+}

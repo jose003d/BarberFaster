@@ -58,6 +58,7 @@ export default function SolicitarBarberia() {
         <p>Enviaremos tus datos al equipo de BarberFaster. Si se aprueba, se creará el acceso de administrador para este negocio.</p>
 
         <form className="barber-request-form" onSubmit={enviarSolicitud}>
+          <fieldset className="barber-request-group">
           <h2>Datos de la barbería</h2>
           <label>Nombre del negocio
             <input name="nombre_barberia" value={formulario.nombre_barberia} onChange={actualizar} maxLength={100} required />
@@ -73,6 +74,8 @@ export default function SolicitarBarberia() {
               <input name="telefono_barberia" type="tel" value={formulario.telefono_barberia} onChange={actualizar} maxLength={20} required />
             </label>
           </div>
+          </fieldset>
+          <fieldset className="barber-request-group">
           <h2>Datos del administrador</h2>
           <label>Nombre completo
             <input name="nombre_admin" value={formulario.nombre_admin} onChange={actualizar} maxLength={150} required autoComplete="name" />
@@ -94,6 +97,7 @@ export default function SolicitarBarberia() {
               <input name="correo_admin" type="email" value={formulario.correo_admin} onChange={actualizar} maxLength={120} required autoComplete="email" />
             </label>
           </div>
+          </fieldset>
           {error && <p className="barber-request-message error" role="alert">{error}</p>}
           {mensaje && <p className="barber-request-message success" role="status">{mensaje}</p>}
           <button type="submit" className="login-btn btn-primary" disabled={enviando}>
