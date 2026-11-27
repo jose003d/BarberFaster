@@ -111,7 +111,7 @@ try {
         responderPagos(405, ['status' => 'error', 'mensaje' => 'Método no permitido.']);
     }
 
-    $usuario = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    $usuario = requerirRol($pdo, ['ADMINISTRADOR']);
     $datos = [];
     if ($metodo === 'POST') {
         // Exigir JSON obliga a un preflight CORS: un formulario de otro sitio

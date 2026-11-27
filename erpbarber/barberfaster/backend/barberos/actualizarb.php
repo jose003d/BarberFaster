@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    $sesion = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    $sesion = requerirRol($pdo, ['ADMINISTRADOR']);
     $data = json_decode(file_get_contents('php://input'), true);
     if (!is_array($data)) {
         http_response_code(400);

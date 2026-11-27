@@ -18,7 +18,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
 
 try {
-    $sesion = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    $sesion = requerirRol($pdo, ['ADMINISTRADOR']);
     $data = json_decode(file_get_contents('php://input'), true);
     $idBarbero = filter_var(
         is_array($data) ? ($data['id_barbero'] ?? null) : null,

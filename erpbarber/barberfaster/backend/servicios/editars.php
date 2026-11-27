@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    $usuario = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    $usuario = requerirRol($pdo, ['ADMINISTRADOR']);
     $data = json_decode(file_get_contents('php://input'), true);
     $idServicio = filter_var(
         is_array($data) ? ($data['id_servicio'] ?? null) : null,

@@ -39,7 +39,7 @@ if ($fecha !== null) {
 }
 
 try {
-    $usuario = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    $usuario = requerirRol($pdo, ['ADMINISTRADOR']);
     if ($usuario['rol'] === 'ADMINISTRADOR') {
         $idBarberia = $usuario['id_barberia'];
         if (!$idBarberia) {

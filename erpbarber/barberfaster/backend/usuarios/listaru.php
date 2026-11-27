@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
-    $sesion = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    $sesion = requerirRol($pdo, ['ADMINISTRADOR']);
     $sql = "
         SELECT id_usuario, id_barberia, nombre_completo AS nombre, telefono,
                correo, rol, estado, atiende_clientes, fecha_creacion

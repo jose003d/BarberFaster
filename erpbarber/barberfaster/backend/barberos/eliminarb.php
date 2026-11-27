@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    $sesion = requerirRol($pdo, ['ADMINISTRADOR', 'SUPERADMIN']);
+    $sesion = requerirRol($pdo, ['ADMINISTRADOR']);
     $data = json_decode(file_get_contents('php://input'), true);
     $idUsuario = filter_var(
         is_array($data) ? ($data['id_usuario'] ?? $data['id_barbero'] ?? null) : null,
